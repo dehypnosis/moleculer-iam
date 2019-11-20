@@ -6,9 +6,9 @@
 
 import { ServiceSchema } from "moleculer";
 
-const GreeterService: ServiceSchema = {
+export const IAMService: ServiceSchema = {
 
-  name: "auth",
+  name: "iam",
 
   /**
    * Default settings
@@ -20,7 +20,7 @@ const GreeterService: ServiceSchema = {
    */
   actions: {
     test(ctx) {
-      return "Hello " + (ctx.params!.name || "Anonymous");
+      return "Hello " + ((ctx.params! as any).name || "Anonymous");
     },
   },
 
@@ -40,11 +40,10 @@ const GreeterService: ServiceSchema = {
    */
   async started() {
   },
+
   /**
    * Service stopped lifecycle event handler
    */
   async stopped() {
   },
 };
-
-export = GreeterService;

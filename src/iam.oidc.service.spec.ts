@@ -1,11 +1,11 @@
 "use strict";
 
 import { ServiceBroker } from "moleculer";
-import * as GreeterService from "./greeter.service";
+import { OIDCProviderService } from "./iam.oidc.service";
 
-describe("Test GreeterService", () => {
+describe("Test OIDCProviderService", () => {
   const broker = new ServiceBroker();
-  const service = broker.createService(GreeterService);
+  const service = broker.createService(OIDCProviderService);
 
   beforeAll(() => broker.start());
   afterAll(() => broker.stop());
@@ -15,14 +15,14 @@ describe("Test GreeterService", () => {
   });
 
   it("should return with 'Hello Anonymous'", () => {
-    return broker.call("auth.test")
+    return broker.call("iam.oidc.test")
       .then((res) => {
         expect(res).toBe("Hello Anonymous");
       });
   });
 
   it("should return with 'Hello John'", () => {
-    return broker.call("auth.test", {name: "John"})
+    return broker.call("iam.oidc.test", {name: "John"})
       .then((res) => {
         expect(res).toBe("Hello John");
       });

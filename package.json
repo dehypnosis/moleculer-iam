@@ -31,22 +31,26 @@
   ],
   "author": "QMIT Inc.",
   "dependencies": {
-    "moleculer": "^0.14.0-beta4"
+    "lodash": "^4.17.15",
+    "moleculer": "^0.14.0-beta5",
+    "oidc-provider": "^6.16.0",
+    "jose": "latest"
   },
   "devDependencies": {
     "@types/bluebird": "^3.5.24",
     "@types/jest": "^24.0.18",
+    "@types/lodash": "^4.14.149",
     "@types/node": "^12.7.5",
+    "benchmarkify": "^2.1.2",
     "coveralls": "^3.0.6",
+    "jest": "^24.9.0",
+    "jest-cli": "^24.9.0",
     "nodemon": "^1.19.2",
     "npm-check": "5.9.0",
     "ts-jest": "^24.1.0",
     "ts-node": "^8.4.1",
     "tslint": "^5.20.0",
-    "typescript": "^3.6.3",
-    "benchmarkify": "^2.1.2",
-    "jest": "^24.9.0",
-    "jest-cli": "^24.9.0"
+    "typescript": "^3.6.3"
   },
   "engines": {
     "node": ">= 8.x.x"

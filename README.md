@@ -12,7 +12,16 @@ Centeralized IAM module for moleculer. Including default OIDC provider for user 
 
 # Release Road-map
 - [] 0.1.x Pre-alpha
-    - [] OAuth 2.0 and OpenID Connect Core 1.0 Provider
+    - [x] OAuth 2.0 and OpenID Connect Core 1.0 Provider
+    - [] Web client application (React.js / responsive)
+        - registration
+        - login
+        - logout / change account
+        - account removal
+        - profile management
+        - password management
+        - extendable component
+- [] 0.2.x Alpha
     - [] Identity Provider
         - [] Storage
             - [] In-Memory adaptor (for testing)
@@ -30,19 +39,10 @@ Centeralized IAM module for moleculer. Including default OIDC provider for user 
         - [] Account verification
             - email
             - phone
-    - [] Web client application (React.js / responsive)
-        - registration
+    - [] Web client application components
         - account verification (email / phone)
-        - login
-        - logout / change account
-        - account removal
-        - services management
-        - profile management
-        - password management
+        - services(clients) management
         - session / device management
-        - extendable component
-
-
 # Usage
 ## 1. Documents
 - [Features and details: ./docs](./docs)
