@@ -6,8 +6,8 @@
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
-exports.IamOidcService = {
-    name: "iam.oidc",
+exports.IAMService = {
+    name: "iam",
     /**
      * Default settings
      */

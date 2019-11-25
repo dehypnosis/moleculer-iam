@@ -13,36 +13,51 @@ Centeralized IAM module for moleculer. Including default OIDC provider for user 
 # Release Road-map
 - [] 0.1.x Pre-alpha
     - [x] OAuth 2.0 and OpenID Connect Core 1.0 Provider
+        - [] hack `oidc-provider` module to be programmable
     - [] Web client application (React.js / responsive)
-        - registration
-        - login
-        - logout / change account
-        - account removal
-        - profile management
-        - password management
+        - token management
+            - login
+            - logout / change account
+        - account management
+            - registration
+            - profile
+            - password
+            - removal
         - extendable component
 - [] 0.2.x Alpha
     - [] Identity Provider
         - [] Storage
             - [] In-Memory adaptor (for testing)
             - [] PostgresQL adaptor
-        - [] Basic scopes: openid, profile, email, address, phone, offline_access
-        - [] Custom client claims definition and migration by declarative schema
-        - [] Declarative user group management
+        - [] Basic scope: openid, profile, email, address, phone, offline_access
+        - [] Custom scope extension
+            - [] Declarative claims schema and migration support
+            - [] Declarative group management
+            - [] Declarative role management
         - [] Federation
             - [] OAuth
                 - Google
                 - Facebook
                 - KakaoTalk
+    - [] Web client application components
+        - client management
+        - session management
+- [] 0.3.x Beta
+    - [] OAuth 2.0 and OpenID Connect Core 1.0 Provider
+       - [] Device flow
+    - [] Identity Provider
+        - [] Federation
             - [] Custom federation for legacy services which not support OAuth
         - [] 2FA
         - [] Account verification
             - email
             - phone
     - [] Web client application components
-        - account verification (email / phone)
-        - services(clients) management
-        - session / device management
+        - account management
+            - email verification
+            - phone number verification
+        - device management
+
 # Usage
 ## 1. Documents
 - [Features and details: ./docs](./docs)

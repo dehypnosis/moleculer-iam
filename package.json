@@ -13,7 +13,7 @@
     "lint": "tslint -p tsconfig.json",
     "deps": "npm-check -u",
     "coverall": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
-    "test": "jest --coverage --detectOpenHandles"
+    "test": "jest --coverage --detectOpenHandles --forceExit"
   },
   "nodemonConfig": {
     "watch": [
@@ -31,16 +31,19 @@
   ],
   "author": "QMIT Inc.",
   "dependencies": {
+    "jose": "latest",
+    "kleur": "^3.0.3",
     "lodash": "^4.17.15",
-    "moleculer": "^0.14.0-beta5",
+    "moleculer": "^0.14.0-beta6",
     "oidc-provider": "^6.16.0",
-    "jose": "latest"
+    "uuid": "^3.3.3"
   },
   "devDependencies": {
     "@types/bluebird": "^3.5.24",
     "@types/jest": "^24.0.18",
     "@types/lodash": "^4.14.149",
     "@types/node": "^12.7.5",
+    "@types/uuid": "^3.4.6",
     "benchmarkify": "^2.1.2",
     "coveralls": "^3.0.6",
     "jest": "^24.9.0",
