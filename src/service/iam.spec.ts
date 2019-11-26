@@ -7,9 +7,11 @@ describe("Test IAMService", () => {
   const broker = new ServiceBroker();
   const serviceSchema = createIAMServiceSchema({
     issuer: "http://localhost:8888",
-    http: {
-      hostname: "localhost",
-      port: 8888,
+    server: {
+      http: {
+        hostname: "localhost",
+        port: 8888,
+      },
     },
   });
 

@@ -11,6 +11,7 @@ const broker = new ServiceBroker({
       udpPeriod: 1,
     },
   },
+  cacher: "Memory",
 });
 
 // Start server
@@ -26,9 +27,23 @@ broker.start().then(async () => {
 
   const iamServiceSchema = createIAMServiceSchema({
     issuer: "http://localhost:8080",
-    http: {
-      hostname: "localhost",
-      port: 8080,
+    adapter: {
+      // type: "Memory",
+      type: "RDBMS",
+      options: {
+        dialect: "mysql",
+        host: "mysql-dev.internal.qmit.pro",
+        database: "iam",
+        username: "iam",
+        password: "iam",
+        sqlLogLevel: "debug",
+      },
+    },
+    server: {
+      http: {
+        hostname: "localhost",
+        port: 8080,
+      },
     },
   }, {
     // required and should be shared between processes in production
@@ -45,7 +60,6 @@ broker.start().then(async () => {
     clients,
 
     // required and should be shared between processes in production
-    // adapter:
   });
   broker.createService(iamServiceSchema);
 });

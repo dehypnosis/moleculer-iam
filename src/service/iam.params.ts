@@ -5,7 +5,7 @@ export const IAMServiceActionParams: { [actionName: string]: ActionParams } = {}
 
 // ref: "oidc-provider".AnyClientMetadata
 // ref: https://openid.net/specs/openid-connect-registration-1_0.html#ClientMetadata
-IAMServiceActionParams["client.create"] = {
+const clientCreateParams = IAMServiceActionParams["client.create"] = {
   client_id: {
     type: "string",
     alphadash: true,
@@ -70,7 +70,6 @@ IAMServiceActionParams["client.create"] = {
       empty: false,
     },
     empty: false,
-    default: [],
   },
   post_logout_redirect_uris: {
     type: "array",
@@ -142,8 +141,8 @@ IAMServiceActionParams["client.create"] = {
   },
 };
 
-IAMServiceActionParams["client.update"] = {};
-for (const [param, schema] of Object.entries(IAMServiceActionParams["client.create"])) {
+const clientUpdateParams: ActionParams = IAMServiceActionParams["client.update"] = {};
+for (const [param, schema] of Object.entries(clientCreateParams)) {
   const result = _.cloneDeep(schema) as any;
 
   if (param !== "client_id") {
@@ -152,11 +151,13 @@ for (const [param, schema] of Object.entries(IAMServiceActionParams["client.crea
   }
 
   if (param === "client_secret") {
-    result.description = "will be updated if true";
-    result.type = "boolean";
-    result.optional = false;
-    result.default = false;
+    clientUpdateParams.reset_client_secret = {
+      description: "client_secret will be updated if true",
+      type: "boolean",
+      optional: true,
+      default: false,
+    };
   }
 
-  IAMServiceActionParams["client.update"][param] = result;
+  clientUpdateParams[param] = result;
 }

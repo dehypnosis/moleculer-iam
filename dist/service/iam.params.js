@@ -5,7 +5,7 @@ const _ = tslib_1.__importStar(require("lodash"));
 exports.IAMServiceActionParams = {};
 // ref: "oidc-provider".AnyClientMetadata
 // ref: https://openid.net/specs/openid-connect-registration-1_0.html#ClientMetadata
-exports.IAMServiceActionParams["client.create"] = {
+const clientCreateParams = exports.IAMServiceActionParams["client.create"] = {
     client_id: {
         type: "string",
         alphadash: true,
@@ -140,14 +140,21 @@ exports.IAMServiceActionParams["client.create"] = {
         default: [],
     },
 };
-exports.IAMServiceActionParams["client.update"] = _.defaultsDeep({
-    client_name: {
-        optional: true,
-    },
-    client_secret: {
-        description: "will be updated if true",
-        type: "boolean",
-        default: false,
-    },
-}, exports.IAMServiceActionParams["client.create"]);
+const clientUpdateParams = exports.IAMServiceActionParams["client.update"] = {};
+for (const [param, schema] of Object.entries(clientCreateParams)) {
+    const result = _.cloneDeep(schema);
+    if (param !== "client_id") {
+        delete result.default;
+        result.optional = true;
+    }
+    if (param === "client_secret") {
+        clientUpdateParams.reset_client_secret = {
+            description: "client_secret will be updated if true",
+            type: "boolean",
+            optional: true,
+            default: false,
+        };
+    }
+    clientUpdateParams[param] = result;
+}
 //# sourceMappingURL=iam.params.js.map

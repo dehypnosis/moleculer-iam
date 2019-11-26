@@ -27,8 +27,9 @@ Centeralized IAM module for moleculer. Including default OIDC provider for user 
 - [] 0.2.x Alpha
     - [] Identity Provider
         - [] Storage
-            - [] In-Memory adaptor (for testing)
-            - [] PostgresQL adaptor
+            - [] In-Memory adapter (for testing)
+            - [] Redis adapter
+            - [] MySQL adapter
         - [] Basic scope: openid, profile, email, address, phone, offline_access
         - [] Custom scope extension
             - [] Declarative claims schema and migration support

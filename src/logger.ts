@@ -5,3 +5,5 @@ export interface Logger {
   debug(...args: any[]): void;
   trace(...args: any[]): void;
 }
+
+export type LogLevel = "error"|"warn"|"info"|"debug"|"trace";
