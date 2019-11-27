@@ -3,14 +3,16 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
 const kleur = tslib_1.__importStar(require("kleur"));
 const _ = tslib_1.__importStar(require("lodash"));
+const readline_1 = tslib_1.__importDefault(require("readline"));
 const umzug_1 = tslib_1.__importDefault(require("umzug"));
 const sequelize_1 = require("sequelize");
-exports.DataTypes = sequelize_1.DataTypes;
-const readline_1 = tslib_1.__importDefault(require("readline"));
-const rl = readline_1.default.createInterface(process.stdin, process.stdout);
+// ref: https://sequelize.org/v5/manual/
+var sequelize_2 = require("sequelize");
+exports.DataTypes = sequelize_2.DataTypes;
 const DontSync = (() => {
     throw new Error("shall not use sync: try to create migration scripts!");
 });
+const rl = readline_1.default.createInterface(process.stdin, process.stdout);
 class RDBMSManager {
     constructor(props, opts = {}) {
         this.props = props;
@@ -53,10 +55,12 @@ class RDBMSManager {
     }
     migrate(opts) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            const results = yield this.migrator.up(opts);
-            for (const r of results) {
-                this.logger.info(`${this.props.migrationTableName}: ${kleur.green(r.file)} migrated`);
-            }
+            yield this.acquireLock(() => tslib_1.__awaiter(this, void 0, void 0, function* () {
+                const results = yield this.migrator.up(opts);
+                for (const r of results) {
+                    this.logger.info(`${this.migrationTableLabel}: ${kleur.green(r.file)} migrated`);
+                }
+            }));
         });
     }
     rollback(opts) {
@@ -66,17 +70,20 @@ class RDBMSManager {
 ============================[ROLLBACK COMMAND INVOKED]====================================
  ROLLBACK IS DESTRUCTIVE COMMAND. BE CAREFUL TO NOT TO BEING DEPLOYED ON PRODUCTION AS IS
 ==========================================================================================`));
+            console.log();
             return new Promise((resolve, reject) => {
                 rl.question("CONTINUE? (yes/no)\n", (answer) => tslib_1.__awaiter(this, void 0, void 0, function* () {
                     try {
                         if (typeof answer === "string" && ["yes", "y"].includes(answer.toLowerCase())) {
-                            const results = yield this.migrator.down(opts);
-                            for (const r of results) {
-                                this.logger.info(`${this.props.migrationTableName}: ${kleur.yellow(r.file)} rollbacked`);
-                            }
+                            yield this.acquireLock(() => tslib_1.__awaiter(this, void 0, void 0, function* () {
+                                const results = yield this.migrator.down(opts);
+                                for (const r of results) {
+                                    this.logger.info(`${this.migrationTableLabel}: ${kleur.yellow(r.file)} rollbacked`);
+                                }
+                            }));
                         }
                         else {
-                            this.logger.info(`${this.props.migrationTableName}: rollback canceled`);
+                            this.logger.info(`${this.migrationTableLabel}: rollback canceled`);
                         }
                         resolve();
                     }
@@ -85,6 +92,72 @@ class RDBMSManager {
                     }
                 }));
             });
+        });
+    }
+    dispose() {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            yield this.releaseLock();
+            yield this.seq.close();
+        });
+    }
+    /* migration locking for distributed envrionment */
+    get lockTableName() {
+        return this.props.migrationTableName + "_LOCK";
+    }
+    get migrationTableLabel() {
+        return kleur.blue(this.props.migrationTableName);
+    }
+    acquireLock(task) {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            // acquire lock
+            try {
+                const table = yield this.seq.getQueryInterface().describeTable(this.lockTableName);
+                // check deadlock
+                try {
+                    const [rows] = yield this.seq.getQueryInterface().sequelize.query(`select * from ${this.lockTableName}`);
+                    const row = rows[0];
+                    if (!row || new Date(row.tableCreatedAt).getTime() < Date.now() - 1000 * 60 * 5) {
+                        this.logger.info(`${this.migrationTableLabel}: release previous migration lock which is incomplete or dead for 5min`);
+                        yield this.releaseLock();
+                        return this.acquireLock(task);
+                    }
+                }
+                catch (_a) { }
+                // if lock table exists, retry after 5-10s
+                const waitTime = Math.ceil(10000 * (Math.random() + 0.5));
+                this.logger.info(`${this.migrationTableLabel}: failed to acquire migration lock, retry after ${waitTime}ms`);
+                yield new Promise(resolve => setTimeout(resolve, waitTime));
+                return this.acquireLock(task);
+            }
+            catch (error) {
+                // there are no lock table, try to create table
+                yield this.seq.getQueryInterface().createTable(this.lockTableName, {
+                    tableCreatedAt: sequelize_1.STRING,
+                });
+                yield this.seq.getQueryInterface().sequelize.query(`insert into ${this.lockTableName} values("${new Date().toISOString()}")`);
+                this.logger.info(`${this.migrationTableLabel}: migration lock acquired`);
+            }
+            // do task and release lock
+            try {
+                yield task();
+            }
+            catch (error) {
+                throw error;
+            }
+            finally {
+                yield this.releaseLock();
+            }
+        });
+    }
+    releaseLock(silent = false) {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            try {
+                yield this.seq.getQueryInterface().dropTable(this.lockTableName);
+                this.logger.info(`${this.migrationTableLabel}: migration lock released`);
+            }
+            catch (error) {
+                this.logger.error(`${this.migrationTableLabel}: failed to release migration lock`, error);
+            }
         });
     }
 }

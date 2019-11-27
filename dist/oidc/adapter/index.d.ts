@@ -8,7 +8,7 @@ export declare const OIDCAdapterConstructors: {
 };
 export declare type OIDCAdapterConstructorOptions = {
     type: "Memory";
-    options: OIDCMemoryAdapterOptions;
+    options?: OIDCMemoryAdapterOptions;
 } | {
     type: "RDBMS";
     options: OIDC_RDBMS_AdapterOptions;

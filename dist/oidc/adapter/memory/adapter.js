@@ -8,7 +8,6 @@ class OIDCMemoryAdapter extends adapter_1.OIDCAdapter {
     constructor(props, options) {
         super(props);
         this.props = props;
-        this.models = new Map();
         this.storage = new lru_cache_1.default(options);
     }
     createModel(name) {

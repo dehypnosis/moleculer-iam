@@ -24,7 +24,7 @@ class OIDCModel {
         if (props.logger) {
             this.logger = props.logger;
         }
-        this.logger.info(`${kleur.cyan(this.name)} OIDC model adapter has been created`);
+        this.logger.info(`${kleur.cyan(this.name)} OIDC model has been created`);
     }
     get name() {
         return this.props.name;

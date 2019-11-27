@@ -1,6 +1,6 @@
 import "oidc-provider";
 import * as jose from "jose";
-export { AdapterPayload as OIDCModelPayload, Adapter as OIDCModelAdapter, errors as OIDCErrors } from "oidc-provider";
+export { AdapterConstructor as OIDCModelAdapterConstructor, AdapterPayload as OIDCModelPayload, Adapter as OIDCModelAdapter, errors as OIDCErrors } from "oidc-provider";
 declare module "oidc-provider" {
     type OIDCModelName = "Session" | "AccessToken" | "AuthorizationCode" | "RefreshToken" | "DeviceCode" | "ClientCredentials" | "Client" | "InitialAccessToken" | "RegistrationAccessToken" | "Interaction" | "ReplayDetection" | "PushedAuthorizationRequest";
     type Client = {

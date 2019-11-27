@@ -27,7 +27,7 @@ export class OIDC_RDBMS_Adapter extends OIDCAdapter {
 
   /* define and migrate model schema */
   public async start(): Promise<void> {
-    // await this.manager.rollback(); // uncomment this line to develop migrations scripts
+    await this.manager.rollback({ to: 0 }); // uncomment this line to develop migrations scripts
     await this.manager.migrate();
     await super.start();
   }
@@ -48,8 +48,9 @@ export class OIDC_RDBMS_Adapter extends OIDCAdapter {
       expiresAt: {type: DATE},
       consumedAt: {type: DATE},
     }, {
-      freezeTableName: true,
-      timestamps: true,
+      freezeTableName: true, // do not humanize model name for creating table
+      timestamps: true, // createdAt, updatedAt
+      paranoid: false, // deletedAt
       charset: "utf8",
       collate: "utf8_general_ci",
     });

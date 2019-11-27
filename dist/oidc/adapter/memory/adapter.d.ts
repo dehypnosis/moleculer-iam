@@ -6,7 +6,6 @@ export declare type OIDCMemoryAdapterOptions = LRUCache.Options<string, any>;
 export declare class OIDCMemoryAdapter extends OIDCAdapter {
     protected readonly props: OIDCAdapterProps;
     private readonly storage;
-    private readonly models;
     constructor(props: OIDCAdapterProps, options?: OIDCMemoryAdapterOptions);
-    createModel<T extends OIDCModelPayload>(name: OIDCModelName): OIDCMemoryModel<T>;
+    protected createModel<T extends OIDCModelPayload>(name: OIDCModelName): OIDCMemoryModel<T>;
 }

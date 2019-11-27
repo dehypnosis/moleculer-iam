@@ -1,14 +1,13 @@
 import * as kleur from "kleur";
 import * as _ from "lodash";
-import Umzug, { DownToOptions, UpDownMigrationsOptions, UpToOptions } from "umzug";
-import { Sequelize, Options, Model, ModelAttributes, ModelOptions, DataTypes, FindOptions } from "sequelize";
-import { Logger, LogLevel } from "../logger";
 import readline from "readline";
-const rl = readline.createInterface(process.stdin, process.stdout);
+import Umzug, { DownToOptions, UpDownMigrationsOptions, UpToOptions } from "umzug";
+import { Sequelize, Options, Model, ModelAttributes, ModelOptions, STRING } from "sequelize";
+import { Logger, LogLevel } from "../logger";
 
 // ref: https://sequelize.org/v5/manual/
 
-export { DataTypes, FindOptions };
+export { DataTypes, FindOptions } from "sequelize";
 
 export type RDBMSManagerProps = {
   migrationTableName: string,
@@ -25,6 +24,8 @@ export type ModelClass = typeof Model & (new() => Model) & { sync: never };
 const DontSync = (() => {
   throw new Error("shall not use sync: try to create migration scripts!");
 }) as never;
+
+const rl = readline.createInterface(process.stdin, process.stdout);
 
 export class RDBMSManager {
   private readonly seq: Sequelize;
@@ -78,10 +79,12 @@ export class RDBMSManager {
   }
 
   public async migrate(opts?: UpToOptions | UpDownMigrationsOptions) {
-    const results = await this.migrator.up(opts);
-    for (const r of results) {
-      this.logger.info(`${this.props.migrationTableName}: ${kleur.green(r.file)} migrated`);
-    }
+    await this.acquireLock(async () => {
+      const results = await this.migrator.up(opts);
+      for (const r of results) {
+        this.logger.info(`${this.migrationTableLabel}: ${kleur.green(r.file)} migrated`);
+      }
+    });
   }
 
   public async rollback(opts?: DownToOptions | UpDownMigrationsOptions) {
@@ -90,19 +93,22 @@ export class RDBMSManager {
 ============================[ROLLBACK COMMAND INVOKED]====================================
  ROLLBACK IS DESTRUCTIVE COMMAND. BE CAREFUL TO NOT TO BEING DEPLOYED ON PRODUCTION AS IS
 ==========================================================================================`));
+    console.log();
 
     return new Promise((resolve, reject) => {
       rl.question("CONTINUE? (yes/no)\n", async (answer: any) => {
         try {
-          if (typeof answer === "string" && ["yes", "y"].includes(answer.toLowerCase())) {
-            const results = await this.migrator.down(opts);
-            for (const r of results) {
-              this.logger.info(`${this.props.migrationTableName}: ${kleur.yellow(r.file)} rollbacked`);
+            if (typeof answer === "string" && ["yes", "y"].includes(answer.toLowerCase())) {
+              await this.acquireLock(async () => {
+                const results = await this.migrator.down(opts);
+                for (const r of results) {
+                  this.logger.info(`${this.migrationTableLabel}: ${kleur.yellow(r.file)} rollbacked`);
+                }
+              });
+            } else {
+              this.logger.info(`${this.migrationTableLabel}: rollback canceled`);
             }
-          } else {
-            this.logger.info(`${this.props.migrationTableName}: rollback canceled`);
-          }
-          resolve();
+            resolve();
         } catch (error) {
           reject(error);
         }
@@ -111,6 +117,65 @@ export class RDBMSManager {
   }
 
   public async dispose() {
+    await this.releaseLock();
     await this.seq.close();
+  }
+
+  /* migration locking for distributed envrionment */
+  private get lockTableName() {
+    return this.props.migrationTableName + "_LOCK";
+  }
+
+  private get migrationTableLabel() {
+    return kleur.blue(this.props.migrationTableName);
+  }
+
+  private async acquireLock(task: () => Promise<void>): Promise<void> {
+    // acquire lock
+    try {
+      const table = await this.seq.getQueryInterface().describeTable(this.lockTableName);
+
+      // check deadlock
+      try {
+        const [rows] = await this.seq.getQueryInterface().sequelize.query(`select * from ${this.lockTableName}`);
+        const row: any = rows[0];
+        if (!row || new Date(row.tableCreatedAt).getTime() < Date.now() - 1000 * 60 * 5) {
+          this.logger.info(`${this.migrationTableLabel}: release previous migration lock which is incomplete or dead for 5min`);
+          await this.releaseLock();
+          return this.acquireLock(task);
+        }
+      } catch {}
+
+      // if lock table exists, retry after 5-10s
+      const waitTime = Math.ceil(10000 * (Math.random() + 0.5));
+      this.logger.info(`${this.migrationTableLabel}: failed to acquire migration lock, retry after ${waitTime}ms`);
+      await new Promise(resolve => setTimeout(resolve, waitTime));
+      return this.acquireLock(task);
+    } catch (error) {
+      // there are no lock table, try to create table
+      await this.seq.getQueryInterface().createTable(this.lockTableName, {
+        tableCreatedAt: STRING,
+      });
+      await this.seq.getQueryInterface().sequelize.query(`insert into ${this.lockTableName} values("${new Date().toISOString()}")`);
+      this.logger.info(`${this.migrationTableLabel}: migration lock acquired`);
+    }
+
+    // do task and release lock
+    try {
+      await task();
+    } catch (error) {
+      throw error;
+    } finally {
+      await this.releaseLock();
+    }
+  }
+
+  private async releaseLock(silent = false) {
+    try {
+      await this.seq.getQueryInterface().dropTable(this.lockTableName);
+      this.logger.info(`${this.migrationTableLabel}: migration lock released`);
+    } catch (error) {
+      this.logger.error(`${this.migrationTableLabel}: failed to release migration lock`, error);
+    }
   }
 }

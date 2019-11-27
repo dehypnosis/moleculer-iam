@@ -1,7 +1,7 @@
 import { DownToOptions, UpDownMigrationsOptions, UpToOptions } from "umzug";
-import { Options, Model, ModelAttributes, ModelOptions, DataTypes, FindOptions } from "sequelize";
+import { Options, Model, ModelAttributes, ModelOptions } from "sequelize";
 import { Logger, LogLevel } from "../logger";
-export { DataTypes, FindOptions };
+export { DataTypes, FindOptions } from "sequelize";
 export declare type RDBMSManagerProps = {
     migrationTableName: string;
     migrationDirPath: string;
@@ -24,4 +24,9 @@ export declare class RDBMSManager {
     getModel(name: string): ModelClass | undefined;
     migrate(opts?: UpToOptions | UpDownMigrationsOptions): Promise<void>;
     rollback(opts?: DownToOptions | UpDownMigrationsOptions): Promise<unknown>;
+    dispose(): Promise<void>;
+    private get lockTableName();
+    private get migrationTableLabel();
+    private acquireLock;
+    private releaseLock;
 }

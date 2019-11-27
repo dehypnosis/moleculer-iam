@@ -8,5 +8,6 @@ export declare class OIDC_RDBMS_Adapter extends OIDCAdapter {
     private readonly manager;
     constructor(props: OIDCAdapterProps, options?: OIDC_RDBMS_AdapterOptions);
     start(): Promise<void>;
-    createModel<T extends OIDCModelPayload = OIDCModelPayload>(name: OIDCModelName): OIDC_RDBMS_Model<T>;
+    stop(): Promise<void>;
+    protected createModel<T extends OIDCModelPayload = OIDCModelPayload>(name: OIDCModelName): OIDC_RDBMS_Model<T>;
 }

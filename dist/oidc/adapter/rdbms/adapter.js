@@ -26,15 +26,25 @@ class OIDC_RDBMS_Adapter extends adapter_1.OIDCAdapter {
             start: { get: () => super.start }
         });
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            yield this.manager.rollback(); // uncomment this line to develop migrations scripts
+            yield this.manager.rollback({ to: 0 }); // uncomment this line to develop migrations scripts
             yield this.manager.migrate();
             yield _super.start.call(this);
+        });
+    }
+    stop() {
+        const _super = Object.create(null, {
+            stop: { get: () => super.stop }
+        });
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            yield this.manager.dispose();
+            yield _super.stop.call(this);
         });
     }
     createModel(name) {
         const model = this.manager.define(name, Object.assign(Object.assign(Object.assign(Object.assign({ id: { type: STRING, primaryKey: true } }, (model_1.OIDCGrantModelNames.includes(name) ? { grantId: { type: STRING } } : undefined)), (name === "DeviceCode" ? { userCode: { type: STRING } } : undefined)), (name === "Session" ? { uid: { type: STRING } } : undefined)), { data: { type: JSON }, expiresAt: { type: DATE }, consumedAt: { type: DATE } }), {
             freezeTableName: true,
             timestamps: true,
+            paranoid: false,
             charset: "utf8",
             collate: "utf8_general_ci",
         });

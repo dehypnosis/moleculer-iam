@@ -1,4 +1,4 @@
-// export * from "./adapter";
+export * from "./adapter";
 // import { IdentityModelMemoryAdapter, IdentityModelMemoryAdapterOptions } from "./memory";
 // import { IdentityModelRDBMSAdapter, IdentityModelRDBMSAdapterOptions } from "./rdbms";
 //
