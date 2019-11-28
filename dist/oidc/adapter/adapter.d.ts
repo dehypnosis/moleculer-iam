@@ -1,4 +1,4 @@
-import { OIDCModelAdapterConstructor, OIDCModelPayload, OIDCModelName } from "../base";
+import { OIDCModelAdapterConstructor, OIDCModelPayload, OIDCModelName } from "../provider";
 import { OIDCModel } from "./model";
 import { Logger } from "../../logger";
 export declare type OIDCAdapterProps = {

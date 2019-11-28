@@ -26,7 +26,7 @@ class OIDC_RDBMS_Adapter extends adapter_1.OIDCAdapter {
             start: { get: () => super.start }
         });
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            yield this.manager.rollback({ to: 0 }); // uncomment this line to develop migrations scripts
+            // await this.manager.rollback({ to: 0 }); // uncomment this line to develop migrations scripts
             yield this.manager.migrate();
             yield _super.start.call(this);
         });

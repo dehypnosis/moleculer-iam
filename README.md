@@ -58,6 +58,11 @@ Centeralized IAM module for moleculer. Including default OIDC provider for user 
             - email verification
             - phone number verification
         - device management
+- [] 1.0.x First Stable Release
+    - [] Rate limiter
+    - [] IP filter
+    - [] Documentation
+    - [] `moleculer-api` integration example
 
 # Usage
 ## 1. Documents

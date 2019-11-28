@@ -1,3 +1,4 @@
 import { ServiceSchema } from "moleculer";
-import { OIDCProviderOptions, OIDCProviderProps } from "../oidc";
-export declare function createIAMServiceSchema(providerProps: Omit<OIDCProviderProps, "logger">, providerOptions?: OIDCProviderOptions): ServiceSchema;
+import { IdentityProvider } from "../identity";
+import { OIDCProvider } from "../oidc";
+export declare function IAMServiceSchema(oidc: OIDCProvider, identity?: IdentityProvider): ServiceSchema;

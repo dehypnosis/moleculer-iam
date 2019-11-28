@@ -8,10 +8,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
 const moleculer_1 = require("moleculer");
 const uuid_1 = tslib_1.__importDefault(require("uuid"));
-const oidc_1 = require("../oidc");
 const iam_params_1 = require("./iam.params");
-function createIAMServiceSchema(providerProps, providerOptions) {
-    let provider;
+function IAMServiceSchema(oidc, identity) {
     return {
         name: "iam",
         settings: {},
@@ -29,7 +27,7 @@ function createIAMServiceSchema(providerProps, providerOptions) {
                             if (ctx.params) {
                                 ctx.params.client_secret = this.generateClientSecret();
                             }
-                            const client = yield provider.client.create(ctx.params);
+                            const client = yield oidc.client.create(ctx.params);
                             yield this.clearCache("client.**");
                             return client;
                         }
@@ -44,14 +42,14 @@ function createIAMServiceSchema(providerProps, providerOptions) {
                 handler(ctx) {
                     return tslib_1.__awaiter(this, void 0, void 0, function* () {
                         try {
-                            const old = yield provider.client.findOrFail(ctx.params.client_id);
+                            const old = yield oidc.client.findOrFail(ctx.params.client_id);
                             const payload = ctx.params;
                             // update client_secret
                             if (payload.reset_client_secret === true) {
                                 payload.client_secret = this.generateClientSecret();
                                 delete payload.reset_client_secret;
                             }
-                            const client = yield provider.client.update(Object.assign(Object.assign({}, old), payload));
+                            const client = yield oidc.client.update(Object.assign(Object.assign({}, old), payload));
                             yield this.clearCache("client.**");
                             return client;
                         }
@@ -68,7 +66,7 @@ function createIAMServiceSchema(providerProps, providerOptions) {
                 handler(ctx) {
                     return tslib_1.__awaiter(this, void 0, void 0, function* () {
                         try {
-                            yield provider.client.remove(ctx.params.client_id);
+                            yield oidc.client.remove(ctx.params.client_id);
                             yield this.clearCache("client.**");
                             return true;
                         }
@@ -88,7 +86,7 @@ function createIAMServiceSchema(providerProps, providerOptions) {
                 handler(ctx) {
                     return tslib_1.__awaiter(this, void 0, void 0, function* () {
                         try {
-                            return yield provider.client.findOrFail(ctx.params.client_id);
+                            return yield oidc.client.findOrFail(ctx.params.client_id);
                         }
                         catch (error) {
                             throw this.transformError(error);
@@ -117,8 +115,8 @@ function createIAMServiceSchema(providerProps, providerOptions) {
                         try {
                             const { offset, limit } = ctx.params;
                             const [total, entries] = yield Promise.all([
-                                provider.client.count(),
-                                provider.client.get({ offset, limit }),
+                                oidc.client.count(),
+                                oidc.client.get({ offset, limit }),
                             ]);
                             return { offset, limit, total, entries };
                         }
@@ -132,7 +130,7 @@ function createIAMServiceSchema(providerProps, providerOptions) {
                 handler(ctx) {
                     return tslib_1.__awaiter(this, void 0, void 0, function* () {
                         try {
-                            return yield provider.client.count();
+                            return yield oidc.client.count();
                         }
                         catch (error) {
                             throw this.transformError(error);
@@ -166,20 +164,17 @@ function createIAMServiceSchema(providerProps, providerOptions) {
                 });
             },
         },
-        created() {
-            provider = this.provider = new oidc_1.OIDCProvider(Object.assign(Object.assign({}, providerProps), { logger: this.broker.getLogger("OIDC") }), providerOptions);
-        },
         started() {
             return tslib_1.__awaiter(this, void 0, void 0, function* () {
-                yield provider.start();
+                yield oidc.start();
             });
         },
         stopped() {
             return tslib_1.__awaiter(this, void 0, void 0, function* () {
-                yield provider.stop();
+                yield oidc.stop();
             });
         },
     };
 }
-exports.createIAMServiceSchema = createIAMServiceSchema;
+exports.IAMServiceSchema = IAMServiceSchema;
 //# sourceMappingURL=iam.js.map

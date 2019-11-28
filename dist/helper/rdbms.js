@@ -16,14 +16,16 @@ const rl = readline_1.default.createInterface(process.stdin, process.stdout);
 class RDBMSManager {
     constructor(props, opts = {}) {
         this.props = props;
+        this.opts = opts;
         this.models = new Map();
         this.logger = props.logger || console;
-        // apply default options (update source object to use as reference in a map)
+        // apply default options
         const log = this.logger[opts.sqlLogLevel || "debug"] || this.logger.debug;
         const defaults = {
             logging: (sql) => log(sql),
             logQueryParameters: true,
             benchmark: true,
+            migrationLockTimeoutSeconds: 30,
         };
         _.defaultsDeep(opts, defaults);
         // get sequelize instance
@@ -68,11 +70,11 @@ class RDBMSManager {
             // safety bar
             console.log(kleur.bgRed(`
 ============================[ROLLBACK COMMAND INVOKED]====================================
- ROLLBACK IS DESTRUCTIVE COMMAND. BE CAREFUL TO NOT TO BEING DEPLOYED ON PRODUCTION AS IS
+       ROLLBACK IS A DESTRUCTIVE COMMAND. BE CAREFUL TO NOT TO BEING DEPLOYED AS IS
 ==========================================================================================`));
             console.log();
             return new Promise((resolve, reject) => {
-                rl.question("CONTINUE? (yes/no)\n", (answer) => tslib_1.__awaiter(this, void 0, void 0, function* () {
+                rl.question(`Rollback ${this.migrationTableLabel} with option ${opts ? JSON.stringify(opts) : "(ALL)"}? (yes/y)\n`, (answer) => tslib_1.__awaiter(this, void 0, void 0, function* () {
                     try {
                         if (typeof answer === "string" && ["yes", "y"].includes(answer.toLowerCase())) {
                             yield this.acquireLock(() => tslib_1.__awaiter(this, void 0, void 0, function* () {
@@ -107,7 +109,7 @@ class RDBMSManager {
     get migrationTableLabel() {
         return kleur.blue(this.props.migrationTableName);
     }
-    acquireLock(task) {
+    acquireLock(task, deadLockTimer = this.opts.migrationLockTimeoutSeconds * 1000) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             // acquire lock
             try {
@@ -116,8 +118,8 @@ class RDBMSManager {
                 try {
                     const [rows] = yield this.seq.getQueryInterface().sequelize.query(`select * from ${this.lockTableName}`);
                     const row = rows[0];
-                    if (!row || new Date(row.tableCreatedAt).getTime() < Date.now() - 1000 * 60 * 5) {
-                        this.logger.info(`${this.migrationTableLabel}: release previous migration lock which is incomplete or dead for 5min`);
+                    if (!row || new Date(row.tableCreatedAt).getTime() < Date.now() - 1000 * 30) {
+                        this.logger.info(`${this.migrationTableLabel}: release previous migration lock which is incomplete or dead for ${this.opts.migrationLockTimeoutSeconds}s`);
                         yield this.releaseLock();
                         return this.acquireLock(task);
                     }
@@ -125,9 +127,10 @@ class RDBMSManager {
                 catch (_a) { }
                 // if lock table exists, retry after 5-10s
                 const waitTime = Math.ceil(10000 * (Math.random() + 0.5));
-                this.logger.info(`${this.migrationTableLabel}: failed to acquire migration lock, retry after ${waitTime}ms`);
+                deadLockTimer -= waitTime;
+                this.logger.warn(`${this.migrationTableLabel}: failed to acquire migration lock, retry after ${waitTime}ms, force release lock in ${Math.ceil(deadLockTimer / 1000)}s`);
                 yield new Promise(resolve => setTimeout(resolve, waitTime));
-                return this.acquireLock(task);
+                return this.acquireLock(task, deadLockTimer);
             }
             catch (error) {
                 // there are no lock table, try to create table

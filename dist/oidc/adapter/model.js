@@ -2,9 +2,9 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
 const kleur = tslib_1.__importStar(require("kleur"));
-const base_1 = require("../base");
-exports.OIDCModelNames = base_1.OIDCModelNames;
-exports.OIDCGrantModelNames = base_1.OIDCGrantModelNames;
+const provider_1 = require("../provider");
+exports.OIDCModelNames = provider_1.OIDCModelNames;
+exports.OIDCGrantModelNames = provider_1.OIDCGrantModelNames;
 class OIDCModel {
     /**
      *

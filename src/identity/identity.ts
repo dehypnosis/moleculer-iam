@@ -1,54 +1,23 @@
-import { FindOptions } from "../helper/rdbms";
+import { OIDCAccount, OIDCAccountClaims, OIDCClaimsInfo } from "../oidc";
 
-export type Identity = {};
-
-export class IdentityProvider {
-  public async find(id: string): Promise<Identity> {
-    return undefined;
+export class Identity implements OIDCAccount {
+  constructor(public readonly id: string) {
   }
 
-  public async createRegistrationSession(payload: Identity): Promise<Identity> {
-    return undefined;
+  public get accountId() {
+    return this.id;
   }
 
-  public async register(payload: Identity): Promise<Identity> {
-    return undefined;
+  /**
+   * @param use - can either be "id_token" or "userinfo", depending on where the specific claims are intended to be put in.
+   * @param scope - the intended scope, while oidc-provider will mask
+   *   claims depending on the scope automatically you might want to skip
+   *   loading some claims from external resources etc. based on this detail
+   *   or not return them in id tokens but only userinfo and so on.
+   * @param claims
+   * @param rejected
+   */
+  public async claims(use: string, scope: string, claims: OIDCClaimsInfo, rejected: string[]): Promise<OIDCAccountClaims> {
+    return {sub: this.id};
   }
-
-  public async update(payload: Identity): Promise<Identity> {
-    return undefined;
-  }
-
-  public async updateCredentials() {
-  }
-
-  public async remove(id: string, opts?: { permanent?: boolean }): Promise<void> {
-  }
-
-  public async get(opts?: FindOptions): Promise<Identity[]> {
-    return [];
-  }
-
-  public async findEmail() {
-  }; // secondary email, or mobile
-
-  /* federation */
-  public async federateOtherProvider() {
-  };
-
-  public async federateCustomSource() {
-  };
-
-  /* verification */
-  public async verifyEmail() {
-  };
-
-  public async sendEmailVerificationCode() {
-  }; // different model with identity itself for volatile registration
-
-  public async verifyMobile() {
-  };
-
-  public async sendMobileVerificationCode() {
-  }; // different model with identity itself for volatile registration
 }

@@ -1,5 +1,5 @@
 import { FindOptions } from "../../helper/rdbms";
-import { OIDCModelPayload, OIDCModelAdapter, OIDCModelName, OIDCModelNames, OIDCGrantModelNames } from "../base";
+import { OIDCModelPayload, OIDCModelAdapter, OIDCModelName, OIDCModelNames, OIDCGrantModelNames } from "../provider";
 import { Logger } from "../../logger";
 export { OIDCModelPayload, OIDCModelName, OIDCModelNames, OIDCGrantModelNames };
 export declare type OIDCModelProps = {
@@ -22,7 +22,7 @@ export declare abstract class OIDCModel<M extends OIDCModelPayload = OIDCModelPa
      */
     constructor(props: OIDCModelProps, options?: any);
     protected readonly logger: Logger;
-    get name(): OIDCModelName;
+    readonly name: OIDCModelName;
     /**
      *
      * Query instances of an oidc-provider model.

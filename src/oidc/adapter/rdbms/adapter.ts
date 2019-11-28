@@ -27,7 +27,7 @@ export class OIDC_RDBMS_Adapter extends OIDCAdapter {
 
   /* define and migrate model schema */
   public async start(): Promise<void> {
-    await this.manager.rollback({ to: 0 }); // uncomment this line to develop migrations scripts
+    // await this.manager.rollback({ to: 0 }); // uncomment this line to develop migrations scripts
     await this.manager.migrate();
     await super.start();
   }

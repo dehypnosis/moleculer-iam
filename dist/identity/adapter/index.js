@@ -1,5 +1,5 @@
 "use strict";
-// export * from "./adapter";
+Object.defineProperty(exports, "__esModule", { value: true });
 // import { IdentityModelMemoryAdapter, IdentityModelMemoryAdapterOptions } from "./memory";
 // import { IdentityModelRDBMSAdapter, IdentityModelRDBMSAdapterOptions } from "./rdbms";
 //

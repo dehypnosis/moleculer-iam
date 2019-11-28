@@ -1,6 +1,6 @@
 import * as kleur from "kleur";
 import { FindOptions } from "../../helper/rdbms";
-import { OIDCModelPayload, OIDCModelAdapter, OIDCModelName, OIDCModelNames, OIDCGrantModelNames } from "../base";
+import { OIDCModelPayload, OIDCModelAdapter, OIDCModelName, OIDCModelNames, OIDCGrantModelNames } from "../provider";
 import { Logger } from "../../logger";
 
 export { OIDCModelPayload, OIDCModelName, OIDCModelNames, OIDCGrantModelNames };

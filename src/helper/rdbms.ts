@@ -17,6 +17,7 @@ export type RDBMSManagerProps = {
 
 export type RDBMSManagerOptions = Omit<Options, "define" | "query" | "set" | "sync" | "operatorsAliases" | "minifyAliases" | "hooks" | "logging"> & {
   sqlLogLevel?: LogLevel,
+  migrationLockTimeoutSeconds?: number,
 };
 
 export type ModelClass = typeof Model & (new() => Model) & { sync: never };
@@ -33,15 +34,16 @@ export class RDBMSManager {
   private readonly logger: Logger;
   private readonly models = new Map<string, ModelClass>();
 
-  constructor(private readonly props: RDBMSManagerProps, opts: RDBMSManagerOptions = {}) {
+  constructor(private readonly props: RDBMSManagerProps, private readonly opts: RDBMSManagerOptions = {}) {
     this.logger = props.logger || console;
 
-    // apply default options (update source object to use as reference in a map)
+    // apply default options
     const log = this.logger[opts.sqlLogLevel || "debug"] || this.logger.debug;
-    const defaults: Options = {
+    const defaults: Options & RDBMSManagerOptions = {
       logging: (sql: string) => log(sql),
       logQueryParameters: true,
       benchmark: true,
+      migrationLockTimeoutSeconds: 30,
     };
     _.defaultsDeep(opts, defaults);
 
@@ -91,12 +93,12 @@ export class RDBMSManager {
     // safety bar
     console.log(kleur.bgRed(`
 ============================[ROLLBACK COMMAND INVOKED]====================================
- ROLLBACK IS DESTRUCTIVE COMMAND. BE CAREFUL TO NOT TO BEING DEPLOYED ON PRODUCTION AS IS
+       ROLLBACK IS A DESTRUCTIVE COMMAND. BE CAREFUL TO NOT TO BEING DEPLOYED AS IS
 ==========================================================================================`));
     console.log();
 
     return new Promise((resolve, reject) => {
-      rl.question("CONTINUE? (yes/no)\n", async (answer: any) => {
+      rl.question(`Rollback ${this.migrationTableLabel} with option ${opts ? JSON.stringify(opts) : "(ALL)"}? (yes/y)\n`, async (answer: any) => {
         try {
             if (typeof answer === "string" && ["yes", "y"].includes(answer.toLowerCase())) {
               await this.acquireLock(async () => {
@@ -130,7 +132,7 @@ export class RDBMSManager {
     return kleur.blue(this.props.migrationTableName);
   }
 
-  private async acquireLock(task: () => Promise<void>): Promise<void> {
+  private async acquireLock(task: () => Promise<void>, deadLockTimer = this.opts.migrationLockTimeoutSeconds! * 1000): Promise<void> {
     // acquire lock
     try {
       const table = await this.seq.getQueryInterface().describeTable(this.lockTableName);
@@ -139,8 +141,8 @@ export class RDBMSManager {
       try {
         const [rows] = await this.seq.getQueryInterface().sequelize.query(`select * from ${this.lockTableName}`);
         const row: any = rows[0];
-        if (!row || new Date(row.tableCreatedAt).getTime() < Date.now() - 1000 * 60 * 5) {
-          this.logger.info(`${this.migrationTableLabel}: release previous migration lock which is incomplete or dead for 5min`);
+        if (!row || new Date(row.tableCreatedAt).getTime() < Date.now() - 1000 * 30) {
+          this.logger.info(`${this.migrationTableLabel}: release previous migration lock which is incomplete or dead for ${this.opts.migrationLockTimeoutSeconds!}s`);
           await this.releaseLock();
           return this.acquireLock(task);
         }
@@ -148,9 +150,10 @@ export class RDBMSManager {
 
       // if lock table exists, retry after 5-10s
       const waitTime = Math.ceil(10000 * (Math.random() + 0.5));
-      this.logger.info(`${this.migrationTableLabel}: failed to acquire migration lock, retry after ${waitTime}ms`);
+      deadLockTimer -= waitTime;
+      this.logger.warn(`${this.migrationTableLabel}: failed to acquire migration lock, retry after ${waitTime}ms, force release lock in ${Math.ceil(deadLockTimer/1000)}s`);
       await new Promise(resolve => setTimeout(resolve, waitTime));
-      return this.acquireLock(task);
+      return this.acquireLock(task, deadLockTimer);
     } catch (error) {
       // there are no lock table, try to create table
       await this.seq.getQueryInterface().createTable(this.lockTableName, {

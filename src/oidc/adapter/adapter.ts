@@ -1,4 +1,4 @@
-import { OIDCModelAdapterConstructor, OIDCModelPayload, OIDCModelName, OIDCModelNames } from "../base";
+import { OIDCModelAdapterConstructor, OIDCModelPayload, OIDCModelName, OIDCModelNames } from "../provider";
 import { OIDCModel } from "./model";
 import { Logger } from "../../logger";
 
@@ -52,10 +52,10 @@ export abstract class OIDCAdapter {
    * Lifecycle methods: do sort of DBMS schema migration and making connection
    */
   public async start(): Promise<void> {
-    this.logger.info(`OIDC adapter has been started`);
+    this.logger.info(`oidc provider adapter has been started`);
   }
 
   public async stop(): Promise<void> {
-    this.logger.info(`OIDC adapter has been stopped`);
+    this.logger.info(`oidc provider adapter has been stopped`);
   }
 }
