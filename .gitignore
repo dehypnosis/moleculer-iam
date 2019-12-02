@@ -1,5 +1,7 @@
 #dist/**/*
 #!dist/.gitkeep
+lib
+lib-commonjs
 
 # Logs
 logs

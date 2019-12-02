@@ -1,3 +1,4 @@
+/// <reference types="koa-bodyparser" />
 import morgan from "koa-morgan";
 import { Logger, LogLevel } from "../logger";
 export declare type LoggingOptions = {

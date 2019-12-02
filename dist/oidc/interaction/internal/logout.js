@@ -16,7 +16,7 @@ exports.logoutSource = (ctx, formHTML) => {
                 url: oidc.urlFor("end_session_confirm"),
                 method: "POST",
                 data: {
-                    logout: null,
+                    logout: true,
                 },
             },
         },

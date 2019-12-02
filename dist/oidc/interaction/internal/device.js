@@ -11,7 +11,7 @@ exports.userCodeInputSource = (ctx, formHTML, out, err) => {
                 url: oidc.urlFor("code_verification"),
                 method: "POST",
                 data: {
-                    user_code: oidc.params.user_code || null,
+                    user_code: oidc.params.user_code || "",
                 },
             },
         },

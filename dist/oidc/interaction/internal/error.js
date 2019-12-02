@@ -9,11 +9,8 @@ exports.renderError = (ctx, out, error) => {
     if (!error.expose) {
         (ctx.logger || console).error(error);
     }
-    render_1.renderInternalFlow(ctx, {
-        error: {
-            name: out.error,
-            description: out.error_description || null,
-        },
+    return render_1.renderInternalFlow(ctx, {
+        error: out,
     });
 };
 //# sourceMappingURL=error.js.map

@@ -1,0 +1,23 @@
+{
+  "name": "app-single",
+  "version": "0.1.0",
+  "license": "MIT",
+  "main": "lib-commonjs/index.js",
+  "module": "lib/index.js",
+  "scripts": {
+    "dev": "just-scripts start",
+    "build": "just-scripts build",
+    "test": "just-scripts test"
+  },
+  "dependencies": {
+    "office-ui-fabric-react": "^7.0.0",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "react-localization": "^1.0.15"
+  },
+  "devDependencies": {
+    "just-scripts": "^0.27.0",
+    "just-stack-react": "^1.0.0",
+    "webpack": "^4.39.0"
+  }
+}

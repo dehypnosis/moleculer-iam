@@ -1,6 +1,6 @@
 import { Configuration } from "./types";
 import { OIDCAdapterConstructorOptions } from "../adapter";
-import { UserInteractionConfigurationKeys, UserInteractionDeviceFlowConfigurationKeys } from "../interaction";
+import { InteractionConfigurationKeys, InternalInteractionDeviceFlowConfigurationKeys, ClientApplicationRendererOptions } from "../interaction";
 export declare type OIDCProviderOptions = Omit<Configuration, "adapter"> & {
     issuer: string;
     trustProxy?: boolean;
@@ -9,10 +9,10 @@ export declare type OIDCProviderOptions = Omit<Configuration, "adapter"> & {
     features?: Configuration["features"] & {
         devInteractions?: never;
         deviceFlow?: Required<Configuration>["features"]["deviceFlow"] & {
-            [key in UserInteractionDeviceFlowConfigurationKeys]?: never;
+            [key in InternalInteractionDeviceFlowConfigurationKeys]?: never;
         };
     };
 } & {
-    [key in UserInteractionConfigurationKeys]?: never;
-};
+    [key in InteractionConfigurationKeys]?: never;
+} & ClientApplicationRendererOptions;
 export declare const defaultOIDCProviderOptions: OIDCProviderOptions;

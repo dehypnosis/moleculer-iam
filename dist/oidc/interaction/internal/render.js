@@ -30,6 +30,6 @@ exports.renderInternalFlow = (ctx, props) => {
             }
         }
     }
-    render_1.render(ctx, Object.assign(Object.assign({}, props), { context }));
+    return render_1.render(ctx, Object.assign(Object.assign({}, props), { context }));
 };
 //# sourceMappingURL=render.js.map

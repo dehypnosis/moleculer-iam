@@ -80,11 +80,14 @@ npm install moleculer-iam --save
 # Development
 ## 1. NPM Scripts
 - `npm run dev [example=moleculer]` - Start development (nodemon with ts-node)
-- `npm run build`- Uses typescript to transpile service to javascript
-- `npm run lint` - Run TSLint
+- `npm run dev-app` - Start Client Application development (webpack)
+- `npm run build`- Transpile ts and tsx to js for both server and client 
+- `npm run lint` - Run TSLint for both server and client
 - `npm run deps`- Update dependencies
 - `npm test` - Run tests & generate coverage report
 - `npm test -- --watch` - Watch and run tests
+- `npm test-app` - Run tests for client
+- `npm test-app -- --watch` - Watch and run tests for client
 
 
 # Contribution

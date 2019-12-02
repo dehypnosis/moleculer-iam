@@ -9,11 +9,14 @@
   ],
   "scripts": {
     "dev": "nodemon",
-    "build": "rm -rf dist && tsc",
-    "lint": "tslint -p tsconfig.json",
+    "build": "rm -rf dist && tsc && npm --prefix src/assets run build",
+    "lint": "tslint -p tsconfig.json && tslint -p src/assets/tsconfig.json",
     "deps": "npm-check -u",
     "coverall": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
-    "test": "jest --coverage --detectOpenHandles --forceExit"
+    "test": "jest --coverage --detectOpenHandles --forceExit",
+    "build-app": "npm --prefix src/assets run build",
+    "dev-app": "npm --prefix src/assets run dev",
+    "test-app": "npm --prefix src/assets run test"
   },
   "bin": {
     "generate-jwks": "./bin/generate-jwks.js"
@@ -24,7 +27,8 @@
     ],
     "ext": "ts",
     "ignore": [
-      "src/**/*.spec.ts"
+      "src/**/*.spec.ts",
+      "src/assets/*"
     ],
     "exec": "ts-node ./examples/index.ts"
   },
@@ -43,6 +47,7 @@
     "koa-morgan": "^1.0.1",
     "koa-mount": "^4.0.0",
     "koa-router": "^7.4.0",
+    "koa-static": "^5.0.0",
     "koajs-nocache": "^2.0.3",
     "lodash": "^4.17.15",
     "lru-cache": "^5.1.1",
@@ -62,6 +67,7 @@
     "@types/koa-morgan": "^1.0.4",
     "@types/koa-mount": "^4.0.0",
     "@types/koa-router": "^7.0.42",
+    "@types/koa-static": "^4.0.1",
     "@types/lodash": "^4.14.149",
     "@types/lru-cache": "^5.1.0",
     "@types/node": "^12.7.5",
@@ -88,16 +94,17 @@
     "moduleFileExtensions": [
       "js",
       "json",
-      "jsx",
       "ts",
-      "tsx",
       "node"
     ],
     "transform": {
-      "^.+\\.(ts|tsx)$": "ts-jest"
+      "^.+\\.(ts)$": "ts-jest"
     },
     "testMatch": [
       "<rootDir>/src/**/*.spec.(ts|js)"
+    ],
+    "testPathIgnorePatterns": [
+      "<rootDir>/src/assets/*"
     ],
     "globals": {
       "ts-jest": {

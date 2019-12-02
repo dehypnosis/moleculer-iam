@@ -12,12 +12,12 @@ exports.DataTypes = sequelize_2.DataTypes;
 const DontSync = (() => {
     throw new Error("shall not use sync: try to create migration scripts!");
 });
-const rl = readline_1.default.createInterface(process.stdin, process.stdout);
 class RDBMSManager {
     constructor(props, opts = {}) {
         this.props = props;
         this.opts = opts;
         this.models = new Map();
+        this.rl = readline_1.default.createInterface(process.stdin, process.stdout);
         this.logger = props.logger || console;
         // apply default options
         const log = this.logger[opts.sqlLogLevel || "debug"] || this.logger.debug;
@@ -74,7 +74,7 @@ class RDBMSManager {
 ==========================================================================================`));
             console.log();
             return new Promise((resolve, reject) => {
-                rl.question(`Rollback ${this.migrationTableLabel} with option ${opts ? JSON.stringify(opts) : "(ALL)"}? (yes/y)\n`, (answer) => tslib_1.__awaiter(this, void 0, void 0, function* () {
+                this.rl.question(`Rollback ${this.migrationTableLabel} with option ${opts ? JSON.stringify(opts) : "(ALL)"}? (yes/y)\n`, (answer) => tslib_1.__awaiter(this, void 0, void 0, function* () {
                     try {
                         if (typeof answer === "string" && ["yes", "y"].includes(answer.toLowerCase())) {
                             yield this.acquireLock(() => tslib_1.__awaiter(this, void 0, void 0, function* () {
@@ -100,6 +100,7 @@ class RDBMSManager {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             yield this.releaseLock();
             yield this.seq.close();
+            this.rl.close();
         });
     }
     /* migration locking for distributed envrionment */

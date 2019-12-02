@@ -1,15 +1,8 @@
-import { Configuration } from "../provider";
-export { createInteractionRouter } from "./router";
-export declare type UserInteractionConfigurationKeys = "interactions" | "renderError" | "logoutSource" | "postLogoutSuccessSource";
-export declare type UserInteractionDeviceFlowConfigurationKeys = "userCodeInputSource" | "userCodeConfirmSource" | "successSource";
-export declare type UserInteractionDeviceFlowConfiguration = Required<Required<Configuration>["features"]>["deviceFlow"];
-export declare type UserInteractionConfiguration = {
-    [key in UserInteractionConfigurationKeys]: Configuration[key];
-} & {
-    features: {
-        deviceFlow: {
-            [key in UserInteractionDeviceFlowConfigurationKeys]: UserInteractionDeviceFlowConfiguration[key];
-        };
-    };
+import { InternalInteractionConfiguration, InternalInteractionConfigurationKeys } from "./internal";
+export * from "./render";
+export * from "./internal";
+export * from "./interaction";
+export declare type InteractionConfigurationKeys = "interactions" | InternalInteractionConfigurationKeys;
+export declare type InteractionConfiguration = InternalInteractionConfiguration & {
+    interactions: InteractionConfiguration;
 };
-export declare const interactionConfiguration: UserInteractionConfiguration;

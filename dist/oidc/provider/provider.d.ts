@@ -1,3 +1,4 @@
+/// <reference types="koa-bodyparser" />
 import { FindOptions } from "../../helper/rdbms";
 import { IdentityProvider } from "../../identity";
 import { Logger } from "../../logger";

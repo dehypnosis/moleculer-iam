@@ -2,15 +2,21 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
 const koa_router_1 = tslib_1.__importDefault(require("koa-router"));
+const koa_bodyparser_1 = tslib_1.__importDefault(require("koa-bodyparser"));
+const koajs_nocache_1 = tslib_1.__importDefault(require("koajs-nocache"));
+const fastest_validator_1 = tslib_1.__importDefault(require("fastest-validator"));
 const render_1 = require("./render");
 const util_1 = require("./util");
 // ref: https://github.com/panva/node-oidc-provider/blob/cd9bbfb653ddfb99c574ea3d4519b6f834274e86/docs/README.md#user-flows
-exports.createInteractionRouter = (provider) => {
+exports.createInteractionRouter = (provider, idp) => {
+    const validator = new fastest_validator_1.default();
     const router = new koa_router_1.default({
         prefix: "/interaction",
         sensitive: true,
         strict: false,
     });
+    // apply middleware
+    router.use(koajs_nocache_1.default(), koa_bodyparser_1.default());
     function urlFor(path) {
         return `${provider.issuer}/interaction${path}`;
     }
@@ -35,29 +41,78 @@ exports.createInteractionRouter = (provider) => {
             };
         });
     }
-    // abort any interaction
+    /* abort any interactions */
     router.delete("/:id", (ctx) => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
-        const result = {
+        yield provider.interactionFinished(ctx.req, ctx.res, {
             error: "access_denied",
             error_description: "end-user aborted interaction",
-        };
-        yield provider.interactionFinished(ctx.req, ctx.res, result, {
+        }, {
             mergeWithLastSubmission: false,
         });
     }));
-    // process each type of interactions
+    /* process each type of interactions */
     router.post("/:id", (ctx) => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
         const context = yield getInteractionContext(ctx);
-        switch (context.prompt.name) {
+        const promptName = context.prompt.name;
+        const body = ctx.request.body;
+        /* validate params */
+        let schema = null;
+        switch (promptName) {
             case "login":
+                schema = {
+                    username: "string|empty:false|trim:true",
+                    password: "string|empty:false",
+                };
                 break;
             case "consent":
                 break;
             default:
+        }
+        if (schema) {
+            const errors = validator.validate(body, schema);
+            if (errors !== true && errors.length > 0) {
+                ctx.status = 422;
+                ctx.type = "json";
+                ctx.body = {
+                    error: "validation_error",
+                    error_description: errors,
+                };
+                return;
+            }
+        }
+        /* update interactions */
+        let redirect = null;
+        switch (promptName) {
+            case "login":
+                const { username, password } = body;
+                const account = username;
+                // TODO: resolve account
+                redirect = yield provider.interactionResult(ctx.req, ctx.res, {
+                    // authentication/login prompt got resolved, omit if no authentication happened, i.e. the user
+                    // cancelled
+                    login: {
+                        account,
+                    },
+                }, {
+                    mergeWithLastSubmission: true,
+                });
+                break;
+            case "consent":
+                redirect = yield provider.interactionResult(ctx.req, ctx.res, {
+                    consent: {},
+                }, {
+                    mergeWithLastSubmission: true,
+                });
+                break;
+            default:
                 ctx.throw("not implemented");
         }
+        if (redirect) {
+            ctx.type = "json";
+            ctx.body = { redirect };
+        }
     }));
-    // render application for all others
+    /* render application for any interactions */
     router.get("*", (ctx) => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
         const context = yield getInteractionContext(ctx);
         // create form data format
@@ -71,7 +126,7 @@ exports.createInteractionRouter = (provider) => {
                 break;
             default:
         }
-        render_1.render(ctx, {
+        return render_1.render(ctx, {
             context,
             action: {
                 submit: {

@@ -21,6 +21,7 @@ export declare class RDBMSManager {
     private readonly migrator;
     private readonly logger;
     private readonly models;
+    private readonly rl;
     constructor(props: RDBMSManagerProps, opts?: RDBMSManagerOptions);
     define(name: string, attr: ModelAttributes, opts?: ModelOptions): ModelClass;
     getModel(name: string): ModelClass | undefined;

@@ -26,13 +26,12 @@ const DontSync = (() => {
   throw new Error("shall not use sync: try to create migration scripts!");
 }) as never;
 
-const rl = readline.createInterface(process.stdin, process.stdout);
-
 export class RDBMSManager {
   private readonly seq: Sequelize;
   private readonly migrator: Umzug.Umzug;
   private readonly logger: Logger;
   private readonly models = new Map<string, ModelClass>();
+  private readonly rl = readline.createInterface(process.stdin, process.stdout);
 
   constructor(private readonly props: RDBMSManagerProps, private readonly opts: RDBMSManagerOptions = {}) {
     this.logger = props.logger || console;
@@ -98,7 +97,7 @@ export class RDBMSManager {
     console.log();
 
     return new Promise((resolve, reject) => {
-      rl.question(`Rollback ${this.migrationTableLabel} with option ${opts ? JSON.stringify(opts) : "(ALL)"}? (yes/y)\n`, async (answer: any) => {
+      this.rl.question(`Rollback ${this.migrationTableLabel} with option ${opts ? JSON.stringify(opts) : "(ALL)"}? (yes/y)\n`, async (answer: any) => {
         try {
             if (typeof answer === "string" && ["yes", "y"].includes(answer.toLowerCase())) {
               await this.acquireLock(async () => {
@@ -121,6 +120,7 @@ export class RDBMSManager {
   public async dispose() {
     await this.releaseLock();
     await this.seq.close();
+    this.rl.close();
   }
 
   /* migration locking for distributed envrionment */

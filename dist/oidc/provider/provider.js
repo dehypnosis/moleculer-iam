@@ -4,10 +4,10 @@ const tslib_1 = require("tslib");
 const kleur = tslib_1.__importStar(require("kleur"));
 const _ = tslib_1.__importStar(require("lodash"));
 const koa_mount_1 = tslib_1.__importDefault(require("koa-mount"));
+const interaction_1 = require("../interaction");
 const types_1 = require("./types");
 const adapter_1 = require("../adapter");
 const options_1 = require("./options");
-const interaction_1 = require("../interaction");
 const debug_1 = require("./debug");
 // @ts-ignore : need to hack oidc-provider private methods
 const weak_cache_1 = tslib_1.__importDefault(require("oidc-provider/lib/helpers/weak_cache"));
@@ -17,13 +17,28 @@ class OIDCProvider {
         /* lifecycle */
         this.working = false;
         const logger = this.logger = props.logger || console;
-        const _a = _.defaultsDeep(options || {}, options_1.defaultOIDCProviderOptions), { issuer, trustProxy, adapter } = _a, providerConfig = tslib_1.__rest(_a, ["issuer", "trustProxy", "adapter"]);
+        const _a = _.defaultsDeep(options || {}, options_1.defaultOIDCProviderOptions), { issuer, trustProxy, adapter, renderHTML } = _a, providerConfig = tslib_1.__rest(_a, ["issuer", "trustProxy", "adapter", "renderHTML"]);
         /* create provider adapter */
         const adapterKey = Object.keys(adapter_1.OIDCAdapterConstructors).find(k => k.toLowerCase() === options.adapter.type.toLowerCase())
             || Object.keys(adapter_1.OIDCAdapterConstructors)[0];
         this.adapter = new adapter_1.OIDCAdapterConstructors[adapterKey]({
             logger,
         }, options.adapter.options);
+        /* create provider interactions factory */
+        const renderer = new interaction_1.ClientApplicationRenderer({
+            logger,
+        }, {
+            renderHTML,
+        });
+        const internalInteractionConfigFactory = new interaction_1.InternalInteractionConfigurationFactory({
+            renderer,
+            logger,
+        });
+        const interactionsFactory = new interaction_1.InteractionFactory({
+            renderer,
+            logger,
+            identity: props.identity,
+        });
         /* create original provider */
         const config = _.defaultsDeep(Object.assign({ 
             // persistent storage for OP
@@ -36,17 +51,18 @@ class OIDCProvider {
                     // ctx is the koa request context
                     return props.identity.find(id);
                 });
-            } }, interaction_1.interactionConfiguration), providerConfig);
+            }, 
+            // interactions and configuration
+            interactions: interactionsFactory.interactions() }, internalInteractionConfigFactory.configuration()), providerConfig);
         const original = this.original = new types_1.Provider(issuer, config);
         original.env = "production";
         original.proxy = trustProxy !== false;
-        // attach logger
-        original.app.use((ctx, next) => {
-            ctx.logger = logger;
-            return next();
-        });
         // mount routes
-        original.app.use(interaction_1.createInteractionRouter(original).routes());
+        const assetsRoutes = renderer.assetsRoutes();
+        if (assetsRoutes) { // mount assets when default renderer used
+            original.app.use(assetsRoutes);
+        }
+        original.app.use(interactionsFactory.routes(original));
         // apply debugging features
         if (issuer.startsWith("http://")) {
             debug_1.applyDebugOptions(original, logger, {

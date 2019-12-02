@@ -1,32 +1,10 @@
-import { Configuration } from "../provider";
-import { interactions } from "./interaction";
-import { renderError } from "./internal/error";
-import { logoutSource, postLogoutSuccessSource } from "./internal/logout";
-import { successSource, userCodeConfirmSource, userCodeInputSource } from "./internal/device";
+import { InternalInteractionConfiguration, InternalInteractionConfigurationKeys } from "./internal";
 
-export { createInteractionRouter } from "./router";
+export * from "./render";
+export * from "./internal";
+export * from "./interaction";
 
-export type UserInteractionConfigurationKeys = "interactions" | "renderError" | "logoutSource" | "postLogoutSuccessSource";
-export type UserInteractionDeviceFlowConfigurationKeys = "userCodeInputSource" | "userCodeConfirmSource" | "successSource";
-export type UserInteractionDeviceFlowConfiguration = Required<Required<Configuration>["features"]>["deviceFlow"];
-export type UserInteractionConfiguration = {
-  [key in UserInteractionConfigurationKeys]: Configuration[key];
-} & {
-  features: {
-    deviceFlow: { [key in UserInteractionDeviceFlowConfigurationKeys]: UserInteractionDeviceFlowConfiguration[key]; };
-  };
+export type InteractionConfigurationKeys = "interactions" | InternalInteractionConfigurationKeys;
+export type InteractionConfiguration = InternalInteractionConfiguration & {
+  interactions: InteractionConfiguration,
 };
-
-export const interactionConfiguration: UserInteractionConfiguration = {
-  interactions,
-  renderError,
-  logoutSource,
-  postLogoutSuccessSource,
-  features: {
-    deviceFlow: {
-      userCodeInputSource,
-      userCodeConfirmSource,
-      successSource,
-    },
-  },
-} as any;

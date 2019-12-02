@@ -1,1 +1,0 @@
-{"version":3,"file":"model.js","sourceRoot":"","sources":["../../../src/oidc/base/model.ts"],"names":[],"mappings":";;AAEa,QAAA,cAAc,GAAiC;IAC1D,SAAS;IACT,aAAa;IACb,mBAAmB;IACnB,cAAc;IACd,YAAY;IACZ,mBAAmB;IACnB,QAAQ;IACR,oBAAoB;IACpB,yBAAyB;IACzB,aAAa;IACb,iBAAiB;IACjB,4BAA4B;CAC7B,CAAC;AAEW,QAAA,mBAAmB,GAAiC;IAC/D,aAAa;IACb,mBAAmB;IACnB,cAAc;IACd,YAAY;CACb,CAAC"}

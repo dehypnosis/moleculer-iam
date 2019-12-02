@@ -4,10 +4,10 @@ import mount from "koa-mount";
 import { FindOptions } from "../../helper/rdbms";
 import { IdentityProvider } from "../../identity";
 import { Logger } from "../../logger";
+import { ClientApplicationRenderer, InteractionFactory, InternalInteractionConfigurationFactory } from "../interaction";
 import { Client, ClientMetadata, errors, Provider as OriginalProvider, Configuration as OriginalProviderConfiguration } from "./types";
 import { OIDCAdapter, OIDCAdapterConstructors } from "../adapter";
 import { defaultOIDCProviderOptions, OIDCProviderOptions } from "./options";
-import { interactionConfiguration, createInteractionRouter } from "../interaction";
 import { applyDebugOptions } from "./debug";
 
 // @ts-ignore : need to hack oidc-provider private methods
@@ -25,7 +25,7 @@ export class OIDCProvider {
 
   constructor(private readonly props: OIDCProviderProps, options: OIDCProviderOptions) {
     const logger = this.logger = props.logger || console;
-    const {issuer, trustProxy, adapter, ...providerConfig} = _.defaultsDeep(options || {}, defaultOIDCProviderOptions);
+    const {issuer, trustProxy, adapter, renderHTML, ...providerConfig} = _.defaultsDeep(options || {}, defaultOIDCProviderOptions);
 
     /* create provider adapter */
     const adapterKey: keyof (typeof OIDCAdapterConstructors) = Object.keys(OIDCAdapterConstructors).find(k => k.toLowerCase() === options.adapter!.type.toLowerCase())
@@ -33,6 +33,24 @@ export class OIDCProvider {
     this.adapter = new OIDCAdapterConstructors[adapterKey]({
       logger,
     }, options.adapter!.options);
+
+    /* create provider interactions factory */
+    const renderer = new ClientApplicationRenderer({
+      logger,
+    }, {
+      renderHTML,
+    });
+
+    const internalInteractionConfigFactory = new InternalInteractionConfigurationFactory({
+      renderer,
+      logger,
+    });
+
+    const interactionsFactory = new InteractionFactory({
+      renderer,
+      logger,
+      identity: props.identity,
+    });
 
     /* create original provider */
     const config: OriginalProviderConfiguration = _.defaultsDeep({
@@ -47,21 +65,20 @@ export class OIDCProvider {
         return props.identity.find(id);
       },
 
-      // user interactions
-      ...interactionConfiguration,
+      // interactions and configuration
+      interactions: interactionsFactory.interactions(),
+      ...internalInteractionConfigFactory.configuration(),
     } as OriginalProviderConfiguration, providerConfig);
+
     const original = this.original = new OriginalProvider(issuer, config);
     original.env = "production";
     original.proxy = trustProxy !== false;
 
-    // attach logger
-    original.app.use((ctx, next) => {
-      ctx.logger = logger;
-      return next();
-    });
-
     // mount routes
-    original.app.use(createInteractionRouter(original, props.identity).routes());
+    if (renderer.routes) {
+      original.app.use(renderer.routes);
+    }
+    // original.app.use(interactionsFactory.routes(original));
 
     // apply debugging features
     if (issuer.startsWith("http://")) {
@@ -80,7 +97,7 @@ export class OIDCProvider {
     return getProviderHiddenProps(this.original).configuration();
   }
 
-  public get defaultRoutes(): Readonly<{[key: string]: string | undefined}> {
+  public get defaultRoutes(): Readonly<{ [key: string]: string | undefined }> {
     return {
       discovery: "/.well-known/openid-configuration",
       ...this.config.routes,
