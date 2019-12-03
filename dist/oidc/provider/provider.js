@@ -17,7 +17,8 @@ class OIDCProvider {
         /* lifecycle */
         this.working = false;
         const logger = this.logger = props.logger || console;
-        const _a = _.defaultsDeep(options || {}, options_1.defaultOIDCProviderOptions), { issuer, trustProxy, adapter, renderHTML } = _a, providerConfig = tslib_1.__rest(_a, ["issuer", "trustProxy", "adapter", "renderHTML"]);
+        const _a = _.defaultsDeep(options || {}, options_1.defaultOIDCProviderOptions), { issuer, trustProxy, adapter, app } = _a, providerConfig = tslib_1.__rest(_a, ["issuer", "trustProxy", "adapter", "app"]);
+        const isDev = issuer.startsWith("http://");
         /* create provider adapter */
         const adapterKey = Object.keys(adapter_1.OIDCAdapterConstructors).find(k => k.toLowerCase() === options.adapter.type.toLowerCase())
             || Object.keys(adapter_1.OIDCAdapterConstructors)[0];
@@ -25,11 +26,14 @@ class OIDCProvider {
             logger,
         }, options.adapter.options);
         /* create provider interactions factory */
-        const renderer = new interaction_1.ClientApplicationRenderer({
+        const rendererOption = app || {};
+        if (isDev) {
+            logger.info("disable assets cache for debugging purpose");
+            rendererOption.assetsCacheMaxAge = 0;
+        }
+        const renderer = this.renderer = new interaction_1.ClientApplicationRenderer({
             logger,
-        }, {
-            renderHTML,
-        });
+        }, rendererOption);
         const internalInteractionConfigFactory = new interaction_1.InternalInteractionConfigurationFactory({
             renderer,
             logger,
@@ -57,14 +61,10 @@ class OIDCProvider {
         const original = this.original = new types_1.Provider(issuer, config);
         original.env = "production";
         original.proxy = trustProxy !== false;
-        // mount routes
-        const assetsRoutes = renderer.assetsRoutes();
-        if (assetsRoutes) { // mount assets when default renderer used
-            original.app.use(assetsRoutes);
-        }
+        // mount interaction routes
         original.app.use(interactionsFactory.routes(original));
         // apply debugging features
-        if (issuer.startsWith("http://")) {
+        if (isDev) {
             debug_1.applyDebugOptions(original, logger, {
                 "disable-implicit-forbid-localhost": true,
                 "disable-implicit-force-https": true,
@@ -82,6 +82,9 @@ class OIDCProvider {
     }
     get router() {
         return koa_mount_1.default(this.original.app);
+    }
+    get middleware() {
+        return this.renderer.routes;
     }
     get discoveryPath() {
         return `/.well-known/openid-configuration`;

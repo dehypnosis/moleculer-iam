@@ -22,10 +22,13 @@ export class OIDCProvider {
   private readonly logger: Logger;
   private readonly adapter: OIDCAdapter;
   private readonly original: OriginalProvider;
+  private readonly renderer: ClientApplicationRenderer;
 
   constructor(private readonly props: OIDCProviderProps, options: OIDCProviderOptions) {
     const logger = this.logger = props.logger || console;
-    const {issuer, trustProxy, adapter, renderHTML, ...providerConfig} = _.defaultsDeep(options || {}, defaultOIDCProviderOptions);
+    const {issuer, trustProxy, adapter, app, ...providerConfig} = _.defaultsDeep(options || {}, defaultOIDCProviderOptions);
+
+    const isDev = issuer.startsWith("http://");
 
     /* create provider adapter */
     const adapterKey: keyof (typeof OIDCAdapterConstructors) = Object.keys(OIDCAdapterConstructors).find(k => k.toLowerCase() === options.adapter!.type.toLowerCase())
@@ -35,11 +38,14 @@ export class OIDCProvider {
     }, options.adapter!.options);
 
     /* create provider interactions factory */
-    const renderer = new ClientApplicationRenderer({
+    const rendererOption = app || {};
+    if (isDev) {
+      logger.info("disable assets cache for debugging purpose");
+      rendererOption.assetsCacheMaxAge = 0;
+    }
+    const renderer = this.renderer = new ClientApplicationRenderer({
       logger,
-    }, {
-      renderHTML,
-    });
+    }, rendererOption);
 
     const internalInteractionConfigFactory = new InternalInteractionConfigurationFactory({
       renderer,
@@ -74,14 +80,11 @@ export class OIDCProvider {
     original.env = "production";
     original.proxy = trustProxy !== false;
 
-    // mount routes
-    if (renderer.routes) {
-      original.app.use(renderer.routes);
-    }
-    // original.app.use(interactionsFactory.routes(original));
+    // mount interaction routes
+    original.app.use(interactionsFactory.routes(original));
 
     // apply debugging features
-    if (issuer.startsWith("http://")) {
+    if (isDev) {
       applyDebugOptions(original, logger, {
         "disable-implicit-forbid-localhost": true,
         "disable-implicit-force-https": true,
@@ -106,6 +109,10 @@ export class OIDCProvider {
 
   public get router() {
     return mount(this.original.app);
+  }
+
+  public get middleware() {
+    return this.renderer.routes;
   }
 
   public get discoveryPath() {

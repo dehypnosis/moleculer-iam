@@ -1,7 +1,6 @@
 #dist/**/*
 #!dist/.gitkeep
-lib
-lib-commonjs
+dist/assets/*.hot-update.*
 
 # Logs
 logs

@@ -25,18 +25,11 @@ export class InternalInteractionConfigurationFactory {
   }
 
   public configuration(): InternalInteractionConfiguration {
-    const originalRender = this.props.renderer.render.bind(this.props.renderer);
     const render = this.render.bind(this);
     const logger = this.props.logger;
     return {
       /* error */
       renderError(ctx, out, error) {
-        // mount any of SPA route... with OK code
-        if (ctx.status === 404) {
-          ctx.status = 200;
-          return originalRender(ctx as any, null);
-        }
-
         // @ts-ignore
         ctx.status = error.status || error.statusCode || 500;
 

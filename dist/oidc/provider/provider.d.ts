@@ -13,19 +13,21 @@ export declare class OIDCProvider {
     private readonly logger;
     private readonly adapter;
     private readonly original;
+    private readonly renderer;
     constructor(props: OIDCProviderProps, options: OIDCProviderOptions);
-    readonly idp: IdentityProvider;
-    readonly config: OriginalProviderConfiguration;
-    readonly defaultRoutes: Readonly<{
+    get idp(): IdentityProvider;
+    get config(): OriginalProviderConfiguration;
+    get defaultRoutes(): Readonly<{
         [key: string]: string | undefined;
     }>;
-    readonly router: import("koa-compose").Middleware<import("koa").ParameterizedContext<import("koa").DefaultState, import("koa").DefaultContext>>;
-    readonly discoveryPath: string;
-    readonly issuer: string;
+    get router(): import("koa-compose").Middleware<import("koa").ParameterizedContext<import("koa").DefaultState, import("koa").DefaultContext>>;
+    get middleware(): import("koa-compose").Middleware<any> | undefined;
+    get discoveryPath(): string;
+    get issuer(): string;
     private working;
     start(): Promise<void>;
     stop(): Promise<void>;
-    readonly client: {
+    get client(): {
         find(id: string): Promise<ClientMetadata | undefined>;
         findOrFail(id: string): Promise<ClientMetadata>;
         create(metadata: ClientMetadata): Promise<ClientMetadata>;

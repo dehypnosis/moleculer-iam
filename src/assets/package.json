@@ -1,9 +1,8 @@
 {
-  "name": "app-single",
+  "name": "moleculer-iam-client-app",
   "version": "0.1.0",
   "license": "MIT",
-  "main": "lib-commonjs/index.js",
-  "module": "lib/index.js",
+  "main": "lib/index.js",
   "scripts": {
     "dev": "just-scripts start",
     "build": "just-scripts build",
@@ -16,6 +15,9 @@
     "react-localization": "^1.0.15"
   },
   "devDependencies": {
+    "@types/node": "^12.12.14",
+    "@types/react": "^16.9.14",
+    "copy-webpack-plugin": "^5.0.5",
     "just-scripts": "^0.27.0",
     "just-stack-react": "^1.0.0",
     "webpack": "^4.39.0"

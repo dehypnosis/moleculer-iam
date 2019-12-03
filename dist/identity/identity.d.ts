@@ -2,7 +2,7 @@ import { OIDCAccount, OIDCAccountClaims, OIDCClaimsInfo } from "../oidc";
 export declare class Identity implements OIDCAccount {
     readonly id: string;
     constructor(id: string);
-    readonly accountId: string;
+    get accountId(): string;
     /**
      * @param use - can either be "id_token" or "userinfo", depending on where the specific claims are intended to be put in.
      * @param scope - the intended scope, while oidc-provider will mask

@@ -14,5 +14,7 @@ export declare type OIDCProviderOptions = Omit<Configuration, "adapter"> & {
     };
 } & {
     [key in InteractionConfigurationKeys]?: never;
-} & ClientApplicationRendererOptions;
+} & {
+    app?: ClientApplicationRendererOptions;
+};
 export declare const defaultOIDCProviderOptions: OIDCProviderOptions;

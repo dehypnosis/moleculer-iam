@@ -18,7 +18,10 @@ const serviceSchema = IAMServiceSchema({
   identity: {
   },
   oidc: {
-    issuer: "http://localhost:8080",
+    issuer: "http://0.0.0.0:8080",
+    app: {
+      isValidPath: path => path === "/" || path === "/my" || path.startsWith("/my/"),
+    },
 
     adapter: {
       // type: "Memory",
@@ -47,7 +50,7 @@ const serviceSchema = IAMServiceSchema({
   },
   server: {
     http: {
-      hostname: "localhost",
+      hostname: "0.0.0.0",
       port: 8080,
     },
   },

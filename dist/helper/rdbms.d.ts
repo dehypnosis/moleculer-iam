@@ -28,8 +28,8 @@ export declare class RDBMSManager {
     migrate(opts?: UpToOptions | UpDownMigrationsOptions): Promise<void>;
     rollback(opts?: DownToOptions | UpDownMigrationsOptions): Promise<unknown>;
     dispose(): Promise<void>;
-    private readonly lockTableName;
-    private readonly migrationTableLabel;
+    private get lockTableName();
+    private get migrationTableLabel();
     private acquireLock;
     private releaseLock;
 }

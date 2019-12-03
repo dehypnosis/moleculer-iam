@@ -1,4 +1,3 @@
-/// <reference types="koa-bodyparser" />
 import Router, { RouterContext } from "koa-router";
 import { Logger } from "../../logger";
 export declare type ClientApplicationRendererProps = {
@@ -6,8 +5,12 @@ export declare type ClientApplicationRendererProps = {
 };
 export declare type ClientApplicationRendererOptions = {
     renderHTML?: ClientApplicationRenderHTML;
+    assetsRoutePrefix?: string;
+    assetsDirAbsolutePath?: string;
+    assetsCacheMaxAge?: number;
+    isValidPath?: (path: string) => Promise<boolean> | boolean;
 };
-export declare type ClientApplicationRenderHTML = (props: ClientApplicationProps) => Promise<string> | string;
+export declare type ClientApplicationRenderHTML = (props?: ClientApplicationProps) => Promise<string> | string;
 export declare type ClientApplicationProps = {
     context: ClientApplicationContext;
     action?: {
@@ -37,8 +40,8 @@ export declare type ClientApplicationContext = {
 export declare class ClientApplicationRenderer {
     protected readonly props: ClientApplicationRendererProps;
     private readonly renderHTML;
+    readonly routes?: Router.IMiddleware<any, any>;
+    private readonly isValidPath;
     constructor(props: ClientApplicationRendererProps, opts?: ClientApplicationRendererOptions);
-    private static readonly defaultRenderHTML;
-    assetsRoutes(): import("koa-compose").Middleware<import("koa").ParameterizedContext<any, Router.IRouterParamContext<any, {}>>> | undefined;
-    render(ctx: RouterContext, props?: ClientApplicationProps): Promise<void>;
+    render(ctx: RouterContext, props: ClientApplicationProps | null): Promise<void>;
 }
