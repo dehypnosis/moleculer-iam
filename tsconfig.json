@@ -10,6 +10,7 @@
 			"jest",
 			"node"
 		],
+    "allowJs": true,
 		"sourceMap": true,
 		"target": "es6",
 		"declaration": true,

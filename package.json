@@ -1,6 +1,6 @@
 {
   "name": "moleculer-iam",
-  "version": "0.1.2",
+  "version": "0.1.4",
   "description": "Centeralized IAM module for moleculer. Including default OIDC provider for user profile and custom claims (for ABAC, also simple role system for RBAC available) management, custom claims are supported by scheme validation and versioned migration. Either can be composed with remote OIDC providers like G-Suite. Basic authentication and authorization features for OIDC/OAuth2 are supported. Can operate mutiple realms, including admin, user, service-account realms are set by default.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -58,6 +58,7 @@
     "mysql2": "^2.0.1",
     "oidc-provider": "^6.16.0",
     "sequelize": "^5.21.2",
+    "umzug": "^2.2.0",
     "uuid": "^3.3.3"
   },
   "devDependencies": {
