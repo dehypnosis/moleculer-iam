@@ -15,7 +15,7 @@ const broker = new ServiceBroker({
 });
 
 const serviceSchema = IAMServiceSchema({
-  identity: {
+  idp: {
   },
   oidc: {
     issuer: "http://0.0.0.0:8080",

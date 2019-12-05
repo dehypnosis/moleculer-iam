@@ -12,26 +12,26 @@ import { IAMServer, IAMServerOptions } from "../server";
 import { IAMServiceActionParams } from "./params";
 
 export type IAMServiceSchemaOptions = {
-  identity: IdentityProviderOptions,
+  idp: IdentityProviderOptions,
   oidc: OIDCProviderOptions,
   server: IAMServerOptions,
 };
 
 export function IAMServiceSchema(opts: IAMServiceSchemaOptions): ServiceSchema {
-  let identity: IdentityProvider;
+  let idp: IdentityProvider;
   let oidc: OIDCProvider;
   let server: IAMServer;
 
   return {
     created() {
       // create identity provider
-      identity = this.identity = new IdentityProvider({
+      idp = this.idp = new IdentityProvider({
         logger: this.broker.getLogger("idp"),
-      }, opts.identity);
+      }, opts.idp);
 
       // create oidc provider
       oidc = this.oidc = new OIDCProvider({
-        identity,
+        idp,
         logger: this.broker.getLogger("oidc"),
       }, opts.oidc);
 

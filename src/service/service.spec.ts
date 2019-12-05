@@ -6,7 +6,7 @@ import { IAMServiceSchema } from "./service";
 describe("Test IAMService", () => {
   const broker = new ServiceBroker();
   const serviceSchema = IAMServiceSchema({
-    identity: {},
+    idp: {},
     oidc: { issuer: "http://localhost:8888" },
     server: {
       http: {

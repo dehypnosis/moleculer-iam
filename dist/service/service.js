@@ -13,18 +13,18 @@ const oidc_1 = require("../oidc");
 const server_1 = require("../server");
 const params_1 = require("./params");
 function IAMServiceSchema(opts) {
-    let identity;
+    let idp;
     let oidc;
     let server;
     return {
         created() {
             // create identity provider
-            identity = this.identity = new identity_1.IdentityProvider({
+            idp = this.idp = new identity_1.IdentityProvider({
                 logger: this.broker.getLogger("idp"),
-            }, opts.identity);
+            }, opts.idp);
             // create oidc provider
             oidc = this.oidc = new oidc_1.OIDCProvider({
-                identity,
+                idp,
                 logger: this.broker.getLogger("oidc"),
             }, opts.oidc);
             // create server

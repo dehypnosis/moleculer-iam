@@ -9,6 +9,14 @@ exports.defaultOIDCProviderOptions = {
         options: {},
     },
     trustProxy: true,
+    cookies: {
+        short: {
+            path: "/",
+        },
+        long: {
+            path: "/",
+        },
+    },
     /* ref: https://github.com/panva/node-oidc-provider/blob/master/docs/README.md */
     features: {
         /* token issue and management features */

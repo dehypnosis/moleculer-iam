@@ -3,7 +3,7 @@ import { Logger } from "../../logger";
 import { Provider, Configuration } from "../provider";
 import { ClientApplicationRenderer } from "./render";
 export declare type InteractionFactoryProps = {
-    identity: IdentityProvider;
+    idp: IdentityProvider;
     renderer: ClientApplicationRenderer;
     logger: Logger;
 };
@@ -12,6 +12,7 @@ export declare class InteractionFactory {
     private readonly validator;
     private readonly router;
     constructor(props: InteractionFactoryProps);
+    private validate;
     interactions(): Configuration["interactions"];
     routes(provider: Provider): import("koa-compose").Middleware<any>;
 }

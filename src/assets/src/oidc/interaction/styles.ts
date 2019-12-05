@@ -1,6 +1,8 @@
-import { FontSizes, ITextFieldStyles, IStyleFunctionOrObject, FontWeights } from "office-ui-fabric-react/lib";
+import { FontSizes, ITextFieldStyles, IStyleFunctionOrObject, FontWeights, AnimationStyles } from "office-ui-fabric-react/lib";
 import { IButtonStyles } from "office-ui-fabric-react/lib/components/Button/Button.types";
 import { ITextFieldStyleProps } from "office-ui-fabric-react/lib/components/TextField/TextField.types";
+
+export { AnimationStyles };
 
 export const TextFieldStyles: { [key: string]: IStyleFunctionOrObject<ITextFieldStyleProps, ITextFieldStyles> } = {
   bold: {

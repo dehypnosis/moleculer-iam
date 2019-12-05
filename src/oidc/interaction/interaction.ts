@@ -1,17 +1,18 @@
 import Router from "koa-router";
 import bodyParser from "koa-bodyparser";
 import noCache from "koajs-nocache";
-import Validator, { ValidationError, ValidationSchema } from "fastest-validator";
+import Validator, { ValidationSchema } from "fastest-validator";
 import { IdentityProvider } from "../../identity";
 import { Logger } from "../../logger";
-import { KoaContextWithOIDC, Provider, interactionPolicy, Configuration } from "../provider";
-import { ClientApplicationRenderer } from "./render";
+import { KoaContextWithOIDC, Provider, interactionPolicy, Configuration, OIDCErrors } from "../provider";
+import { ClientApplicationError, ClientApplicationRenderer } from "./render";
 import { getPublicClientProps } from "./util";
+// import { getPublicClientProps } from "./util";
 
 // ref: https://github.com/panva/node-oidc-provider/blob/cd9bbfb653ddfb99c574ea3d4519b6f834274e86/docs/README.md#user-flows
 
 export type InteractionFactoryProps = {
-  identity: IdentityProvider;
+  idp: IdentityProvider;
   renderer: ClientApplicationRenderer;
   logger: Logger;
 };
@@ -21,23 +22,51 @@ export class InteractionFactory {
   private readonly router: Router<any, any>;
 
   constructor(protected readonly props: InteractionFactoryProps) {
-    this.validator = new Validator();
-
+    // create router
     this.router = new Router({
       prefix: "/interaction",
       sensitive: true,
       strict: false,
     });
 
-    // apply middleware
+    // apply router middleware
     this.router.use(
       noCache(),
       bodyParser(),
     );
+
+    // create validator
+    this.validator = new Validator();
+  }
+
+  // validate body with given schema then throw error on error
+  private validate(ctx: KoaContextWithOIDC, schema: ValidationSchema) {
+    const errors = this.validator.validate(ctx.request.body, schema);
+    if (errors !== true && errors.length > 0) {
+      const error: ClientApplicationError = {
+        name: "validation_failed",
+        message: "Failed to validate request params.",
+        status: 422,
+        detail: errors.reduce((fields, err) => {
+          if (!fields[err.field]) fields[err.field] = [];
+          const {field, message} = err;
+          fields[field].push(message);
+          return fields;
+        }, {} as any),
+        /*
+          detail: {
+            username: [{"type": "required", "message": "The 'username' field is required.",}],
+            ...
+          }
+         */
+      };
+
+      throw error;
+    }
   }
 
   /*
-  * add more user interactive features (prompts) into base policy which includes login, consent prompts
+  * can add more user interactive features (prompts) into base policy which includes login, consent prompts
   * example ref (base): https://github.com/panva/node-oidc-provider/tree/master/lib/helpers/interaction_policy/prompts
 
   * example route mappings (original default)
@@ -56,7 +85,7 @@ export class InteractionFactory {
     const defaultPrompts = base();
     return {
       async url(ctx, interaction) {
-        return `/interaction/${ctx.oidc.uid}`;
+        return `/interaction/${interaction.prompt.name}`;
       },
 
       // ref: https://github.com/panva/node-oidc-provider/blob/cd9bbfb653ddfb99c574ea3d4519b6f834274e86/docs/README.md#user-flows
@@ -70,152 +99,191 @@ export class InteractionFactory {
 
   /* create interaction routes */
   public routes(provider: Provider) {
-    /* helper methods */
+
     function url(path: string) {
       return `${provider.issuer}/interaction${path}`;
     }
 
-    async function getPublicClientPropsById(id?: string) {
-      const client = id ? await provider.Client.find(id) : undefined;
-      if (!client) {
-        return undefined;
-      }
-      return getPublicClientProps(client as any);
-    }
-
-    async function getInteractionContext(ctx: KoaContextWithOIDC) {
-      const {uid, prompt, params, session} = await provider.interactionDetails(ctx.req, ctx.res);
-      return {
-        interaction_id: uid,
-        account_id: session && session.accountId || undefined,
-        client: await getPublicClientPropsById(params.client_id),
-        prompt,
-        params,
-      };
-    }
-
+    const {idp, renderer, logger} = this.props;
     const router = this.router;
-    const {identity, renderer, logger} = this.props;
+    const validate = this.validate.bind(this);
+    const render = renderer.render.bind(renderer);
+    const abort = {
+      url: url(`/abort`),
+      method: "POST",
+      data: {},
+    };
 
-    /* abort any interactions */
-    router.delete("/:id", async ctx => {
-      await provider.interactionFinished(ctx.req, ctx.res,
-        {
-          error: "access_denied",
-          error_description: "end-user aborted interaction",
-        }, {
-          mergeWithLastSubmission: false,
-        });
+    // delegate error handling
+    router.use((ctx: KoaContextWithOIDC, next) => {
+      return next()
+        .catch(error => render(ctx as any, {error}));
     });
 
-    /* process each type of interactions */
-    router.post("/:id", async ctx => {
-      const context = await getInteractionContext(ctx);
-      const promptName = context.prompt.name;
-      const body = ctx.request.body;
+    // abort interactions
+    router.post("/abort", async ctx => {
+      const {prompt, params} = await provider.interactionDetails(ctx.req, ctx.res);
+      const redirect = await provider.interactionResult(ctx.req, ctx.res, {
+        error: "access_denied",
+        error_description: "end-user aborted interaction",
+      }, {
+        mergeWithLastSubmission: false,
+      });
 
-      /* validate params */
-      let schema: ValidationSchema | null = null;
-      switch (promptName) {
-        case "login":
-          schema = {
-            username: "string|empty:false|trim:true",
-            password: "string|empty:false",
-          };
-          break;
-        case "consent":
-          break;
-        default:
-      }
+      return render(ctx, {
+        redirect,
+      });
+    });
 
-      if (schema) {
-        const errors = this.validator.validate(body, schema);
-        if (errors !== true && errors.length > 0) {
-          ctx.status = 422;
-          ctx.type = "json";
-          ctx.body = {
-            error: "validation_error",
-            error_description: errors,
-          };
-          return;
-        }
-      }
+    // handle login
+    router.get("/login", async ctx => {
+      const {prompt, params} = await provider.interactionDetails(ctx.req, ctx.res);
+      ctx.assert(prompt.name === "login");
 
-      /* update interactions */
-      let redirect: string | null = null;
-      switch (promptName) {
-        case "login":
-          const {username, password} = body;
-          const account = username;
-          // TODO: resolve account
-
-          redirect = await provider.interactionResult(ctx.req, ctx.res,
-            {
-              // authentication/login prompt got resolved, omit if no authentication happened, i.e. the user
-              // cancelled
-              login: {
-                account,
-                // acr: string, // acr value for the authentication
-                // remember: boolean, // true if provider should use a persistent cookie rather than a session one, defaults to true
-                // ts: number, // unix timestamp of the authentication, defaults to now()
+      return render(ctx, {
+        interaction: {
+          name: "login",
+          action: {
+            submit: {
+              url: url(`/login`),
+              method: "POST",
+              data: {
+                email: params.login_hint || "",
+                password: "",
               },
-            }, {
-              mergeWithLastSubmission: true,
-            });
-          break;
-
-        case "consent":
-          redirect = await provider.interactionResult(ctx.req, ctx.res,
-            {
-              consent: {},
-            }, {
-              mergeWithLastSubmission: true,
-            });
-          break;
-
-        default:
-          ctx.throw("not implemented");
-      }
-
-      if (redirect) {
-        ctx.type = "json";
-        ctx.body = {redirect};
-      }
-    });
-
-    /* render application for any interactions */
-    router.get("*", async ctx => {
-      const context = await getInteractionContext(ctx);
-
-      // create form data format
-      const submitFormData: any = {};
-      switch (context.prompt.name) {
-        case "login":
-          submitFormData.username = context.params.login_hint || "";
-          submitFormData.password = "";
-          break;
-
-        case "consent":
-          break;
-
-        default:
-      }
-
-      return renderer.render(ctx, {
-        context,
-        action: {
-          submit: {
-            url: url(`/${context.interaction_id}`),
-            method: "POST",
-            data: submitFormData,
-          },
-          abort: {
-            url: url(`/${context.interaction_id}`),
-            method: "DELETE",
-            data: {},
+            },
+            abort,
           },
         },
       });
+    });
+
+    router.post("/login", async ctx => {
+      // assert prompt name
+      const {prompt, params} = await provider.interactionDetails(ctx.req, ctx.res);
+      ctx.assert(prompt.name === "login");
+
+      const {email, password} = ctx.request.body;
+
+      // 1. user enter email only
+      if (typeof password === "undefined" || !password) {
+
+        // 2. server validate email
+        validate(ctx, {email: "email"});
+
+        // 3. fetch identity
+        const id = await idp.findByEmail(email);
+        const {preferred_username, nickname, name} = await id.claims("id_token", "profile");
+
+        return render(ctx, {
+          interaction: {
+            name: "login",
+            action: {
+              submit: {
+                url: url(`/login`),
+                method: "POST",
+                data: {
+                  email,
+                  password: "",
+                },
+              },
+              abort,
+            },
+            data: {
+              email,
+              name: preferred_username || nickname || name,
+            },
+          },
+        });
+      }
+
+      // 4. user get the next page and enter password and server validate it
+      validate(ctx, {
+        email: "email",
+        password: "string|empty:false",
+      });
+
+      // 5. check account password
+      const identity = await idp.findByEmail(email);
+      await idp.assertCredentials(identity.accountId, {password});
+
+      // 6. finish interaction and give redirection uri
+      const redirect = await provider.interactionResult(ctx.req, ctx.res, {
+        // authentication/login prompt got resolved, omit if no authentication happened, i.e. the user
+        // cancelled
+        login: {
+          account: identity.accountId,
+          remember: true,
+          // acr: string, // acr value for the authentication
+          // remember: boolean, // true if provider should use a persistent cookie rather than a session one, defaults to true
+          // ts: number, // unix timestamp of the authentication, defaults to now()
+        },
+      }, {
+        mergeWithLastSubmission: true,
+      });
+
+      return render(ctx, {redirect});
+    });
+
+    /* 2. CONSENT */
+    router.get("/consent", async ctx => {
+      const {prompt, params, session} = await provider.interactionDetails(ctx.req, ctx.res);
+
+      // fetch identity and client
+      const id = (await idp.find(session!.accountId))!;
+      const client = (await provider.Client.find(params.client_id))!;
+      ctx.assert(prompt.name === "consent" && client && id);
+
+      const {email, preferred_username, nickname, name} = await id.claims("id_token", "profile email");
+
+      return render(ctx, {
+        interaction: {
+          name: "consent",
+          action: {
+            submit: {
+              url: url(`/consent`),
+              method: "POST",
+              data: {
+                rejectedScopes: [], // array of strings, scope names the end-user has not granted
+                rejectedClaims: [], // array of strings, claim names the end-user has not granted
+              },
+            },
+            abort,
+          },
+          data: {
+            email,
+            name: preferred_username || nickname || name,
+            client: getPublicClientProps(client as any),
+            ...prompt.details,
+          },
+        },
+      });
+    });
+
+    router.post("/consent", async ctx => {
+      const {prompt, params} = await provider.interactionDetails(ctx.req, ctx.res);
+      ctx.assert(prompt.name === "consent");
+
+      // 1. validate body
+      validate(ctx, {
+        rejectedScopes: {
+          type: "array",
+          items: "string",
+        },
+        rejectedClaims: {
+          type: "array",
+          items: "string",
+        },
+      });
+
+      // 2. finish interaction and give redirection uri
+      const redirect = await provider.interactionResult(ctx.req, ctx.res, {
+        // consent was given by the user to the client for this session
+        consent: ctx.request.body,
+      }, {
+        mergeWithLastSubmission: true,
+      });
+      return render(ctx, {redirect});
     });
 
     return router.routes();

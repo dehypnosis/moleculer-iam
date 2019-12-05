@@ -22,6 +22,10 @@ const defaultRenderHTML = props => {
         ? defaultApp.header + `<script>window.OIDC=${JSON.stringify(props)};</script>` + defaultApp.footer
         : defaultApp.html;
 };
+const contentTypes = {
+    JSON: "application/json",
+    HTML: "text/html",
+};
 class ClientApplicationRenderer {
     constructor(props, opts) {
         this.props = props;
@@ -43,23 +47,41 @@ class ClientApplicationRenderer {
             });
         }
     }
+    static normalizeError(error) {
+        return {
+            name: error.name,
+            message: error.error_description || error.message,
+            detail: error.error_detail || error.detail,
+            status: error.status || error.statusCode || 500,
+        };
+    }
     render(ctx, props) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            ctx.type = "html";
-            // matched SPA route... response with OK code
-            if (ctx.status === 404 && (yield this.isValidPath(ctx.path)) || !props) {
+            // normalize error if have
+            if (props && props.error) {
+                props.error = ClientApplicationRenderer.normalizeError(props.error);
+            }
+            const error = props && props.error;
+            // response for ajax
+            if (ctx.accepts(contentTypes.JSON, contentTypes.HTML) === contentTypes.JSON) {
+                ctx.type = contentTypes.JSON;
+                ctx.status = error ? error.status : 200;
+                return ctx.body = props || {};
+            }
+            // response redirection
+            if (props && props.redirect) {
+                ctx.status = 302;
+                return ctx.redirect(props.redirect);
+            }
+            // response HTML (app)
+            // set 404 status as 200 for matched SPA path
+            if (ctx.status === 404 && (yield this.isValidPath(ctx.path))) {
                 ctx.status = 200;
-                ctx.body = yield this.renderHTML();
+                props = undefined;
             }
-            else {
-                const { context, action = null, data = {}, error = null } = props;
-                ctx.body = yield this.renderHTML({
-                    context,
-                    action,
-                    data,
-                    error,
-                });
-            }
+            ctx.type = contentTypes.HTML;
+            ctx.status = error ? error.status : 200;
+            return ctx.body = yield this.renderHTML(props);
         });
     }
 }

@@ -3,7 +3,7 @@ import { IdentityProviderOptions } from "../identity";
 import { OIDCProviderOptions } from "../oidc";
 import { IAMServerOptions } from "../server";
 export declare type IAMServiceSchemaOptions = {
-    identity: IdentityProviderOptions;
+    idp: IdentityProviderOptions;
     oidc: OIDCProviderOptions;
     server: IAMServerOptions;
 };

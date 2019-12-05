@@ -25,6 +25,14 @@ export const defaultOIDCProviderOptions: OIDCProviderOptions = {
     options: {},
   },
   trustProxy: true,
+  cookies: {
+    short: {
+      path: "/",
+    },
+    long: {
+      path: "/",
+    },
+  },
 
   /* ref: https://github.com/panva/node-oidc-provider/blob/master/docs/README.md */
   features: {

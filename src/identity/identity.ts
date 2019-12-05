@@ -1,7 +1,7 @@
 import { OIDCAccount, OIDCAccountClaims, OIDCClaimsInfo } from "../oidc";
 
 export class Identity implements OIDCAccount {
-  constructor(public readonly id: string) {
+  constructor(public readonly id: string, private readonly props?: any) {
   }
 
   public get accountId() {
@@ -17,7 +17,10 @@ export class Identity implements OIDCAccount {
    * @param claims
    * @param rejected
    */
-  public async claims(use: string, scope: string, claims: OIDCClaimsInfo, rejected: string[]): Promise<OIDCAccountClaims> {
-    return {sub: this.id};
+  public async claims(use: string, scope: string, claims?: OIDCClaimsInfo, rejected?: string[]): Promise<OIDCAccountClaims> {
+    return {
+      sub: this.id,
+      ...(this.props || {}),
+    };
   }
 }

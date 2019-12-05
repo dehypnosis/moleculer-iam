@@ -16,6 +16,7 @@ class OIDCProvider {
         this.props = props;
         /* lifecycle */
         this.working = false;
+        const idp = props.idp;
         const logger = this.logger = props.logger || console;
         const _a = _.defaultsDeep(options || {}, options_1.defaultOIDCProviderOptions), { issuer, trustProxy, adapter, app } = _a, providerConfig = tslib_1.__rest(_a, ["issuer", "trustProxy", "adapter", "app"]);
         const isDev = issuer.startsWith("http://");
@@ -37,11 +38,12 @@ class OIDCProvider {
         const internalInteractionConfigFactory = new interaction_1.InternalInteractionConfigurationFactory({
             renderer,
             logger,
+            idp,
         });
         const interactionsFactory = new interaction_1.InteractionFactory({
             renderer,
             logger,
-            identity: props.identity,
+            idp,
         });
         /* create original provider */
         const config = _.defaultsDeep(Object.assign({ 
@@ -53,7 +55,7 @@ class OIDCProvider {
                     // token is a reference to the token used for which a given account is being loaded,
                     // it is undefined in scenarios where account claims are returned from authorization endpoint
                     // ctx is the koa request context
-                    return props.identity.find(id);
+                    return idp.find(id);
                 });
             }, 
             // interactions and configuration
@@ -72,7 +74,7 @@ class OIDCProvider {
         }
     }
     get idp() {
-        return this.props.identity;
+        return this.props.idp;
     }
     get config() {
         return weak_cache_1.default(this.original).configuration();

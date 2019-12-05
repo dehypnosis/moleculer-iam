@@ -1,5 +1,6 @@
 import Router, { RouterContext } from "koa-router";
 import { Logger } from "../../logger";
+import { KoaContextWithOIDC } from "../provider";
 export declare type ClientApplicationRendererProps = {
     logger: Logger;
 };
@@ -11,31 +12,27 @@ export declare type ClientApplicationRendererOptions = {
     isValidPath?: (path: string) => Promise<boolean> | boolean;
 };
 export declare type ClientApplicationRenderHTML = (props?: ClientApplicationProps) => Promise<string> | string;
-export declare type ClientApplicationProps = {
-    context: ClientApplicationContext;
+export interface ClientApplicationInteractionProps {
+    name: string;
     action?: {
         [key in string]: {
             url: string;
-            method: "POST" | "GET" | "DELETE";
-            data: any;
+            method: string;
+            data?: any;
         };
-    } | null;
+    };
     data?: any;
-    error?: any;
-};
-export declare type ClientApplicationContext = {
-    interaction_id?: string;
-    account_id?: string;
-    client?: {
-        client_id: string;
-        [key: string]: any;
-    };
-    prompt: {
-        name: string;
-        details?: any;
-        reasons?: string[];
-    };
-    params: any;
+}
+export interface ClientApplicationError {
+    name: string;
+    message: string;
+    status?: number;
+    detail?: any;
+}
+export declare type ClientApplicationProps = {
+    error?: ClientApplicationError;
+    interaction?: ClientApplicationInteractionProps;
+    redirect?: string;
 };
 export declare class ClientApplicationRenderer {
     protected readonly props: ClientApplicationRendererProps;
@@ -43,5 +40,10 @@ export declare class ClientApplicationRenderer {
     readonly routes?: Router.IMiddleware<any, any>;
     private readonly isValidPath;
     constructor(props: ClientApplicationRendererProps, opts?: ClientApplicationRendererOptions);
-    render(ctx: RouterContext, props: ClientApplicationProps | null): Promise<void>;
+    private static normalizeError;
+    render(ctx: RouterContext | KoaContextWithOIDC, props?: Omit<ClientApplicationProps, "error"> & {
+        error?: any;
+    }): Promise<string | void | (Pick<ClientApplicationProps, "interaction" | "redirect"> & {
+        error?: any;
+    })>;
 }

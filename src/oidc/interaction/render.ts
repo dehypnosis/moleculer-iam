@@ -5,6 +5,7 @@ import * as _ from "lodash";
 import Router, { RouterContext } from "koa-router";
 import serveStatic from "koa-static-cache";
 import { Logger } from "../../logger";
+import { OIDCErrors, KoaContextWithOIDC } from "../provider";
 
 export type ClientApplicationRendererProps = {
   logger: Logger;
@@ -20,32 +21,29 @@ export type ClientApplicationRendererOptions = {
 
 export type ClientApplicationRenderHTML = (props?: ClientApplicationProps) => Promise<string> | string;
 
-export type ClientApplicationProps = {
-  context: ClientApplicationContext,
+export interface ClientApplicationInteractionProps {
+  name: string;
   action?: {
     [key in string]: {
       url: string;
-      method: "POST" | "GET" | "DELETE";
-      data: any;
+      method: string;
+      data?: any;
     };
-  } | null;
+  };
   data?: any;
-  error?: any;
-};
+}
 
-export type ClientApplicationContext = {
-  interaction_id?: string;
-  account_id?: string,
-  client?: {
-    client_id: string,
-    [key: string]: any,
-  },
-  prompt: {
-    name: string;
-    details?: any;
-    reasons?: string[];
-  },
-  params: any;
+export interface ClientApplicationError {
+  name: string;
+  message: string;
+  status?: number;
+  detail?: any;
+}
+
+export type ClientApplicationProps = {
+  error?: ClientApplicationError;
+  interaction?: ClientApplicationInteractionProps;
+  redirect?: string;
 };
 
 const defaultAssetsPath = path.join(__dirname, "../../../dist/assets");
@@ -69,6 +67,11 @@ const defaultRenderHTML: ClientApplicationRenderHTML = props => {
   return props
     ? defaultApp.header + `<script>window.OIDC=${JSON.stringify(props)};</script>` + defaultApp.footer
     : defaultApp.html;
+};
+
+const contentTypes = {
+  JSON: "application/json",
+  HTML: "text/html",
 };
 
 export class ClientApplicationRenderer {
@@ -98,21 +101,43 @@ export class ClientApplicationRenderer {
     }
   }
 
-  public async render(ctx: RouterContext, props: ClientApplicationProps | null) {
-    ctx.type = "html";
+  private static normalizeError(error: any): ClientApplicationError {
+    return {
+      name: error.name,
+      message: error.error_description || error.message,
+      detail: error.error_detail || error.detail,
+      status: error.status || error.statusCode || 500,
+    };
+  }
 
-    // matched SPA route... response with OK code
-    if (ctx.status === 404 && await this.isValidPath(ctx.path) || !props) {
-      ctx.status = 200;
-      ctx.body = await this.renderHTML();
-    } else {
-      const {context, action = null, data = {}, error = null} = props;
-      ctx.body = await this.renderHTML({
-        context,
-        action,
-        data,
-        error,
-      });
+  public async render(ctx: RouterContext | KoaContextWithOIDC, props?: Omit<ClientApplicationProps, "error"> & { error?: any }) {
+    // normalize error if have
+    if (props && props.error) {
+      props.error = ClientApplicationRenderer.normalizeError(props.error);
     }
+    const error = props && props.error;
+
+    // response for ajax
+    if (ctx.accepts(contentTypes.JSON, contentTypes.HTML) === contentTypes.JSON) {
+      ctx.type = contentTypes.JSON;
+      ctx.status = error ? error.status : 200;
+      return ctx.body = props || {};
+    }
+
+    // response redirection
+    if (props && props.redirect) {
+      ctx.status = 302;
+      return ctx.redirect(props.redirect);
+    }
+
+    // response HTML (app)
+    // set 404 status as 200 for matched SPA path
+    if (ctx.status === 404 && await this.isValidPath(ctx.path)) {
+      ctx.status = 200;
+      props = undefined;
+    }
+    ctx.type = contentTypes.HTML;
+    ctx.status = error ? error.status : 200;
+    return ctx.body = await this.renderHTML(props);
   }
 }

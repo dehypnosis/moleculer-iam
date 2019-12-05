@@ -2,8 +2,9 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
 class Identity {
-    constructor(id) {
+    constructor(id, props) {
         this.id = id;
+        this.props = props;
     }
     get accountId() {
         return this.id;
@@ -19,7 +20,7 @@ class Identity {
      */
     claims(use, scope, claims, rejected) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            return { sub: this.id };
+            return Object.assign({ sub: this.id }, (this.props || {}));
         });
     }
 }

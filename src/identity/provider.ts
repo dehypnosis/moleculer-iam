@@ -1,6 +1,7 @@
 import { FindOptions } from "../helper/rdbms";
 import { Logger } from "../logger";
 import { Identity } from "./identity";
+import { IdentityNotExistsError, InvalidCredentialsError } from "./error";
 
 export type IdentityProviderProps = {
   logger?: Logger,
@@ -41,11 +42,30 @@ export class IdentityProvider {
   }
 
   public async find(id: string): Promise<Identity> {
-    return {} as any;
+    return new Identity(id, {
+      name: "John Doe",
+      email: id,
+    });
   }
 
-  public async createRegistrationSession(payload: any): Promise<any> {
-    return {} as any;
+  public async findByEmail(email: string): Promise<Identity> {
+    if (!email.endsWith(".com")) {
+      throw IdentityNotExistsError;
+    }
+    return new Identity(email, {
+      name: "John Doe",
+      email,
+    });
+  }
+
+  public async assertCredentials(id: string, credentials: { password: string }) {
+    const identity = await this.find(id);
+    if (credentials.password !== "1234") {
+      throw InvalidCredentialsError;
+    }
+  }
+
+  public async updateCredentials() {
   }
 
   public async register(payload: any): Promise<Identity> {
@@ -54,9 +74,6 @@ export class IdentityProvider {
 
   public async update(payload: any): Promise<Identity> {
     return {} as any;
-  }
-
-  public async updateCredentials() {
   }
 
   public async remove(id: string, opts?: { permanent?: boolean }): Promise<void> {

@@ -1,7 +1,8 @@
 import { OIDCAccount, OIDCAccountClaims, OIDCClaimsInfo } from "../oidc";
 export declare class Identity implements OIDCAccount {
     readonly id: string;
-    constructor(id: string);
+    private readonly props?;
+    constructor(id: string, props?: any);
     get accountId(): string;
     /**
      * @param use - can either be "id_token" or "userinfo", depending on where the specific claims are intended to be put in.
@@ -12,5 +13,5 @@ export declare class Identity implements OIDCAccount {
      * @param claims
      * @param rejected
      */
-    claims(use: string, scope: string, claims: OIDCClaimsInfo, rejected: string[]): Promise<OIDCAccountClaims>;
+    claims(use: string, scope: string, claims?: OIDCClaimsInfo, rejected?: string[]): Promise<OIDCAccountClaims>;
 }

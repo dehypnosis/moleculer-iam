@@ -6,7 +6,7 @@ import { ClientMetadata, Configuration as OriginalProviderConfiguration } from "
 import { OIDCProviderOptions } from "./options";
 export declare type OIDCProviderProps = {
     logger?: Logger;
-    identity: IdentityProvider;
+    idp: IdentityProvider;
 };
 export declare class OIDCProvider {
     private readonly props;

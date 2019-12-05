@@ -10,17 +10,38 @@ const util_1 = require("./util");
 class InteractionFactory {
     constructor(props) {
         this.props = props;
-        this.validator = new fastest_validator_1.default();
+        // create router
         this.router = new koa_router_1.default({
             prefix: "/interaction",
             sensitive: true,
             strict: false,
         });
-        // apply middleware
+        // apply router middleware
         this.router.use(koajs_nocache_1.default(), koa_bodyparser_1.default());
+        // create validator
+        this.validator = new fastest_validator_1.default();
+    }
+    // validate body with given schema then throw error on error
+    validate(ctx, schema) {
+        const errors = this.validator.validate(ctx.request.body, schema);
+        if (errors !== true && errors.length > 0) {
+            const error = {
+                name: "validation_failed",
+                message: "Failed to validate request params.",
+                status: 422,
+                detail: errors.reduce((fields, err) => {
+                    if (!fields[err.field])
+                        fields[err.field] = [];
+                    const { field, message } = err;
+                    fields[field].push(message);
+                    return fields;
+                }, {}),
+            };
+            throw error;
+        }
     }
     /*
-    * add more user interactive features (prompts) into base policy which includes login, consent prompts
+    * can add more user interactive features (prompts) into base policy which includes login, consent prompts
     * example ref (base): https://github.com/panva/node-oidc-provider/tree/master/lib/helpers/interaction_policy/prompts
   
     * example route mappings (original default)
@@ -40,7 +61,7 @@ class InteractionFactory {
         return {
             url(ctx, interaction) {
                 return tslib_1.__awaiter(this, void 0, void 0, function* () {
-                    return `/interaction/${ctx.oidc.uid}`;
+                    return `/interaction/${interaction.prompt.name}`;
                 });
             },
             // ref: https://github.com/panva/node-oidc-provider/blob/cd9bbfb653ddfb99c574ea3d4519b6f834274e86/docs/README.md#user-flows
@@ -53,133 +74,159 @@ class InteractionFactory {
     }
     /* create interaction routes */
     routes(provider) {
-        /* helper methods */
         function url(path) {
             return `${provider.issuer}/interaction${path}`;
         }
-        function getPublicClientPropsById(id) {
-            return tslib_1.__awaiter(this, void 0, void 0, function* () {
-                const client = id ? yield provider.Client.find(id) : undefined;
-                if (!client) {
-                    return undefined;
-                }
-                return util_1.getPublicClientProps(client);
-            });
-        }
-        function getInteractionContext(ctx) {
-            return tslib_1.__awaiter(this, void 0, void 0, function* () {
-                const { uid, prompt, params, session } = yield provider.interactionDetails(ctx.req, ctx.res);
-                return {
-                    interaction_id: uid,
-                    account_id: session && session.accountId || undefined,
-                    client: yield getPublicClientPropsById(params.client_id),
-                    prompt,
-                    params,
-                };
-            });
-        }
+        const { idp, renderer, logger } = this.props;
         const router = this.router;
-        const { identity, renderer, logger } = this.props;
-        /* abort any interactions */
-        router.delete("/:id", (ctx) => tslib_1.__awaiter(this, void 0, void 0, function* () {
-            yield provider.interactionFinished(ctx.req, ctx.res, {
+        const validate = this.validate.bind(this);
+        const render = renderer.render.bind(renderer);
+        const abort = {
+            url: url(`/abort`),
+            method: "POST",
+            data: {},
+        };
+        // delegate error handling
+        router.use((ctx, next) => {
+            return next()
+                .catch(error => render(ctx, { error }));
+        });
+        // abort interactions
+        router.post("/abort", (ctx) => tslib_1.__awaiter(this, void 0, void 0, function* () {
+            const { prompt, params } = yield provider.interactionDetails(ctx.req, ctx.res);
+            const redirect = yield provider.interactionResult(ctx.req, ctx.res, {
                 error: "access_denied",
                 error_description: "end-user aborted interaction",
             }, {
                 mergeWithLastSubmission: false,
             });
+            return render(ctx, {
+                redirect,
+            });
         }));
-        /* process each type of interactions */
-        router.post("/:id", (ctx) => tslib_1.__awaiter(this, void 0, void 0, function* () {
-            const context = yield getInteractionContext(ctx);
-            const promptName = context.prompt.name;
-            const body = ctx.request.body;
-            /* validate params */
-            let schema = null;
-            switch (promptName) {
-                case "login":
-                    schema = {
-                        username: "string|empty:false|trim:true",
-                        password: "string|empty:false",
-                    };
-                    break;
-                case "consent":
-                    break;
-                default:
-            }
-            if (schema) {
-                const errors = this.validator.validate(body, schema);
-                if (errors !== true && errors.length > 0) {
-                    ctx.status = 422;
-                    ctx.type = "json";
-                    ctx.body = {
-                        error: "validation_error",
-                        error_description: errors,
-                    };
-                    return;
-                }
-            }
-            /* update interactions */
-            let redirect = null;
-            switch (promptName) {
-                case "login":
-                    const { username, password } = body;
-                    const account = username;
-                    // TODO: resolve account
-                    redirect = yield provider.interactionResult(ctx.req, ctx.res, {
-                        // authentication/login prompt got resolved, omit if no authentication happened, i.e. the user
-                        // cancelled
-                        login: {
-                            account,
+        // handle login
+        router.get("/login", (ctx) => tslib_1.__awaiter(this, void 0, void 0, function* () {
+            const { prompt, params } = yield provider.interactionDetails(ctx.req, ctx.res);
+            ctx.assert(prompt.name === "login");
+            return render(ctx, {
+                interaction: {
+                    name: "login",
+                    action: {
+                        submit: {
+                            url: url(`/login`),
+                            method: "POST",
+                            data: {
+                                email: params.login_hint || "",
+                                password: "",
+                            },
                         },
-                    }, {
-                        mergeWithLastSubmission: true,
-                    });
-                    break;
-                case "consent":
-                    redirect = yield provider.interactionResult(ctx.req, ctx.res, {
-                        consent: {},
-                    }, {
-                        mergeWithLastSubmission: true,
-                    });
-                    break;
-                default:
-                    ctx.throw("not implemented");
-            }
-            if (redirect) {
-                ctx.type = "json";
-                ctx.body = { redirect };
-            }
-        }));
-        /* render application for any interactions */
-        router.get("*", (ctx) => tslib_1.__awaiter(this, void 0, void 0, function* () {
-            const context = yield getInteractionContext(ctx);
-            // create form data format
-            const submitFormData = {};
-            switch (context.prompt.name) {
-                case "login":
-                    submitFormData.username = context.params.login_hint || "";
-                    submitFormData.password = "";
-                    break;
-                case "consent":
-                    break;
-                default:
-            }
-            return renderer.render(ctx, {
-                context,
-                action: {
-                    submit: {
-                        url: url(`/${context.interaction_id}`),
-                        method: "POST",
-                        data: submitFormData,
-                    },
-                    abort: {
-                        url: url(`/${context.interaction_id}`),
-                        method: "DELETE",
-                        data: {},
+                        abort,
                     },
                 },
             });
+        }));
+        router.post("/login", (ctx) => tslib_1.__awaiter(this, void 0, void 0, function* () {
+            // assert prompt name
+            const { prompt, params } = yield provider.interactionDetails(ctx.req, ctx.res);
+            ctx.assert(prompt.name === "login");
+            const { email, password } = ctx.request.body;
+            // 1. user enter email only
+            if (typeof password === "undefined" || !password) {
+                // 2. server validate email
+                validate(ctx, { email: "email" });
+                // 3. fetch identity
+                const id = yield idp.findByEmail(email);
+                const { preferred_username, nickname, name } = yield id.claims("id_token", "profile");
+                return render(ctx, {
+                    interaction: {
+                        name: "login",
+                        action: {
+                            submit: {
+                                url: url(`/login`),
+                                method: "POST",
+                                data: {
+                                    email,
+                                    password: "",
+                                },
+                            },
+                            abort,
+                        },
+                        data: {
+                            email,
+                            name: preferred_username || nickname || name,
+                        },
+                    },
+                });
+            }
+            // 4. user get the next page and enter password and server validate it
+            validate(ctx, {
+                email: "email",
+                password: "string|empty:false",
+            });
+            // 5. check account password
+            const identity = yield idp.findByEmail(email);
+            yield idp.assertCredentials(identity.accountId, { password });
+            // 6. finish interaction and give redirection uri
+            const redirect = yield provider.interactionResult(ctx.req, ctx.res, {
+                // authentication/login prompt got resolved, omit if no authentication happened, i.e. the user
+                // cancelled
+                login: {
+                    account: identity.accountId,
+                    remember: true,
+                },
+            }, {
+                mergeWithLastSubmission: true,
+            });
+            return render(ctx, { redirect });
+        }));
+        /* 2. CONSENT */
+        router.get("/consent", (ctx) => tslib_1.__awaiter(this, void 0, void 0, function* () {
+            const { prompt, params, session } = yield provider.interactionDetails(ctx.req, ctx.res);
+            // fetch identity and client
+            const id = (yield idp.find(session.accountId));
+            const client = (yield provider.Client.find(params.client_id));
+            ctx.assert(prompt.name === "consent" && client && id);
+            const { email, preferred_username, nickname, name } = yield id.claims("id_token", "profile email");
+            return render(ctx, {
+                interaction: {
+                    name: "consent",
+                    action: {
+                        submit: {
+                            url: url(`/consent`),
+                            method: "POST",
+                            data: {
+                                rejectedScopes: [],
+                                rejectedClaims: [],
+                            },
+                        },
+                        abort,
+                    },
+                    data: Object.assign({ email, name: preferred_username || nickname || name, client: util_1.getPublicClientProps(client) }, prompt.details),
+                },
+            });
+        }));
+        router.post("/consent", (ctx) => tslib_1.__awaiter(this, void 0, void 0, function* () {
+            const { prompt, params } = yield provider.interactionDetails(ctx.req, ctx.res);
+            ctx.assert(prompt.name === "consent");
+            // 1. validate body
+            validate(ctx, {
+                rejectedScopes: {
+                    type: "array",
+                    items: "string",
+                },
+                rejectedClaims: {
+                    type: "array",
+                    items: "string",
+                },
+            });
+            // 2. finish interaction and give redirection uri
+            const redirect = yield provider.interactionResult(ctx.req, ctx.res, {
+                // consent was given by the user to the client for this session
+                consent: ctx.request.body,
+            }, {
+                mergeWithLastSubmission: true,
+            });
+            return render(ctx, { redirect });
         }));
         return router.routes();
     }

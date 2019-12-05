@@ -15,7 +15,7 @@ import getProviderHiddenProps from "oidc-provider/lib/helpers/weak_cache";
 
 export type OIDCProviderProps = {
   logger?: Logger,
-  identity: IdentityProvider,
+  idp: IdentityProvider,
 };
 
 export class OIDCProvider {
@@ -25,9 +25,9 @@ export class OIDCProvider {
   private readonly renderer: ClientApplicationRenderer;
 
   constructor(private readonly props: OIDCProviderProps, options: OIDCProviderOptions) {
+    const idp = props.idp;
     const logger = this.logger = props.logger || console;
     const {issuer, trustProxy, adapter, app, ...providerConfig} = _.defaultsDeep(options || {}, defaultOIDCProviderOptions);
-
     const isDev = issuer.startsWith("http://");
 
     /* create provider adapter */
@@ -50,12 +50,13 @@ export class OIDCProvider {
     const internalInteractionConfigFactory = new InternalInteractionConfigurationFactory({
       renderer,
       logger,
+      idp,
     });
 
     const interactionsFactory = new InteractionFactory({
       renderer,
       logger,
-      identity: props.identity,
+      idp,
     });
 
     /* create original provider */
@@ -68,7 +69,7 @@ export class OIDCProvider {
         // token is a reference to the token used for which a given account is being loaded,
         // it is undefined in scenarios where account claims are returned from authorization endpoint
         // ctx is the koa request context
-        return props.identity.find(id);
+        return idp.find(id);
       },
 
       // interactions and configuration
@@ -93,7 +94,7 @@ export class OIDCProvider {
   }
 
   public get idp() {
-    return this.props.identity;
+    return this.props.idp;
   }
 
   public get config(): OriginalProviderConfiguration {

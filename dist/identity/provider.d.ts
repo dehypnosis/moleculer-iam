@@ -13,10 +13,13 @@ export declare class IdentityProvider {
     start(): Promise<void>;
     stop(): Promise<void>;
     find(id: string): Promise<Identity>;
-    createRegistrationSession(payload: any): Promise<any>;
+    findByEmail(email: string): Promise<Identity>;
+    assertCredentials(id: string, credentials: {
+        password: string;
+    }): Promise<void>;
+    updateCredentials(): Promise<void>;
     register(payload: any): Promise<Identity>;
     update(payload: any): Promise<Identity>;
-    updateCredentials(): Promise<void>;
     remove(id: string, opts?: {
         permanent?: boolean;
     }): Promise<void>;

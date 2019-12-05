@@ -1,6 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
+const identity_1 = require("./identity");
+const error_1 = require("./error");
 class IdentityProvider {
     constructor(props, opts) {
         this.props = props;
@@ -30,12 +32,33 @@ class IdentityProvider {
     }
     find(id) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            return {};
+            return new identity_1.Identity(id, {
+                name: "John Doe",
+                email: id,
+            });
         });
     }
-    createRegistrationSession(payload) {
+    findByEmail(email) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            return {};
+            if (!email.endsWith(".com")) {
+                throw error_1.IdentityNotExistsError;
+            }
+            return new identity_1.Identity(email, {
+                name: "John Doe",
+                email,
+            });
+        });
+    }
+    assertCredentials(id, credentials) {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            const identity = yield this.find(id);
+            if (credentials.password !== "1234") {
+                throw error_1.InvalidCredentialsError;
+            }
+        });
+    }
+    updateCredentials() {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
         });
     }
     register(payload) {
@@ -46,10 +69,6 @@ class IdentityProvider {
     update(payload) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             return {};
-        });
-    }
-    updateCredentials() {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
         });
     }
     remove(id, opts) {
