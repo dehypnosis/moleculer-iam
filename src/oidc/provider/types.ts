@@ -1,6 +1,6 @@
 import "oidc-provider";
 import * as jose from "jose";
-import { OIDCModelName } from "oidc-provider";
+import { AnyObject, InteractionResults, OIDCModelName } from "oidc-provider";
 import { Logger } from "../../logger";
 
 export { AdapterConstructor as OIDCModelAdapterConstructor, AdapterPayload as OIDCModelPayload, Adapter as OIDCModelAdapter, errors as OIDCErrors } from "oidc-provider";
@@ -8,6 +8,31 @@ export { AdapterConstructor as OIDCModelAdapterConstructor, AdapterPayload as OI
 declare module "oidc-provider" {
   export type OIDCModelName = "Session" | "AccessToken" | "AuthorizationCode" | "RefreshToken" | "DeviceCode" | "ClientCredentials" | "Client" |
     "InitialAccessToken" | "RegistrationAccessToken" | "Interaction" | "ReplayDetection" | "PushedAuthorizationRequest";
+
+  export type Interaction = {
+    iat: number;
+    exp: number;
+    session?: {
+      accountId: string;
+      cookie: string;
+      jti?: string;
+      acr?: string;
+      amr?: string[];
+    };
+    params: AnyObject;
+    prompt: {
+      name: "login" | "consent" | string;
+      reasons: string[];
+      details: AnyObject;
+    };
+    result: InteractionResults;
+    returnTo: string;
+    signed?: string[];
+    uid: string;
+    lastSubmission?: InteractionResults;
+
+    save(ttl?: number): Promise<string>;
+  };
 
   export type Client = {
     responseTypeAllowed(type: ResponseType): boolean;
@@ -17,7 +42,7 @@ declare module "oidc-provider" {
     webMessageUriAllowed(webMessageUri: string): boolean;
     requestUriAllowed(requestUri: string): boolean;
     postLogoutRedirectUriAllowed(postLogoutRedirectUri: string): boolean;
-    backchannelLogout(sub: string, sid: string): Promise<void>;
+    backchannelLogout?(sub: string, sid: string): Promise<void>;
     includeSid(): boolean;
     metadata(): ClientMetadata;
     clientId: string;

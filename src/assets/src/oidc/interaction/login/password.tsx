@@ -23,21 +23,23 @@ export class LoginInteractionEnterPassword extends React.Component<{
 
   public render() {
     const {loading, password, errors} = this.state;
-    const { email, name } = this.props.oidc.interaction!.data!;
+    const { user, client } = this.props.oidc.interaction!.data!;
     return (
       <OIDCInteractionPage
-        title={`Hi, ${name}`}
-        subtitle={email}
+        title={`Hi, ${user.name}`}
+        subtitle={user.email}
         buttons={[
           {
             primary: true,
             text: "Login",
             onClick: this.handleLogin,
             loading,
+            tabIndex: 2,
           },
           {
             text: "Cancel",
             onClick: this.handleCancel,
+            tabIndex: 3,
           },
         ]}
         error={errors.global}
@@ -48,13 +50,14 @@ export class LoginInteractionEnterPassword extends React.Component<{
           inputMode="text"
           placeholder="Enter your password"
           autoFocus
+          tabIndex={1}
           value={password}
           errorMessage={errors.password}
           onChange={(e, v) => this.setState({password: v || ""})}
           onKeyUp={e => e.key === "Enter" && !loading && this.handleLogin()}
           styles={TextFieldStyles.bold}
         />
-        <Link href="/forget-password" variant="small" style={{marginTop: "10px"}}>Forgot password?</Link>
+        <Link tabIndex={4} href="/forget-password" variant="small" style={{marginTop: "10px"}}>Forgot password?</Link>
       </OIDCInteractionPage>
     );
   }

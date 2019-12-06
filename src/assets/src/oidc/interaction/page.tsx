@@ -5,13 +5,14 @@ import logo from "../../image/logo.svg";
 import { OIDCInteractionStackContext } from "./context";
 
 export const OIDCInteractionPage: React.FunctionComponent<{
-  title: string,
-  subtitle?: string,
+  title: string | ReactElement,
+  subtitle?: string | ReactElement,
   buttons: Array<{
     text: string,
     onClick?: () => void,
     primary?: boolean,
     loading?: boolean,
+    tabIndex?: number,
   }>,
   footer?: ReactElement,
   error?: string,
@@ -63,10 +64,11 @@ export const OIDCInteractionPage: React.FunctionComponent<{
 
         {(buttons.length > 0 || footer) ? <Stack tokens={{childrenGap: 15}} verticalAlign="end">
           { error ? <MessageBar messageBarType={MessageBarType.error} styles={{root: AnimationStyles.slideDownIn20}} children={error}/> : null }
-          {buttons.map(({ primary, text, onClick, loading}, key) => {
+          {buttons.map(({ primary, text, onClick, loading, tabIndex }, index) => {
             const Button = primary ? PrimaryButton : DefaultButton;
-            return <Button key={key} checked={loading === true} allowDisabledFocus text={text} styles={ButtonStyles.large} onClick={onClick} />;
+            return <Button key={index} tabIndex={tabIndex} checked={loading === true} allowDisabledFocus text={text} styles={ButtonStyles.large} onClick={onClick} />;
           })}
+          {footer}
         </Stack> : null}
       </Stack>
     </Stack>

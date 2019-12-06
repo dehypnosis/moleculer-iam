@@ -1,8 +1,8 @@
 import React from "react";
 import { OIDCProps } from "../../types";
 import { OIDCInteractionPage } from "../page";
-import { TextFieldStyles } from "../styles";
-import { Link, TextField } from "office-ui-fabric-react";
+import { TextFieldStyles, ButtonStyles, ThemeStyles } from "../styles";
+import { Link, Text, TextField, Stack, PrimaryButton, Separator } from "office-ui-fabric-react/lib";
 import { sendRequest } from "../../request";
 import { OIDCInteractionStackContext } from "../context";
 import { LoginInteractionEnterPassword } from "./password";
@@ -13,17 +13,19 @@ export class LoginInteraction extends React.Component<{
   loading: boolean,
   email: string,
   errors: { [key: string]: string },
+  showSocial: boolean,
 }> {
   public state = {
     loading: false,
     email: this.props.oidc.interaction!.action!.submit.data.email || "",
     errors: {} as { [key: string]: string },
+    showSocial: false,
   };
 
   public static contextType = OIDCInteractionStackContext;
 
   public render() {
-    const {loading, email, errors} = this.state;
+    const {loading, email, errors, showSocial} = this.state;
     return (
       <OIDCInteractionPage
         title={"Sign in"}
@@ -34,13 +36,34 @@ export class LoginInteraction extends React.Component<{
             text: "Next",
             onClick: this.handleNext,
             loading,
+            tabIndex: 2,
           },
           {
             text: "Sign up",
             onClick: this.handleSignUp,
+            tabIndex: 3,
           },
-        ]}
+        ].concat(
+          this.context.size > 1 ? [{
+            text: "Cancel",
+            onClick: this.handleCancel,
+            tabIndex: 4,
+          }] : [],
+        )}
         error={errors.global}
+        footer={
+          <React.Fragment>
+            <Separator><span style={{color: ThemeStyles.palette.neutralTertiary}}>OR</span></Separator>
+            {showSocial ? (
+              <Stack tokens={{childrenGap: 15}}>
+                <PrimaryButton styles={{...ButtonStyles.large, label: {fontWeight: 500}}} text={"Login with KakaoTalk"} style={{flex: "1 1 auto", backgroundColor:"#ffdc00", color:"black"}} />
+                <PrimaryButton styles={{...ButtonStyles.large, label: {fontWeight: 500}}} text={"Login with Facebook"} style={{flex: "1 1 auto", backgroundColor:"#1876f2", color:"white"}} />
+              </Stack>
+            ) : (
+              <Link style={{color: ThemeStyles.palette.neutralTertiary}} onClick={() => this.setState(state => ({ showSocial: !state.showSocial}))}>Find more login options?</Link>
+            )}
+          </React.Fragment>
+        }
       >
         <TextField
           label="Email"
@@ -48,15 +71,23 @@ export class LoginInteraction extends React.Component<{
           inputMode="email"
           placeholder="Enter your email"
           autoFocus
+          tabIndex={1}
           value={email}
           errorMessage={errors.email}
           onChange={(e, v) => this.setState({email: v || ""})}
           onKeyUp={e => e.key === "Enter" && !loading && this.handleNext()}
           styles={TextFieldStyles.bold}
         />
-        <Link href="/forget-email" variant="small" style={{marginTop: "10px"}}>Forgot email?</Link>
+        <Link href="/forget-email" tabIndex={5} variant="small" style={{marginTop: "10px"}}>Forgot email?</Link>
       </OIDCInteractionPage>
     );
+  }
+
+  public componentDidMount() {
+    // try to go to next with login hint
+    if (this.state.email) {
+      this.handleNext();
+    }
   }
 
   public handleNext = async () => {
@@ -67,7 +98,7 @@ export class LoginInteraction extends React.Component<{
         const oidc = await sendRequest(this.props.oidc.interaction!.action!.submit, {
           email,
         });
-        const { error } = oidc;
+        const {error} = oidc;
         if (error) {
           if (error.status === 422) {
             this.setState({errors: error.detail, loading: false});
@@ -87,5 +118,10 @@ export class LoginInteraction extends React.Component<{
 
   public handleSignUp = () => {
     // TODO: sign up link
+  }
+
+  public handleCancel = () => {
+    if (this.state.loading) return;
+    this.context.pop();
   }
 }

@@ -1,10 +1,11 @@
 import React from "react";
+import { Link, TextField, Text, Persona, PersonaSize, Stack } from "office-ui-fabric-react/lib";
 import { OIDCProps } from "../../types";
 import { OIDCInteractionPage } from "../page";
-import { TextFieldStyles } from "../styles";
-import { Link, TextField } from "office-ui-fabric-react";
-import { sendRequest } from "../../request";
+import { TextFieldStyles, ThemeStyles } from "../styles";
 import { OIDCInteractionStackContext } from "../context";
+import { sendRequest } from "../../request";
+import { LoginInteraction } from "../login";
 
 export class ConsentInteraction extends React.Component<{
   oidc: OIDCProps,
@@ -21,30 +22,46 @@ export class ConsentInteraction extends React.Component<{
 
   public render() {
     const {loading, errors} = this.state;
-    const { client, name, email } = this.props.oidc.interaction!.data!;
+    const { client, user, consent } = this.props.oidc.interaction!.data!;
+    console.log(consent);
 
     return (
       <OIDCInteractionPage
-        title={`Connect to ${client.name}`}
-        subtitle={email}
+        title={<span>Connect to <Text style={{color: ThemeStyles.palette.orange}} variant="xLarge">{client.name}</Text></span>}
         buttons={[
           {
             primary: true,
-            text: "Confirm",
+            text: "Continue",
             onClick: this.handleConfirm,
             loading,
+            tabIndex: 1,
           },
+          // {
+          //   text: "Cancel",
+          //   onClick: this.handleReject,
+          //   loading,
+          //   tabIndex: 2,
+          // },
           {
-            text: "Cancel",
-            onClick: this.handleCancel,
+            text: "Use other account",
+            onClick: this.handleChangeAccount,
             loading,
+            tabIndex: 3,
           },
         ]}
+        footer={
+          <Text>
+            To continue, plco will share your {consent.scopes.new.concat(consent.scopes.accepted).join(", ")} information. Before using this application, you can review the <Link href={client.homepage}>{client.name}</Link>'s <Link href={client.privacy} target="_blank" variant="small">privacy policy</Link> and <Link href={client.privacy} target="_blank" variant="small">terms of service</Link>.
+          </Text>
+        }
         error={errors.global}
       >
-        <div style={{marginTop: "10px"}}>
-          <Link href={client.tos} target="_blank" variant="small">Terms</Link> <Link>&amp;</Link> <Link href={client.privacy} target="_blank" variant="small">Privacy</Link>, <Link href={client.homepage} target="_blank" variant="small">Homepage</Link>
-        </div>
+        <Persona
+          text={user.name}
+          secondaryText={user.email}
+          size={PersonaSize.size56}
+          imageUrl={user.picture}
+        />
       </OIDCInteractionPage>
     );
   }
@@ -75,7 +92,7 @@ export class ConsentInteraction extends React.Component<{
     });
   }
 
-  public handleCancel = () => {
+  public handleReject = () => {
     const {loading} = this.state;
     if (loading) return;
     this.setState({loading: true, errors: {}}, async () => {
@@ -94,6 +111,15 @@ export class ConsentInteraction extends React.Component<{
       } catch (error) {
         this.setState({errors: {global: error.toString()}, loading: false});
       }
+    });
+  }
+
+  public handleChangeAccount = () => {
+    const {loading} = this.state;
+    if (loading) return;
+
+    this.setState({errors: {}}, async () => {
+      this.context.push(<LoginInteraction oidc={this.props.oidc.interaction!.data!.changeUser}/>);
     });
   }
 }

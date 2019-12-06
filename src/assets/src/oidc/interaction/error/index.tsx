@@ -17,14 +17,15 @@ export const ErrorInteraction: React.FunctionComponent<{
         {
           primary: false,
           text: "Close",
+          tabIndex: 1,
           onClick: () => {
             window.history.back();
             setTimeout(() => {
               window.close();
               setTimeout(() => {
                 setClosed(true);
-              }, 300);
-            }, 300);
+              }, 1000);
+            }, 500);
           },
         },
       ]}

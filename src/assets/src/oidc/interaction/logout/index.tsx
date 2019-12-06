@@ -19,18 +19,24 @@ export class LogoutInteraction extends React.Component<{
 
   public render() {
     const { loading, errors } = this.state;
-    const { email } = this.props.oidc.interaction!.data!;
+    const { user } = this.props.oidc.interaction!.data!;
 
     return (
       <OIDCInteractionPage
         title={`Sign out`}
-        subtitle={email}
+        subtitle={user.email}
         buttons={[
           {
             primary: true,
             text: "Confirm",
             onClick: this.handleConfirm,
             loading,
+          },
+          {
+            text: "Cancel",
+            onClick: this.handleCancel,
+            loading,
+            tabIndex: 2,
           },
         ]}
         error={errors.global}
@@ -51,5 +57,16 @@ export class LogoutInteraction extends React.Component<{
         this.setState({errors: {global: error.toString()}, loading: false});
       }
     });
+  }
+
+  public handleCancel = () => {
+    if (this.state.loading) return;
+    window.history.back();
+    setTimeout(() => {
+      window.close();
+      setTimeout(() => {
+        this.setState({errors: {global: "Cannot close the window, you can close the browser manually."}});
+      }, 1000);
+    }, 500);
   }
 }

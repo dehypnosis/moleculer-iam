@@ -3,6 +3,7 @@ import { IButtonStyles } from "office-ui-fabric-react/lib/components/Button/Butt
 import { ITextFieldStyleProps } from "office-ui-fabric-react/lib/components/TextField/TextField.types";
 
 export { AnimationStyles };
+export { ThemeStyles } from "../../styles";
 
 export const TextFieldStyles: { [key: string]: IStyleFunctionOrObject<ITextFieldStyleProps, ITextFieldStyles> } = {
   bold: {

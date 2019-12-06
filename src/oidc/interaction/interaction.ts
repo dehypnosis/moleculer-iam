@@ -2,11 +2,11 @@ import Router from "koa-router";
 import bodyParser from "koa-bodyparser";
 import noCache from "koajs-nocache";
 import Validator, { ValidationSchema } from "fastest-validator";
-import { IdentityProvider } from "../../identity";
+import { Identity, IdentityProvider } from "../../identity";
 import { Logger } from "../../logger";
-import { KoaContextWithOIDC, Provider, interactionPolicy, Configuration, OIDCErrors } from "../provider";
+import { KoaContextWithOIDC, Provider, interactionPolicy, Configuration, Interaction, Client } from "../provider";
 import { ClientApplicationError, ClientApplicationRenderer } from "./render";
-import { getPublicClientProps } from "./util";
+import { getPublicClientProps, getPublicUserProps } from "./util";
 // import { getPublicClientProps } from "./util";
 
 // ref: https://github.com/panva/node-oidc-provider/blob/cd9bbfb653ddfb99c574ea3d4519b6f834274e86/docs/README.md#user-flows
@@ -15,6 +15,12 @@ export type InteractionFactoryProps = {
   idp: IdentityProvider;
   renderer: ClientApplicationRenderer;
   logger: Logger;
+};
+
+export type InteractionRequestContext = {
+  interaction: Interaction,
+  user?: Identity,
+  client?: Client,
 };
 
 export class InteractionFactory {
@@ -114,15 +120,31 @@ export class InteractionFactory {
       data: {},
     };
 
-    // delegate error handling
-    router.use((ctx: KoaContextWithOIDC, next) => {
-      return next()
-        .catch(error => render(ctx as any, {error}));
+    // middleware
+    router.use(async (ctx: KoaContextWithOIDC, next) => {
+      try {
+        // fetch interaction details
+        const interaction = await provider.interactionDetails(ctx.req, ctx.res);
+
+        // fetch identity and client
+        const user = interaction.session ? (await idp.find(interaction.session!.accountId)) : undefined;
+        const client = interaction.params.client_id ? (await provider.Client.find(interaction.params.client_id)) : undefined;
+        const locals: InteractionRequestContext = {interaction, user, client};
+        ctx.locals = locals;
+
+        await next();
+      } catch (error) {
+        if (error.status >= 500) {
+          logger.error(error);
+        }
+
+        // delegate error handling
+        return render(ctx, {error});
+      }
     });
 
     // abort interactions
     router.post("/abort", async ctx => {
-      const {prompt, params} = await provider.interactionDetails(ctx.req, ctx.res);
       const redirect = await provider.interactionResult(ctx.req, ctx.res, {
         error: "access_denied",
         error_description: "end-user aborted interaction",
@@ -137,9 +159,27 @@ export class InteractionFactory {
 
     // handle login
     router.get("/login", async ctx => {
-      const {prompt, params} = await provider.interactionDetails(ctx.req, ctx.res);
-      ctx.assert(prompt.name === "login");
+      const {user, client, interaction} = ctx.locals as InteractionRequestContext;
 
+      // already signed in
+      if (user) {
+        const redirect = await provider.interactionResult(ctx.req, ctx.res, {
+          // authentication/login prompt got resolved, omit if no authentication happened, i.e. the user
+          // cancelled
+          login: {
+            account: user.id,
+            remember: true,
+            // acr: string, // acr value for the authentication
+            // remember: boolean, // true if provider should use a persistent cookie rather than a session one, defaults to true
+            // ts: number, // unix timestamp of the authentication, defaults to now()
+          },
+        }, {
+          mergeWithLastSubmission: true,
+        });
+        return render(ctx, {redirect});
+      }
+
+      ctx.assert(interaction.prompt.name === "login");
       return render(ctx, {
         interaction: {
           name: "login",
@@ -148,20 +188,23 @@ export class InteractionFactory {
               url: url(`/login`),
               method: "POST",
               data: {
-                email: params.login_hint || "",
+                email: interaction.params.login_hint || "",
                 password: "",
               },
             },
             abort,
+          },
+          data: {
+            user: user ? await getPublicUserProps(user) : undefined,
+            client: client ? await getPublicClientProps(client) : undefined,
           },
         },
       });
     });
 
     router.post("/login", async ctx => {
-      // assert prompt name
-      const {prompt, params} = await provider.interactionDetails(ctx.req, ctx.res);
-      ctx.assert(prompt.name === "login");
+      const {client, interaction} = ctx.locals as InteractionRequestContext;
+      ctx.assert(interaction.prompt.name === "login" || interaction.prompt.name === "consent");
 
       const {email, password} = ctx.request.body;
 
@@ -172,9 +215,8 @@ export class InteractionFactory {
         validate(ctx, {email: "email"});
 
         // 3. fetch identity
-        const id = await idp.findByEmail(email);
-        const {preferred_username, nickname, name} = await id.claims("id_token", "profile");
-
+        // tslint:disable-next-line:no-shadowed-variable
+        const user = await idp.findByEmail(email);
         return render(ctx, {
           interaction: {
             name: "login",
@@ -190,8 +232,8 @@ export class InteractionFactory {
               abort,
             },
             data: {
-              email,
-              name: preferred_username || nickname || name,
+              user: user ? await getPublicUserProps(user) : undefined,
+              client: client ? await getPublicClientProps(client) : undefined,
             },
           },
         });
@@ -204,37 +246,43 @@ export class InteractionFactory {
       });
 
       // 5. check account password
-      const identity = await idp.findByEmail(email);
-      await idp.assertCredentials(identity.accountId, {password});
+      const user = await idp.findByEmail(email);
+      await idp.assertCredentials(user, {password});
 
       // 6. finish interaction and give redirection uri
+      const login = {
+        account: user.id,
+        remember: true,
+        // acr: string, // acr value for the authentication
+        // remember: boolean, // true if provider should use a persistent cookie rather than a session one, defaults to true
+        // ts: number, // unix timestamp of the authentication, defaults to now()
+      };
+
       const redirect = await provider.interactionResult(ctx.req, ctx.res, {
         // authentication/login prompt got resolved, omit if no authentication happened, i.e. the user
         // cancelled
-        login: {
-          account: identity.accountId,
-          remember: true,
-          // acr: string, // acr value for the authentication
-          // remember: boolean, // true if provider should use a persistent cookie rather than a session one, defaults to true
-          // ts: number, // unix timestamp of the authentication, defaults to now()
-        },
+        login,
       }, {
         mergeWithLastSubmission: true,
       });
+
+      // overwrite session for consent -> change account -> login
+      if (interaction.prompt.name === "consent") {
+        const session = await provider.setProviderSession(ctx.req, ctx.res, login);
+      }
 
       return render(ctx, {redirect});
     });
 
     /* 2. CONSENT */
     router.get("/consent", async ctx => {
-      const {prompt, params, session} = await provider.interactionDetails(ctx.req, ctx.res);
+      const {user, client, interaction} = ctx.locals as InteractionRequestContext;
+      ctx.assert(user && interaction.prompt.name === "consent");
 
-      // fetch identity and client
-      const id = (await idp.find(session!.accountId))!;
-      const client = (await provider.Client.find(params.client_id))!;
-      ctx.assert(prompt.name === "consent" && client && id);
-
-      const {email, preferred_username, nickname, name} = await id.claims("id_token", "profile email");
+      const data = {
+        user: user ? await getPublicUserProps(user) : undefined,
+        client: client ? await getPublicClientProps(client) : undefined,
+      };
 
       return render(ctx, {
         interaction: {
@@ -251,18 +299,38 @@ export class InteractionFactory {
             abort,
           },
           data: {
-            email,
-            name: preferred_username || nickname || name,
-            client: getPublicClientProps(client as any),
-            ...prompt.details,
+            // client, user
+            ...data,
+
+            // consent data (scopes, claims)
+            consent: interaction.prompt.details,
+
+            // new interaction props to change account
+            changeUser: {
+              interaction: {
+                name: "login",
+                action: {
+                  submit: {
+                    url: url(`/login`),
+                    method: "POST",
+                    data: {
+                      email: "",
+                      password: "",
+                    },
+                  },
+                  abort,
+                },
+                data,
+              },
+            },
           },
         },
       });
     });
 
     router.post("/consent", async ctx => {
-      const {prompt, params} = await provider.interactionDetails(ctx.req, ctx.res);
-      ctx.assert(prompt.name === "consent");
+      const {user, client, interaction} = ctx.locals as InteractionRequestContext;
+      ctx.assert(interaction.prompt.name === "consent");
 
       // 1. validate body
       validate(ctx, {

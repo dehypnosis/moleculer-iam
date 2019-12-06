@@ -20,7 +20,7 @@ export const LogoutEndInteraction: React.FunctionComponent<{
             window.close();
             setTimeout(() => {
               setClosed(true);
-            }, 300);
+            }, 500);
           },
         },
       ]}

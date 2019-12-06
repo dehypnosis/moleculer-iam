@@ -1,11 +1,9 @@
-// import * as _ from "lodash";
 import { Logger } from "../../logger";
-import { Configuration, KoaContextWithOIDC, OIDCErrors } from "../provider";
-import { ClientApplicationError, ClientApplicationProps, ClientApplicationRenderer } from "./render";
+import { Configuration, KoaContextWithOIDC } from "../provider";
+import { ClientApplicationProps, ClientApplicationRenderer } from "./render";
 import { RouterContext } from "koa-router";
-import { IdentityProvider } from "../../identity";
-import { getPublicClientProps } from "./util";
-// import { getPublicClientProps } from "./util";
+import { Identity, IdentityProvider } from "../../identity";
+import { getPublicClientProps, getPublicUserProps } from "./util";
 
 export type InternalInteractionConfigurationFactoryProps = {
   idp: IdentityProvider;
@@ -32,6 +30,17 @@ export class InternalInteractionConfigurationFactory {
     const idp = this.props.idp;
     const render = this.render.bind(this);
     const logger = this.props.logger;
+
+    async function getContext(ctx: KoaContextWithOIDC) {
+      const oidc = ctx.oidc as typeof ctx.state.oidc;
+
+      // fetch identity and client
+      const user = oidc.session ? await idp.find(oidc.session!.accountId() as string) : undefined;
+      const clientId = oidc.session!.state!.clientId;
+      const client = clientId ? (await oidc.provider.Client.find(clientId)) : undefined;
+      return { user, client };
+    }
+
     return {
       /* error */
       async renderError(ctx, out, error) {
@@ -54,19 +63,15 @@ export class InternalInteractionConfigurationFactory {
       // sign out
       // ref: https://github.com/panva/node-oidc-provider/blob/c6b1770e68224b7463c1fa5c64199f0cd38131af/lib/actions/end_session.js#L88
       async logoutSource(ctx, formHTML) {
-        const oidc = ctx.oidc as typeof ctx.state.oidc;
-        const id = await idp.find(oidc.session!.accountId() as string);
-        ctx.assert(id);
-        const clientId = oidc.session!.state!.clientId;
-        const client = clientId ? (await oidc.provider.Client.find(clientId)) : null;
+        const { user, client } = await getContext(ctx);
+        ctx.assert(user);
 
-        const {email, preferred_username, nickname, name} = await id.claims("id_token", "profile email");
         await render(ctx, {
           interaction: {
             name: "logout",
             action: {
               submit: {
-                url: (oidc as any).urlFor("end_session_confirm"),
+                url: ctx.oidc.urlFor("end_session_confirm"),
                 method: "POST",
                 data: {
                   logout: true,
@@ -74,9 +79,8 @@ export class InternalInteractionConfigurationFactory {
               },
             },
             data: {
-              email,
-              name: preferred_username || nickname || name,
-              client: getPublicClientProps(client as any),
+              user: user ? await getPublicUserProps(user) : undefined,
+              client: client ? await getPublicClientProps(client) : undefined,
             },
           },
         });
@@ -88,7 +92,11 @@ export class InternalInteractionConfigurationFactory {
           // prompt user code for device flow
           // ref: https://github.com/panva/node-oidc-provider/blob/74b434c627248c82ca9db5aed3a03f0acd0d7214/lib/actions/code_verification.js#L19
           async userCodeInputSource(ctx, formHTML, out, error) {
+            const { user, client } = await getContext(ctx);
+            ctx.assert(user && client);
+
             const oidc = ctx.oidc as typeof ctx.state.oidc;
+
             await render(ctx, {
               error,
               interaction: {
@@ -102,6 +110,10 @@ export class InternalInteractionConfigurationFactory {
                     },
                   },
                 },
+                data: {
+                  user: user ? await getPublicUserProps(user) : undefined,
+                  client: client ? await getPublicClientProps(client) : undefined,
+                }
               },
             });
           },
@@ -109,13 +121,14 @@ export class InternalInteractionConfigurationFactory {
           // confirm user code
           // ref: https://github.com/panva/node-oidc-provider/blob/master/lib/helpers/defaults.js#L635
           async userCodeConfirmSource(ctx, form, client, deviceInfo, userCode) { // eslint-disable-line no-unused-vars
+            const { user } = await getContext(ctx);
+            ctx.assert(user && client);
+
             const oidc = ctx.oidc as typeof ctx.state.oidc;
+
             await render(ctx, {
               interaction: {
                 name: "device_flow_confirm",
-                data: {
-                  deviceInfo,
-                },
                 action: {
                   submit: {
                     url: (oidc as any).urlFor("code_verification"),
@@ -134,16 +147,28 @@ export class InternalInteractionConfigurationFactory {
                     },
                   },
                 },
+                data: {
+                  user: user ? await getPublicUserProps(user) : undefined,
+                  client: client ? await getPublicClientProps(client) : undefined,
+                  deviceInfo,
+                },
               },
             });
           },
 
           // user code confirmed
           async successSource(ctx) {
+            const { user, client } = await getContext(ctx);
+            ctx.assert(user && client);
+
             await render(ctx, {
               interaction: {
                 name: "device_flow_end",
                 // TODO: add details for to determine confirmed or non-confirmed
+                data: {
+                  user: user ? await getPublicUserProps(user) : undefined,
+                  client: client ? await getPublicClientProps(client) : undefined,
+                },
               },
             });
           },

@@ -6,4 +6,5 @@ export const OIDCInteractionStackContext = React.createContext({
   push: (page: any) => {},
   animation: AnimationStyles.slideLeftIn40,
   key: 0,
+  size: 0,
 });

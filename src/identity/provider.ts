@@ -43,7 +43,8 @@ export class IdentityProvider {
 
   public async find(id: string): Promise<Identity> {
     return new Identity(id, {
-      name: "John Doe",
+      name: "Dong Wook Kim",
+      picture: "https://static2.sharepointonline.com/files/fabric/office-ui-fabric-react-assets/persona-female.png",
       email: id,
     });
   }
@@ -53,13 +54,13 @@ export class IdentityProvider {
       throw IdentityNotExistsError;
     }
     return new Identity(email, {
-      name: "John Doe",
+      name: "Dong Wook Kim",
+      picture: "https://static2.sharepointonline.com/files/fabric/office-ui-fabric-react-assets/persona-female.png",
       email,
     });
   }
 
-  public async assertCredentials(id: string, credentials: { password: string }) {
-    const identity = await this.find(id);
+  public async assertCredentials(id: Identity, credentials: { password: string }) {
     if (credentials.password !== "1234") {
       throw InvalidCredentialsError;
     }
