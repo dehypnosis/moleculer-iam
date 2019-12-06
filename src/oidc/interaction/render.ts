@@ -28,6 +28,7 @@ export interface ClientApplicationInteractionProps {
       url: string;
       method: string;
       data?: any;
+      urlencoded?: boolean;
     };
   };
   data?: any;

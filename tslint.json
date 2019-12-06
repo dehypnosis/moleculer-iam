@@ -42,5 +42,10 @@
     "arrow-parens": false,
     "interface-name": false,
     "no-empty-interface": false
+  },
+  "linterOptions": {
+    "exclude": [
+      "**/*.js"
+    ]
   }
 }

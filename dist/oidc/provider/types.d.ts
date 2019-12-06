@@ -3,6 +3,29 @@ import * as jose from "jose";
 export { AdapterConstructor as OIDCModelAdapterConstructor, AdapterPayload as OIDCModelPayload, Adapter as OIDCModelAdapter, errors as OIDCErrors } from "oidc-provider";
 declare module "oidc-provider" {
     type OIDCModelName = "Session" | "AccessToken" | "AuthorizationCode" | "RefreshToken" | "DeviceCode" | "ClientCredentials" | "Client" | "InitialAccessToken" | "RegistrationAccessToken" | "Interaction" | "ReplayDetection" | "PushedAuthorizationRequest";
+    type Interaction = {
+        iat: number;
+        exp: number;
+        session?: {
+            accountId: string;
+            cookie: string;
+            jti?: string;
+            acr?: string;
+            amr?: string[];
+        };
+        params: AnyObject;
+        prompt: {
+            name: "login" | "consent" | string;
+            reasons: string[];
+            details: AnyObject;
+        };
+        result: InteractionResults;
+        returnTo: string;
+        signed?: string[];
+        uid: string;
+        lastSubmission?: InteractionResults;
+        save(ttl?: number): Promise<string>;
+    };
     type Client = {
         responseTypeAllowed(type: ResponseType): boolean;
         grantTypeAllowed(type: string): boolean;
@@ -11,7 +34,7 @@ declare module "oidc-provider" {
         webMessageUriAllowed(webMessageUri: string): boolean;
         requestUriAllowed(requestUri: string): boolean;
         postLogoutRedirectUriAllowed(postLogoutRedirectUri: string): boolean;
-        backchannelLogout(sub: string, sid: string): Promise<void>;
+        backchannelLogout?(sub: string, sid: string): Promise<void>;
         includeSid(): boolean;
         metadata(): ClientMetadata;
         clientId: string;

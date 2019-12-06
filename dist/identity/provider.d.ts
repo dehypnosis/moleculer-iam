@@ -14,7 +14,7 @@ export declare class IdentityProvider {
     stop(): Promise<void>;
     find(id: string): Promise<Identity>;
     findByEmail(email: string): Promise<Identity>;
-    assertCredentials(id: string, credentials: {
+    assertCredentials(id: Identity, credentials: {
         password: string;
     }): Promise<void>;
     updateCredentials(): Promise<void>;

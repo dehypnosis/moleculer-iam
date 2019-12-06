@@ -10,6 +10,16 @@ class InternalInteractionConfigurationFactory {
         const idp = this.props.idp;
         const render = this.render.bind(this);
         const logger = this.props.logger;
+        function getContext(ctx) {
+            return tslib_1.__awaiter(this, void 0, void 0, function* () {
+                const oidc = ctx.oidc;
+                // fetch identity and client
+                const user = oidc.session ? yield idp.find(oidc.session.accountId()) : undefined;
+                const clientId = oidc.session.state.clientId;
+                const client = clientId ? (yield oidc.provider.Client.find(clientId)) : undefined;
+                return { user, client };
+            });
+        }
         return {
             /* error */
             renderError(ctx, out, error) {
@@ -35,28 +45,24 @@ class InternalInteractionConfigurationFactory {
             // ref: https://github.com/panva/node-oidc-provider/blob/c6b1770e68224b7463c1fa5c64199f0cd38131af/lib/actions/end_session.js#L88
             logoutSource(ctx, formHTML) {
                 return tslib_1.__awaiter(this, void 0, void 0, function* () {
-                    const oidc = ctx.oidc;
-                    const id = yield idp.find(oidc.session.accountId());
-                    ctx.assert(id);
-                    const clientId = oidc.session.state.clientId;
-                    const client = clientId ? (yield oidc.provider.Client.find(clientId)) : null;
-                    const { email, preferred_username, nickname, name } = yield id.claims("id_token", "profile email");
+                    const { user, client } = yield getContext(ctx);
+                    ctx.assert(user);
                     yield render(ctx, {
                         interaction: {
                             name: "logout",
                             action: {
                                 submit: {
-                                    url: oidc.urlFor("end_session_confirm"),
+                                    url: ctx.oidc.urlFor("end_session_confirm"),
                                     method: "POST",
                                     data: {
                                         logout: true,
                                     },
+                                    urlencoded: true,
                                 },
                             },
                             data: {
-                                email,
-                                name: preferred_username || nickname || name,
-                                client: util_1.getPublicClientProps(client),
+                                user: user ? yield util_1.getPublicUserProps(user) : undefined,
+                                client: client ? yield util_1.getPublicClientProps(client) : undefined,
                             },
                         },
                     });
@@ -69,6 +75,8 @@ class InternalInteractionConfigurationFactory {
                     // ref: https://github.com/panva/node-oidc-provider/blob/74b434c627248c82ca9db5aed3a03f0acd0d7214/lib/actions/code_verification.js#L19
                     userCodeInputSource(ctx, formHTML, out, error) {
                         return tslib_1.__awaiter(this, void 0, void 0, function* () {
+                            const { user, client } = yield getContext(ctx);
+                            ctx.assert(user && client);
                             const oidc = ctx.oidc;
                             yield render(ctx, {
                                 error,
@@ -83,6 +91,10 @@ class InternalInteractionConfigurationFactory {
                                             },
                                         },
                                     },
+                                    data: {
+                                        user: user ? yield util_1.getPublicUserProps(user) : undefined,
+                                        client: client ? yield util_1.getPublicClientProps(client) : undefined,
+                                    },
                                 },
                             });
                         });
@@ -91,13 +103,12 @@ class InternalInteractionConfigurationFactory {
                     // ref: https://github.com/panva/node-oidc-provider/blob/master/lib/helpers/defaults.js#L635
                     userCodeConfirmSource(ctx, form, client, deviceInfo, userCode) {
                         return tslib_1.__awaiter(this, void 0, void 0, function* () {
+                            const { user } = yield getContext(ctx);
+                            ctx.assert(user && client);
                             const oidc = ctx.oidc;
                             yield render(ctx, {
                                 interaction: {
                                     name: "device_flow_confirm",
-                                    data: {
-                                        deviceInfo,
-                                    },
                                     action: {
                                         submit: {
                                             url: oidc.urlFor("code_verification"),
@@ -116,6 +127,11 @@ class InternalInteractionConfigurationFactory {
                                             },
                                         },
                                     },
+                                    data: {
+                                        user: user ? yield util_1.getPublicUserProps(user) : undefined,
+                                        client: client ? yield util_1.getPublicClientProps(client) : undefined,
+                                        deviceInfo,
+                                    },
                                 },
                             });
                         });
@@ -123,9 +139,16 @@ class InternalInteractionConfigurationFactory {
                     // user code confirmed
                     successSource(ctx) {
                         return tslib_1.__awaiter(this, void 0, void 0, function* () {
+                            const { user, client } = yield getContext(ctx);
+                            ctx.assert(user && client);
                             yield render(ctx, {
                                 interaction: {
                                     name: "device_flow_end",
+                                    // TODO: add details for to determine confirmed or non-confirmed
+                                    data: {
+                                        user: user ? yield util_1.getPublicUserProps(user) : undefined,
+                                        client: client ? yield util_1.getPublicClientProps(client) : undefined,
+                                    },
                                 },
                             });
                         });
@@ -147,16 +170,14 @@ class InternalInteractionConfigurationFactory {
         //   },
         //   params: _.mapValues(params || {}, value => typeof value === "undefined" ? null : value),
         // };
-        // fill XSRF token for POST actions
+        // fill XSRF token
         if (props.interaction && props.interaction.action) {
             const xsrf = oidc.session && oidc.session.state && oidc.session.state.secret || undefined;
             if (xsrf) {
                 // tslint:disable-next-line:forin
                 for (const k in props.interaction.action) {
                     const action = props.interaction.action[k];
-                    if (action.method === "POST") {
-                        action.data.xsrf = xsrf;
-                    }
+                    action.data.xsrf = xsrf;
                 }
             }
         }

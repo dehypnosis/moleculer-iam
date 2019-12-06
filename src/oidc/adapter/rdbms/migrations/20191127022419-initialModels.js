@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 const { STRING, JSON, DATE } = require("sequelize");
 
@@ -33,9 +33,9 @@ module.exports = {
         ...(modelName === "DeviceCode" ? {userCode: {type: STRING}} : undefined),
         ...(modelName === "Session" ? {uid: {type: STRING}} : undefined),
         data: {type: JSON},
-        expiresAt: {type: DATE},
-        consumedAt: {type: DATE},
         createdAt: {type: DATE},
+        consumedAt: {type: DATE},
+        expiresAt: {type: DATE},
         updatedAt: {type: DATE},
       });
     }
@@ -45,5 +45,5 @@ module.exports = {
     for (const modelName of OIDCModelNames) {
       await queryInterface.dropTable(modelName);
     }
-  }
+  },
 };

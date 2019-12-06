@@ -12,8 +12,9 @@ export class OIDCInteractionStack extends React.Component<{
   oidc: OIDCProps,
 }, {
   stack: any[],
+  head: number,
+  uid: number,
   animation: any,
-  key: number,
 }> {
   constructor(props: any) {
     super(props);
@@ -46,23 +47,23 @@ export class OIDCInteractionStack extends React.Component<{
     } catch (error) {
       stack.push(<ErrorInteraction error={error}/>);
     }
-    this.state = {stack, animation: AnimationStyles.slideLeftIn40, key: 0};
+    this.state = {stack, head: stack.length - 1, uid: 0, animation: AnimationStyles.slideLeftIn40};
   }
 
   public render() {
-    const {stack, key, animation} = this.state;
+    const {stack, head, uid, animation} = this.state;
     return (
       <OIDCInteractionStackContext.Provider
         value={{
+          animation,
           push: this.push.bind(this),
           pop: this.pop.bind(this),
-          animation,
-          key,
           size: stack.length,
+          key: uid,
         }}
       >
-        {stack.map((item, key) => (
-          <span key={key} style={key === stack.length - 1 ? {} : {display: "none"}}>
+        {stack.map((item, index) => (
+          <span key={index} style={index === head ? {} : {display: "none"}}>
             {item}
           </span>
         ))}
@@ -71,43 +72,67 @@ export class OIDCInteractionStack extends React.Component<{
   }
 
   public pop() {
+    if (this.state.head === 0) {
+      window.history.back();
+      return;
+    }
     this.setState({animation: AnimationStyles.slideRightOut40}, () => {
       setTimeout(() => {
-        const stack = this.state.stack.slice();
-        stack.pop();
-        this.setState({animation: AnimationStyles.slideRightIn40, stack, key: this.state.key + 1}, () => {
-          // consume forward history
-          if (typeof window.history.pushState !== "undefined") {
-            window.history.forward();
-          }
+        this.setState({
+          animation: AnimationStyles.slideRightIn40,
+          uid: this.state.uid + 1,
+          head: this.state.head - 1,
         });
       }, 40);
     });
   }
 
-  public push(page: any) {
-    const stack = this.state.stack.slice();
-    stack.push(page);
-    this.setState({stack, animation: AnimationStyles.slideLeftIn40, key: this.state.key + 1}, () => {
+  public push(page: React.ReactElement) {
+    const { stack, head, uid } = this.state;
+    const nextHead = head + 1;
+    const nextStack = stack.slice(0, nextHead);
+    nextStack.push(React.cloneElement(page, { key:  uid+1 }));
+
+    this.setState({
+      animation: AnimationStyles.slideLeftIn40,
+      stack: nextStack,
+      head: nextHead,
+      uid: uid + 1,
+    }, () => {
       // add history
       if (typeof window.history.pushState !== "undefined") {
-        window.history.pushState({},  window.document.title);
+        window.history.pushState({index: nextHead}, window.document.title);
       }
     });
   }
 
-  private handleHistoryBack = (e: Event) => {
+  private handlePopState = (e: PopStateEvent) => {
     e.preventDefault();
-    if (this.state.stack.length > 1) {
+    const { stack, head, uid } = this.state;
+    const index = e.state ? e.state.index : 0;
+
+    // backward
+    if (index <= head) {
       this.pop();
+    } else {
+      // forward
+      if (stack.length > head + 1) {
+        this.setState({
+          animation: AnimationStyles.slideLeftIn40,
+          head: head + 1,
+          uid: uid + 1,
+        });
+      } else {
+        // forward state has been lost
+      }
     }
   }
 
   public componentDidMount(): void {
-    window.addEventListener("popstate", this.handleHistoryBack);
+    window.addEventListener("popstate", this.handlePopState);
   }
 
   public componentWillUnmount(): void {
-    window.removeEventListener("popstate", this.handleHistoryBack);
+    window.removeEventListener("popstate", this.handlePopState);
   }
 }

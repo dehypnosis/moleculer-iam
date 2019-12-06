@@ -6,7 +6,7 @@ import { Link, TextField, AnimationStyles } from "office-ui-fabric-react/lib";
 import { request } from "../../request";
 import { OIDCInteractionStackContext } from "../context";
 
-export class LoginInteractionEnterPassword extends React.Component<{
+export class LoginInteractionFindEmail extends React.Component<{
   oidc: OIDCProps,
 }, {
   loading: boolean,
@@ -69,7 +69,6 @@ export class LoginInteractionEnterPassword extends React.Component<{
     this.setState({loading: true, errors: {}}, async () => {
       try {
         const oidc = await request(this.props.oidc.interaction!.action!.submit, {
-          email: this.props.oidc.interaction!.data.user.email,
           password,
         });
         const { error, redirect } = oidc;

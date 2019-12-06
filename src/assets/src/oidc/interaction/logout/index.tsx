@@ -1,7 +1,7 @@
 import React from "react";
 import { OIDCProps } from "../../types";
 import { OIDCInteractionPage } from "../page";
-import { sendRequest } from "../../request";
+import { request } from "../../request";
 import { OIDCInteractionStackContext } from "../context";
 
 export class LogoutInteraction extends React.Component<{
@@ -50,9 +50,9 @@ export class LogoutInteraction extends React.Component<{
     if (loading) return;
     this.setState({loading: true, errors: {}}, async () => {
       try {
-        await sendRequest({
+        await request({
           ...this.props.oidc.interaction!.action!.submit,
-        }, undefined, true);
+        });
       } catch (error) {
         this.setState({errors: {global: error.toString()}, loading: false});
       }
