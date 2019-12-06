@@ -3,22 +3,45 @@ import * as jose from "jose";
 export { AdapterConstructor as OIDCModelAdapterConstructor, AdapterPayload as OIDCModelPayload, Adapter as OIDCModelAdapter, errors as OIDCErrors } from "oidc-provider";
 declare module "oidc-provider" {
     type OIDCModelName = "Session" | "AccessToken" | "AuthorizationCode" | "RefreshToken" | "DeviceCode" | "ClientCredentials" | "Client" | "InitialAccessToken" | "RegistrationAccessToken" | "Interaction" | "ReplayDetection" | "PushedAuthorizationRequest";
+    type Interaction = {
+        iat: number;
+        exp: number;
+        session?: {
+            accountId: string;
+            cookie: string;
+            jti?: string;
+            acr?: string;
+            amr?: string[];
+        };
+        params: any;
+        prompt: {
+            name: "login" | "consent" | string;
+            reasons: string[];
+            details: any;
+        };
+        result: any;
+        returnTo: string;
+        signed?: string[];
+        uid: string;
+        lastSubmission?: any;
+        save(ttl?: number): Promise<string>;
+    };
     type Client = {
-        responseTypeAllowed(type: ResponseType): boolean;
+        responseTypeAllowed(type: any): boolean;
         grantTypeAllowed(type: string): boolean;
         redirectUriAllowed(redirectUri: string): boolean;
         checkSessionOriginAllowed(origin: string): boolean;
         webMessageUriAllowed(webMessageUri: string): boolean;
         requestUriAllowed(requestUri: string): boolean;
         postLogoutRedirectUriAllowed(postLogoutRedirectUri: string): boolean;
-        backchannelLogout(sub: string, sid: string): Promise<void>;
+        backchannelLogout?(sub: string, sid: string): Promise<void>;
         includeSid(): boolean;
-        metadata(): ClientMetadata;
+        metadata(): any;
         clientId: string;
         keystore: any;
         grantTypes?: string[];
         redirectUris?: string[];
-        responseTypes?: ResponseType[];
+        responseTypes?: any[];
         applicationType?: "web" | "native";
         clientIdIssuedAt?: number;
         clientName?: string;
@@ -38,7 +61,7 @@ declare module "oidc-provider" {
         requireAuthTime?: boolean;
         scope?: string;
         sectorIdentifierUri?: string;
-        subjectType?: SubjectTypes;
+        subjectType?: any;
         tokenEndpointAuthMethod?: string;
         tosUri?: string;
         tlsClientAuthSubjectDn?: string;
@@ -75,7 +98,7 @@ declare module "oidc-provider" {
         [key: string]: any;
     };
     interface Adapter {
-        get(...args: any[]): Promise<AdapterPayload[]>;
+        get(...args: any[]): Promise<any[]>;
     }
 }
 export * from "oidc-provider";

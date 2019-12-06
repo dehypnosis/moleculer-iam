@@ -1,28 +1,29 @@
 import { OIDCProps } from "./types";
 
-export function sendRequest(
+export function request(
   action: {
     url: string,
     method: string,
     data?: any,
+    urlencoded?: boolean,
   },
   mergeData: any = {},
-  asUrlEncoded = false,
 ): Promise<OIDCProps> {
-  const {url, method, data = {}} = action;
+  const {url, method, data = {}, urlencoded = false} = action;
+  const payload = {...data, ...mergeData};
 
   // as application/x-www-form-urlencoded
-  if (asUrlEncoded) {
+  if (urlencoded) {
     const form = document.createElement("form");
     form.action = url;
     form.method = method;
     form.style.display = "none";
     // tslint:disable-next-line:forin
-    for (const k in data) {
+    for (const k in payload) {
       const input = document.createElement("input");
       input.type = "hidden";
       input.name = k;
-      input.value = data[k];
+      input.value = payload[k];
       form.appendChild(input);
     }
     document.body.appendChild(form);
@@ -36,7 +37,7 @@ export function sendRequest(
     headers: {
       "Content-Type": "application/json;charset=UTF-8",
     },
-    body: typeof data !== "undefined" && method !== "GET" ? JSON.stringify({...data, ...mergeData}) : undefined,
+    body: method !== "GET" ? JSON.stringify(payload) : undefined,
     credentials: "same-origin",
   })
     .then(res => res.json())

@@ -69,7 +69,7 @@ Centeralized IAM module for moleculer. Including default OIDC provider for user 
 - [Features and details: ./docs](./docs)
 
 ## 2. Examples
-- [MoleculerJs: ./examples](./examples)
+- [MoleculerJs: ./src/examples](./examples)
 
 ## 3. Quick Start
 ```

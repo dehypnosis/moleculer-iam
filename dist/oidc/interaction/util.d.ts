@@ -1,9 +1,16 @@
 import { Client } from "../provider";
-export declare function getPublicClientProps(client: Client): {
+import { Identity } from "../../identity";
+export declare function getPublicClientProps(client: Client): Promise<{
     id: string;
     name: string | undefined;
     logo: string | null;
     tos: string | null;
     privacy: string | null;
     homepage: string | undefined;
-} | null;
+} | null>;
+export declare function getPublicUserProps(id: Identity): Promise<{
+    id: string;
+    email: string | undefined;
+    name: string;
+    picture: string | null;
+} | null>;

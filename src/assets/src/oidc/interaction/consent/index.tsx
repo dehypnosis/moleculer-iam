@@ -4,8 +4,7 @@ import { OIDCProps } from "../../types";
 import { OIDCInteractionPage } from "../page";
 import { TextFieldStyles, ThemeStyles } from "../styles";
 import { OIDCInteractionStackContext } from "../context";
-import { sendRequest } from "../../request";
-import { LoginInteraction } from "../login";
+import { request } from "../../request";
 
 export class ConsentInteraction extends React.Component<{
   oidc: OIDCProps,
@@ -23,7 +22,6 @@ export class ConsentInteraction extends React.Component<{
   public render() {
     const {loading, errors} = this.state;
     const { client, user, consent } = this.props.oidc.interaction!.data!;
-    console.log(consent);
 
     return (
       <OIDCInteractionPage
@@ -51,7 +49,8 @@ export class ConsentInteraction extends React.Component<{
         ]}
         footer={
           <Text>
-            To continue, plco will share your {consent.scopes.new.concat(consent.scopes.accepted).join(", ")} information. Before using this application, you can review the <Link href={client.homepage}>{client.name}</Link>'s <Link href={client.privacy} target="_blank" variant="small">privacy policy</Link> and <Link href={client.privacy} target="_blank" variant="small">terms of service</Link>.
+            To continue, plco will share your {consent.scopes.new.concat(consent.scopes.accepted).join(", ")} information.
+            Before using this application, you can review the <Link href={client.homepage}>{client.name}</Link>'s <Link href={client.privacy} target="_blank" variant="small">privacy policy</Link> and <Link href={client.privacy} target="_blank" variant="small">terms of service</Link>.
           </Text>
         }
         error={errors.global}
@@ -71,7 +70,7 @@ export class ConsentInteraction extends React.Component<{
     if (loading) return;
     this.setState({loading: true, errors: {}}, async () => {
       try {
-        const oidc = await sendRequest({
+        const oidc = await request({
           ...this.props.oidc.interaction!.action!.submit,
         });
         const { error, redirect } = oidc;
@@ -97,7 +96,7 @@ export class ConsentInteraction extends React.Component<{
     if (loading) return;
     this.setState({loading: true, errors: {}}, async () => {
       try {
-        const oidc = await sendRequest({
+        const oidc = await request({
           ...this.props.oidc.interaction!.action!.abort,
         });
         const { error, redirect } = oidc;
@@ -118,8 +117,6 @@ export class ConsentInteraction extends React.Component<{
     const {loading} = this.state;
     if (loading) return;
 
-    this.setState({errors: {}}, async () => {
-      this.context.push(<LoginInteraction oidc={this.props.oidc.interaction!.data!.changeUser}/>);
-    });
+    request(this.props.oidc.interaction!.action!.changeAccount);
   }
 }

@@ -76,6 +76,7 @@ export class InternalInteractionConfigurationFactory {
                 data: {
                   logout: true,
                 },
+                urlencoded: true,
               },
             },
             data: {
@@ -113,7 +114,7 @@ export class InternalInteractionConfigurationFactory {
                 data: {
                   user: user ? await getPublicUserProps(user) : undefined,
                   client: client ? await getPublicClientProps(client) : undefined,
-                }
+                },
               },
             });
           },
@@ -192,16 +193,14 @@ export class InternalInteractionConfigurationFactory {
     //   params: _.mapValues(params || {}, value => typeof value === "undefined" ? null : value),
     // };
 
-    // fill XSRF token for POST actions
+    // fill XSRF token
     if (props.interaction && props.interaction.action) {
       const xsrf = oidc.session && oidc.session.state && oidc.session.state.secret || undefined;
       if (xsrf) {
         // tslint:disable-next-line:forin
         for (const k in props.interaction.action) {
           const action = props.interaction.action[k];
-          if (action.method === "POST") {
-            action.data.xsrf = xsrf;
-          }
+          action.data.xsrf = xsrf;
         }
       }
     }

@@ -3,7 +3,7 @@ import { OIDCProps } from "../../types";
 import { OIDCInteractionPage } from "../page";
 import { TextFieldStyles } from "../styles";
 import { Link, TextField, AnimationStyles } from "office-ui-fabric-react/lib";
-import { sendRequest } from "../../request";
+import { request } from "../../request";
 import { OIDCInteractionStackContext } from "../context";
 
 export class LoginInteractionEnterPassword extends React.Component<{
@@ -57,7 +57,7 @@ export class LoginInteractionEnterPassword extends React.Component<{
           onKeyUp={e => e.key === "Enter" && !loading && this.handleLogin()}
           styles={TextFieldStyles.bold}
         />
-        <Link tabIndex={4} href="/forget-password" variant="small" style={{marginTop: "10px"}}>Forgot password?</Link>
+        <Link tabIndex={4} onClick={this.handleResetPassword} variant="small" style={{marginTop: "10px"}}>Forgot password?</Link>
       </OIDCInteractionPage>
     );
   }
@@ -68,7 +68,8 @@ export class LoginInteractionEnterPassword extends React.Component<{
 
     this.setState({loading: true, errors: {}}, async () => {
       try {
-        const oidc = await sendRequest(this.props.oidc.interaction!.action!.submit, {
+        const oidc = await request(this.props.oidc.interaction!.action!.submit, {
+          email: this.props.oidc.interaction!.data.user.email,
           password,
         });
         const { error, redirect } = oidc;
@@ -91,5 +92,12 @@ export class LoginInteractionEnterPassword extends React.Component<{
 
   public handleCancel = () => {
     this.context.pop();
+  }
+
+  public handleResetPassword = () => {
+    if (this.state.loading) return;
+    this.setState({ loading: true }, () => {
+      return request(this.props.oidc.interaction!.action!.resetPassword);
+    });
   }
 }

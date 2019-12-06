@@ -33,7 +33,8 @@ class IdentityProvider {
     find(id) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             return new identity_1.Identity(id, {
-                name: "John Doe",
+                name: "Dong Wook Kim",
+                picture: "https://static2.sharepointonline.com/files/fabric/office-ui-fabric-react-assets/persona-female.png",
                 email: id,
             });
         });
@@ -44,14 +45,14 @@ class IdentityProvider {
                 throw error_1.IdentityNotExistsError;
             }
             return new identity_1.Identity(email, {
-                name: "John Doe",
+                name: "Dong Wook Kim",
+                picture: "https://static2.sharepointonline.com/files/fabric/office-ui-fabric-react-assets/persona-female.png",
                 email,
             });
         });
     }
     assertCredentials(id, credentials) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            const identity = yield this.find(id);
             if (credentials.password !== "1234") {
                 throw error_1.InvalidCredentialsError;
             }

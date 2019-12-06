@@ -40,21 +40,6 @@ class InteractionFactory {
             throw error;
         }
     }
-    /*
-    * can add more user interactive features (prompts) into base policy which includes login, consent prompts
-    * example ref (base): https://github.com/panva/node-oidc-provider/tree/master/lib/helpers/interaction_policy/prompts
-  
-    * example route mappings (original default)
-    get('interaction', '/interaction/:uid', error(this), ...interaction.render);
-    post('submit', '/interaction/:uid', error(this), ...interaction.submit);
-    get('abort', '/interaction/:uid/abort', error(this), ...interaction.abort);
-  
-    * each route handlers
-    https://github.com/panva/node-oidc-provider/blob/8fb8af509c652b13620534cc755cf5b9320f694f/lib/actions/interaction.js
-  
-    * related views
-    https://github.com/panva/node-oidc-provider/blob/master/lib/views/layout.js
-    */
     interactions() {
         const { Prompt, Check, base } = provider_1.interactionPolicy;
         const defaultPrompts = base();
@@ -64,9 +49,8 @@ class InteractionFactory {
                     return `/interaction/${interaction.prompt.name}`;
                 });
             },
-            // ref: https://github.com/panva/node-oidc-provider/blob/cd9bbfb653ddfb99c574ea3d4519b6f834274e86/docs/README.md#user-flows
-            // ... here goes more interactions
             policy: [
+                // can modify policy and add prompt like: MFA, captcha, ...
                 defaultPrompts.get("login"),
                 defaultPrompts.get("consent"),
             ],
@@ -81,19 +65,65 @@ class InteractionFactory {
         const router = this.router;
         const validate = this.validate.bind(this);
         const render = renderer.render.bind(renderer);
-        const abort = {
-            url: url(`/abort`),
-            method: "POST",
-            data: {},
+        // static action endpoints
+        const actions = {
+            abort: {
+                url: url(`/abort`),
+                method: "POST",
+                data: {},
+            },
+            changeAccount: {
+                url: url(`/login`),
+                method: "GET",
+                data: {
+                    change: true,
+                },
+                urlencoded: true,
+            },
+            federate: {
+                url: url(`/federate`),
+                method: "POST",
+                data: {
+                    provider: "",
+                },
+                urlencoded: true,
+            },
+            /* sub interactions for login */
+            findEmail: {
+                url: url(`/find-email`),
+                method: "POST",
+            },
+            resetPassword: {
+                url: url(`/reset-password`),
+                method: "POST",
+            },
+            register: {
+                url: url(`/register`),
+                method: "POST",
+            },
         };
-        // delegate error handling
-        router.use((ctx, next) => {
-            return next()
-                .catch(error => render(ctx, { error }));
-        });
+        // middleware
+        router.use((ctx, next) => tslib_1.__awaiter(this, void 0, void 0, function* () {
+            try {
+                // fetch interaction details
+                const interaction = yield provider.interactionDetails(ctx.req, ctx.res);
+                // fetch identity and client
+                const user = interaction.session ? (yield idp.find(interaction.session.accountId)) : undefined;
+                const client = interaction.params.client_id ? (yield provider.Client.find(interaction.params.client_id)) : undefined;
+                const locals = { interaction, user, client };
+                ctx.locals = locals;
+                yield next();
+            }
+            catch (error) {
+                if (error.status >= 500) {
+                    logger.error(error);
+                }
+                // delegate error handling
+                return render(ctx, { error });
+            }
+        }));
         // abort interactions
         router.post("/abort", (ctx) => tslib_1.__awaiter(this, void 0, void 0, function* () {
-            const { prompt, params } = yield provider.interactionDetails(ctx.req, ctx.res);
             const redirect = yield provider.interactionResult(ctx.req, ctx.res, {
                 error: "access_denied",
                 error_description: "end-user aborted interaction",
@@ -106,54 +136,62 @@ class InteractionFactory {
         }));
         // handle login
         router.get("/login", (ctx) => tslib_1.__awaiter(this, void 0, void 0, function* () {
-            const { prompt, params } = yield provider.interactionDetails(ctx.req, ctx.res);
-            ctx.assert(prompt.name === "login");
+            const { user, client, interaction } = ctx.locals;
+            // already signed in
+            if (user && interaction.prompt.name !== "login" && !ctx.request.query.change) {
+                const redirect = yield provider.interactionResult(ctx.req, ctx.res, {
+                    // authentication/login prompt got resolved, omit if no authentication happened, i.e. the user
+                    // cancelled
+                    login: {
+                        account: user.id,
+                        remember: true,
+                    },
+                }, {
+                    mergeWithLastSubmission: true,
+                });
+                return render(ctx, { redirect });
+            }
             return render(ctx, {
                 interaction: {
                     name: "login",
-                    action: {
-                        submit: {
+                    action: Object.assign({ submit: {
                             url: url(`/login`),
                             method: "POST",
                             data: {
-                                email: params.login_hint || "",
-                                password: "",
+                                email: interaction.params.login_hint || "",
                             },
-                        },
-                        abort,
+                        } }, actions),
+                    data: {
+                        user: user && !ctx.request.query.change ? yield util_1.getPublicUserProps(user) : undefined,
+                        client: client ? yield util_1.getPublicClientProps(client) : undefined,
                     },
                 },
             });
         }));
         router.post("/login", (ctx) => tslib_1.__awaiter(this, void 0, void 0, function* () {
-            // assert prompt name
-            const { prompt, params } = yield provider.interactionDetails(ctx.req, ctx.res);
-            ctx.assert(prompt.name === "login");
+            const { client, interaction } = ctx.locals;
             const { email, password } = ctx.request.body;
             // 1. user enter email only
-            if (typeof password === "undefined" || !password) {
+            if (typeof password === "undefined") {
                 // 2. server validate email
                 validate(ctx, { email: "email" });
                 // 3. fetch identity
-                const id = yield idp.findByEmail(email);
-                const { preferred_username, nickname, name } = yield id.claims("id_token", "profile");
+                // tslint:disable-next-line:no-shadowed-variable
+                const user = yield idp.findByEmail(email);
                 return render(ctx, {
                     interaction: {
                         name: "login",
-                        action: {
-                            submit: {
+                        action: Object.assign({ submit: {
                                 url: url(`/login`),
                                 method: "POST",
                                 data: {
                                     email,
                                     password: "",
                                 },
-                            },
-                            abort,
-                        },
+                            } }, actions),
                         data: {
-                            email,
-                            name: preferred_username || nickname || name,
+                            user: user ? yield util_1.getPublicUserProps(user) : undefined,
+                            client: client ? yield util_1.getPublicClientProps(client) : undefined,
                         },
                     },
                 });
@@ -164,50 +202,52 @@ class InteractionFactory {
                 password: "string|empty:false",
             });
             // 5. check account password
-            const identity = yield idp.findByEmail(email);
-            yield idp.assertCredentials(identity.accountId, { password });
+            const user = yield idp.findByEmail(email);
+            yield idp.assertCredentials(user, { password });
             // 6. finish interaction and give redirection uri
+            const login = {
+                account: user.id,
+                remember: true,
+            };
             const redirect = yield provider.interactionResult(ctx.req, ctx.res, {
                 // authentication/login prompt got resolved, omit if no authentication happened, i.e. the user
                 // cancelled
-                login: {
-                    account: identity.accountId,
-                    remember: true,
-                },
+                login,
             }, {
                 mergeWithLastSubmission: true,
             });
+            // overwrite session for consent -> change account -> login
+            yield provider.setProviderSession(ctx.req, ctx.res, login);
             return render(ctx, { redirect });
         }));
-        /* 2. CONSENT */
+        // handle consent
         router.get("/consent", (ctx) => tslib_1.__awaiter(this, void 0, void 0, function* () {
-            const { prompt, params, session } = yield provider.interactionDetails(ctx.req, ctx.res);
-            // fetch identity and client
-            const id = (yield idp.find(session.accountId));
-            const client = (yield provider.Client.find(params.client_id));
-            ctx.assert(prompt.name === "consent" && client && id);
-            const { email, preferred_username, nickname, name } = yield id.claims("id_token", "profile email");
+            const { user, client, interaction } = ctx.locals;
+            ctx.assert(interaction.prompt.name === "consent", "Invalid Request");
+            const data = {
+                user: user ? yield util_1.getPublicUserProps(user) : undefined,
+                client: client ? yield util_1.getPublicClientProps(client) : undefined,
+            };
             return render(ctx, {
                 interaction: {
                     name: "consent",
-                    action: {
-                        submit: {
+                    action: Object.assign({ submit: {
                             url: url(`/consent`),
                             method: "POST",
                             data: {
                                 rejectedScopes: [],
                                 rejectedClaims: [],
                             },
-                        },
-                        abort,
-                    },
-                    data: Object.assign({ email, name: preferred_username || nickname || name, client: util_1.getPublicClientProps(client) }, prompt.details),
+                        } }, actions),
+                    data: Object.assign(Object.assign({}, data), { 
+                        // consent data (scopes, claims)
+                        consent: interaction.prompt.details }),
                 },
             });
         }));
         router.post("/consent", (ctx) => tslib_1.__awaiter(this, void 0, void 0, function* () {
-            const { prompt, params } = yield provider.interactionDetails(ctx.req, ctx.res);
-            ctx.assert(prompt.name === "consent");
+            const { user, client, interaction } = ctx.locals;
+            ctx.assert(interaction.prompt.name === "consent");
             // 1. validate body
             validate(ctx, {
                 rejectedScopes: {
@@ -227,6 +267,36 @@ class InteractionFactory {
                 mergeWithLastSubmission: true,
             });
             return render(ctx, { redirect });
+        }));
+        // handle find-email submit
+        router.post("/find-email", (ctx) => tslib_1.__awaiter(this, void 0, void 0, function* () {
+            const { user, client, interaction } = ctx.locals;
+            ctx.assert(interaction.prompt.name === "login" || interaction.prompt.name === "consent", "Invalid Request");
+            // extend TTL
+            yield interaction.save(60 * 10);
+        }));
+        // handle register submit
+        router.post("/register", (ctx) => tslib_1.__awaiter(this, void 0, void 0, function* () {
+            const { user, client, interaction } = ctx.locals;
+            ctx.assert(interaction.prompt.name === "login" || interaction.prompt.name === "consent", "Invalid Request");
+            // extend TTL
+            yield interaction.save(60 * 10);
+            return render(ctx, {
+                interaction: {
+                    name: "register",
+                    action: {
+                        submit: {
+                            url: url(`/register`),
+                            method: "POST",
+                            data: {
+                                email: "",
+                                password: "",
+                                confirmPassword: "",
+                            },
+                        },
+                    },
+                },
+            });
         }));
         return router.routes();
     }

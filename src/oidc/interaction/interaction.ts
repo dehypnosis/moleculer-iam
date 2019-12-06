@@ -4,12 +4,16 @@ import noCache from "koajs-nocache";
 import Validator, { ValidationSchema } from "fastest-validator";
 import { Identity, IdentityProvider } from "../../identity";
 import { Logger } from "../../logger";
-import { KoaContextWithOIDC, Provider, interactionPolicy, Configuration, Interaction, Client } from "../provider";
+import { KoaContextWithOIDC, Provider, Configuration, Interaction, Client, interactionPolicy } from "../provider";
 import { ClientApplicationError, ClientApplicationRenderer } from "./render";
 import { getPublicClientProps, getPublicUserProps } from "./util";
-// import { getPublicClientProps } from "./util";
 
-// ref: https://github.com/panva/node-oidc-provider/blob/cd9bbfb653ddfb99c574ea3d4519b6f834274e86/docs/README.md#user-flows
+/*
+* can add more user interactive features (prompts) into base policy which includes login, consent prompts
+* INTERACTION:  https://github.com/panva/node-oidc-provider/blob/cd9bbfb653ddfb99c574ea3d4519b6f834274e86/docs/README.md#user-flows
+* PROMPT:       https://github.com/panva/node-oidc-provider/tree/master/lib/helpers/interaction_policy/prompts
+* ROUTE:        https://github.com/panva/node-oidc-provider/blob/06940e52ec5281d33bac2208fc014ac5ac741d5a/example/routes/koa.js
+*/
 
 export type InteractionFactoryProps = {
   idp: IdentityProvider;
@@ -71,21 +75,6 @@ export class InteractionFactory {
     }
   }
 
-  /*
-  * can add more user interactive features (prompts) into base policy which includes login, consent prompts
-  * example ref (base): https://github.com/panva/node-oidc-provider/tree/master/lib/helpers/interaction_policy/prompts
-
-  * example route mappings (original default)
-  get('interaction', '/interaction/:uid', error(this), ...interaction.render);
-  post('submit', '/interaction/:uid', error(this), ...interaction.submit);
-  get('abort', '/interaction/:uid/abort', error(this), ...interaction.abort);
-
-  * each route handlers
-  https://github.com/panva/node-oidc-provider/blob/8fb8af509c652b13620534cc755cf5b9320f694f/lib/actions/interaction.js
-
-  * related views
-  https://github.com/panva/node-oidc-provider/blob/master/lib/views/layout.js
-  */
   public interactions(): Configuration["interactions"] {
     const {Prompt, Check, base} = interactionPolicy;
     const defaultPrompts = base();
@@ -93,10 +82,8 @@ export class InteractionFactory {
       async url(ctx, interaction) {
         return `/interaction/${interaction.prompt.name}`;
       },
-
-      // ref: https://github.com/panva/node-oidc-provider/blob/cd9bbfb653ddfb99c574ea3d4519b6f834274e86/docs/README.md#user-flows
-      // ... here goes more interactions
       policy: [
+        // can modify policy and add prompt like: MFA, captcha, ...
         defaultPrompts.get("login"),
         defaultPrompts.get("consent"),
       ],
@@ -114,10 +101,44 @@ export class InteractionFactory {
     const router = this.router;
     const validate = this.validate.bind(this);
     const render = renderer.render.bind(renderer);
-    const abort = {
-      url: url(`/abort`),
-      method: "POST",
-      data: {},
+
+    // static action endpoints
+    const actions = {
+      abort: {
+        url: url(`/abort`),
+        method: "POST",
+        data: {},
+      },
+      changeAccount: {
+        url: url(`/login`),
+        method: "GET",
+        data: {
+          change: true,
+        },
+        urlencoded: true,
+      },
+      federate: {
+        url: url(`/federate`),
+        method: "POST",
+        data: {
+          provider: "", // google, facebook, kakaotalk, ...
+        },
+        urlencoded: true,
+      },
+
+      /* sub interactions for login */
+      findEmail: {
+        url: url(`/find-email`),
+        method: "POST",
+      },
+      resetPassword: {
+        url: url(`/reset-password`),
+        method: "POST",
+      },
+      register: {
+        url: url(`/register`),
+        method: "POST",
+      },
     };
 
     // middleware
@@ -162,7 +183,7 @@ export class InteractionFactory {
       const {user, client, interaction} = ctx.locals as InteractionRequestContext;
 
       // already signed in
-      if (user) {
+      if (user && interaction.prompt.name !== "login" && !ctx.request.query.change) {
         const redirect = await provider.interactionResult(ctx.req, ctx.res, {
           // authentication/login prompt got resolved, omit if no authentication happened, i.e. the user
           // cancelled
@@ -179,7 +200,6 @@ export class InteractionFactory {
         return render(ctx, {redirect});
       }
 
-      ctx.assert(interaction.prompt.name === "login");
       return render(ctx, {
         interaction: {
           name: "login",
@@ -189,13 +209,12 @@ export class InteractionFactory {
               method: "POST",
               data: {
                 email: interaction.params.login_hint || "",
-                password: "",
               },
             },
-            abort,
+            ...actions,
           },
           data: {
-            user: user ? await getPublicUserProps(user) : undefined,
+            user: user && !ctx.request.query.change ? await getPublicUserProps(user) : undefined,
             client: client ? await getPublicClientProps(client) : undefined,
           },
         },
@@ -204,12 +223,10 @@ export class InteractionFactory {
 
     router.post("/login", async ctx => {
       const {client, interaction} = ctx.locals as InteractionRequestContext;
-      ctx.assert(interaction.prompt.name === "login" || interaction.prompt.name === "consent");
-
       const {email, password} = ctx.request.body;
 
       // 1. user enter email only
-      if (typeof password === "undefined" || !password) {
+      if (typeof password === "undefined") {
 
         // 2. server validate email
         validate(ctx, {email: "email"});
@@ -229,7 +246,7 @@ export class InteractionFactory {
                   password: "",
                 },
               },
-              abort,
+              ...actions,
             },
             data: {
               user: user ? await getPublicUserProps(user) : undefined,
@@ -267,17 +284,15 @@ export class InteractionFactory {
       });
 
       // overwrite session for consent -> change account -> login
-      if (interaction.prompt.name === "consent") {
-        const session = await provider.setProviderSession(ctx.req, ctx.res, login);
-      }
+      await provider.setProviderSession(ctx.req, ctx.res, login);
 
       return render(ctx, {redirect});
     });
 
-    /* 2. CONSENT */
+    // handle consent
     router.get("/consent", async ctx => {
       const {user, client, interaction} = ctx.locals as InteractionRequestContext;
-      ctx.assert(user && interaction.prompt.name === "consent");
+      ctx.assert(interaction.prompt.name === "consent", "Invalid Request");
 
       const data = {
         user: user ? await getPublicUserProps(user) : undefined,
@@ -296,7 +311,7 @@ export class InteractionFactory {
                 rejectedClaims: [], // array of strings, claim names the end-user has not granted
               },
             },
-            abort,
+            ...actions,
           },
           data: {
             // client, user
@@ -304,25 +319,6 @@ export class InteractionFactory {
 
             // consent data (scopes, claims)
             consent: interaction.prompt.details,
-
-            // new interaction props to change account
-            changeUser: {
-              interaction: {
-                name: "login",
-                action: {
-                  submit: {
-                    url: url(`/login`),
-                    method: "POST",
-                    data: {
-                      email: "",
-                      password: "",
-                    },
-                  },
-                  abort,
-                },
-                data,
-              },
-            },
           },
         },
       });
@@ -352,6 +348,41 @@ export class InteractionFactory {
         mergeWithLastSubmission: true,
       });
       return render(ctx, {redirect});
+    });
+
+    // handle find-email submit
+    router.post("/find-email", async ctx => {
+      const {user, client, interaction} = ctx.locals as InteractionRequestContext;
+      ctx.assert(interaction.prompt.name === "login" || interaction.prompt.name === "consent", "Invalid Request");
+
+      // extend TTL
+      await interaction.save(60 * 10);
+    });
+
+    // handle register submit
+    router.post("/register", async ctx => {
+      const {user, client, interaction} = ctx.locals as InteractionRequestContext;
+      ctx.assert(interaction.prompt.name === "login" || interaction.prompt.name === "consent", "Invalid Request");
+
+      // extend TTL
+      await interaction.save(60 * 10);
+
+      return render(ctx, {
+        interaction: {
+          name: "register",
+          action: {
+            submit: {
+              url: url(`/register`),
+              method: "POST",
+              data: {
+                email: "",
+                password: "",
+                confirmPassword: "",
+              },
+            },
+          },
+        },
+      });
     });
 
     return router.routes();

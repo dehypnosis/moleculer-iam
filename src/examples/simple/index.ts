@@ -1,6 +1,6 @@
 "use strict";
 
-import { IAMServiceSchema } from "../../src";
+import { IAMServiceSchema } from "../../";
 import { ServiceBroker } from "moleculer";
 
 // create moleculer service (optional)
@@ -42,7 +42,7 @@ const serviceSchema = IAMServiceSchema({
     },
 
     // required and should be shared between processes in production
-    jwks: require("../jwks.json"),
+    jwks: require("./jwks.json"),
 
     features: {
       // devInteractions: ({ enabled: true }) as never,

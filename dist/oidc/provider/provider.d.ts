@@ -30,8 +30,8 @@ export declare class OIDCProvider {
     get client(): {
         find(id: string): Promise<ClientMetadata | undefined>;
         findOrFail(id: string): Promise<ClientMetadata>;
-        create(metadata: ClientMetadata): Promise<ClientMetadata>;
-        update(metadata: ClientMetadata): Promise<ClientMetadata>;
+        create(metadata: ClientMetadata): Promise<any>;
+        update(metadata: ClientMetadata): Promise<any>;
         remove(id: string): Promise<void>;
         get(opts?: FindOptions | undefined): Promise<ClientMetadata[]>;
         count(): Promise<number>;
