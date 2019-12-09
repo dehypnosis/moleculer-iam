@@ -2,6 +2,7 @@ import vault from "vault-sync";
 
 // create global configuration
 // can fetch vault secrets in local/kubernetes environment
+/* istanbul ignore next */
 export const config = vault(async (get, list) => {
   const env = process.env.APP_ENV || "dev";
   const isDev = env === "dev";
