@@ -1,34 +1,29 @@
 import React from "react";
-import { OIDCProps } from "../../types";
-import { OIDCInteractionPage } from "../page";
-import { TextFieldStyles, ButtonStyles, ThemeStyles } from "../styles";
-import { Link, Text, TextField, Stack, PrimaryButton, Separator, IRawStyle } from "office-ui-fabric-react/lib";
-import { request } from "../../request";
-import { OIDCInteractionStackContext } from "../context";
+import { OIDCInteractionContext, OIDCInteractionProps, OIDCInteractionPage, requestOIDCInteraction } from "../";
+import { TextFieldStyles, ButtonStyles, ThemeStyles, Link, TextField, Stack, PrimaryButton, Separator } from "../../styles";
+
+/* sub pages */
 import { LoginInteractionEnterPassword } from "./password";
 import { LoginInteractionFindEmail } from "./find-email";
+import { withLoading, withLoadingProps } from "../hoc";
 
-const federationButtonStyles = {...ButtonStyles.large, label: {fontWeight: 500}} as any;
-
-export class LoginInteraction extends React.Component<{
-  oidc: OIDCProps,
-}, {
-  loading: boolean,
+@withLoading
+class LoginInteraction extends React.Component<{
+  oidc: OIDCInteractionProps,
+} & withLoadingProps, {
   email: string,
-  errors: { [key: string]: string },
-  showSocial: boolean,
+  optionsVisible: boolean,
 }> {
   public state = {
-    loading: false,
     email: this.props.oidc.interaction!.data.user ? this.props.oidc.interaction!.data.user.email : this.props.oidc.interaction!.action!.submit.data.email || "",
-    errors: {} as { [key: string]: string },
-    showSocial: false,
+    optionsVisible: false,
   };
 
-  public static contextType = OIDCInteractionStackContext;
+  public static contextType = OIDCInteractionContext;
 
   public render() {
-    const {loading, email, errors, showSocial} = this.state;
+    const {loading, errors} = this.props;
+    const {email, optionsVisible} = this.state;
     return (
       <OIDCInteractionPage
         title={"Sign in"}
@@ -51,13 +46,13 @@ export class LoginInteraction extends React.Component<{
         footer={
           <React.Fragment>
             <Separator><span style={{color: ThemeStyles.palette.neutralTertiary}}>OR</span></Separator>
-            {showSocial ? (
+            {optionsVisible ? (
               <Stack tokens={{childrenGap: 15}}>
-                <PrimaryButton checked={loading} styles={federationButtonStyles} text={"Login with KakaoTalk"} style={{flex: "1 1 auto", backgroundColor:"#ffdc00", color:"black"}} onClick={() => this.handleFederation("kakaotalk")} />
-                <PrimaryButton checked={loading} styles={federationButtonStyles} text={"Login with Facebook"} style={{flex: "1 1 auto", backgroundColor:"#1876f2", color:"white"}} onClick={() => this.handleFederation("facebook")} />
+                <PrimaryButton checked={loading} styles={ButtonStyles.largeThin} text={"Login with KakaoTalk"} style={{flex: "1 1 auto", backgroundColor: "#ffdc00", color: "black"}} onClick={() => this.handleFederation("kakaotalk")}/>
+                <PrimaryButton checked={loading} styles={ButtonStyles.largeThin} text={"Login with Facebook"} style={{flex: "1 1 auto", backgroundColor: "#1876f2", color: "white"}} onClick={() => this.handleFederation("facebook")}/>
               </Stack>
             ) : (
-              <Link style={{color: ThemeStyles.palette.neutralTertiary}} onClick={() => this.setState(state => ({ showSocial: !state.showSocial}))}>Find more login options?</Link>
+              <Link style={{color: ThemeStyles.palette.neutralTertiary}} onClick={() => this.setState(state => ({optionsVisible: !state.optionsVisible}))}>Find more login options?</Link>
             )}
           </React.Fragment>
         }
@@ -72,7 +67,7 @@ export class LoginInteraction extends React.Component<{
           value={email}
           errorMessage={errors.email}
           onChange={(e, v) => this.setState({email: v || ""})}
-          onKeyUp={e => e.key === "Enter" && !loading && this.handleNext()}
+          onKeyUp={e => e.key === "Enter" && this.handleNext()}
           styles={TextFieldStyles.bold}
         />
         <Link onClick={this.handleFindEmail} tabIndex={5} variant="small" style={{marginTop: "10px"}}>Forgot email?</Link>
@@ -82,54 +77,45 @@ export class LoginInteraction extends React.Component<{
 
   public componentDidMount() {
     if (this.props.oidc.interaction!.data.user) {
-      this.context.push(<LoginInteractionEnterPassword oidc={this.props.oidc }/>);
+      this.context.push(<LoginInteractionEnterPassword oidc={this.props.oidc}/>);
     }
   }
 
-  public handleNext = async () => {
-    const {loading, email} = this.state;
-    if (loading) return;
-    this.setState({loading: true, errors: {}}, async () => {
-      try {
-        const oidc = await request(this.props.oidc.interaction!.action!.submit, {
-          email,
-        });
-        const {error} = oidc;
-        if (error) {
-          if (error.status === 422) {
-            this.setState({errors: error.detail, loading: false});
-          } else {
-            this.setState({errors: {email: error.message}, loading: false});
-          }
+  public handleNext() {
+    this.withLoading(async () => {
+      const {email} = this.state;
+      const oidc = await requestOIDCInteraction(this.props.oidc.interaction!.action!.submit, {
+        email,
+      });
+
+      const {error} = oidc;
+      if (error) {
+        if (error.status === 422) {
+          this.setState({errors: error.detail});
         } else {
-          this.setState({loading: false}, () => {
-            this.context.push(<LoginInteractionEnterPassword oidc={oidc}/>);
-          });
+          this.setState({errors: {email: error.message}});
         }
-      } catch (error) {
-        this.setState({errors: {global: error.toString()}, loading: false});
+      } else {
+        this.context.push(<LoginInteractionEnterPassword oidc={oidc}/>);
       }
     });
   }
 
-  public handleSignUp = () => {
-    if (this.state.loading) return;
-    this.setState({ loading: true }, () => {
-      return request(this.props.oidc.interaction!.action!.register);
+  public handleSignUp() {
+    this.withLoading(async () => {
+      await requestOIDCInteraction(this.props.oidc.interaction!.action!.register);
     });
   }
 
-  public handleFindEmail = () => {
-    if (this.state.loading) return;
-    this.setState({ loading: true }, () => {
+  public handleFindEmail() {
+    this.props.withLoading(async () => {
       this.context.push(<LoginInteractionFindEmail oidc={this.props.oidc}/>);
     });
   }
 
-  public handleFederation = (provider: string) => {
-    if (this.state.loading) return;
-    this.setState({ loading: true }, () => {
-      return request(this.props.oidc.interaction!.action!.federate, { provider });
+  public handleFederation(provider: string) {
+    this.withLoading(async () => {
+      await requestOIDCInteraction(this.props.oidc.interaction!.action!.federate, {provider});
     });
   }
 }

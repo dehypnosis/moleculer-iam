@@ -1,13 +1,9 @@
 import React from "react";
-import { OIDCProps } from "../../types";
-import { OIDCInteractionPage } from "../page";
-import { TextFieldStyles } from "../styles";
-import { Link, TextField, AnimationStyles } from "office-ui-fabric-react/lib";
-import { request } from "../../request";
-import { OIDCInteractionStackContext } from "../context";
+import { OIDCInteractionContext, OIDCInteractionProps, OIDCInteractionPage, requestOIDCInteraction } from "../";
+import { Link, TextField, TextFieldStyles } from "../../styles";
 
 export class LoginInteractionEnterPassword extends React.Component<{
-  oidc: OIDCProps,
+  oidc: OIDCInteractionProps,
 }, {
   loading: boolean,
   password: string,
@@ -19,7 +15,7 @@ export class LoginInteractionEnterPassword extends React.Component<{
     errors: {} as { [key: string]: string },
   };
 
-  public static contextType = OIDCInteractionStackContext;
+  public static contextType = OIDCInteractionContext;
 
   public render() {
     const {loading, password, errors} = this.state;
@@ -38,7 +34,7 @@ export class LoginInteractionEnterPassword extends React.Component<{
           },
           {
             text: "Cancel",
-            onClick: this.handleCancel,
+            onClick: () => this.context.pop(),
             tabIndex: 3,
           },
         ]}
@@ -68,7 +64,7 @@ export class LoginInteractionEnterPassword extends React.Component<{
 
     this.setState({loading: true, errors: {}}, async () => {
       try {
-        const oidc = await request(this.props.oidc.interaction!.action!.submit, {
+        const oidc = await requestOIDCInteraction(this.props.oidc.interaction!.action!.submit, {
           email: this.props.oidc.interaction!.data.user.email,
           password,
         });
@@ -90,14 +86,10 @@ export class LoginInteractionEnterPassword extends React.Component<{
     });
   }
 
-  public handleCancel = () => {
-    this.context.pop();
-  }
-
   public handleResetPassword = () => {
     if (this.state.loading) return;
     this.setState({ loading: true }, () => {
-      return request(this.props.oidc.interaction!.action!.resetPassword);
+      return requestOIDCInteraction(this.props.oidc.interaction!.action!.resetPassword);
     });
   }
 }

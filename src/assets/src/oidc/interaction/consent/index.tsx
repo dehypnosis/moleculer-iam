@@ -1,13 +1,9 @@
 import React from "react";
-import { Link, TextField, Text, Persona, PersonaSize, Stack } from "office-ui-fabric-react/lib";
-import { OIDCProps } from "../../types";
-import { OIDCInteractionPage } from "../page";
-import { TextFieldStyles, ThemeStyles } from "../styles";
-import { OIDCInteractionStackContext } from "../context";
-import { request } from "../../request";
+import { ThemeStyles, Link, Text, Persona, PersonaSize } from "../../styles";
+import { OIDCInteractionContext, OIDCInteractionProps, OIDCInteractionPage, requestOIDCInteraction } from "../";
 
 export class ConsentInteraction extends React.Component<{
-  oidc: OIDCProps,
+  oidc: OIDCInteractionProps,
 }, {
   loading: boolean,
   errors: { [key: string]: string },
@@ -17,7 +13,7 @@ export class ConsentInteraction extends React.Component<{
     errors: {} as { [key: string]: string },
   };
 
-  public static contextType = OIDCInteractionStackContext;
+  public static contextType = OIDCInteractionContext;
 
   public render() {
     const {loading, errors} = this.state;
@@ -70,7 +66,7 @@ export class ConsentInteraction extends React.Component<{
     if (loading) return;
     this.setState({loading: true, errors: {}}, async () => {
       try {
-        const oidc = await request({
+        const oidc = await requestOIDCInteraction({
           ...this.props.oidc.interaction!.action!.submit,
         });
         const { error, redirect } = oidc;
@@ -96,7 +92,7 @@ export class ConsentInteraction extends React.Component<{
     if (loading) return;
     this.setState({loading: true, errors: {}}, async () => {
       try {
-        const oidc = await request({
+        const oidc = await requestOIDCInteraction({
           ...this.props.oidc.interaction!.action!.abort,
         });
         const { error, redirect } = oidc;
@@ -117,6 +113,6 @@ export class ConsentInteraction extends React.Component<{
     const {loading} = this.state;
     if (loading) return;
 
-    request(this.props.oidc.interaction!.action!.changeAccount);
+    requestOIDCInteraction(this.props.oidc.interaction!.action!.changeAccount);
   }
 }

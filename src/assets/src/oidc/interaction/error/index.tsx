@@ -1,10 +1,9 @@
 import React, { useState } from "react";
-import { OIDCInteractionPage } from "../page";
-import { OIDCError } from "../../types";
+import { OIDCInteractionError, OIDCInteractionPage } from "../";
 
 export const ErrorInteraction: React.FunctionComponent<{
   title?: string,
-  error: Error | OIDCError,
+  error: Error | OIDCInteractionError,
 }> = ({ title, error }) => {
   const [closed, setClosed] = useState(false);
 

@@ -1,8 +1,7 @@
-import React, { Component, ReactElement, useContext } from "react";
-import { FontWeights, Image, Stack, Text, AnimationStyles, DefaultButton, PrimaryButton, MessageBar, MessageBarType } from "office-ui-fabric-react/lib";
-import { ButtonStyles } from "./styles";
+import React, { ReactElement, useContext } from "react";
+import { FontWeights, Image, Stack, Text, AnimationStyles, ButtonStyles, DefaultButton, PrimaryButton, MessageBar, MessageBarType } from "../styles";
+import { OIDCInteractionContext } from "./context";
 import logo from "../../image/logo.svg";
-import { OIDCInteractionStackContext } from "./context";
 
 export const OIDCInteractionPage: React.FunctionComponent<{
   title: string | ReactElement,
@@ -17,7 +16,7 @@ export const OIDCInteractionPage: React.FunctionComponent<{
   footer?: ReactElement,
   error?: string,
 }> = ({title, subtitle, children, buttons, error, footer}) => {
-  const { animation, key } = useContext(OIDCInteractionStackContext);
+  const { animation, key } = useContext(OIDCInteractionContext);
 
   return (
     <Stack

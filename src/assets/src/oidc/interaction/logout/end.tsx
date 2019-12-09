@@ -1,9 +1,8 @@
 import React, { useState } from "react";
-import { OIDCProps } from "../../types";
-import { OIDCInteractionPage } from "../page";
+import { OIDCInteractionProps, OIDCInteractionPage } from "../";
 
 export const LogoutEndInteraction: React.FunctionComponent<{
-  oidc: OIDCProps,
+  oidc: OIDCInteractionProps,
 }> = ({ oidc }) => {
   const [closed, setClosed] = useState(false);
 
