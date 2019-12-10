@@ -73,7 +73,8 @@ export class OIDCInteraction extends Component<{
     );
   }
 
-  public pop() {
+  public pop(num: number = 1) {
+    if (num < 1) return;
     if (this.state.head === 0) {
       window.history.back();
       return;
@@ -83,17 +84,18 @@ export class OIDCInteraction extends Component<{
         this.setState({
           animation: AnimationStyles.slideRightIn40,
           uid: this.state.uid + 1,
-          head: this.state.head - 1,
+          head: this.state.head - num,
         });
       }, 40);
     });
   }
 
-  public push(page: React.ReactElement) {
+  public push(...pages: React.ReactElement[]) {
+    if (pages.length === 0) return;
     const { stack, head, uid } = this.state;
-    const nextHead = head + 1;
+    const nextHead = head + pages.length;
     const nextStack = stack.slice(0, nextHead);
-    nextStack.push(React.cloneElement(page, { key:  uid+1 }));
+    nextStack.push(pages.map(page => React.cloneElement(page, { key:  uid+1 })));
 
     this.setState({
       animation: AnimationStyles.slideLeftIn40,

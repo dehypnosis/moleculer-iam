@@ -60,6 +60,15 @@ export class IdentityProvider {
     });
   }
 
+  public async findByPhone(phone: string): Promise<Identity> {
+    return new Identity("find-by-phone@gmail.com", {
+      name: "Dong Wook Kim",
+      picture: "https://static2.sharepointonline.com/files/fabric/office-ui-fabric-react-assets/persona-female.png",
+      email: "find-by-phone@gmail.com",
+      phone,
+    });
+  }
+
   public async assertCredentials(id: Identity, credentials: { password: string }) {
     if (credentials.password !== "1234") {
       throw InvalidCredentialsError;

@@ -1,94 +1,74 @@
-import React from "react";
+import React, { useCallback, useContext, useState } from "react";
 import { OIDCInteractionContext, OIDCInteractionProps, OIDCInteractionPage, requestOIDCInteraction } from "../";
-import { TextFieldStyles, Link, TextField } from "../../styles";
+import { TextFieldStyles, Text, TextField } from "../../styles";
+import { useWithLoading } from "../hook";
+import { LoginInteractionVerifyPhone } from "./verify-phone";
+import { LoginInteractionEnterPassword } from "./password";
 
-export class LoginInteractionFindEmail extends React.Component<{
-  oidc: OIDCInteractionProps,
-}, {
-  loading: boolean,
-  password: string,
-  errors: { [key: string]: string },
-}> {
-  public state = {
-    loading: false,
-    password: "",
-    errors: {} as { [key: string]: string },
-  };
+export const LoginInteractionFindEmail: React.FunctionComponent<{ oidc: OIDCInteractionProps }> = ({oidc}) => {
+  // states
+  const context = useContext(OIDCInteractionContext);
+  const [phone, setPhone] = useState("");
+  const {loading, errors, setErrors, withLoading} = useWithLoading();
 
-  public static contextType = OIDCInteractionContext;
+  const handleNext = useCallback(() => withLoading(async () => {
+    const result = await requestOIDCInteraction(oidc.interaction!.action!.findEmail, {
+      phone,
+    });
 
-  public render() {
-    const {loading, password, errors} = this.state;
-    const { user, client } = this.props.oidc.interaction!.data!;
-    return (
-      <OIDCInteractionPage
-        title={`Hi, ${user.name}`}
-        subtitle={user.email}
-        buttons={[
-          {
-            primary: true,
-            text: "Login",
-            onClick: this.handleLogin,
-            loading,
-            tabIndex: 2,
-          },
-          {
-            text: "Cancel",
-            onClick: () => this.context.pop(),
-            tabIndex: 3,
-          },
-        ]}
-        error={errors.global}
-      >
-        <TextField
-          label="Password"
-          type="password"
-          inputMode="text"
-          placeholder="Enter your password"
-          autoFocus
-          tabIndex={1}
-          value={password}
-          errorMessage={errors.password}
-          onChange={(e, v) => this.setState({password: v || ""})}
-          onKeyUp={e => e.key === "Enter" && !loading && this.handleLogin()}
-          styles={TextFieldStyles.bold}
-        />
-        <Link tabIndex={4} onClick={this.handleResetPassword} variant="small" style={{marginTop: "10px"}}>Forgot password?</Link>
-      </OIDCInteractionPage>
-    );
-  }
-
-  public handleLogin = async () => {
-    const {loading, password} = this.state;
-    if (loading) return;
-
-    this.setState({loading: true, errors: {}}, async () => {
-      try {
-        const oidc = await requestOIDCInteraction(this.props.oidc.interaction!.action!.submit, {
-          password,
-        });
-        const { error, redirect } = oidc;
-        if (error) {
-          if (error.status === 422) {
-            this.setState({errors: error.detail, loading: false});
-          } else {
-            this.setState({errors: {password: error.message}, loading: false});
-          }
-        } else if (redirect) {
-          window.location.assign(redirect);
-        } else {
-          console.error("stuck to handle interaction:", oidc);
-        }
-      } catch (error) {
-        this.setState({errors: {global: error.toString()}, loading: false});
+    const {error} = result;
+    if (error) {
+      if (error.status === 422) {
+        setErrors(error.detail);
+      } else {
+        setErrors({phone: error.message});
       }
-    });
-  }
+    } else {
+      context.push(<LoginInteractionVerifyPhone oidc={result}/>);
+    }
 
-  public handleResetPassword = () => {
-    if (this.state.loading) return;
-    this.setState({ loading: true }, () => {
-      return requestOIDCInteraction(this.props.oidc.interaction!.action!.resetPassword);
-    });
-  }
-}
+  }), [withLoading, phone]);
+
+  const handleCancel = useCallback(() => withLoading(() => context.pop()), [withLoading]);
+
+  // render
+  return (
+    <OIDCInteractionPage
+      title={`Find your email`}
+      subtitle={`Enter your phone number`}
+      buttons={[
+        {
+          primary: true,
+          text: "Next",
+          onClick: handleNext,
+          loading,
+          tabIndex: 2,
+        },
+        {
+          text: "Cancel",
+          onClick: handleCancel,
+          loading,
+          tabIndex: 3,
+        },
+      ]}
+      error={errors.global}
+    >
+      <Text>
+        Do you have a registered phone number? You can find your ID if you have one.
+      </Text>
+      <TextField
+        label="Phone number"
+        type="tel"
+        inputMode="tel"
+        placeholder="Enter your mobile phone number"
+        autoFocus
+        tabIndex={1}
+        value={phone}
+        errorMessage={errors.phone}
+        onChange={(e, v) => setPhone(v || "")}
+        onKeyUp={e => e.key === "Enter" && !loading && handleNext()}
+        styles={TextFieldStyles.bold}
+      />
+    </OIDCInteractionPage>
+  );
+};

@@ -59,7 +59,7 @@ export const OIDCInteractionPage: React.FunctionComponent<{
           {subtitle ? <Text variant="large" children={subtitle}/> : null}
         </Stack>
 
-        {children ? <Stack styles={{root: {flex: "5 1 auto"}}} children={children} /> : null}
+        {children ? <Stack styles={{root: {flex: "5 1 auto"}}} tokens={{childrenGap: 15}} children={children} /> : null}
 
         {(buttons.length > 0 || footer) ? <Stack tokens={{childrenGap: 15}} verticalAlign="end">
           { error ? <MessageBar messageBarType={MessageBarType.error} styles={{root: AnimationStyles.slideDownIn20}} children={error}/> : null }

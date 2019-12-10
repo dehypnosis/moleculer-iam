@@ -41,6 +41,7 @@
   "author": "QMIT Inc.",
   "dependencies": {
     "@types/koa-static-cache": "^5.1.0",
+    "awesome-phonenumber": "^2.23.0",
     "fastest-validator": "^1.0.0-beta4",
     "jose": "latest",
     "kleur": "^3.0.3",

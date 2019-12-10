@@ -2,6 +2,7 @@ import Router from "koa-router";
 import bodyParser from "koa-bodyparser";
 import noCache from "koajs-nocache";
 import Validator, { ValidationSchema } from "fastest-validator";
+import PhoneNumber from "awesome-phonenumber";
 import { Identity, IdentityProvider } from "../../identity";
 import { Logger } from "../../logger";
 import { KoaContextWithOIDC, Provider, Configuration, Interaction, Client, interactionPolicy } from "../provider";
@@ -102,46 +103,16 @@ export class InteractionFactory {
     const validate = this.validate.bind(this);
     const render = renderer.render.bind(renderer);
 
-    // static action endpoints
+    // common action endpoints
     const actions = {
       abort: {
         url: url(`/abort`),
         method: "POST",
         data: {},
       },
-      changeAccount: {
-        url: url(`/login`),
-        method: "GET",
-        data: {
-          change: true,
-        },
-        urlencoded: true,
-      },
-      federate: {
-        url: url(`/federate`),
-        method: "POST",
-        data: {
-          provider: "", // google, facebook, kakaotalk, ...
-        },
-        urlencoded: true,
-      },
-
-      /* sub interactions for login */
-      findEmail: {
-        url: url(`/find-email`),
-        method: "POST",
-      },
-      resetPassword: {
-        url: url(`/reset-password`),
-        method: "POST",
-      },
-      register: {
-        url: url(`/register`),
-        method: "POST",
-      },
     };
 
-    // middleware
+    // prepare common data and handle error
     router.use(async (ctx: KoaContextWithOIDC, next) => {
       try {
         // fetch interaction details
@@ -155,7 +126,7 @@ export class InteractionFactory {
 
         await next();
       } catch (error) {
-        if (error.status >= 500) {
+        if (typeof error.status === "undefined" || error.status >= 500) {
           logger.error(error);
         }
 
@@ -164,7 +135,7 @@ export class InteractionFactory {
       }
     });
 
-    // abort interactions
+    // 1. abort interactions
     router.post("/abort", async ctx => {
       const redirect = await provider.interactionResult(ctx.req, ctx.res, {
         error: "access_denied",
@@ -178,7 +149,7 @@ export class InteractionFactory {
       });
     });
 
-    // handle login
+    // 2. handle login
     router.get("/login", async ctx => {
       const {user, client, interaction} = ctx.locals as InteractionRequestContext;
 
@@ -211,6 +182,32 @@ export class InteractionFactory {
                 email: interaction.params.login_hint || "",
               },
             },
+            federate: {
+              url: url(`/federate`),
+              method: "POST",
+              data: {
+                provider: "", // google, facebook, kakaotalk, ...
+              },
+              urlencoded: true,
+            },
+            findEmail: {
+              url: url(`/find-email`),
+              method: "POST",
+              data: {
+                phone: "", // mobile phone number
+              },
+            },
+            resetPassword: {
+              url: url(`/reset-password`),
+              method: "POST",
+              data: {
+                email: "", // mobile phone number
+              },
+            },
+            register: {
+              url: url(`/register`),
+              method: "POST",
+            },
             ...actions,
           },
           data: {
@@ -221,6 +218,7 @@ export class InteractionFactory {
       });
     });
 
+    // 2.1. handle login submit
     router.post("/login", async ctx => {
       const {client, interaction} = ctx.locals as InteractionRequestContext;
       const {email, password} = ctx.request.body;
@@ -289,10 +287,212 @@ export class InteractionFactory {
       return render(ctx, {redirect});
     });
 
-    // handle consent
+    // 2.2. handle find-email submit
+    router.post("/find-email", async ctx => {
+      const {user, client, interaction} = ctx.locals as InteractionRequestContext;
+      ctx.assert(interaction.prompt.name === "login" || interaction.prompt.name === "consent", "Invalid Request.");
+
+      // 1. validate body
+      ctx.request.body.phone = ctx.request.body.phone.replace(/[^0-9+]/g, " ").split(" ").filter((s: string) => !!s).join("");
+      let phoneNumber: PhoneNumber;
+      validate(ctx, {
+        phone: {
+          type: "custom",
+          types: ["mobile", "fixed-line-or-mobile"],
+          check(value, schema) {
+            phoneNumber = new PhoneNumber(value, "KR"); // TODO: country code from context
+            return phoneNumber.isPossible() && schema.types.includes(phoneNumber.getType()) || [{
+              type: "phoneInvalid",
+              field: "phone",
+              message: `Invalid mobile phone number format.`,
+              actual: value,
+            }];
+          },
+        },
+      });
+
+      // formatted: +82 10-1234-1234
+      const phone = phoneNumber!.getNumber("international");
+
+      // 2. extend TTL and store phone number in session
+      await interaction.save(Math.floor(new Date().getTime()/1000) + 60 * 10);
+
+      await provider.interactionResult(ctx.req, ctx.res, {
+        verifyPhone: {
+          phone,
+          callback: "find_email",
+          code: null,
+          sentAt: null,
+        },
+      }, {
+        mergeWithLastSubmission: true,
+      });
+
+      return render(ctx, {
+        interaction: {
+          name: "find_email",
+          action: {
+            submit: {
+              url: url(`/verify-phone`),
+              method: "POST",
+            },
+          },
+          data: {
+            phone,
+          },
+        },
+      });
+    });
+
+    // 2.3. handle verify phone submit
+    const verificationTimeoutSeconds = 180;
+    router.post("/verify-phone", async ctx => {
+      const {user, client, interaction} = ctx.locals as InteractionRequestContext;
+      ctx.assert(interaction && interaction.result.verifyPhone && interaction.result.verifyPhone.phone, "Phone number verification session has been expired.");
+
+      const {callback, phone, code, sentAt} = interaction.result.verifyPhone;
+
+      // 1. check too much resend
+      if (sentAt && new Date().getTime() - new Date(sentAt).getTime() < verificationTimeoutSeconds * 1000) {
+        ctx.throw("Cannot resend code before previous one expires.", 400);
+      }
+
+      // 2. create code
+      const newCode = Math.floor(Math.random() * 1000000).toString();
+
+      // TODO: 3. send sms via adaptor props
+
+      // 4. extend TTL and store the code
+      await interaction.save(Math.floor(new Date().getTime()/1000) + 60 * 10);
+
+      await provider.interactionResult(ctx.req, ctx.res, {
+        verifyPhone: {
+          phone,
+          callback,
+          code: "123123",// newCode,
+          sentAt: new Date().toString(),
+        },
+      }, {
+        mergeWithLastSubmission: true,
+      });
+
+      // 5. render with submit, resend endpoint
+      return render(ctx, {
+        interaction: {
+          name: "verify_phone",
+          action: {
+            submit: {
+              url: url(`/verify-phone-enter-code`),
+              method: "POST",
+              data: {
+                code: "",
+              },
+            },
+            resend: {
+              url: url(`/verify-phone`),
+              method: "POST",
+            },
+          },
+          data: {
+            phone,
+            timeoutSeconds: verificationTimeoutSeconds,
+          },
+        },
+      });
+    });
+
+    // 2.4. handle verify phone code submit
+    router.post("/verify-phone-enter-code", async ctx => {
+      const {client, interaction} = ctx.locals as InteractionRequestContext;
+      ctx.assert(interaction && interaction.result.verifyPhone && interaction.result.verifyPhone.code, "Phone number verification session has been expired.");
+
+      const {callback, phone, code, sentAt} = interaction.result.verifyPhone;
+
+      // 1. check expiration
+      if (!code || !sentAt || new Date().getTime() - new Date(sentAt).getTime() > verificationTimeoutSeconds * 1000) {
+        ctx.throw("Verification code has expired.", 400);
+      }
+
+      // 2. check code
+      validate(ctx, {
+        code: {
+          type: "custom",
+          check(value) {
+            return value === code || [{
+              type: "codeIncorrect",
+              field: "code",
+              message: `Incorrect verification code.`,
+              actual: value,
+            }];
+          },
+        },
+      });
+
+      // TODO: 3. update identity phone_verified
+
+      // 4. process callback interaction
+      switch (callback) {
+        case "find_email":
+          // make it user signed in
+          const user = await idp.findByPhone(phone);
+          const redirect = await provider.interactionResult(ctx.req, ctx.res, {
+            login: {
+              account: user.id,
+              remember: true,
+              // acr: string, // acr value for the authentication
+              // remember: boolean, // true if provider should use a persistent cookie rather than a session one, defaults to true
+              // ts: number, // unix timestamp of the authentication, defaults to now()
+            },
+            verifyPhone: null,
+          }, {
+            mergeWithLastSubmission: true,
+          });
+          return render(ctx, {redirect});
+
+        default:
+          ctx.throw("unimplemented");
+      }
+    });
+
+    // 2.5. handle reset password submit
+    router.post("/reset-password", async ctx => {
+      const {user, client, interaction} = ctx.locals as InteractionRequestContext;
+      ctx.assert(user && interaction.prompt.name === "login" || interaction.prompt.name === "consent", "Invalid Request.");
+
+      // TODO: 1. send email with adaptor smtp options
+      // console.log(user!.claims());
+    });
+
+    // 2.6. handle register submit
+    router.post("/register", async ctx => {
+      const {user, client, interaction} = ctx.locals as InteractionRequestContext;
+      ctx.assert(interaction.prompt.name === "login" || interaction.prompt.name === "consent", "Invalid Request.");
+
+      // extend TTL
+      await interaction.save(Math.floor(new Date().getTime()/1000) + 60 * 10);
+
+      return render(ctx, {
+        interaction: {
+          name: "register",
+          action: {
+            submit: {
+              url: url(`/register`),
+              method: "POST",
+              data: {
+                email: "",
+                password: "",
+                confirmPassword: "",
+              },
+            },
+          },
+        },
+      });
+    });
+
+    // 3. handle consent
     router.get("/consent", async ctx => {
       const {user, client, interaction} = ctx.locals as InteractionRequestContext;
-      ctx.assert(interaction.prompt.name === "consent", "Invalid Request");
+      ctx.assert(interaction.prompt.name === "consent", "Invalid Request.");
 
       const data = {
         user: user ? await getPublicUserProps(user) : undefined,
@@ -311,6 +511,14 @@ export class InteractionFactory {
                 rejectedClaims: [], // array of strings, claim names the end-user has not granted
               },
             },
+            changeAccount: {
+              url: url(`/login`),
+              method: "GET",
+              data: {
+                change: true,
+              },
+              urlencoded: true,
+            },
             ...actions,
           },
           data: {
@@ -326,7 +534,7 @@ export class InteractionFactory {
 
     router.post("/consent", async ctx => {
       const {user, client, interaction} = ctx.locals as InteractionRequestContext;
-      ctx.assert(interaction.prompt.name === "consent");
+      ctx.assert(interaction.prompt.name === "consent", "Invalid request.");
 
       // 1. validate body
       validate(ctx, {
@@ -348,41 +556,6 @@ export class InteractionFactory {
         mergeWithLastSubmission: true,
       });
       return render(ctx, {redirect});
-    });
-
-    // handle find-email submit
-    router.post("/find-email", async ctx => {
-      const {user, client, interaction} = ctx.locals as InteractionRequestContext;
-      ctx.assert(interaction.prompt.name === "login" || interaction.prompt.name === "consent", "Invalid Request");
-
-      // extend TTL
-      await interaction.save(60 * 10);
-    });
-
-    // handle register submit
-    router.post("/register", async ctx => {
-      const {user, client, interaction} = ctx.locals as InteractionRequestContext;
-      ctx.assert(interaction.prompt.name === "login" || interaction.prompt.name === "consent", "Invalid Request");
-
-      // extend TTL
-      await interaction.save(60 * 10);
-
-      return render(ctx, {
-        interaction: {
-          name: "register",
-          action: {
-            submit: {
-              url: url(`/register`),
-              method: "POST",
-              data: {
-                email: "",
-                password: "",
-                confirmPassword: "",
-              },
-            },
-          },
-        },
-      });
     });
 
     return router.routes();

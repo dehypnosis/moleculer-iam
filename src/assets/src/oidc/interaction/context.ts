@@ -3,8 +3,8 @@ import { OIDCInteractionProps } from "./types";
 import { AnimationStyles } from "../styles";
 
 export const OIDCInteractionContext = React.createContext({
-  pop: () => {},
-  push: (page: any) => {},
+  pop: (num: number = 1) => {},
+  push: (...pages: React.ReactElement[]) => {},
   animation: AnimationStyles.slideLeftIn40,
   key: 0,
   size: 0,
@@ -50,6 +50,11 @@ export function requestOIDCInteraction(
     body: method !== "GET" ? JSON.stringify(payload) : undefined,
     credentials: "same-origin",
   })
-    .then(res => res.json())
-    .catch(error => ({error}));
+    .then(res => {
+      return res.json()
+        .catch((error) => {
+          if (res.status >= 400) return { error: { name: res.statusText, message: res.statusText, } };
+          return { error };
+        });
+    });
 }

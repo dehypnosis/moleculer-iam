@@ -78,6 +78,7 @@ export class ConsentInteraction extends React.Component<{
           }
         } else if (redirect) {
           window.location.assign(redirect);
+          await new Promise(() => {});
         } else {
           console.error("stuck to handle interaction:", oidc);
         }
@@ -100,6 +101,7 @@ export class ConsentInteraction extends React.Component<{
           this.setState({errors: {global: error.message}, loading: false});
         } else if (redirect) {
           window.location.assign(redirect);
+          await new Promise(() => {});
         } else {
           console.error("stuck to handle interaction:", oidc);
         }
