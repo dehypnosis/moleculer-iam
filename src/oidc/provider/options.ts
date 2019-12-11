@@ -28,9 +28,11 @@ export const defaultOIDCProviderOptions: OIDCProviderOptions = {
   cookies: {
     short: {
       path: "/",
+      maxAge: 1000*60*60*24,
     },
     long: {
       path: "/",
+      maxAge: 1000*60*60*24*28,
     },
   },
 

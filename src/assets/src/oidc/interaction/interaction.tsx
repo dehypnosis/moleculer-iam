@@ -9,6 +9,7 @@ import { LoginInteraction } from "./login";
 import { LogoutInteraction } from "./logout";
 import { LogoutEndInteraction } from "./logout/end";
 import { ConsentInteraction } from "./consent";
+import { ResetPasswordInteraction } from "./login/reset-password-set";
 
 export class OIDCInteraction extends Component<{
   oidc: OIDCInteractionProps,
@@ -40,6 +41,9 @@ export class OIDCInteraction extends Component<{
             break;
           case "logout_end":
             stack.push(<LogoutEndInteraction oidc={oidc}/>);
+            break;
+          case "reset_password":
+            stack.push(<ResetPasswordInteraction oidc={oidc}/>);
             break;
           default:
             const err: OIDCInteractionError = {name: "unimplemented_client", message: `application cannot handle ${interaction!.name} interaction`};

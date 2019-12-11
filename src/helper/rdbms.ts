@@ -42,7 +42,7 @@ export class RDBMSManager {
       logging: (sql: string) => log(sql),
       logQueryParameters: true,
       benchmark: true,
-      migrationLockTimeoutSeconds: 30,
+      migrationLockTimeoutSeconds: 10,
     };
     _.defaultsDeep(opts, defaults);
 

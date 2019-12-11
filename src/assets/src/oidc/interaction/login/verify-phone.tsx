@@ -15,11 +15,9 @@ export const LoginInteractionVerifyPhone: React.FunctionComponent<{ oidc: OIDCIn
 
   // handlers
   const handleSend = useCallback(() => withLoading(async () => {
-    const result = await requestOIDCInteraction(oidc.interaction!.action!.submit, {
-      phone,
-    });
+    const result = await requestOIDCInteraction(oidc.interaction!.action!.send);
 
-    const {error} = result;
+    const {error, interaction} = result;
     if (error) {
       if (error.status === 422) {
         setErrors(error.detail);
@@ -27,6 +25,7 @@ export const LoginInteractionVerifyPhone: React.FunctionComponent<{ oidc: OIDCIn
         setErrors({phone: error.message});
       }
     } else {
+      console.log(interaction);
       context.push(<LoginInteractionVerifyPhoneEnterCode oidc={result}/>);
     }
 

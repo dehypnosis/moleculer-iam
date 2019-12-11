@@ -26,3 +26,17 @@ export function useWithLoading() {
     setErrors,
   };
 }
+
+export function useClose() {
+  const [closed, setClosed]  = useState(false);
+  const close = useCallback(() => {
+    window.close();
+    setTimeout(() => {
+      setClosed(true);
+    }, 1000);
+  }, []);
+
+  return {
+    closed, setClosed, close,
+  };
+}

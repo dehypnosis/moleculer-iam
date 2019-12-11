@@ -3,6 +3,7 @@ import { OIDCInteractionContext, OIDCInteractionProps, OIDCInteractionPage, requ
 import { TextFieldStyles, Text, TextField, Image, Stack } from "../../styles";
 import { useWithLoading } from "../hook";
 import svg from "./reset-password.svg";
+import { LoginInteractionResetPasswordSent } from "./reset-password-sent";
 
 export const LoginInteractionResetPassword: React.FunctionComponent<{ oidc: OIDCInteractionProps }> = ({oidc}) => {
   // states
@@ -14,12 +15,19 @@ export const LoginInteractionResetPassword: React.FunctionComponent<{ oidc: OIDC
 
   // handlers
   const handleSend = useCallback(() => withLoading(async () => {
-    await requestOIDCInteraction(oidc.interaction!.action!.resetPassword, {
+    const result = await requestOIDCInteraction(oidc.interaction!.action!.resetPassword, {
       email: user.email,
     });
 
     // done...
-    console.log("sent..");
+    const { error, interaction } = result;
+    if (error) {
+      setErrors({ global: error.message });
+    } else {
+      // request to send automatically
+      console.log(interaction);
+      context.push(<LoginInteractionResetPasswordSent oidc={result} />);
+    }
   }), [withLoading]);
 
   const handleCancel = useCallback(() => withLoading(() => context.pop()), [withLoading]);

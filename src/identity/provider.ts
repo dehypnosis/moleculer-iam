@@ -75,7 +75,10 @@ export class IdentityProvider {
     }
   }
 
-  public async updateCredentials() {
+  public async updateCredentials(id: Identity, credentials: { password: string }) {
+    if (credentials.password !== "1234") {
+      throw InvalidCredentialsError;
+    }
   }
 
   public async register(payload: any): Promise<Identity> {

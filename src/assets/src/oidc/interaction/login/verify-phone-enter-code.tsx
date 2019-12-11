@@ -44,7 +44,7 @@ export const LoginInteractionVerifyPhoneEnterCode: React.FunctionComponent<{ oid
   }), [withLoading, code]);
 
   const handleResend = useCallback(() => withLoading(async () => {
-    const result = await requestOIDCInteraction(oidc.interaction!.action!.resend);
+    const result = await requestOIDCInteraction(oidc.interaction!.action!.send);
 
     const {error, interaction} = result;
     if (error) {

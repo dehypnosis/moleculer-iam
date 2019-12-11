@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: iam
+  name: iam
+  namespace: util
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: iam
+    spec:
+      containers:
+        - image: gcr.io/qmit-pro/iam:latest
+          imagePullPolicy: Always
+          name: server
+          resources: {}
+          env:
+            - name: APP_ENV
+              value: dev
+            - name: APP_K8S_CLUSTER
+              value: dev
+  selector:
+    matchLabels:
+      app: iam
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: iam
+  name: iam
+  namespace: util
+spec:
+  selector:
+    app: iam
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 8080
+  type: ClusterIP
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+  labels:
+    app: iam
+  name: iam
+  namespace: util
+spec:
+  rules:
+    - host: account.dev.qmit.pro
+      http:
+        paths:
+          - backend:
+              serviceName: iam
+              servicePort: 80
+            path: /
+  tls:
+    - hosts:
+        - account.dev.qmit.pro
+      secretName: account-dev-qmit-pro-cert

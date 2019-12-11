@@ -32,7 +32,7 @@
       "src/**/*.spec.ts",
       "src/assets/*"
     ],
-    "exec": "ts-node ./examples/index.ts"
+    "exec": "ts-node ./src/examples/index.ts"
   },
   "keywords": [
     "QMIT",
@@ -56,6 +56,7 @@
     "lodash": "^4.17.15",
     "lru-cache": "^5.1.1",
     "moleculer": "^0.14.0-beta6",
+    "moment": "^2.24.0",
     "mysql2": "^2.0.1",
     "oidc-provider": "^6.16.0",
     "sequelize": "^5.21.2",
