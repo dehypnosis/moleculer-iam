@@ -615,7 +615,7 @@ export class InteractionFactory {
     });
 
     // 2.6. handle register submit
-    router.post("/register", async ctx => {
+    router.post("/register", parseContext, async ctx => {
       const {user, client, interaction} = ctx.locals as InteractionRequestContext;
       ctx.assert(interaction.prompt.name === "login" || interaction.prompt.name === "consent", "Invalid Request.");
 
@@ -641,7 +641,7 @@ export class InteractionFactory {
     });
 
     // 3. handle consent
-    router.get("/consent", async ctx => {
+    router.get("/consent", parseContext, async ctx => {
       const {user, client, interaction} = ctx.locals as InteractionRequestContext;
       ctx.assert(interaction.prompt.name === "consent", "Invalid Request.");
 
@@ -683,7 +683,7 @@ export class InteractionFactory {
       });
     });
 
-    router.post("/consent", async ctx => {
+    router.post("/consent", parseContext, async ctx => {
       const {user, client, interaction} = ctx.locals as InteractionRequestContext;
       ctx.assert(interaction.prompt.name === "consent", "Invalid request.");
 
