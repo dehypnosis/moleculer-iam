@@ -15,15 +15,16 @@ describe("Test IAMService", () => {
       },
     },
   });
+  const service = broker.createService(serviceSchema);
 
   beforeAll(() => broker.start());
   afterAll(() => broker.stop());
 
-  it("should be created", () => {
-    expect(broker.createService(serviceSchema)).toBeDefined();
+  it("service should be created", () => {
+    expect(service).toBeDefined();
   });
 
-  it("should throw for iam.client.create without detailed params", () => {
+  it("service should throw for iam.client.create without detailed params", () => {
     return expect(broker.call("iam.client.create", { client_id: "test" })).rejects.toThrow();
   });
 });
