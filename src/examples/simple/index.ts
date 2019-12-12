@@ -1,6 +1,6 @@
 "use strict";
 
-import { IAMServiceSchema } from "../../src";
+import { IAMServiceSchema } from "../../";
 import { ServiceBroker } from "moleculer";
 
 // create moleculer service (optional)

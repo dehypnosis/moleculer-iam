@@ -25,7 +25,7 @@ class RDBMSManager {
             logging: (sql) => log(sql),
             logQueryParameters: true,
             benchmark: true,
-            migrationLockTimeoutSeconds: 30,
+            migrationLockTimeoutSeconds: 10,
         };
         _.defaultsDeep(opts, defaults);
         // get sequelize instance

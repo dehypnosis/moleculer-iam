@@ -12,9 +12,11 @@ exports.defaultOIDCProviderOptions = {
     cookies: {
         short: {
             path: "/",
+            maxAge: 1000 * 60 * 60 * 24,
         },
         long: {
             path: "/",
+            maxAge: 1000 * 60 * 60 * 24 * 28,
         },
     },
     /* ref: https://github.com/panva/node-oidc-provider/blob/master/docs/README.md */

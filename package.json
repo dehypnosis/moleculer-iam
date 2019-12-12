@@ -1,6 +1,6 @@
 {
   "name": "moleculer-iam",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "Centeralized IAM module for moleculer. Including default OIDC provider for user profile and custom claims (for ABAC, also simple role system for RBAC available) management, custom claims are supported by scheme validation and versioned migration. Either can be composed with remote OIDC providers like G-Suite. Basic authentication and authorization features for OIDC/OAuth2 are supported. Can operate mutiple realms, including admin, user, service-account realms are set by default.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -40,7 +40,6 @@
   ],
   "author": "QMIT Inc.",
   "dependencies": {
-    "@types/koa-static-cache": "^5.1.0",
     "awesome-phonenumber": "^2.23.0",
     "fastest-validator": "^1.0.0-beta4",
     "jose": "latest",
@@ -64,6 +63,7 @@
     "uuid": "^3.3.3"
   },
   "devDependencies": {
+    "@types/koa-static-cache": "^5.1.0",
     "@types/bluebird": "^3.5.24",
     "@types/helmet": "0.0.45",
     "@types/jest": "^24.0.18",
@@ -83,14 +83,14 @@
     "coveralls": "^3.0.6",
     "jest": "^24.9.0",
     "jest-cli": "^24.9.0",
-    "moleculer-qmit": "^1.0.7",
+    "moleculer-qmit": "^1.0.8",
     "nodemon": "^1.19.2",
     "npm-check": "5.9.0",
     "sequelize-cli": "^5.5.1",
     "ts-jest": "^24.1.0",
-    "ts-node": "^8.4.1",
+    "ts-node": "^8.5.4",
     "tslint": "^5.20.0",
-    "typescript": "^3.6.3"
+    "typescript": "^3.7.3"
   },
   "engines": {
     "node": ">= 10.x.x"

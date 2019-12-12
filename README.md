@@ -11,10 +11,10 @@ Centeralized IAM module for moleculer. Including default OIDC provider for user 
 
 
 # Release Road-map
-- [] 0.1.x Pre-alpha
+- [x] 0.1.x Pre-alpha
     - [x] OAuth 2.0 and OpenID Connect Core 1.0 Provider
-        - [] hack `oidc-provider` module to be programmable
-    - [] Web client application (React.js / responsive)
+        - [x] hack `oidc-provider` module to be programmable
+    - [x] Web client application (React.js / responsive)
         - token management
             - login
             - logout / change account
@@ -69,7 +69,7 @@ Centeralized IAM module for moleculer. Including default OIDC provider for user 
 - [Features and details: ./docs](./docs)
 
 ## 2. Examples
-- [MoleculerJs: ./examples](./examples)
+- [MoleculerJs: ./src/examples](./examples)
 
 ## 3. Quick Start
 ```

@@ -51,6 +51,16 @@ class IdentityProvider {
             });
         });
     }
+    findByPhone(phone) {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            return new identity_1.Identity("find-by-phone@gmail.com", {
+                name: "Dong Wook Kim",
+                picture: "https://static2.sharepointonline.com/files/fabric/office-ui-fabric-react-assets/persona-female.png",
+                email: "find-by-phone@gmail.com",
+                phone,
+            });
+        });
+    }
     assertCredentials(id, credentials) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             if (credentials.password !== "1234") {
@@ -58,8 +68,11 @@ class IdentityProvider {
             }
         });
     }
-    updateCredentials() {
+    updateCredentials(id, credentials) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            if (credentials.password !== "1234") {
+                throw error_1.InvalidCredentialsError;
+            }
         });
     }
     register(payload) {

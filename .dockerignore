@@ -1,4 +1,7 @@
 node_modules
+src/assets/node_modules
+dist/assets/*.hot-update.*
 npm-debug.log
 telepresence.log
-dist
+coverage
+.idea

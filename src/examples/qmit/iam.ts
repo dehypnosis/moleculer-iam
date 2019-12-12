@@ -1,6 +1,6 @@
 import { ServiceBroker } from "moleculer";
 import { createBrokerOptions } from "moleculer-qmit";
-import { IAMServiceSchema } from "../../src";
+import { IAMServiceSchema } from "../../";
 import { config } from "./config";
 
 export const {isDebug, isDev} = config;
