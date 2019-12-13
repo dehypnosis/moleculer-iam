@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { OIDCInteractionError, OIDCInteractionProps } from "./types";
+import { OIDCInteractionError, OIDCInteractionData } from "./types";
 import { OIDCInteractionContext } from "./context";
 import { AnimationStyles } from "../styles";
 
@@ -12,7 +12,7 @@ import { ConsentInteraction } from "./consent";
 import { ResetPasswordInteraction } from "./login/reset-password-set";
 
 export class OIDCInteraction extends Component<{
-  oidc: OIDCInteractionProps,
+  oidc: OIDCInteractionData,
 }, {
   stack: any[],
   head: number,
@@ -22,7 +22,7 @@ export class OIDCInteraction extends Component<{
   constructor(props: any) {
     super(props);
     const stack = [] as any[];
-    const oidc = this.props.oidc as OIDCInteractionProps;
+    const oidc = this.props.oidc as OIDCInteractionData;
     const {error, interaction} = oidc;
 
     try {

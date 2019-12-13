@@ -5,6 +5,7 @@ const path_1 = tslib_1.__importDefault(require("path"));
 const fs_1 = tslib_1.__importDefault(require("fs"));
 const kleur_1 = tslib_1.__importDefault(require("kleur"));
 const _ = tslib_1.__importStar(require("lodash"));
+const koa_compose_1 = tslib_1.__importDefault(require("koa-compose"));
 const koa_static_cache_1 = tslib_1.__importDefault(require("koa-static-cache"));
 const defaultAssetsPath = path_1.default.join(__dirname, "../../../dist/assets");
 let defaultApp;
@@ -29,7 +30,7 @@ const contentTypes = {
 class ClientApplicationRenderer {
     constructor(props, opts) {
         this.props = props;
-        const { renderHTML, assetsRoutePrefix, assetsDirAbsolutePath, assetsCacheMaxAge } = _.defaultsDeep(opts || {}, {
+        const { renderHTML, assetsRoutePrefix, assetsDirAbsolutePath, assetsCacheMaxAge, client } = _.defaultsDeep(opts || {}, {
             renderHTML: defaultRenderHTML,
             assetsRoutePrefix: "/assets",
             assetsDirAbsolutePath: defaultAssetsPath,
@@ -37,14 +38,20 @@ class ClientApplicationRenderer {
         });
         this.renderHTML = renderHTML;
         this.isValidPath = opts && opts.isValidPath || ((p) => true);
+        // prepare router
+        const fns = [];
+        // serve static assets
         if (assetsRoutePrefix && assetsDirAbsolutePath) {
             props.logger.info(`${kleur_1.default.green(assetsDirAbsolutePath)} files are being served in ${kleur_1.default.blue(assetsRoutePrefix)} for client application assets`);
-            this.routes = koa_static_cache_1.default(assetsDirAbsolutePath, {
+            fns.push(koa_static_cache_1.default(assetsDirAbsolutePath, {
                 maxAge: assetsCacheMaxAge,
                 prefix: assetsRoutePrefix,
                 dynamic: true,
                 preload: false,
-            });
+            }));
+        }
+        if (fns.length > 0) {
+            this.router = koa_compose_1.default(fns);
         }
     }
     static normalizeError(error) {
@@ -75,7 +82,7 @@ class ClientApplicationRenderer {
             }
             // response HTML (app)
             // set 404 status as 200 for matched SPA path
-            if (ctx.status === 404 && (yield this.isValidPath(ctx.path))) {
+            if (props && props.error && props.error.status === 404 && (yield this.isValidPath(ctx.path))) {
                 ctx.status = 200;
                 props = undefined;
             }
@@ -86,4 +93,4 @@ class ClientApplicationRenderer {
     }
 }
 exports.ClientApplicationRenderer = ClientApplicationRenderer;
-//# sourceMappingURL=render.js.map
+//# sourceMappingURL=app.js.map

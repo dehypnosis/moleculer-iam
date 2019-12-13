@@ -4,6 +4,8 @@ const tslib_1 = require("tslib");
 const kleur = tslib_1.__importStar(require("kleur"));
 const _ = tslib_1.__importStar(require("lodash"));
 const koa_mount_1 = tslib_1.__importDefault(require("koa-mount"));
+const koa_compose_1 = tslib_1.__importDefault(require("koa-compose"));
+const uuid_1 = tslib_1.__importDefault(require("uuid"));
 const interaction_1 = require("../interaction");
 const types_1 = require("./types");
 const adapter_1 = require("../adapter");
@@ -26,22 +28,22 @@ class OIDCProvider {
         this.adapter = new adapter_1.OIDCAdapterConstructors[adapterKey]({
             logger,
         }, options.adapter.options);
-        /* create provider interactions factory */
-        const rendererOption = app || {};
+        /* create provider interactions factory and client app renderer */
+        const clientAppOption = app || {};
         if (isDev) {
             logger.info("disable assets cache for debugging purpose");
-            rendererOption.assetsCacheMaxAge = 0;
+            clientAppOption.assetsCacheMaxAge = 0;
         }
-        const renderer = this.renderer = new interaction_1.ClientApplicationRenderer({
+        const clientApp = this.clientApp = new interaction_1.ClientApplicationRenderer({
             logger,
-        }, rendererOption);
+        }, clientAppOption);
         const internalInteractionConfigFactory = new interaction_1.InternalInteractionConfigurationFactory({
-            renderer,
+            app: clientApp,
             logger,
             idp,
         });
         const interactionsFactory = new interaction_1.InteractionFactory({
-            renderer,
+            app: clientApp,
             logger,
             idp,
         });
@@ -72,6 +74,28 @@ class OIDCProvider {
                 "disable-implicit-force-https": true,
             });
         }
+        /* prepare client app oidc client options */
+        this.clientAppClientOptions = _.defaultsDeep(clientAppOption.client || {}, {
+            client_id: issuer,
+            client_name: "Account Manager",
+            client_uri: issuer,
+            application_type: "web",
+            policy_uri: `${issuer}/help/policy`,
+            tos_uri: `${issuer}/help/tos`,
+            logo_uri: undefined,
+            redirect_uris: [issuer],
+            post_logout_redirect_uris: [issuer],
+            frontchannel_logout_uri: `${issuer}`,
+            frontchannel_logout_session_required: true,
+            grant_types: ["implicit", "authorization_code"],
+            response_types: ["code", "id_token", "id_token token", "code id_token", "code token", "code id_token token", "none"],
+        });
+        /* create router */
+        const fns = [koa_mount_1.default(this.original.app)];
+        if (this.clientApp.router) {
+            fns.push(this.clientApp.router);
+        }
+        this.router = koa_compose_1.default(fns);
     }
     get idp() {
         return this.props.idp;
@@ -81,12 +105,6 @@ class OIDCProvider {
     }
     get defaultRoutes() {
         return Object.assign({ discovery: "/.well-known/openid-configuration" }, this.config.routes);
-    }
-    get router() {
-        return koa_mount_1.default(this.original.app);
-    }
-    get middleware() {
-        return this.renderer.routes;
     }
     get discoveryPath() {
         return `/.well-known/openid-configuration`;
@@ -103,6 +121,23 @@ class OIDCProvider {
             yield this.idp.start();
             // start adapter
             yield this.adapter.start();
+            // assert app client
+            try {
+                yield this.client.create(this.clientAppClientOptions);
+            }
+            catch (err) {
+                if (err.error === "invalid_client") {
+                    try {
+                        yield this.client.update(this.clientAppClientOptions);
+                    }
+                    catch (err) {
+                        this.logger.error(err);
+                    }
+                }
+                else {
+                    this.logger.error(err);
+                }
+            }
             this.working = true;
             this.logger.info(`oidc provider has been started:`, this.defaultRoutes);
         });
@@ -141,7 +176,7 @@ class OIDCProvider {
                 return tslib_1.__awaiter(this, void 0, void 0, function* () {
                     const client = yield this.find(id);
                     if (!client) {
-                        throw new types_1.errors.InvalidClient("client not found");
+                        throw new types_1.errors.InvalidClient("client_not_found");
                     }
                     return client;
                 });
@@ -149,18 +184,23 @@ class OIDCProvider {
             create(metadata) {
                 return tslib_1.__awaiter(this, void 0, void 0, function* () {
                     if (metadata.client_id && (yield methods.find(metadata.client_id))) {
-                        throw new types_1.errors.InvalidClient("client_id is duplicated");
+                        throw new types_1.errors.InvalidClient("client_id_duplicated");
                     }
                     provider.logger.info(`create client ${kleur.cyan(metadata.client_id)}:`, metadata);
-                    const client = yield originalMethods.clientAdd(metadata, { store: true });
+                    const client = yield originalMethods.clientAdd(Object.assign(Object.assign({}, metadata), { client_secret: OIDCProvider.generateClientSecret() }), { store: true });
                     return client.metadata();
                 });
             },
             update(metadata) {
                 return tslib_1.__awaiter(this, void 0, void 0, function* () {
-                    yield methods.find(metadata.client_id);
+                    const old = yield methods.find(metadata.client_id);
+                    // update client_secret
+                    if (metadata.reset_client_secret === true) {
+                        metadata = Object.assign(Object.assign({}, metadata), { client_secret: OIDCProvider.generateClientSecret() });
+                        delete metadata.reset_client_secret;
+                    }
                     provider.logger.info(`update client ${kleur.cyan(metadata.client_id || "<unknown>")}:`, metadata);
-                    const client = yield originalMethods.clientAdd(metadata, { store: true });
+                    const client = yield originalMethods.clientAdd(Object.assign(Object.assign({}, old), metadata), { store: true });
                     return client.metadata();
                 });
             },
@@ -183,6 +223,9 @@ class OIDCProvider {
             },
         };
         return methods;
+    }
+    static generateClientSecret() {
+        return uuid_1.default().replace(/\-/g, "") + uuid_1.default().replace(/\-/g, "");
     }
 }
 exports.OIDCProvider = OIDCProvider;

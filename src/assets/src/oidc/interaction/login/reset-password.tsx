@@ -1,36 +1,36 @@
-import React, { useCallback, useContext, useState } from "react";
-import { OIDCInteractionContext, OIDCInteractionProps, OIDCInteractionPage, requestOIDCInteraction } from "../";
+import React, { useCallback } from "react";
+import { OIDCInteractionData, OIDCInteractionPage, requestOIDCInteraction, useOIDCInteractionContext } from "../";
 import { TextFieldStyles, Text, TextField, Image, Stack } from "../../styles";
 import { useWithLoading } from "../hook";
 import svg from "./reset-password.svg";
 import { LoginInteractionResetPasswordSent } from "./reset-password-sent";
 
-export const LoginInteractionResetPassword: React.FunctionComponent<{ oidc: OIDCInteractionProps }> = ({oidc}) => {
+export const LoginInteractionResetPassword: React.FunctionComponent<{ oidc: OIDCInteractionData }> = ({oidc}) => {
   // states
-  const context = useContext(OIDCInteractionContext);
+  const context = useOIDCInteractionContext();
   const {loading, errors, setErrors, withLoading} = useWithLoading();
 
   // props
-  const { user, client } = oidc.interaction!.data!;
+  const {user, client} = oidc.interaction!.data!;
 
   // handlers
-  const handleSend = useCallback(() => withLoading(async () => {
+  const handleSend = withLoading(async () => {
     const result = await requestOIDCInteraction(oidc.interaction!.action!.resetPassword, {
       email: user.email,
     });
 
     // done...
-    const { error, interaction } = result;
+    const {error, interaction} = result;
     if (error) {
-      setErrors({ global: error.message });
+      setErrors({global: error.message});
     } else {
       // request to send automatically
       console.log(interaction);
-      context.push(<LoginInteractionResetPasswordSent oidc={result} />);
+      context.push(<LoginInteractionResetPasswordSent oidc={result}/>);
     }
-  }), [withLoading]);
+  }, []);
 
-  const handleCancel = useCallback(() => withLoading(() => context.pop()), [withLoading]);
+  const handleCancel = withLoading(() => context.pop(), []);
 
   // render
   return (
@@ -57,7 +57,7 @@ export const LoginInteractionResetPassword: React.FunctionComponent<{ oidc: OIDC
       <Text>
         We will send an email with a link to guide you to reset your password.
       </Text>
-      <Image src={svg} styles={{root: {minHeight: "270px"}, image: {width: "100%"}}} />
+      <Image src={svg} styles={{root: {minHeight: "270px"}, image: {width: "100%"}}}/>
     </OIDCInteractionPage>
   );
 };

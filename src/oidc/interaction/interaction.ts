@@ -6,7 +6,7 @@ import PhoneNumber from "awesome-phonenumber";
 import { Identity, IdentityProvider } from "../../identity";
 import { Logger } from "../../logger";
 import { KoaContextWithOIDC, Provider, Configuration, Interaction, Client, interactionPolicy } from "../provider";
-import { ClientApplicationError, ClientApplicationRenderer } from "./render";
+import { ClientApplicationError, ClientApplicationRenderer } from "./app";
 import { getPublicClientProps, getPublicUserProps } from "./util";
 import moment from "moment";
 
@@ -19,7 +19,7 @@ import moment from "moment";
 
 export type InteractionFactoryProps = {
   idp: IdentityProvider;
-  renderer: ClientApplicationRenderer;
+  app: ClientApplicationRenderer;
   logger: Logger;
 };
 
@@ -99,10 +99,10 @@ export class InteractionFactory {
       return `${provider.issuer}/interaction${path}`;
     }
 
-    const {idp, renderer, logger} = this.props;
+    const {idp, app, logger} = this.props;
     const router = this.router;
     const validate = this.validate.bind(this);
-    const render = renderer.render.bind(renderer);
+    const render = app.render.bind(app);
 
     // common action endpoints
     const actions = {

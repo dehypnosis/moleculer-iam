@@ -43,6 +43,7 @@ export function IAMServiceSchema(opts: IAMServiceSchemaOptions): ServiceSchema {
     },
     async started() {
       await server.start();
+      await this.clearCache("client.**");
     },
     async stopped() {
       await server.stop();
@@ -60,9 +61,6 @@ export function IAMServiceSchema(opts: IAMServiceSchemaOptions): ServiceSchema {
         params: IAMServiceActionParams["client.create"],
         async handler(ctx) {
           try {
-            if (ctx.params) {
-              (ctx.params as any).client_secret = this.generateClientSecret();
-            }
             const client = await oidc.client.create(ctx.params as any);
             await this.clearCache("client.**");
             return client;
@@ -75,14 +73,7 @@ export function IAMServiceSchema(opts: IAMServiceSchemaOptions): ServiceSchema {
         params: IAMServiceActionParams["client.update"],
         async handler(ctx) {
           try {
-            const old = await oidc.client.findOrFail((ctx.params as any).client_id);
-            const payload = (ctx.params as any);
-            // update client_secret
-            if (payload.reset_client_secret === true) {
-              payload.client_secret = this.generateClientSecret();
-              delete payload.reset_client_secret;
-            }
-            const client = await oidc.client.update({...old, ...payload});
+            const client = await oidc.client.update(ctx.params as any);
             await this.clearCache("client.**");
             return client;
           } catch (error) {
@@ -167,9 +158,6 @@ export function IAMServiceSchema(opts: IAMServiceSchemaOptions): ServiceSchema {
           return new Errors.MoleculerServerError(err.error_description!, err.statusCode, err.error);
         }
         return err as any;
-      },
-      generateClientSecret(): string {
-        return uuid().replace(/\-/g, "") + uuid().replace(/\-/g, "");
       },
       async clearCache(...keys: string[]) {
         if (this.broker.cacher) {

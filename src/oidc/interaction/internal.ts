@@ -1,13 +1,13 @@
 import { Logger } from "../../logger";
 import { Configuration, KoaContextWithOIDC } from "../provider";
-import { ClientApplicationProps, ClientApplicationRenderer } from "./render";
+import { ClientApplicationProps, ClientApplicationRenderer } from "./app";
 import { RouterContext } from "koa-router";
 import { Identity, IdentityProvider } from "../../identity";
 import { getPublicClientProps, getPublicUserProps } from "./util";
 
 export type InternalInteractionConfigurationFactoryProps = {
   idp: IdentityProvider;
-  renderer: ClientApplicationRenderer;
+  app: ClientApplicationRenderer;
   logger: Logger;
 };
 
@@ -205,6 +205,6 @@ export class InternalInteractionConfigurationFactory {
       }
     }
 
-    return this.props.renderer.render(ctx, props);
+    return this.props.app.render(ctx, props);
   }
 }

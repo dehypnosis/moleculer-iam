@@ -6,7 +6,6 @@
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
-const uuid_1 = tslib_1.__importDefault(require("uuid"));
 const moleculer_1 = require("moleculer");
 const identity_1 = require("../identity");
 const oidc_1 = require("../oidc");
@@ -36,6 +35,7 @@ function IAMServiceSchema(opts) {
         started() {
             return tslib_1.__awaiter(this, void 0, void 0, function* () {
                 yield server.start();
+                yield this.clearCache("client.**");
             });
         },
         stopped() {
@@ -56,9 +56,6 @@ function IAMServiceSchema(opts) {
                 handler(ctx) {
                     return tslib_1.__awaiter(this, void 0, void 0, function* () {
                         try {
-                            if (ctx.params) {
-                                ctx.params.client_secret = this.generateClientSecret();
-                            }
                             const client = yield oidc.client.create(ctx.params);
                             yield this.clearCache("client.**");
                             return client;
@@ -74,14 +71,7 @@ function IAMServiceSchema(opts) {
                 handler(ctx) {
                     return tslib_1.__awaiter(this, void 0, void 0, function* () {
                         try {
-                            const old = yield oidc.client.findOrFail(ctx.params.client_id);
-                            const payload = ctx.params;
-                            // update client_secret
-                            if (payload.reset_client_secret === true) {
-                                payload.client_secret = this.generateClientSecret();
-                                delete payload.reset_client_secret;
-                            }
-                            const client = yield oidc.client.update(Object.assign(Object.assign({}, old), payload));
+                            const client = yield oidc.client.update(ctx.params);
                             yield this.clearCache("client.**");
                             return client;
                         }
@@ -180,9 +170,6 @@ function IAMServiceSchema(opts) {
                     return new moleculer_1.Errors.MoleculerServerError(err.error_description, err.statusCode, err.error);
                 }
                 return err;
-            },
-            generateClientSecret() {
-                return uuid_1.default().replace(/\-/g, "") + uuid_1.default().replace(/\-/g, "");
             },
             clearCache(...keys) {
                 return tslib_1.__awaiter(this, void 0, void 0, function* () {

@@ -1,6 +1,6 @@
 import { InternalInteractionConfiguration, InternalInteractionConfigurationKeys } from "./internal";
 
-export * from "./render";
+export * from "./app";
 export * from "./internal";
 export * from "./interaction";
 

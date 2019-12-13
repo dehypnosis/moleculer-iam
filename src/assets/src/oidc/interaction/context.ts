@@ -1,5 +1,5 @@
-import React from "react";
-import { OIDCInteractionProps } from "./types";
+import React, { useContext } from "react";
+import { OIDCInteractionData } from "./types";
 import { AnimationStyles } from "../styles";
 
 export const OIDCInteractionContext = React.createContext({
@@ -10,6 +10,8 @@ export const OIDCInteractionContext = React.createContext({
   size: 0,
 });
 
+export const useOIDCInteractionContext = () => useContext(OIDCInteractionContext);
+
 export function requestOIDCInteraction(
   action: {
     url: string,
@@ -18,7 +20,7 @@ export function requestOIDCInteraction(
     urlencoded?: boolean,
   },
   mergeData: any = {},
-): Promise<OIDCInteractionProps> {
+): Promise<OIDCInteractionData> {
   const {url, method, data = {}, urlencoded = false} = action;
   const payload = {...data, ...mergeData};
 

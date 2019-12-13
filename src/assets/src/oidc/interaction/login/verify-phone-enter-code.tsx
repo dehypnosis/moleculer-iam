@@ -1,11 +1,11 @@
 import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
-import { OIDCInteractionContext, OIDCInteractionProps, OIDCInteractionPage, requestOIDCInteraction } from "../";
+import { useOIDCInteractionContext, OIDCInteractionData, OIDCInteractionPage, requestOIDCInteraction } from "../";
 import { TextFieldStyles, Text, TextField, Image, Stack } from "../../styles";
 import { useWithLoading } from "../hook";
 
-export const LoginInteractionVerifyPhoneEnterCode: React.FunctionComponent<{ oidc: OIDCInteractionProps }> = ({oidc}) => {
+export const LoginInteractionVerifyPhoneEnterCode: React.FunctionComponent<{ oidc: OIDCInteractionData }> = ({oidc}) => {
   // states
-  const context = useContext(OIDCInteractionContext);
+  const context = useOIDCInteractionContext();
   const {loading, errors, setErrors, withLoading} = useWithLoading();
   const [code, setCode] = useState("");
 
@@ -23,7 +23,7 @@ export const LoginInteractionVerifyPhoneEnterCode: React.FunctionComponent<{ oid
   }, [remainingSeconds]);
 
   // handlers
-  const handleVerify = useCallback(() => withLoading(async () => {
+  const handleVerify = withLoading(async () => {
     const result = await requestOIDCInteraction(oidc.interaction!.action!.submit, {
       code,
     });
@@ -41,9 +41,9 @@ export const LoginInteractionVerifyPhoneEnterCode: React.FunctionComponent<{ oid
     } else {
       console.error("stuck in interaction");
     }
-  }), [withLoading, code]);
+  }, [code]);
 
-  const handleResend = useCallback(() => withLoading(async () => {
+  const handleResend = withLoading(async () => {
     const result = await requestOIDCInteraction(oidc.interaction!.action!.send);
 
     const {error, interaction} = result;
@@ -52,9 +52,9 @@ export const LoginInteractionVerifyPhoneEnterCode: React.FunctionComponent<{ oid
     } else {
       setRemainingSeconds(interaction!.data!.timeoutSeconds);
     }
-  }), [withLoading]);
+  }, []);
 
-  const handleCancel = useCallback(() => withLoading(() => context.pop(2)), [withLoading]);
+  const handleCancel = withLoading(() => context.pop(2), []);
 
   // render
   return (

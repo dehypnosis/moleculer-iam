@@ -141,7 +141,7 @@ export class RDBMSManager {
       try {
         const [rows] = await this.seq.getQueryInterface().sequelize.query(`select * from ${this.lockTableName}`);
         const row: any = rows[0];
-        if (!row || new Date(row.tableCreatedAt).getTime() < Date.now() - 1000 * 30) {
+        if (!row || new Date(row.tableCreatedAt).getTime() < Date.now() - 1000 * 30 || deadLockTimer <= 0) {
           this.logger.info(`${this.migrationTableLabel}: release previous migration lock which is incomplete or dead for ${this.opts.migrationLockTimeoutSeconds!}s`);
           await this.releaseLock();
           return this.acquireLock(task);

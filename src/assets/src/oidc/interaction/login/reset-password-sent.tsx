@@ -1,19 +1,19 @@
 import React, { useCallback, useContext, useState } from "react";
-import { OIDCInteractionContext, OIDCInteractionProps, OIDCInteractionPage, requestOIDCInteraction } from "../";
+import { useOIDCInteractionContext, OIDCInteractionData, OIDCInteractionPage, requestOIDCInteraction } from "../";
 import { Text, Image } from "../../styles";
 import { useWithLoading } from "../hook";
 import svg from "./reset-password-sent.svg";
 
-export const LoginInteractionResetPasswordSent: React.FunctionComponent<{ oidc: OIDCInteractionProps }> = ({oidc}) => {
+export const LoginInteractionResetPasswordSent: React.FunctionComponent<{ oidc: OIDCInteractionData }> = ({oidc}) => {
   // states
-  const context = useContext(OIDCInteractionContext);
+  const context = useOIDCInteractionContext();
   const {loading, errors, setErrors, withLoading} = useWithLoading();
 
   // props
   const {email, timeoutSeconds } = oidc.interaction!.data!;
 
   // handlers
-  const handleDone = useCallback(() => withLoading(() => context.pop(2)), [withLoading]);
+  const handleDone = withLoading(() => context.pop(2), []);
 
   // render
   return (

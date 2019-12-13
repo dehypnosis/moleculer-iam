@@ -23,9 +23,6 @@ class IAMServer {
         app.env = "production";
         app.proxy = true;
         // apply middleware
-        if (props.oidc.middleware) {
-            app.use(props.oidc.middleware);
-        }
         app.use(logging_1.logging(this.logger, options.logging));
         app.use(koa_helmet_1.default(options.security));
         app.use(koa_json_1.default({

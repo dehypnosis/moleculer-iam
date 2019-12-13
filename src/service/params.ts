@@ -8,9 +8,7 @@ export const IAMServiceActionParams: { [actionName: string]: ActionParams } = {}
 const clientCreateParams = IAMServiceActionParams["client.create"] = {
   client_id: {
     type: "string",
-    alphadash: true,
     trim: true,
-    lowercase: true,
     empty: false,
   },
   client_name: {

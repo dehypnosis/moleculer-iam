@@ -13,7 +13,7 @@ exports.broker = new moleculer_1.ServiceBroker(moleculer_qmit_1.createBrokerOpti
 exports.broker.createService(__1.IAMServiceSchema({
     idp: {},
     oidc: Object.assign({ app: {
-            isValidPath: path => path === "/" || path === "/my" || path.startsWith("/my/"),
+            isValidPath: path => path === "/" || path === "/help" || path.startsWith("/help/") || path === "/login" || path.startsWith("/login/"),
         }, issuer: exports.isDev ? "https://account.dev.qmit.pro" : "https://account.qmit.pro" }, config_1.config.oidc),
     server: {
         http: {

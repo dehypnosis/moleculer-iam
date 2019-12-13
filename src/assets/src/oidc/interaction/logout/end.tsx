@@ -1,26 +1,22 @@
-import React, { useState } from "react";
-import { OIDCInteractionProps, OIDCInteractionPage } from "../";
+import React from "react";
+import { OIDCInteractionData, OIDCInteractionPage } from "../";
+import { useClose } from "../hook";
 
 export const LogoutEndInteraction: React.FunctionComponent<{
-  oidc: OIDCInteractionProps,
+  oidc: OIDCInteractionData,
 }> = ({ oidc }) => {
-  const [closed, setClosed] = useState(false);
+  const { closed, close } = useClose();
 
   return (
     <OIDCInteractionPage
-      title={`Sign out`}
-      subtitle={"Signed out successfully"}
+      title={`Signed out`}
+      subtitle={"You has been signed out from plco successfully"}
       error={closed ? "Cannot close the window, you can close the browser manually." : undefined}
       buttons={[
         {
           primary: false,
           text: "Close",
-          onClick: () => {
-            window.close();
-            setTimeout(() => {
-              setClosed(true);
-            }, 500);
-          },
+          onClick: close,
         },
       ]}
     />

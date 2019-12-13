@@ -181,7 +181,7 @@ class InternalInteractionConfigurationFactory {
                 }
             }
         }
-        return this.props.renderer.render(ctx, props);
+        return this.props.app.render(ctx, props);
     }
 }
 exports.InternalInteractionConfigurationFactory = InternalInteractionConfigurationFactory;

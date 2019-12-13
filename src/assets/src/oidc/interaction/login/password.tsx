@@ -1,16 +1,16 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
-import { OIDCInteractionContext, OIDCInteractionProps, OIDCInteractionPage, requestOIDCInteraction } from "../";
+import { OIDCInteractionData, OIDCInteractionPage, requestOIDCInteraction, useOIDCInteractionContext } from "../";
 import { Link, TextField, TextFieldStyles } from "../../styles";
 import { useWithLoading } from "../hook";
 import { LoginInteractionResetPassword } from "./reset-password";
 
-export const LoginInteractionEnterPassword: React.FunctionComponent<{ oidc: OIDCInteractionProps }> = ({oidc}) => {
+export const LoginInteractionEnterPassword: React.FunctionComponent<{ oidc: OIDCInteractionData }> = ({oidc}) => {
   // states
-  const context = useContext(OIDCInteractionContext);
+  const context = useOIDCInteractionContext();
   const [password, setPassword] = useState("");
   const { loading, errors, setErrors, withLoading } = useWithLoading();
 
-  const handleLogin = useCallback(() => withLoading(async () => {
+  const handleLogin = withLoading(async () => {
     const result = await requestOIDCInteraction(oidc.interaction!.action!.submit, {
       email: oidc.interaction!.data.user.email,
       password,
@@ -28,11 +28,11 @@ export const LoginInteractionEnterPassword: React.FunctionComponent<{ oidc: OIDC
     } else {
       console.error("stuck to handle interaction:", oidc);
     }
-  }), [withLoading, password]);
+  }, [password]);
 
-  const handleResetPassword = useCallback(() => withLoading(async () => {
+  const handleResetPassword = withLoading(async () => {
     context.push(<LoginInteractionResetPassword oidc={oidc}/>);
-  }), [withLoading]);
+  }, []);
 
   // render
   const { user, client } = oidc.interaction!.data!;

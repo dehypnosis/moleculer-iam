@@ -1,69 +1,38 @@
-import React from "react";
-import { OIDCInteractionContext, OIDCInteractionProps, OIDCInteractionPage, requestOIDCInteraction } from "../";
+import React, { useCallback } from "react";
+import { OIDCInteractionData, OIDCInteractionPage, requestOIDCInteraction } from "../";
+import { useWithLoading, useClose } from "../hook";
 
-export class LogoutInteraction extends React.Component<{
-  oidc: OIDCInteractionProps,
-}, {
-  loading: boolean,
-  errors: { [key: string]: string },
-}> {
-  public state = {
-    loading: false,
-    errors: {} as { [key: string]: string },
-  };
-
-  public static contextType = OIDCInteractionContext;
-
-  public render() {
-    const { loading, errors } = this.state;
-    const { user } = this.props.oidc.interaction!.data!;
-
-    return (
-      <OIDCInteractionPage
-        title={`Sign out`}
-        subtitle={user.email}
-        buttons={[
-          {
-            primary: true,
-            text: "Confirm",
-            onClick: this.handleConfirm,
-            loading,
-          },
-          {
-            text: "Cancel",
-            onClick: this.handleCancel,
-            loading,
-            tabIndex: 2,
-          },
-        ]}
-        error={errors.global}
-      >
-      </OIDCInteractionPage>
-    );
-  }
-
-  public handleConfirm = async () => {
-    const {loading} = this.state;
-    if (loading) return;
-    this.setState({loading: true, errors: {}}, async () => {
-      try {
-        await requestOIDCInteraction({
-          ...this.props.oidc.interaction!.action!.submit,
-        });
-      } catch (error) {
-        this.setState({errors: {global: error.toString()}, loading: false});
-      }
+export const LogoutInteraction: React.FunctionComponent<{ oidc: OIDCInteractionData }> = ({oidc}) => {
+  // states
+  const { loading, withLoading, errors, setErrors } = useWithLoading();
+  const handleConfirm = withLoading(async () => {
+    await requestOIDCInteraction({
+      ...oidc.interaction!.action!.submit,
     });
-  }
+  }, []);
+  const { closed, close } = useClose({ tryBack: true });
 
-  public handleCancel = () => {
-    if (this.state.loading) return;
-    window.history.back();
-    setTimeout(() => {
-      window.close();
-      setTimeout(() => {
-        this.setState({errors: {global: "Cannot close the window, you can close the browser manually."}});
-      }, 1000);
-    }, 500);
-  }
-}
+  const { user, client} = oidc.interaction!.data!;
+  return (
+    <OIDCInteractionPage
+      title={`Signed out`}
+      subtitle={client ? `You has been signed out from ${client.name}. Do you want to sign out from plco account too?` : `Do you want to sign out from plco account?`}
+      buttons={[
+        {
+          primary: true,
+          text: "Yes",
+          onClick: handleConfirm,
+          loading,
+        },
+        {
+          text: "No",
+          onClick: close,
+          loading,
+          tabIndex: 2,
+        },
+      ]}
+      error={errors.global || closed && "Cannot close the window, you can close the browser manually."}
+    >
+    </OIDCInteractionPage>
+  );
+};

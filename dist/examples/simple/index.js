@@ -16,9 +16,6 @@ const serviceSchema = __1.IAMServiceSchema({
     idp: {},
     oidc: {
         issuer: "http://0.0.0.0:8080",
-        app: {
-            isValidPath: path => path === "/" || path === "/my" || path.startsWith("/my/"),
-        },
         adapter: {
             // type: "Memory",
             type: "RDBMS",

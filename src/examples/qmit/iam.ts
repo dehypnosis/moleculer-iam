@@ -16,7 +16,7 @@ broker.createService(
     idp: {},
     oidc: {
       app: {
-        isValidPath: path => path === "/" || path === "/my" || path.startsWith("/my/"),
+        isValidPath: path => path === "/" || path === "/help" || path.startsWith("/help/") || path === "/login" || path.startsWith("/login/"),
       },
       issuer: isDev ? "https://account.dev.qmit.pro" : "https://account.qmit.pro",
       ...config.oidc,

@@ -1,20 +1,20 @@
 import React, { useCallback, useContext, useState } from "react";
-import { OIDCInteractionContext, OIDCInteractionProps, OIDCInteractionPage, requestOIDCInteraction } from "../";
+import { useOIDCInteractionContext, OIDCInteractionData, OIDCInteractionPage, requestOIDCInteraction } from "../";
 import { TextFieldStyles, Text, TextField, Image, Stack } from "../../styles";
 import { useWithLoading } from "../hook";
 import svg from "./verify-phone.svg";
 import { LoginInteractionVerifyPhoneEnterCode } from "./verify-phone-enter-code";
 
-export const LoginInteractionVerifyPhone: React.FunctionComponent<{ oidc: OIDCInteractionProps }> = ({oidc}) => {
+export const LoginInteractionVerifyPhone: React.FunctionComponent<{ oidc: OIDCInteractionData }> = ({oidc}) => {
   // states
-  const context = useContext(OIDCInteractionContext);
+  const context = useOIDCInteractionContext();
   const {loading, errors, setErrors, withLoading} = useWithLoading();
 
   // props
   const {phone} = oidc.interaction!.data!;
 
   // handlers
-  const handleSend = useCallback(() => withLoading(async () => {
+  const handleSend = withLoading(async () => {
     const result = await requestOIDCInteraction(oidc.interaction!.action!.send);
 
     const {error, interaction} = result;
@@ -29,9 +29,9 @@ export const LoginInteractionVerifyPhone: React.FunctionComponent<{ oidc: OIDCIn
       context.push(<LoginInteractionVerifyPhoneEnterCode oidc={result}/>);
     }
 
-  }), [withLoading]);
+  }, []);
 
-  const handleCancel = useCallback(() => withLoading(() => context.pop()), [withLoading]);
+  const handleCancel = withLoading(() => context.pop(), []);
 
   // render
   return (

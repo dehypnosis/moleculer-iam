@@ -19,9 +19,6 @@ const serviceSchema = IAMServiceSchema({
   },
   oidc: {
     issuer: "http://0.0.0.0:8080",
-    app: {
-      isValidPath: path => path === "/" || path === "/my" || path.startsWith("/my/"),
-    },
 
     adapter: {
       // type: "Memory",

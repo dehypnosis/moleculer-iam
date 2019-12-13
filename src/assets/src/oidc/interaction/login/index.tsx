@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
-import { OIDCInteractionContext, OIDCInteractionProps, OIDCInteractionPage, requestOIDCInteraction } from "../";
+import { OIDCInteractionData, OIDCInteractionPage, requestOIDCInteraction, useOIDCInteractionContext } from "../";
 import { TextFieldStyles, ButtonStyles, ThemeStyles, Link, TextField, Stack, PrimaryButton, Separator } from "../../styles";
 
 /* sub pages */
@@ -7,9 +7,9 @@ import { LoginInteractionEnterPassword } from "./password";
 import { LoginInteractionFindEmail } from "./find-email";
 import { useWithLoading } from "../hook";
 
-export const LoginInteraction: React.FunctionComponent<{ oidc: OIDCInteractionProps }> = ({oidc}) => {
+export const LoginInteraction: React.FunctionComponent<{ oidc: OIDCInteractionData }> = ({oidc}) => {
   // states
-  const context = useContext(OIDCInteractionContext);
+  const context = useOIDCInteractionContext();
   const [email, setEmail] = useState(oidc.interaction!.data.user ? oidc.interaction!.data.user.email : oidc.interaction!.action!.submit.data.email || "");
   const [optionsVisible, setOptionsVisible] = useState(false);
   const { loading, errors, setLoading, setErrors, withLoading } = useWithLoading();
@@ -21,7 +21,7 @@ export const LoginInteraction: React.FunctionComponent<{ oidc: OIDCInteractionPr
     }
   }, []);
 
-  const handleNext = useCallback(() => withLoading(async () => {
+  const handleNext = withLoading(async () => {
     const result = await requestOIDCInteraction(oidc.interaction!.action!.submit, {
       email,
     });
@@ -36,19 +36,19 @@ export const LoginInteraction: React.FunctionComponent<{ oidc: OIDCInteractionPr
     } else {
       context.push(<LoginInteractionEnterPassword oidc={result}/>);
     }
-  }), [withLoading, email]);
+  }, [email]);
 
-  const handleSignUp = useCallback(() => withLoading(async () => {
+  const handleSignUp = withLoading(async () => {
     await requestOIDCInteraction(oidc.interaction!.action!.register);
-  }), [withLoading]);
+  }, []);
 
-  const handleFindEmail = useCallback(() => withLoading(async () => {
+  const handleFindEmail = withLoading(async () => {
     context.push(<LoginInteractionFindEmail oidc={oidc}/>);
-  }), [withLoading]);
+  }, []);
 
-  const handleFederation = useCallback((provider: string) => withLoading(async () => {
+  const handleFederation = withLoading(async (provider: string) => {
     await requestOIDCInteraction(oidc.interaction!.action!.federate, {provider});
-  }), [withLoading]);
+  }, []);
 
   // render
   return (

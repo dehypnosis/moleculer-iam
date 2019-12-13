@@ -63,10 +63,10 @@ class InteractionFactory {
         function url(path) {
             return `${provider.issuer}/interaction${path}`;
         }
-        const { idp, renderer, logger } = this.props;
+        const { idp, app, logger } = this.props;
         const router = this.router;
         const validate = this.validate.bind(this);
-        const render = renderer.render.bind(renderer);
+        const render = app.render.bind(app);
         // common action endpoints
         const actions = {
             abort: {
@@ -498,7 +498,7 @@ class InteractionFactory {
             });
         }));
         // 2.6. handle register submit
-        router.post("/register", (ctx) => tslib_1.__awaiter(this, void 0, void 0, function* () {
+        router.post("/register", parseContext, (ctx) => tslib_1.__awaiter(this, void 0, void 0, function* () {
             const { user, client, interaction } = ctx.locals;
             ctx.assert(interaction.prompt.name === "login" || interaction.prompt.name === "consent", "Invalid Request.");
             // extend TTL
@@ -521,7 +521,7 @@ class InteractionFactory {
             });
         }));
         // 3. handle consent
-        router.get("/consent", (ctx) => tslib_1.__awaiter(this, void 0, void 0, function* () {
+        router.get("/consent", parseContext, (ctx) => tslib_1.__awaiter(this, void 0, void 0, function* () {
             const { user, client, interaction } = ctx.locals;
             ctx.assert(interaction.prompt.name === "consent", "Invalid Request.");
             const data = {
@@ -552,7 +552,7 @@ class InteractionFactory {
                 },
             });
         }));
-        router.post("/consent", (ctx) => tslib_1.__awaiter(this, void 0, void 0, function* () {
+        router.post("/consent", parseContext, (ctx) => tslib_1.__awaiter(this, void 0, void 0, function* () {
             const { user, client, interaction } = ctx.locals;
             ctx.assert(interaction.prompt.name === "consent", "Invalid request.");
             // 1. validate body

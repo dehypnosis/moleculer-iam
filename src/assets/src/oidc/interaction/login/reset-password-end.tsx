@@ -1,9 +1,9 @@
-import React, { useCallback, useContext, useEffect, useState } from "react";
-import { OIDCInteractionProps, OIDCInteractionPage } from "../";
+import React from "react";
+import { OIDCInteractionData, OIDCInteractionPage } from "../";
 import { Text } from "../../styles";
 import { useClose } from "../hook";
 
-export const ResetPasswordInteractionEnd: React.FunctionComponent<{ oidc: OIDCInteractionProps }> = ({oidc}) => {
+export const ResetPasswordInteractionEnd: React.FunctionComponent<{ oidc: OIDCInteractionData }> = ({oidc}) => {
   const {close, closed} = useClose();
 
   // render

@@ -1,5 +1,6 @@
 import { mergeStyles, loadTheme, getTheme } from "office-ui-fabric-react/lib";
 import { initializeIcons } from "@uifabric/icons";
+export * from "office-ui-fabric-react/lib";
 
 // Inject some global styles
 mergeStyles({

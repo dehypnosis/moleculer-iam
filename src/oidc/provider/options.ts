@@ -78,6 +78,21 @@ export const defaultOIDCProviderOptions: OIDCProviderOptions = {
     "plain",
   ],
 
+  /* supported scopes */
+  scopes: ["openid", "profile", "email", "phone", "offline_access"],
+  claims: {
+    acr: null,
+    auth_time: null,
+    iss: null,
+    sid: null,
+    openid: [
+      "sub",
+    ],
+    profile: ["name", "picture"],
+    email: ["email", "email_verified"],
+    phone: ["phone", "phone_verified"],
+  },
+
   /* additional discovery properties */
   discovery: {
     claim_types_supported: [

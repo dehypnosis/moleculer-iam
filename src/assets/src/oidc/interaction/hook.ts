@@ -1,8 +1,8 @@
-import { useCallback, useState } from "react";
+import { DependencyList, useCallback, useState } from "react";
 
 export function useWithLoading() {
   const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState({} as {global?: any, [key: string]: any});
+  const [errors, setErrors] = useState({} as { global?: any, [key: string]: any });
 
   const withLoading = useCallback(async (callback: () => void | Promise<void>) => {
     if (loading) return;
@@ -18,8 +18,14 @@ export function useWithLoading() {
     }
   }, [loading]);
 
+  // @ts-ignore
+  function wrapWithLoading<T = any>(callback: (...args: T) => void | Promise<void>, deps: DependencyList) {
+    // @ts-ignore
+    return useCallback((...args: T) => withLoading(() => callback(args)), deps.concat(withLoading));
+  }
+
   return {
-    withLoading,
+    withLoading: wrapWithLoading,
     loading,
     setLoading,
     errors,
@@ -27,13 +33,24 @@ export function useWithLoading() {
   };
 }
 
-export function useClose() {
-  const [closed, setClosed]  = useState(false);
+export function useClose(opts?: { tryBack: boolean }) {
+  const {tryBack = false} = opts || {};
+  const [closed, setClosed] = useState(false);
   const close = useCallback(() => {
-    window.close();
-    setTimeout(() => {
-      setClosed(true);
-    }, 1000);
+    if (tryBack) {
+      window.history.back();
+      setTimeout(() => {
+        window.close();
+        setTimeout(() => {
+          setClosed(true);
+        }, 1000);
+      }, 500);
+    } else {
+      window.close();
+      setTimeout(() => {
+        setClosed(true);
+      }, 1000);
+    }
   }, []);
 
   return {

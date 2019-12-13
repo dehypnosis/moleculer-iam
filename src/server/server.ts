@@ -56,9 +56,6 @@ export class IAMServer {
     app.proxy = true;
 
     // apply middleware
-    if (props.oidc.middleware) {
-      app.use(props.oidc.middleware);
-    }
     app.use(logging(this.logger, options.logging));
     app.use(helmet(options.security));
     app.use(prettyJSON({

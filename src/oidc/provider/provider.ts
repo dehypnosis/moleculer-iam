@@ -1,6 +1,8 @@
 import * as kleur from "kleur";
 import * as _ from "lodash";
 import mount from "koa-mount";
+import compose from "koa-compose";
+import uuid from "uuid";
 import { FindOptions } from "../../helper/rdbms";
 import { IdentityProvider } from "../../identity";
 import { Logger } from "../../logger";
@@ -22,7 +24,9 @@ export class OIDCProvider {
   private readonly logger: Logger;
   private readonly adapter: OIDCAdapter;
   private readonly original: OriginalProvider;
-  private readonly renderer: ClientApplicationRenderer;
+  private readonly clientApp: ClientApplicationRenderer;
+  private readonly clientAppClientOptions: Omit<ClientMetadata, "client_secret">;
+  public readonly router: compose.ComposedMiddleware<any>;
 
   constructor(private readonly props: OIDCProviderProps, options: OIDCProviderOptions) {
     const idp = props.idp;
@@ -37,24 +41,24 @@ export class OIDCProvider {
       logger,
     }, options.adapter!.options);
 
-    /* create provider interactions factory */
-    const rendererOption = app || {};
+    /* create provider interactions factory and client app renderer */
+    const clientAppOption = app || {};
     if (isDev) {
       logger.info("disable assets cache for debugging purpose");
-      rendererOption.assetsCacheMaxAge = 0;
+      clientAppOption.assetsCacheMaxAge = 0;
     }
-    const renderer = this.renderer = new ClientApplicationRenderer({
+    const clientApp = this.clientApp = new ClientApplicationRenderer({
       logger,
-    }, rendererOption);
+    }, clientAppOption);
 
     const internalInteractionConfigFactory = new InternalInteractionConfigurationFactory({
-      renderer,
+      app: clientApp,
       logger,
       idp,
     });
 
     const interactionsFactory = new InteractionFactory({
-      renderer,
+      app: clientApp,
       logger,
       idp,
     });
@@ -91,6 +95,30 @@ export class OIDCProvider {
         "disable-implicit-force-https": true,
       });
     }
+
+    /* prepare client app oidc client options */
+    this.clientAppClientOptions = _.defaultsDeep(clientAppOption.client || {}, {
+      client_id: issuer,
+      client_name: "Account Manager",
+      client_uri: issuer,
+      application_type: "web" as "web",
+      policy_uri: `${issuer}/help/policy`,
+      tos_uri: `${issuer}/help/tos`,
+      logo_uri: undefined,
+      redirect_uris: [issuer],
+      post_logout_redirect_uris: [issuer],
+      frontchannel_logout_uri: `${issuer}`,
+      frontchannel_logout_session_required: true,
+      grant_types: ["implicit", "authorization_code"],
+      response_types: ["code", "id_token", "id_token token", "code id_token", "code token", "code id_token token", "none"],
+    });
+
+    /* create router */
+    const fns = [mount(this.original.app)];
+    if (this.clientApp.router) {
+      fns.push(this.clientApp.router);
+    }
+    this.router = compose(fns);
   }
 
   public get idp() {
@@ -108,14 +136,6 @@ export class OIDCProvider {
     };
   }
 
-  public get router() {
-    return mount(this.original.app);
-  }
-
-  public get middleware() {
-    return this.renderer.routes;
-  }
-
   public get discoveryPath() {
     return `/.well-known/openid-configuration`;
   }
@@ -131,11 +151,27 @@ export class OIDCProvider {
     if (this.working) {
       return;
     }
+
     // start idp
     await this.idp.start();
 
     // start adapter
     await this.adapter.start();
+
+    // assert app client
+    try {
+      await this.client.create(this.clientAppClientOptions);
+    } catch (err) {
+      if (err.error === "invalid_client") {
+        try {
+          await this.client.update(this.clientAppClientOptions);
+        } catch (err) {
+          this.logger.error(err);
+        }
+      } else {
+        this.logger.error(err);
+      }
+    }
 
     this.working = true;
     this.logger.info(`oidc provider has been started:`, this.defaultRoutes);
@@ -157,7 +193,7 @@ export class OIDCProvider {
   }
 
   /* bind lazy methods */
-  public get client() {
+  public get client(): ReturnType<OIDCProvider["createClientMethods"]> {
     if (!this.clientMethods) {
       this.clientMethods = this.createClientMethods();
     }
@@ -178,25 +214,42 @@ export class OIDCProvider {
       async findOrFail(id: string) {
         const client = await this.find(id);
         if (!client) {
-          throw new errors.InvalidClient("client not found");
+          throw new errors.InvalidClient("client_not_found");
         }
         return client;
       },
 
-      async create(metadata: ClientMetadata) {
+      async create(metadata: Omit<ClientMetadata, "client_secret">) {
         if (metadata.client_id && await methods.find(metadata.client_id)) {
-          throw new errors.InvalidClient("client_id is duplicated");
+          throw new errors.InvalidClient("client_id_duplicated");
         }
         provider.logger.info(`create client ${kleur.cyan(metadata.client_id)}:`, metadata);
 
-        const client = await originalMethods.clientAdd(metadata, {store: true}) as Client;
+        const client = await originalMethods.clientAdd({
+          ...metadata,
+          client_secret: OIDCProvider.generateClientSecret(),
+        }, {store: true}) as Client;
+
         return client.metadata();
       },
 
-      async update(metadata: ClientMetadata) {
-        await methods.find(metadata.client_id);
+      async update(metadata: Omit<ClientMetadata, "client_secret"> & { reset_client_secret?: boolean }) {
+        const old = await methods.find(metadata.client_id);
+
+        // update client_secret
+        if (metadata.reset_client_secret === true) {
+          metadata = {
+            ...metadata,
+            client_secret: OIDCProvider.generateClientSecret(),
+          };
+          delete metadata.reset_client_secret;
+        }
+
         provider.logger.info(`update client ${kleur.cyan(metadata.client_id || "<unknown>")}:`, metadata);
-        const client = await originalMethods.clientAdd(metadata, {store: true}) as Client;
+        const client = await originalMethods.clientAdd({
+          ...old,
+          ...metadata,
+        }, {store: true}) as Client;
         return client.metadata();
       },
 
@@ -216,5 +269,9 @@ export class OIDCProvider {
     };
 
     return methods;
+  }
+
+  private static generateClientSecret(): string {
+    return uuid().replace(/\-/g, "") + uuid().replace(/\-/g, "");
   }
 }

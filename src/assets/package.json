@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "office-ui-fabric-react": "^7.0.0",
+    "oidc-client": "^1.9.1",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "react-localization": "^1.0.15",
