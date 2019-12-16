@@ -19,6 +19,7 @@ const serviceSchema = IAMServiceSchema({
   },
   oidc: {
     issuer: "http://0.0.0.0:8080",
+    devMode: true,
 
     adapter: {
       // type: "Memory",

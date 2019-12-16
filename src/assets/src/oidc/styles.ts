@@ -38,4 +38,12 @@ export const ButtonStyles: { [key: string]: IButtonStyles } = {
     },
     label: {fontWeight: 500},
   },
+  largeFull: {
+    root: {
+      height: "50px",
+      fontSize: FontSizes.mediumPlus,
+      fontWeight: FontWeights.light,
+      width: "100%",
+    },
+  },
 };

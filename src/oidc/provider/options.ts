@@ -16,7 +16,8 @@ export type OIDCProviderOptions = Omit<Configuration, "adapter"> & {
   },
 }
   & { [key in InteractionConfigurationKeys]?: never; }
-  & { app?: ClientApplicationRendererOptions };
+  & { app?: ClientApplicationRendererOptions }
+  & { devMode?: boolean };
 
 export const defaultOIDCProviderOptions: OIDCProviderOptions = {
   issuer: "http://localhost:8080",

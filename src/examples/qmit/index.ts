@@ -1,6 +1,3 @@
-import { broker, isDebug } from "./iam";
+import { broker } from "./iam";
 
-broker.start()
-  .then(() => {
-    if (isDebug) broker.repl();
-  });
+broker.start();

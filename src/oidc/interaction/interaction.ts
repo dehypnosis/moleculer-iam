@@ -159,12 +159,13 @@ export class InteractionFactory {
       const {user, client, interaction} = ctx.locals as InteractionRequestContext;
 
       // already signed in
-      if (user && interaction.prompt.name !== "login" && !ctx.request.query.change) {
+      const autoLogin = user && interaction.prompt.name !== "login" && !ctx.request.query.change;
+      if (autoLogin) {
         const redirect = await provider.interactionResult(ctx.req, ctx.res, {
           // authentication/login prompt got resolved, omit if no authentication happened, i.e. the user
           // cancelled
           login: {
-            account: user.id,
+            account: user!.id,
             remember: true,
             // acr: string, // acr value for the authentication
             // remember: boolean, // true if provider should use a persistent cookie rather than a session one, defaults to true
@@ -219,7 +220,7 @@ export class InteractionFactory {
             ...actions,
           },
           data: {
-            user: user && !ctx.request.query.change ? await getPublicUserProps(user) : undefined,
+            user: autoLogin ? await getPublicUserProps(user!) : undefined,
             client: client ? await getPublicClientProps(client) : undefined,
           },
         },

@@ -31,8 +31,8 @@ export class OIDCProvider {
   constructor(private readonly props: OIDCProviderProps, options: OIDCProviderOptions) {
     const idp = props.idp;
     const logger = this.logger = props.logger || console;
-    const {issuer, trustProxy, adapter, app, ...providerConfig} = _.defaultsDeep(options || {}, defaultOIDCProviderOptions);
-    const isDev = issuer.startsWith("http://");
+    const {issuer, trustProxy, adapter, app, devMode, ...providerConfig} = _.defaultsDeep(options || {}, defaultOIDCProviderOptions);
+    const devModeEnabled = devMode || issuer.startsWith("http://");
 
     /* create provider adapter */
     const adapterKey: keyof (typeof OIDCAdapterConstructors) = Object.keys(OIDCAdapterConstructors).find(k => k.toLowerCase() === options.adapter!.type.toLowerCase())
@@ -43,7 +43,7 @@ export class OIDCProvider {
 
     /* create provider interactions factory and client app renderer */
     const clientAppOption = app || {};
-    if (isDev) {
+    if (devModeEnabled) {
       logger.info("disable assets cache for debugging purpose");
       clientAppOption.assetsCacheMaxAge = 0;
     }
@@ -89,7 +89,7 @@ export class OIDCProvider {
     original.app.use(interactionsFactory.routes(original));
 
     // apply debugging features
-    if (isDev) {
+    if (devModeEnabled) {
       applyDebugOptions(original, logger, {
         "disable-implicit-forbid-localhost": true,
         "disable-implicit-force-https": true,

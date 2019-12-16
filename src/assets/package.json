@@ -1,18 +1,20 @@
 {
-  "name": "moleculer-iam-client-app",
-  "version": "0.1.0",
+  "name": "moleculer-iam-client",
+  "version": "0.1.20",
   "license": "MIT",
-  "main": "lib/index.js",
+  "main": "lib/assets/src/oidc/client/index.js",
   "scripts": {
     "dev": "just-scripts start",
-    "build": "just-scripts build",
+    "build": "rm -rf lib && just-scripts build",
     "test": "just-scripts test"
   },
+  "files": [
+    "lib/assets/src/styles.*",
+    "lib/assets/src/oidc"
+  ],
   "dependencies": {
-    "office-ui-fabric-react": "^7.0.0",
+    "office-ui-fabric-react": "7.67.0",
     "oidc-client": "^1.9.1",
-    "react": "^16.8.6",
-    "react-dom": "^16.8.6",
     "react-localization": "^1.0.15",
     "react-router-dom": "^5.1.2"
   },

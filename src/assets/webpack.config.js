@@ -1,3 +1,4 @@
+const path = require("path");
 const { webpackConfig, webpackMerge, htmlOverlay } = require("just-scripts");
 const common = require("./webpack.common");
 
@@ -6,5 +7,7 @@ module.exports = webpackMerge(
   htmlOverlay({
     template: "public/index.html",
   }),
-  common,
+  {
+    ...common,
+  }
 );

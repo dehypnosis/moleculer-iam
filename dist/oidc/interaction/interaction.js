@@ -114,7 +114,8 @@ class InteractionFactory {
         router.get("/login", parseContext, (ctx) => tslib_1.__awaiter(this, void 0, void 0, function* () {
             const { user, client, interaction } = ctx.locals;
             // already signed in
-            if (user && interaction.prompt.name !== "login" && !ctx.request.query.change) {
+            const autoLogin = user && interaction.prompt.name !== "login" && !ctx.request.query.change;
+            if (autoLogin) {
                 const redirect = yield provider.interactionResult(ctx.req, ctx.res, {
                     // authentication/login prompt got resolved, omit if no authentication happened, i.e. the user
                     // cancelled
@@ -163,7 +164,7 @@ class InteractionFactory {
                             method: "POST",
                         } }, actions),
                     data: {
-                        user: user && !ctx.request.query.change ? yield util_1.getPublicUserProps(user) : undefined,
+                        user: autoLogin ? yield util_1.getPublicUserProps(user) : undefined,
                         client: client ? yield util_1.getPublicClientProps(client) : undefined,
                     },
                 },

@@ -12,4 +12,8 @@ module.exports = {
     publicPath: "/assets/",
     filename: "app.js"
   },
+  externals: {
+    react: "React",
+    "react-dom": "ReactDOM",
+  },
 };

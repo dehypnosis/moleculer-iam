@@ -59,6 +59,7 @@ export const ConsentInteraction: React.FunctionComponent<{
           onClick: handleConfirm,
           loading,
           tabIndex: 1,
+          autoFocus: true,
         },
         // {
         //   text: "Cancel",

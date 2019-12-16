@@ -6,7 +6,7 @@ export const ErrorInteraction: React.FunctionComponent<{
   title?: string,
   error: Error | OIDCInteractionError,
 }> = ({ title, error }) => {
-  const { close, closed } = useClose();
+  const { close, closed } = useClose({ tryBack: true });
 
   return (
     <OIDCInteractionPage
@@ -16,7 +16,7 @@ export const ErrorInteraction: React.FunctionComponent<{
       buttons={[
         {
           primary: false,
-          text: "Close",
+          text: "Cacncel",
           tabIndex: 1,
           onClick: close,
         },

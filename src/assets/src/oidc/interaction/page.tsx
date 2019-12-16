@@ -8,6 +8,7 @@ export const OIDCInteractionPage: React.FunctionComponent<{
   subtitle?: string | ReactElement,
   buttons: Array<{
     text: string,
+    autoFocus?: boolean,
     onClick?: () => void,
     primary?: boolean,
     loading?: boolean,
@@ -63,9 +64,9 @@ export const OIDCInteractionPage: React.FunctionComponent<{
 
         {(buttons.length > 0 || footer) ? <Stack tokens={{childrenGap: 15}} verticalAlign="end">
           { error ? <MessageBar messageBarType={MessageBarType.error} styles={{root: AnimationStyles.slideDownIn20}} children={error}/> : null }
-          {buttons.map(({ primary, text, onClick, loading, tabIndex }, index) => {
+          {buttons.map(({ primary, text, onClick, autoFocus, loading, tabIndex }, index) => {
             const Button = primary ? PrimaryButton : DefaultButton;
-            return <Button key={index} tabIndex={tabIndex} checked={loading === true} allowDisabledFocus text={text} styles={ButtonStyles.large} onClick={onClick} />;
+            return <Button key={index} tabIndex={tabIndex} autoFocus={autoFocus} checked={loading === true} allowDisabledFocus text={text} styles={ButtonStyles.large} onClick={onClick} />;
           })}
           {footer}
         </Stack> : null}

@@ -1,9 +1,8 @@
 import React from "react";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import { OIDCInteraction, OIDCInteractionData } from "./oidc/interaction";
-import { Stack, Spinner, SpinnerSize, Text, Persona } from "./styles";
-import { useUserContextFactory, UserContext, useUserContext } from "./oidc";
-import { PersonaSize } from "./oidc/styles";
+import { ContextualMenuItemType, Spinner, SpinnerSize, Stack, Text, } from "./styles";
+import { UserContext, useUserContext, useUserContextFactory, UserContextMenu } from "./oidc";
 
 export const App: React.FunctionComponent = () => {
   // handle global OIDC props
@@ -12,7 +11,9 @@ export const App: React.FunctionComponent = () => {
     return <OIDCInteraction oidc={oidc}/>;
   }
 
-  const context = useUserContextFactory();
+  const context = useUserContextFactory(undefined, {
+    automaticSignIn: !(location.pathname.startsWith("/help/") || location.pathname === "/help") ? "login" : undefined,
+  });
 
   return (
     <UserContext.Provider value={context}>
@@ -20,9 +21,35 @@ export const App: React.FunctionComponent = () => {
         <Router>
           <Switch>
             <Route path="/">
+              <div style={{ textAlign: "right"}}>
+                <UserContextMenu
+                  hideManageAccount
+                  items={({ user, signIn }) => user ? [
+                    {
+                      key: "account",
+                      itemType: ContextualMenuItemType.Header,
+                      text: "Account",
+                    },
+                    {
+                      key: "change-account",
+                      text: "Change Account",
+                      iconProps: {
+                        iconName: "UserSync",
+                      },
+                      onClick: () => { signIn({prompt: "login"}); },
+                    },
+                    {
+                      key: "setting",
+                      text: "Setting",
+                      iconProps: {
+                        iconName: "Settings",
+                      },
+                    },
+                  ] : []}
+                />
+              </div>
               <Text>Here goes account application!</Text>
               <Text>{JSON.stringify(context.user)}</Text>
-              <UserContextIcon/>
             </Route>
           </Switch>
         </Router>
@@ -31,7 +58,7 @@ export const App: React.FunctionComponent = () => {
   );
 };
 
-const UserContextLoadingIndicator: React.FunctionComponent = ({ children }) => {
+const UserContextLoadingIndicator: React.FunctionComponent = ({children}) => {
   const {loading} = useUserContext();
   return loading ? (
     <Stack
@@ -43,23 +70,4 @@ const UserContextLoadingIndicator: React.FunctionComponent = ({ children }) => {
   ) : (
     <>{children}</>
   );
-};
-
-const UserContextIcon = () => {
-  const {user, signOut, signIn} = useUserContext();
-  const persona = user && user.profile
-    ? <Persona
-      text={user.profile.name}
-      secondaryText={user.profile.email}
-      imageUrl={user.profile.picture}
-      size={PersonaSize.size32}
-      onClick={() => signOut()}
-    />
-    : <Persona
-      showUnknownPersonaCoin
-      size={PersonaSize.size32}
-      onClick={() => signIn({ prompt: "login" })}
-    />;
-
-  return <>{persona}</>;
 };

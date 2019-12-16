@@ -4,7 +4,7 @@ const common = require("./webpack.common");
 module.exports = webpackMerge(
   webpackConfig,
   htmlOverlay({
-    template: 'public/index.html'
+    template: "public/index.dev.html",
   }),
   {
     ...common,
