@@ -73,7 +73,7 @@ class OIDCProvider {
                     // token is a reference to the token used for which a given account is being loaded,
                     // it is undefined in scenarios where account claims are returned from authorization endpoint
                     // ctx is the koa request context
-                    return idp.find(id);
+                    return idp.find({ id });
                 });
             }, 
             // interactions and configuration
@@ -137,6 +137,7 @@ class OIDCProvider {
             }
             // start idp
             yield this.idp.start();
+            yield this.syncSupportedClaimsAndScopes();
             // start adapter
             yield this.adapter.start();
             // assert app client
@@ -157,7 +158,12 @@ class OIDCProvider {
                 }
             }
             this.working = true;
-            this.logger.info(`oidc provider has been started:`, this.defaultRoutes);
+            this.logger.info(`oidc provider has been started`);
+            this.logger.info(`available oidc endpoints:\n${[...Object.entries(this.defaultRoutes)]
+                .map(([key, path]) => {
+                return `${kleur.green(key.padEnd(30))}: ${kleur.cyan(`${this.issuer}${path || "/???"}`)}`;
+            })
+                .join("\n")}`);
         });
     }
     stop() {
@@ -173,7 +179,7 @@ class OIDCProvider {
             this.logger.info(`oidc provider has been stopped`);
         });
     }
-    /* bind lazy methods */
+    /* bind management methods */
     get client() {
         if (!this.clientMethods) {
             this.clientMethods = this.createClientMethods();
@@ -217,7 +223,7 @@ class OIDCProvider {
                         metadata = Object.assign(Object.assign({}, metadata), { client_secret: OIDCProvider.generateClientSecret() });
                         delete metadata.reset_client_secret;
                     }
-                    provider.logger.info(`update client ${kleur.cyan(metadata.client_id || "<unknown>")}:`, metadata);
+                    provider.logger.info(`update client ${kleur.cyan(metadata.client_id || "<unknown>")}:`, require("util").inspect(metadata));
                     const client = yield originalMethods.clientAdd(Object.assign(Object.assign({}, old), metadata), { store: true });
                     return client.metadata();
                 });
@@ -244,6 +250,43 @@ class OIDCProvider {
     }
     static generateClientSecret() {
         return uuid_1.default().replace(/\-/g, "") + uuid_1.default().replace(/\-/g, "");
+    }
+    // public updateScopes(scope: string, scopeClaimsSchema: ValidationSchema) {
+    //   const scopes = new Set(this.config.scopes);
+    //   const claimNamesForScopes = _.cloneDeep(this.config.claims);
+    //
+    //   // TODO: this.idp.updateCustomClaimsSchema
+    // }
+    syncSupportedClaimsAndScopes() {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            // set available scopes and claims
+            const claimsSchemata = yield this.idp.claims.getActiveClaimsSchemata();
+            // set dynamic claims option (very hacky)
+            // ref: https://github.com/panva/node-oidc-provider/blob/ae8a4589c582b96f4e9ca0432307da15792ac29d/lib/helpers/claims.js#L54
+            const claimsFilter = this.config.claims;
+            const claimsSupported = this.config.claimsSupported;
+            claimsSchemata.forEach(schema => {
+                let obj = claimsFilter.get(schema.scope);
+                if (obj === null)
+                    return;
+                if (!obj) {
+                    obj = {};
+                    claimsFilter.set(schema.scope, obj);
+                }
+                obj[schema.key] = null;
+                claimsSupported.add(schema.key);
+            });
+            // set dynamic scopes option (also hacky)
+            this.config.scopes = new Set(claimsSchemata.map(schema => schema.scope));
+            // log result
+            this.logger.info(`available idp claims per scope:\n${[...claimsFilter.entries()]
+                .map(([scope, claims]) => {
+                return claims
+                    ? `${kleur.green(scope.padEnd(20))}: ${kleur.white(Object.keys(claims).join(", "))}`
+                    : `${kleur.green().dim("(token)".padEnd(20))}: ${kleur.dim(scope)}`;
+            })
+                .join("\n")}`);
+        });
     }
 }
 exports.OIDCProvider = OIDCProvider;

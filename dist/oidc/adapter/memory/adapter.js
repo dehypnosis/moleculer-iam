@@ -4,10 +4,12 @@ const tslib_1 = require("tslib");
 const lru_cache_1 = tslib_1.__importDefault(require("lru-cache"));
 const adapter_1 = require("../adapter");
 const model_1 = require("./model");
-class OIDCMemoryAdapter extends adapter_1.OIDCAdapter {
+// tslint:disable-next-line:class-name
+class OIDC_MemoryAdapter extends adapter_1.OIDCAdapter {
     constructor(props, options) {
         super(props);
         this.props = props;
+        this.displayName = "Memory";
         this.storage = new lru_cache_1.default(options);
     }
     createModel(name) {
@@ -17,5 +19,5 @@ class OIDCMemoryAdapter extends adapter_1.OIDCAdapter {
         }, this.storage);
     }
 }
-exports.OIDCMemoryAdapter = OIDCMemoryAdapter;
+exports.OIDC_MemoryAdapter = OIDC_MemoryAdapter;
 //# sourceMappingURL=adapter.js.map

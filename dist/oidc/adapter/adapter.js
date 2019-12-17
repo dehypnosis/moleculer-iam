@@ -2,15 +2,13 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
 const provider_1 = require("../provider");
+const kleur_1 = tslib_1.__importDefault(require("kleur"));
 class OIDCAdapter {
     constructor(props, options) {
         this.props = props;
         this.models = new Map();
-        this.logger = console;
         this.initialized = false;
-        if (props.logger) {
-            this.logger = props.logger;
-        }
+        this.logger = props.logger || console;
         // original oidc-provider create models lazilly but OIDCAdapter create all models before start and get cached models on demand
         const self = this;
         // tslint:disable-next-line:max-classes-per-file
@@ -41,12 +39,12 @@ class OIDCAdapter {
      */
     start() {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            this.logger.info(`oidc provider adapter has been started`);
+            this.logger.info(`${kleur_1.default.blue(this.displayName)} oidc provider adapter has been started`);
         });
     }
     stop() {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            this.logger.info(`oidc provider adapter has been stopped`);
+            this.logger.info(`${kleur_1.default.blue(this.displayName)} oidc provider adapter has been stopped`);
         });
     }
 }

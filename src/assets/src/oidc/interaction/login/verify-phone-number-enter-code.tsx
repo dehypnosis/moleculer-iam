@@ -3,14 +3,14 @@ import { useOIDCInteractionContext, OIDCInteractionData, OIDCInteractionPage, re
 import { TextFieldStyles, Text, TextField, Image, Stack } from "../../styles";
 import { useWithLoading } from "../hook";
 
-export const LoginInteractionVerifyPhoneEnterCode: React.FunctionComponent<{ oidc: OIDCInteractionData }> = ({oidc}) => {
+export const LoginInteractionVerifyPhoneNumberEnterCode: React.FunctionComponent<{ oidc: OIDCInteractionData }> = ({oidc}) => {
   // states
   const context = useOIDCInteractionContext();
   const {loading, errors, setErrors, withLoading} = useWithLoading();
   const [code, setCode] = useState("");
 
   // props
-  const {phone, timeoutSeconds} = oidc.interaction!.data!;
+  const {phoneNumber, timeoutSeconds} = oidc.interaction!.data!;
   const [remainingSeconds, setRemainingSeconds] = useState(timeoutSeconds);
 
   // update timeout
@@ -60,7 +60,7 @@ export const LoginInteractionVerifyPhoneEnterCode: React.FunctionComponent<{ oid
   return (
     <OIDCInteractionPage
       title={`Verify your phone number`}
-      subtitle={phone}
+      subtitle={phoneNumber}
       buttons={[
         {
           primary: true,

@@ -1,0 +1,327 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const tslib_1 = require("tslib");
+const _ = tslib_1.__importStar(require("lodash"));
+const adapter_1 = require("../adapter");
+const identity_1 = require("../../identity");
+const error_1 = require("../../error");
+// tslint:disable-next-line:class-name
+class IDP_MemoryAdapter extends adapter_1.IDPAdapter {
+    constructor(props, options) {
+        super(props);
+        this.props = props;
+        this.displayName = "Memory";
+        /* metadata */
+        this.identityMetadataMap = new Map();
+        /* claims cache */
+        this.claimsCacheMap = new Map();
+        /* claims */
+        this.identityClaimsMap = new Map();
+        /* credentials */
+        this.identityCredentialsMap = new Map();
+        /* claims schema */
+        this.schemata = new Array();
+        /* transaction for migration */
+        this.migrationJobsMap = new Map();
+        this.migrationLocksMap = new Map();
+    }
+    /* fetch */
+    find(args, metadata) {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            // find identity by id, email, phone
+            let foundId = "";
+            if (args.id) {
+                const schema = yield this.getClaimsSchema({ key: "sub", active: true });
+                for (const [id, claims] of this.identityClaimsMap.entries()) {
+                    if (claims.some(c => c.key === "sub" && c.value === args.id && c.schemaVersion === schema.version)) {
+                        foundId = id;
+                        break;
+                    }
+                }
+            }
+            else if (args.email) {
+                const schema = yield this.getClaimsSchema({ key: "email", active: true });
+                for (const [id, claims] of this.identityClaimsMap.entries()) {
+                    if (claims.some(c => c.key === "email" && c.value === args.email && c.schemaVersion === schema.version)) {
+                        foundId = id;
+                        break;
+                    }
+                }
+            }
+            else if (args.phone_number) {
+                const schema = yield this.getClaimsSchema({ key: "phone_number", active: true });
+                for (const [id, claims] of this.identityClaimsMap.entries()) {
+                    if (claims.some(c => c.key === "phone_number" && c.value === args.phone_number && c.schemaVersion === schema.version)) {
+                        foundId = id;
+                        break;
+                    }
+                }
+            }
+            if (foundId) {
+                const identity = new identity_1.Identity({
+                    id: foundId,
+                    adapter: this,
+                });
+                // filter by metadata
+                if (typeof metadata.softDeleted !== "undefined") {
+                    const identityMetadata = yield identity.metadata();
+                    if (identityMetadata.softDeleted !== metadata.softDeleted) {
+                        return;
+                    }
+                }
+                return identity;
+            }
+            // return new Identity({
+            //   id: (id || email || phone) as string,
+            //   adapter: this,
+            //   claims: {
+            //     sub: (id || email || phone),
+            //     email: "dehypnosis@gmail.com",
+            //     phone_number: "010-4477-6418",
+            //     name: "Dong Wook Kim",
+            //     picture: "https://static2.sharepointonline.com/files/fabric/office-ui-fabric-react-assets/persona-female.png",
+            //   },
+            // });
+        });
+    }
+    // only support offset, limit
+    get(args, metadata) {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            const identities = [...this.identityMetadataMap.keys()]
+                .map(id => new identity_1.Identity({ id, adapter: this }));
+            return identities
+                .slice(args.offset || 0, typeof args.limit === "undefined" ? identities.length : args.limit);
+        });
+    }
+    count(args, metadata) {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            return this.identityMetadataMap.size;
+        });
+    }
+    /* create */
+    prepareToCreate(identity) {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            this.identityClaimsMap.set(identity.id, []);
+        });
+    }
+    /* delete */
+    delete(identity) {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            if (!this.identityMetadataMap.has(identity.id))
+                return false;
+            this.identityMetadataMap.delete(identity.id);
+            this.identityClaimsMap.delete(identity.id);
+            this.identityCredentialsMap.delete(identity.id);
+            return true;
+        });
+    }
+    updateMetadata(identity, metadata) {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            const old = this.identityMetadataMap.get(identity.id);
+            this.identityMetadataMap.set(identity.id, _.defaultsDeep(metadata, old || {}));
+        });
+    }
+    metadata(identity) {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            return this.identityMetadataMap.get(identity.id);
+        });
+    }
+    setClaimsCache(identity, cacheKey, claims) {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            let cache = this.claimsCacheMap.get(identity.id);
+            if (!cache) {
+                cache = new Map();
+                this.claimsCacheMap.set(identity.id, cache);
+            }
+            cache.set(cacheKey, claims);
+        });
+    }
+    getClaimsCache(identity, cacheKey) {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            let cache = this.claimsCacheMap.get(identity.id);
+            if (!cache) {
+                cache = new Map();
+                this.claimsCacheMap.set(identity.id, cache);
+                return;
+            }
+            return cache.get(cacheKey);
+        });
+    }
+    clearClaimsCache(identity) {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            if (identity) {
+                this.claimsCacheMap.delete(identity.id);
+            }
+            else {
+                this.claimsCacheMap.clear();
+            }
+        });
+    }
+    putClaimsVersion(identity, claims, migrationKey) {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            const job = () => tslib_1.__awaiter(this, void 0, void 0, function* () {
+                const oldClaims = this.identityClaimsMap.get(identity.id);
+                for (const claim of claims) {
+                    const oldClaim = oldClaims.find(c => c.key === claim.key && c.schemaVersion === claim.schemaVersion);
+                    if (oldClaim) {
+                        oldClaim.value = claim.value;
+                    }
+                    else {
+                        oldClaims.push(claim);
+                    }
+                }
+            });
+            if (migrationKey) {
+                this.migrationJobsMap.get(migrationKey).push(job);
+            }
+            else {
+                yield job();
+            }
+        });
+    }
+    getClaimsVersion(identity, claims) {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            const foundClaims = {};
+            const storedClaims = this.identityClaimsMap.get(identity.id);
+            for (const { key, schemaVersion } of claims) {
+                const foundClaim = storedClaims.find(claim => {
+                    if (key !== claim.key)
+                        return false;
+                    if (typeof schemaVersion !== "undefined" && schemaVersion !== claim.schemaVersion)
+                        return false;
+                    return true;
+                });
+                if (foundClaim)
+                    foundClaims[key] = foundClaim.value;
+            }
+            return foundClaims;
+        });
+    }
+    updateCredentials(identity, credentials) {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            const cred = this.identityCredentialsMap.get(identity.id);
+            if (cred && JSON.stringify(cred) === JSON.stringify(credentials))
+                return false;
+            this.identityCredentialsMap.set(identity.id, Object.assign(Object.assign({}, cred), credentials));
+            return true;
+        });
+    }
+    assertCredentials(identity, credentials) {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            const cred = this.identityCredentialsMap.get(identity.id);
+            if (!cred)
+                return false;
+            for (const [type, value] of Object.entries(credentials)) {
+                if (cred[type] !== value)
+                    return false;
+            }
+            return true;
+        });
+    }
+    putClaimsSchema(schema, migrationKey) {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            const job = () => tslib_1.__awaiter(this, void 0, void 0, function* () {
+                this.schemata.push(schema);
+            });
+            if (migrationKey) {
+                this.migrationJobsMap.get(migrationKey).push(job);
+            }
+            else {
+                yield job();
+            }
+        });
+    }
+    getClaimsSchema(args) {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            const { key, version, active } = args;
+            return this.schemata.find(sch => {
+                if (key !== sch.key)
+                    return false;
+                if (typeof version !== "undefined" && version !== sch.version)
+                    return false;
+                if (typeof active !== "undefined" && active !== sch.active)
+                    return false;
+                return true;
+            });
+        });
+    }
+    setActiveClaimsSchema(args, migrationKey) {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            const { key, version } = args;
+            const job = () => tslib_1.__awaiter(this, void 0, void 0, function* () {
+                this.schemata.forEach(sch => {
+                    if (key !== sch.key)
+                        return;
+                    sch.active = version === sch.version;
+                });
+            });
+            if (migrationKey) {
+                this.migrationJobsMap.get(migrationKey).push(job);
+            }
+            else {
+                yield job();
+            }
+        });
+    }
+    getClaimsSchemata(args) {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            const { scope, key, version, active } = args;
+            return this.schemata.filter(schema => {
+                if (scope.length !== 0 && !scope.includes(schema.scope))
+                    return false;
+                if (typeof key !== "undefined" && key !== schema.key)
+                    return false;
+                if (typeof version !== "undefined" && version !== schema.version)
+                    return false;
+                if (typeof active !== "undefined" && active !== schema.active)
+                    return false;
+                return true;
+            });
+        });
+    }
+    beginMigration(key) {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            const jobs = this.migrationJobsMap.get(key);
+            if (jobs) {
+                throw new error_1.Errors.MigrationError("Migration is already being processed.");
+            }
+            this.migrationJobsMap.set(key, []);
+        });
+    }
+    commitMigration(key) {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            const jobs = this.migrationJobsMap.get(key);
+            if (!jobs) {
+                throw new error_1.Errors.MigrationError("There are no queued migration jobs to commit.");
+            }
+            yield Promise.all(jobs.map(job => job()));
+            this.migrationJobsMap.delete(key);
+        });
+    }
+    rollbackMigration(key) {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            const jobs = this.migrationJobsMap.get(key);
+            if (!jobs) {
+                throw new error_1.Errors.MigrationError("There are no queued migration jobs to rollback.");
+            }
+            this.migrationJobsMap.delete(key);
+        });
+    }
+    acquireMigrationLock(key) {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            if (this.migrationLocksMap.get(key)) {
+                yield new Promise(resolve => setTimeout(resolve, 1000));
+                return this.acquireMigrationLock(key);
+            }
+            this.migrationLocksMap.set(key, true);
+        });
+    }
+    releaseMigrationLock(key) {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            this.migrationLocksMap.delete(key);
+            this.migrationJobsMap.delete(key);
+        });
+    }
+}
+exports.IDP_MemoryAdapter = IDP_MemoryAdapter;
+//# sourceMappingURL=adapter.js.map

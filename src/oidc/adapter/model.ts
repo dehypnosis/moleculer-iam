@@ -28,7 +28,7 @@ export abstract class OIDCModel<M extends OIDCModelPayload = OIDCModelPayload> i
     if (props.logger) {
       this.logger = props.logger;
     }
-    this.logger.info(`${kleur.cyan(this.name)} OIDC model has been created`);
+    this.logger.info(`${this.name} oidc model has been created`);
   }
 
   protected readonly logger: Logger = console;

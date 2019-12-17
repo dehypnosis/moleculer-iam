@@ -1,19 +1,54 @@
+import * as _ from "lodash";
 import { FindOptions } from "../helper/rdbms";
 import { Logger } from "../logger";
 import { Identity } from "./identity";
-import { IdentityNotExistsError, InvalidCredentialsError } from "./error";
+import { Errors } from "./error";
+import { IDPAdapter, IDPAdapterConstructors, IDPAdapterConstructorOptions } from "./adapter";
+import { OIDCAccountClaims, OIDCAccountCredentials } from "../oidc";
+import { IdentityClaimsManager, IdentityClaimsManagerOptions } from "./claims";
+import { IdentityMetadata } from "./metadata";
+import { validator } from "../validator";
 
 export type IdentityProviderProps = {
   logger?: Logger,
 };
 
-export type IdentityProviderOptions = {};
+export type IdentityProviderOptions = {
+  adapter?: IDPAdapterConstructorOptions | IDPAdapter,
+  claims?: IdentityClaimsManagerOptions,
+};
 
 export class IdentityProvider {
   private readonly logger: Logger;
+  private readonly adapter: IDPAdapter;
+  public readonly claims: IdentityClaimsManager;
 
-  constructor(protected readonly props: IdentityProviderProps, opts?: IdentityProviderOptions) {
+  constructor(protected readonly props: IdentityProviderProps, opts?: Partial<IdentityProviderOptions>) {
     this.logger = props.logger || console;
+    const options: IdentityProviderOptions = _.defaultsDeep(opts || {}, {
+      adapter: {
+        type: "Memory",
+        options: {},
+      },
+      claims: [],
+    });
+
+    // create adapter
+    if (options.adapter instanceof IDPAdapter) {
+      this.adapter = options.adapter;
+    } else {
+      const adapterKey: keyof (typeof IDPAdapterConstructors) = Object.keys(IDPAdapterConstructors).find(k => k.toLowerCase() === ((options.adapter as any)!.type || "").toLowerCase())
+        || Object.keys(IDPAdapterConstructors)[0] as any;
+      this.adapter = new IDPAdapterConstructors[adapterKey]({
+        logger: this.logger,
+      }, options.adapter!.options);
+    }
+
+    // create claims manager
+    this.claims = new IdentityClaimsManager({
+      logger: this.logger,
+      adapter: this.adapter,
+    }, options.claims);
   }
 
   /* lifecycle */
@@ -24,7 +59,12 @@ export class IdentityProvider {
       return;
     }
 
-    // ...
+    // start adapter
+    await this.adapter.start();
+
+    // start claims manager
+    await this.claims.start();
+
     this.logger.info("identity provider has been started");
 
     this.working = true;
@@ -35,87 +75,58 @@ export class IdentityProvider {
       return;
     }
 
-    // ...
+    // stop claims manager
+    await this.claims.stop();
+
+    // stop adapter
+    await this.adapter.stop();
+
     this.logger.info("identity provider has been stopped");
 
     this.working = false;
   }
 
-  public async find(id: string): Promise<Identity> {
-    return new Identity(id, {
-      name: "Dong Wook Kim",
-      picture: "https://static2.sharepointonline.com/files/fabric/office-ui-fabric-react-assets/persona-female.png",
-      email: id,
+  /* fetch account */
+  public async find(args: { id?: string, email?: string, phone_number?: string }, metadata: Partial<IdentityMetadata> = {softDeleted: false}): Promise<Identity> {
+
+    // validate args to normalize email and phone number
+    const result = validator.validate(args, {
+      id: {
+        type: "string",
+        optional: true,
+      },
+      email: {
+        type: "email",
+        normalize: true,
+        optional: true,
+      },
+      phone_number: {
+        type: "phone",
+        optional: true,
+      },
     });
-  }
 
-  public async findByEmail(email: string): Promise<Identity> {
-    if (!email.endsWith(".com")) {
-      throw IdentityNotExistsError;
+    if (result !== true) {
+      throw new Errors.ValidationError(result);
     }
-    return new Identity(email, {
-      name: "Dong Wook Kim",
-      picture: "https://static2.sharepointonline.com/files/fabric/office-ui-fabric-react-assets/persona-female.png",
-      email,
-    });
+
+    const identity = await this.adapter.find(args, metadata);
+    if (!identity) throw new Errors.IdentityNotExistsError();
+    return identity;
   }
 
-  public async findByPhone(phone: string): Promise<Identity> {
-    return new Identity("find-by-phone@gmail.com", {
-      name: "Dong Wook Kim",
-      picture: "https://static2.sharepointonline.com/files/fabric/office-ui-fabric-react-assets/persona-female.png",
-      email: "find-by-phone@gmail.com",
-      phone,
-    });
+  public async get(args?: FindOptions, metadata: Partial<IdentityMetadata> = {softDeleted: false}): Promise<Identity[]> {
+    return this.adapter.get({offset: 0, limit: 10, ...args}, metadata);
   }
 
-  public async assertCredentials(id: Identity, credentials: { password: string }) {
-    if (credentials.password !== "1234") {
-      throw InvalidCredentialsError;
-    }
+  public async count(args: Omit<FindOptions, "offset" | "limit"> = {}, metadata: Partial<IdentityMetadata> = {softDeleted: false}): Promise<number> {
+    return this.adapter.count(args, metadata);
   }
 
-  public async updateCredentials(id: Identity, credentials: { password: string }) {
-    if (credentials.password !== "1234") {
-      throw InvalidCredentialsError;
-    }
+  /* create account */
+  public async create(args: { metadata: IdentityMetadata, scope: string[], claims: OIDCAccountClaims, credentials: Partial<OIDCAccountCredentials> }): Promise<Identity> {
+    // push mandatory scopes
+    args.scope = [...new Set([...args.scope, ...this.claims.mandatoryScopes])];
+    return this.adapter.create(args);
   }
-
-  public async register(payload: any): Promise<Identity> {
-    return {} as any;
-  }
-
-  public async update(payload: any): Promise<Identity> {
-    return {} as any;
-  }
-
-  public async remove(id: string, opts?: { permanent?: boolean }): Promise<void> {
-  }
-
-  public async get(opts?: FindOptions): Promise<Identity[]> {
-    return [];
-  }
-
-  public async findEmail() {
-  } // secondary email, or mobile
-
-  /* federation */
-  public async federateOtherProvider() {
-  }
-
-  public async federateCustomSource() {
-  }
-
-  /* verification */
-  public async verifyEmail() {
-  }
-
-  public async sendEmailVerificationCode() {
-  } // different model with identity itself for volatile registration
-
-  public async verifyMobile() {
-  }
-
-  public async sendMobileVerificationCode() {
-  } // different model with identity itself for volatile registration
 }

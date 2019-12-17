@@ -2,16 +2,16 @@ import React, { useCallback, useContext, useState } from "react";
 import { useOIDCInteractionContext, OIDCInteractionData, OIDCInteractionPage, requestOIDCInteraction } from "../";
 import { TextFieldStyles, Text, TextField, Image, Stack } from "../../styles";
 import { useWithLoading } from "../hook";
-import svg from "./verify-phone.svg";
-import { LoginInteractionVerifyPhoneEnterCode } from "./verify-phone-enter-code";
+import svg from "./verify-phone-number.svg";
+import { LoginInteractionVerifyPhoneNumberEnterCode } from "./verify-phone-number-enter-code";
 
-export const LoginInteractionVerifyPhone: React.FunctionComponent<{ oidc: OIDCInteractionData }> = ({oidc}) => {
+export const LoginInteractionVerifyPhoneNumber: React.FunctionComponent<{ oidc: OIDCInteractionData }> = ({oidc}) => {
   // states
   const context = useOIDCInteractionContext();
   const {loading, errors, setErrors, withLoading} = useWithLoading();
 
   // props
-  const {phone} = oidc.interaction!.data!;
+  const {phoneNumber} = oidc.interaction!.data!;
 
   // handlers
   const handleSend = withLoading(async () => {
@@ -22,11 +22,11 @@ export const LoginInteractionVerifyPhone: React.FunctionComponent<{ oidc: OIDCIn
       if (error.status === 422) {
         setErrors(error.detail);
       } else {
-        setErrors({phone: error.message});
+        setErrors({phoneNumber: error.message});
       }
     } else {
       console.log(interaction);
-      context.push(<LoginInteractionVerifyPhoneEnterCode oidc={result}/>);
+      context.push(<LoginInteractionVerifyPhoneNumberEnterCode oidc={result}/>);
     }
 
   }, []);
@@ -37,7 +37,7 @@ export const LoginInteractionVerifyPhone: React.FunctionComponent<{ oidc: OIDCIn
   return (
     <OIDCInteractionPage
       title={`Verify your phone number`}
-      subtitle={phone}
+      subtitle={phoneNumber}
       buttons={[
         {
           primary: true,

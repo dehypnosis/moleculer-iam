@@ -3,7 +3,7 @@ import { Configuration } from "./types";
 import { OIDCAdapterConstructorOptions } from "../adapter";
 import { InteractionConfigurationKeys, InternalInteractionDeviceFlowConfigurationKeys, ClientApplicationRendererOptions } from "../interaction";
 
-export type OIDCProviderOptions = Omit<Configuration, "adapter"> & {
+export type OIDCProviderOptions = Omit<Configuration, "adapter"|"claims"|"scopes"|"dynamicScopes"> & {
   issuer: string,
   trustProxy?: boolean,
   adapter?: OIDCAdapterConstructorOptions,
@@ -29,11 +29,11 @@ export const defaultOIDCProviderOptions: OIDCProviderOptions = {
   cookies: {
     short: {
       path: "/",
-      maxAge: 1000*60*60*24,
+      maxAge: 1000 * 60 * 60 * 24,
     },
     long: {
       path: "/",
-      maxAge: 1000*60*60*24*28,
+      maxAge: 1000 * 60 * 60 * 24 * 28,
     },
   },
 
@@ -47,7 +47,7 @@ export const defaultOIDCProviderOptions: OIDCProviderOptions = {
     frontchannelLogout: {enabled: true},
     sessionManagement: {enabled: true},
     webMessageResponseMode: {enabled: true},
-    deviceFlow: { enabled: true },
+    deviceFlow: {enabled: true},
 
     /* dynamic client registration */
     registration: {enabled: true},
@@ -78,21 +78,6 @@ export const defaultOIDCProviderOptions: OIDCProviderOptions = {
     "S256",
     "plain",
   ],
-
-  /* supported scopes */
-  scopes: ["openid", "profile", "email", "phone", "offline_access"],
-  claims: {
-    acr: null,
-    auth_time: null,
-    iss: null,
-    sid: null,
-    openid: [
-      "sub",
-    ],
-    profile: ["name", "picture"],
-    email: ["email", "email_verified"],
-    phone: ["phone", "phone_verified"],
-  },
 
   /* additional discovery properties */
   discovery: {

@@ -90,7 +90,7 @@ export class OIDCProvider {
         // token is a reference to the token used for which a given account is being loaded,
         // it is undefined in scenarios where account claims are returned from authorization endpoint
         // ctx is the koa request context
-        return idp.find(id);
+        return idp.find({id});
       },
 
       // interactions and configuration
@@ -174,6 +174,7 @@ export class OIDCProvider {
 
     // start idp
     await this.idp.start();
+    await this.syncSupportedClaimsAndScopes();
 
     // start adapter
     await this.adapter.start();
@@ -194,7 +195,15 @@ export class OIDCProvider {
     }
 
     this.working = true;
-    this.logger.info(`oidc provider has been started:`, this.defaultRoutes);
+    this.logger.info(`oidc provider has been started`);
+
+    this.logger.info(`available oidc endpoints:\n${
+      [...Object.entries(this.defaultRoutes)]
+        .map(([key, path]) => {
+          return `${kleur.green(key.padEnd(30))}: ${kleur.cyan(`${this.issuer}${path || "/???"}`)}`;
+        })
+        .join("\n")
+    }`);
   }
 
   public async stop(): Promise<void> {
@@ -212,7 +221,7 @@ export class OIDCProvider {
     this.logger.info(`oidc provider has been stopped`);
   }
 
-  /* bind lazy methods */
+  /* bind management methods */
   public get client(): ReturnType<OIDCProvider["createClientMethods"]> {
     if (!this.clientMethods) {
       this.clientMethods = this.createClientMethods();
@@ -265,7 +274,7 @@ export class OIDCProvider {
           delete metadata.reset_client_secret;
         }
 
-        provider.logger.info(`update client ${kleur.cyan(metadata.client_id || "<unknown>")}:`, metadata);
+        provider.logger.info(`update client ${kleur.cyan(metadata.client_id || "<unknown>")}:`, require("util").inspect(metadata));
         const client = await originalMethods.clientAdd({
           ...old,
           ...metadata,
@@ -293,5 +302,46 @@ export class OIDCProvider {
 
   private static generateClientSecret(): string {
     return uuid().replace(/\-/g, "") + uuid().replace(/\-/g, "");
+  }
+
+  // public updateScopes(scope: string, scopeClaimsSchema: ValidationSchema) {
+  //   const scopes = new Set(this.config.scopes);
+  //   const claimNamesForScopes = _.cloneDeep(this.config.claims);
+  //
+  //   // TODO: this.idp.updateCustomClaimsSchema
+  // }
+
+  public async syncSupportedClaimsAndScopes(): Promise<void> {
+    // set available scopes and claims
+    const claimsSchemata = await this.idp.claims.getActiveClaimsSchemata();
+
+    // set dynamic claims option (very hacky)
+    // ref: https://github.com/panva/node-oidc-provider/blob/ae8a4589c582b96f4e9ca0432307da15792ac29d/lib/helpers/claims.js#L54
+    const claimsFilter = this.config.claims! as unknown as Map<string, null | { [claim: string]: any }>;
+    const claimsSupported = (this.config as any).claimsSupported as Set<string>;
+    claimsSchemata.forEach(schema => {
+      let obj = claimsFilter.get(schema.scope);
+      if (obj === null) return;
+      if (!obj) {
+        obj = {};
+        claimsFilter.set(schema.scope, obj);
+      }
+      obj[schema.key] = null;
+      claimsSupported.add(schema.key);
+    });
+
+    // set dynamic scopes option (also hacky)
+    this.config.scopes = new Set(claimsSchemata.map(schema => schema.scope)) as any;
+
+    // log result
+    this.logger.info(`available idp claims per scope:\n${
+      [...claimsFilter.entries()]
+        .map(([scope, claims]) => {
+          return claims
+            ? `${kleur.green(scope.padEnd(20))}: ${kleur.white(Object.keys(claims).join(", "))}`
+            : `${kleur.green().dim("(token)".padEnd(20))}: ${kleur.dim(scope)}`;
+        })
+        .join("\n")
+    }`);
   }
 }

@@ -11,6 +11,17 @@ export type OIDCClaimsInfo = {
   };
 };
 
+export interface OIDCAccountCredentials {
+  password: string;
+}
+
+export type OIDCAccountClaimsFilter = {
+  use: string;
+  scope: string[];
+  claims?: OIDCClaimsInfo;
+  rejected?: string[];
+};
+
 export interface OIDCAccountClaims extends AccountClaims {
   // mandatory (unique id)
   sub: string;
@@ -36,7 +47,7 @@ export interface OIDCAccountClaims extends AccountClaims {
 
   // phone scope
   phone_number?: string; // +1 (425) 555-1212 | +56 (2) 687 2400 | +1 (604) 555-1234;ext=5678
-  phone_number_verified?: string;
+  phone_number_verified?: boolean;
 
   // address scope
   address?: OIDCAddressClaims;

@@ -1,6 +1,7 @@
 import { OIDCModelAdapterConstructor, OIDCModelPayload, OIDCModelName, OIDCModelNames } from "../provider";
 import { OIDCModel } from "./model";
 import { Logger } from "../../logger";
+import kleur from "kleur";
 
 export type OIDCAdapterProps = {
   logger?: Logger,
@@ -8,8 +9,9 @@ export type OIDCAdapterProps = {
 
 export abstract class OIDCAdapter {
   protected readonly models = new Map<OIDCModelName, OIDCModel>();
-  protected readonly logger: Logger = console;
+  protected readonly logger: Logger;
   public readonly originalAdapterProxy: OIDCModelAdapterConstructor;
+  public readonly abstract displayName: string;
 
   protected abstract createModel(name: OIDCModelName): OIDCModel;
 
@@ -34,9 +36,7 @@ export abstract class OIDCAdapter {
   }
 
   constructor(protected readonly props: OIDCAdapterProps, options?: any) {
-    if (props.logger) {
-      this.logger = props.logger;
-    }
+    this.logger = props.logger || console;
 
     // original oidc-provider create models lazilly but OIDCAdapter create all models before start and get cached models on demand
     const self = this;
@@ -52,10 +52,10 @@ export abstract class OIDCAdapter {
    * Lifecycle methods: do sort of DBMS schema migration and making connection
    */
   public async start(): Promise<void> {
-    this.logger.info(`oidc provider adapter has been started`);
+    this.logger.info(`${kleur.blue(this.displayName)} oidc provider adapter has been started`);
   }
 
   public async stop(): Promise<void> {
-    this.logger.info(`oidc provider adapter has been stopped`);
+    this.logger.info(`${kleur.blue(this.displayName)} oidc provider adapter has been stopped`);
   }
 }

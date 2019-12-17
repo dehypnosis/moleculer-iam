@@ -15,11 +15,11 @@ export async function getPublicClientProps(client: Client) {
 
 export async function getPublicUserProps(id: Identity) {
   if (!id) return null;
-  const {email, picture, preferred_username, nickname, name} = await id.claims("id_token", "profile email");
+  const {email, picture, name} = await id.claims("id_token", "profile email");
   return {
     id: id.id,
     email,
-    name: preferred_username || nickname || name || "unknown",
+    name: name || "unknown",
     picture: picture || null,
   };
 }

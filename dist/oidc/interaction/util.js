@@ -20,11 +20,11 @@ function getPublicUserProps(id) {
     return tslib_1.__awaiter(this, void 0, void 0, function* () {
         if (!id)
             return null;
-        const { email, picture, preferred_username, nickname, name } = yield id.claims("id_token", "profile email");
+        const { email, picture, name } = yield id.claims("id_token", "profile email");
         return {
             id: id.id,
             email,
-            name: preferred_username || nickname || name || "unknown",
+            name: name || "unknown",
             picture: picture || null,
         };
     });

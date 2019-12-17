@@ -15,48 +15,38 @@ Centeralized IAM module for moleculer. Including default OIDC provider for user 
     - [x] OAuth 2.0 and OpenID Connect Core 1.0 Provider
         - [x] hack `oidc-provider` module to be programmable
     - [x] Web client application (React.js / responsive)
-        - token management
-            - login
-            - logout / change account
-        - account management
-            - registration
-            - profile
-            - password
-            - removal
-        - extendable component
+        - [x] token management
+            - [x] login
+            - [x] logout / change account
+            - [] session management
+        - [] account management
+            - [x] find email
+            - [x] reset password
+            - [x] phone verification
+            - [x] email verification
+            - [] registration
+            - [] manage profile
+            - [] manage credentials
+            - [] removal
 - [] 0.2.x Alpha
-    - [] Identity Provider
-        - [] Storage
-            - [] In-Memory adapter (for testing)
-            - [] Redis adapter
+    - [x] Identity Provider
+        - [x] Storage
+            - [x] In-Memory adapter (for testing)
             - [] MySQL adapter
-        - [] Basic scope: openid, profile, email, address, phone, offline_access
-        - [] Custom scope extension
-            - [] Declarative claims schema and migration support
-            - [] Declarative group management
-            - [] Declarative role management
+        - [x] Basic scope: openid, profile, email, address, phone, offline_access
+        - [x] Custom scope extension
+            - [x] Declarative claims schema and migration support
         - [] Federation
             - [] OAuth
-                - Google
-                - Facebook
-                - KakaoTalk
-    - [] Web client application components
-        - client management
-        - session management
+                - [] Google
+                - [] Facebook
+                - [] KakaoTalk
 - [] 0.3.x Beta
     - [] OAuth 2.0 and OpenID Connect Core 1.0 Provider
        - [] Device flow
     - [] Identity Provider
-        - [] Federation
-            - [] Custom federation for legacy services which not support OAuth
         - [] 2FA
-        - [] Account verification
-            - email
-            - phone
     - [] Web client application components
-        - account management
-            - email verification
-            - phone number verification
         - device management
 - [] 1.0.x First Stable Release
     - [] Rate limiter

@@ -4,12 +4,14 @@ import { OIDCAdapter, OIDCAdapterProps } from "../adapter";
 import { OIDCModelName, OIDCModelPayload } from "../model";
 import { OIDCMemoryModel } from "./model";
 
-export type OIDCMemoryAdapterOptions = LRUCache.Options<string, any>;
+export type OIDC_MemoryAdapterOptions = LRUCache.Options<string, any>;
 
-export class OIDCMemoryAdapter extends OIDCAdapter {
+// tslint:disable-next-line:class-name
+export class OIDC_MemoryAdapter extends OIDCAdapter {
   private readonly storage: LRUCache<string, any>;
+  public readonly displayName = "Memory";
 
-  constructor(protected readonly props: OIDCAdapterProps, options?: OIDCMemoryAdapterOptions) {
+  constructor(protected readonly props: OIDCAdapterProps, options?: OIDC_MemoryAdapterOptions) {
     super(props);
     this.storage = new LRUCache<string, any>(options);
   }

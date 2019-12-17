@@ -4,11 +4,10 @@ const tslib_1 = require("tslib");
 const koa_router_1 = tslib_1.__importDefault(require("koa-router"));
 const koa_bodyparser_1 = tslib_1.__importDefault(require("koa-bodyparser"));
 const koajs_nocache_1 = tslib_1.__importDefault(require("koajs-nocache"));
-const fastest_validator_1 = tslib_1.__importDefault(require("fastest-validator"));
-const awesome_phonenumber_1 = tslib_1.__importDefault(require("awesome-phonenumber"));
 const provider_1 = require("../provider");
 const util_1 = require("./util");
 const moment_1 = tslib_1.__importDefault(require("moment"));
+const error_1 = require("../../identity/error");
 class InteractionFactory {
     constructor(props) {
         this.props = props;
@@ -20,27 +19,6 @@ class InteractionFactory {
         });
         // apply router middleware
         this.router.use(koajs_nocache_1.default(), koa_bodyparser_1.default());
-        // create validator
-        this.validator = new fastest_validator_1.default();
-    }
-    // validate body with given schema then throw error on error
-    validate(ctx, schema) {
-        const errors = this.validator.validate(ctx.request.body, schema);
-        if (errors !== true && errors.length > 0) {
-            const error = {
-                name: "validation_failed",
-                message: "Failed to validate request params.",
-                status: 422,
-                detail: errors.reduce((fields, err) => {
-                    if (!fields[err.field])
-                        fields[err.field] = [];
-                    const { field, message } = err;
-                    fields[field].push(message);
-                    return fields;
-                }, {}),
-            };
-            throw error;
-        }
     }
     interactions() {
         const { Prompt, Check, base } = provider_1.interactionPolicy;
@@ -65,7 +43,6 @@ class InteractionFactory {
         }
         const { idp, app, logger } = this.props;
         const router = this.router;
-        const validate = this.validate.bind(this);
         const render = app.render.bind(app);
         // common action endpoints
         const actions = {
@@ -80,9 +57,33 @@ class InteractionFactory {
             try {
                 yield next();
             }
-            catch (error) {
-                if (typeof error.status === "undefined" || error.status >= 500) {
+            catch (err) {
+                let error;
+                if (err instanceof error_1.Errors.ValidationError) {
+                    error = {
+                        name: err.error,
+                        message: err.error_description,
+                        status: 422,
+                        detail: err.fields.reduce((fields, e) => {
+                            const { field, message } = e;
+                            if (!fields[field])
+                                fields[field] = [];
+                            fields[field].push(message);
+                            return fields;
+                        }, {}),
+                    };
+                }
+                else if (err instanceof error_1.Errors.IdentityProviderError) {
+                    error = {
+                        name: err.error,
+                        message: err.error_description,
+                        status: err.status || err.statusCode,
+                        detail: err.error_detail,
+                    };
+                }
+                else {
                     logger.error(error);
+                    error = err;
                 }
                 // delegate error handling
                 return render(ctx, { error });
@@ -92,7 +93,7 @@ class InteractionFactory {
             // fetch interaction details
             const interaction = yield provider.interactionDetails(ctx.req, ctx.res);
             // fetch identity and client
-            const user = interaction.session ? (yield idp.find(interaction.session.accountId)) : undefined;
+            const user = interaction.session ? (yield idp.find({ id: interaction.session.accountId })) : undefined;
             const client = interaction.params.client_id ? (yield provider.Client.find(interaction.params.client_id)) : undefined;
             const locals = { interaction, user, client };
             ctx.locals = locals;
@@ -152,10 +153,10 @@ class InteractionFactory {
                             },
                             urlencoded: true,
                         }, findEmail: {
-                            url: url(`/verify_phone`),
+                            url: url(`/verify_phone_number`),
                             method: "POST",
                             data: {
-                                phone: "",
+                                phone_number: "",
                                 callback: "login",
                                 test: true,
                             },
@@ -176,11 +177,9 @@ class InteractionFactory {
             const { email, password } = ctx.request.body;
             // 1. user enter email only
             if (typeof password === "undefined") {
-                // 2. server validate email
-                validate(ctx, { email: "email" });
-                // 3. fetch identity
+                // 2. fetch identity
                 // tslint:disable-next-line:no-shadowed-variable
-                const user = yield idp.findByEmail(email);
+                const user = yield idp.find({ email: email || "" });
                 return render(ctx, {
                     interaction: {
                         name: "login",
@@ -206,14 +205,11 @@ class InteractionFactory {
                     },
                 });
             }
-            // 4. user get the next page and enter password and server validate it
-            validate(ctx, {
-                email: "email",
-                password: "string|empty:false",
-            });
-            // 5. check account password
-            const user = yield idp.findByEmail(email);
-            yield idp.assertCredentials(user, { password });
+            // 4. check account and password
+            const user = yield idp.find({ email: email || "" });
+            if (!(yield user.assertCredentials({ password: password || "" }))) {
+                throw new error_1.Errors.InvalidCredentialsError();
+            }
             // 6. finish interaction and give redirection uri
             const login = {
                 account: user.id,
@@ -230,55 +226,35 @@ class InteractionFactory {
             yield provider.setProviderSession(ctx.req, ctx.res, login);
             return render(ctx, { redirect });
         }));
-        // 2.3. handle verify phone submit
-        const phoneVerificationTimeoutSeconds = 180;
-        router.post("/verify_phone", parseContext, (ctx) => tslib_1.__awaiter(this, void 0, void 0, function* () {
+        // 2.3. handle verify phone number submit
+        const phoneNumberVerificationTimeoutSeconds = 180;
+        router.post("/verify_phone_number", parseContext, (ctx) => tslib_1.__awaiter(this, void 0, void 0, function* () {
             const { client, interaction } = ctx.locals;
             // will not send message when 'test'
             const { test = false } = ctx.request.body;
-            // 1. validate body
-            ctx.request.body.phone = ctx.request.body.phone ? ctx.request.body.phone.replace(/[^0-9+]/g, " ").split(" ").filter((s) => !!s).join("") : "";
-            let phoneNumber;
-            validate(ctx, {
-                phone: {
-                    type: "custom",
-                    types: ["mobile", "fixed-line-or-mobile"],
-                    check(value, schema) {
-                        phoneNumber = new awesome_phonenumber_1.default(value, "KR"); // TODO: country code from context
-                        return phoneNumber.isPossible() && schema.types.includes(phoneNumber.getType()) || [{
-                                type: "phoneInvalid",
-                                field: "phone",
-                                message: `Invalid mobile phone number format.`,
-                                actual: value,
-                            }];
-                    },
-                },
-            });
-            // now number is formatted like: +82 10-1234-1234
-            ctx.request.body.phone = phoneNumber.getNumber("international");
-            // 2. assert user with the phone number
-            const { callback, phone } = ctx.request.body;
-            const user = yield idp.findByPhone(phone);
+            // 1. assert user with the phone number
+            const { callback, phone_number } = ctx.request.body;
+            const user = yield idp.find({ phone_number: phone_number || "" });
             if (!user) {
                 ctx.throw(400, "Not a registered phone number.");
             }
             // 3. check too much resend
-            if (!test && interaction && interaction.result && interaction.result.verifyPhone) {
-                const old = interaction.result.verifyPhone;
-                if (old.phone === phone && old.expiresAt && moment_1.default().isBefore(old.expiresAt)) {
+            if (!test && interaction && interaction.result && interaction.result.verifyPhoneNumber) {
+                const old = interaction.result.verifyPhoneNumber;
+                if (old.phoneNumber === phone_number && old.expiresAt && moment_1.default().isBefore(old.expiresAt)) {
                     ctx.throw(400, "Cannot resend a message before previous one expires.");
                 }
             }
             // 4. create code
-            const expiresAt = moment_1.default().add(phoneVerificationTimeoutSeconds, "s").toISOString();
+            const expiresAt = moment_1.default().add(phoneNumberVerificationTimeoutSeconds, "s").toISOString();
             const code = Math.floor(Math.random() * 1000000).toString();
             if (!test) {
                 // TODO: 4. send sms via adaptor props
                 // 5. extend TTL and store the code
                 yield interaction.save(moment_1.default().isAfter((interaction.exp / 1000) + 60 * 10, "s") ? interaction.exp + 60 * 10 : undefined);
                 yield provider.interactionResult(ctx.req, ctx.res, {
-                    verifyPhone: {
-                        phone,
+                    verifyPhoneNumber: {
+                        phoneNumber: phone_number,
                         callback,
                         code,
                         expiresAt,
@@ -290,24 +266,24 @@ class InteractionFactory {
             // 5. render with submit, resend endpoint
             return render(ctx, {
                 interaction: {
-                    name: "verify_phone",
+                    name: "verify_phone_number",
                     action: {
                         submit: {
-                            url: url(`/verify_phone_callback`),
+                            url: url(`/verify_phone_number_callback`),
                             method: "POST",
                             data: {
                                 code: "",
                             },
                         },
                         send: {
-                            url: url(`/verify_phone`),
+                            url: url(`/verify_phone_number`),
                             method: "POST",
                             data: Object.assign(Object.assign({}, ctx.request.body), { test: false }),
                         },
                     },
                     data: {
-                        phone,
-                        timeoutSeconds: phoneVerificationTimeoutSeconds,
+                        phoneNumber: phone_number,
+                        timeoutSeconds: phoneNumberVerificationTimeoutSeconds,
                         // TODO: remove this
                         debug: {
                             code,
@@ -316,33 +292,28 @@ class InteractionFactory {
                 },
             });
         }));
-        // 2.4. handle verify_phone code submit
-        router.post("/verify_phone_callback", parseContext, (ctx) => tslib_1.__awaiter(this, void 0, void 0, function* () {
+        // 2.4. handle verify_phone_number code submit
+        router.post("/verify_phone_number_callback", parseContext, (ctx) => tslib_1.__awaiter(this, void 0, void 0, function* () {
             const { client, interaction } = ctx.locals;
-            ctx.assert(interaction && interaction.result.verifyPhone && interaction.result.verifyPhone.code, "Phone number verification session has been expired.");
-            const { callback, phone, code, expiresAt } = interaction.result.verifyPhone;
+            ctx.assert(interaction && interaction.result.verifyPhoneNumber && interaction.result.verifyPhoneNumber.code, "Phone number verification session has been expired.");
+            const { callback, phoneNumber, code, expiresAt } = interaction.result.verifyPhoneNumber;
             // 1. check expiration
             if (!callback || !code || !expiresAt || moment_1.default().isAfter(expiresAt)) {
                 ctx.throw(400, "Verification code has expired.");
             }
             // 2. check code
             yield new Promise(resolve => setTimeout(resolve, 1000)); // prevent brute force attack
-            validate(ctx, {
-                code: {
-                    type: "custom",
-                    check(value) {
-                        return value === code || [{
-                                type: "codeIncorrect",
-                                field: "code",
-                                message: `Incorrect verification code.`,
-                                actual: value,
-                            }];
-                    },
-                },
-            });
-            // TODO: 3. find user and update identity phone_verified
-            const user = yield idp.findByPhone(phone);
+            if (ctx.request.body.code !== code) {
+                throw new error_1.Errors.ValidationError([{
+                        type: "incorrectVerificationCode",
+                        field: "code",
+                        message: `Incorrect verification code.`,
+                    }]);
+            }
+            // 3. find user and update identity phone_verified
+            const user = yield idp.find({ phone_number: phoneNumber || "" });
             ctx.assert(user);
+            yield user.updateClaims({ phone_number_verified: true }, "phone");
             // 4. process callback interaction
             switch (callback) {
                 case "login":
@@ -352,13 +323,13 @@ class InteractionFactory {
                             account: user.id,
                             remember: true,
                         },
-                        verifyPhone: null,
+                        verifyPhoneNumber: null,
                     }, {
                         mergeWithLastSubmission: true,
                     });
                     return render(ctx, { redirect });
                 default:
-                    ctx.throw(`Unimplemented verify_phone_callback: ${callback}`);
+                    ctx.throw(`Unimplemented verify_phone_number_callback: ${callback}`);
             }
         }));
         // 2.5. handle verify_email submit
@@ -366,13 +337,9 @@ class InteractionFactory {
         router.post("/verify_email", parseContext, (ctx) => tslib_1.__awaiter(this, void 0, void 0, function* () {
             const { client, interaction } = ctx.locals;
             ctx.assert(interaction.prompt.name === "login" || interaction.prompt.name === "consent", "Invalid Request.");
-            // 1. validate body
-            validate(ctx, {
-                email: "email",
-            });
             // 2. assert user with the email
             const { callback, email } = ctx.request.body;
-            const user = yield idp.findByEmail(email);
+            const user = yield idp.find({ email: email || "" });
             if (!user) {
                 ctx.throw(400, "Not a registered email address.");
             }
@@ -436,10 +403,11 @@ class InteractionFactory {
             }
             // 2. assert user with the email
             const { email, callback } = interaction.result.verifyEmail;
-            const user = yield idp.findByEmail(email);
+            const user = yield idp.find({ email: email || "" });
             ctx.assert(user);
-            // TODO: update identity email_verified as true
-            // 3. process callback interaction
+            // 3. update identity email_verified as true
+            yield user.updateClaims({ email_verified: true }, "email");
+            // 4. process callback interaction
             switch (callback) {
                 case "reset_password":
                     // mark reset password is ready
@@ -474,16 +442,10 @@ class InteractionFactory {
             const interaction = (yield provider.Interaction.find(ctx.params.interaction_uid));
             ctx.assert(interaction && interaction.result && interaction.result.resetPassword);
             // 2. assert user with the email
-            const user = yield idp.findByEmail(interaction.result.resetPassword.email);
+            const user = yield idp.find({ email: interaction.result.resetPassword.email || "" });
             ctx.assert(user);
             // 3. validate and update credentials
-            validate(ctx, {
-                password: {
-                    type: "string",
-                    empty: false,
-                },
-            });
-            yield idp.updateCredentials(user, { password: ctx.request.body.password });
+            yield user.updateCredentials({ password: ctx.request.body.password || "" });
             // 4. forget verifyEmail state
             interaction.result.verifyEmail = null;
             yield interaction.save();
@@ -573,16 +535,16 @@ class InteractionFactory {
             const { user, client, interaction } = ctx.locals;
             ctx.assert(interaction.prompt.name === "consent", "Invalid request.");
             // 1. validate body
-            validate(ctx, {
-                rejectedScopes: {
-                    type: "array",
-                    items: "string",
-                },
-                rejectedClaims: {
-                    type: "array",
-                    items: "string",
-                },
-            });
+            // validate(ctx, {
+            //   rejectedScopes: {
+            //     type: "array",
+            //     items: "string",
+            //   },
+            //   rejectedClaims: {
+            //     type: "array",
+            //     items: "string",
+            //   },
+            // });
             // 2. finish interaction and give redirection uri
             const redirect = yield provider.interactionResult(ctx.req, ctx.res, {
                 // consent was given by the user to the client for this session

@@ -9,6 +9,7 @@ const sequelize_1 = require("sequelize");
 // ref: https://sequelize.org/v5/manual/
 var sequelize_2 = require("sequelize");
 exports.DataTypes = sequelize_2.DataTypes;
+exports.Op = sequelize_2.Op;
 const DontSync = (() => {
     throw new Error("shall not use sync: try to create migration scripts!");
 });
@@ -108,7 +109,7 @@ class RDBMSManager {
         return this.props.migrationTableName + "_LOCK";
     }
     get migrationTableLabel() {
-        return kleur.blue(this.props.migrationTableName);
+        return kleur.green(this.props.migrationTableName);
     }
     acquireLock(task, deadLockTimer = this.opts.migrationLockTimeoutSeconds * 1000) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
@@ -120,7 +121,7 @@ class RDBMSManager {
                     const [rows] = yield this.seq.getQueryInterface().sequelize.query(`select * from ${this.lockTableName}`);
                     const row = rows[0];
                     if (!row || new Date(row.tableCreatedAt).getTime() < Date.now() - 1000 * 30 || deadLockTimer <= 0) {
-                        this.logger.info(`${this.migrationTableLabel}: release previous migration lock which is incomplete or dead for ${this.opts.migrationLockTimeoutSeconds}s`);
+                        this.logger.info(`${this.migrationTableLabel} will release previous lock which is incomplete or dead for ${this.opts.migrationLockTimeoutSeconds}s`);
                         yield this.releaseLock();
                         return this.acquireLock(task);
                     }
@@ -129,7 +130,7 @@ class RDBMSManager {
                 // if lock table exists, retry after 5-10s
                 const waitTime = Math.ceil(10000 * (Math.random() + 0.5));
                 deadLockTimer -= waitTime;
-                this.logger.warn(`${this.migrationTableLabel}: failed to acquire migration lock, retry after ${waitTime}ms, force release lock in ${Math.ceil(deadLockTimer / 1000)}s`);
+                this.logger.warn(`${this.migrationTableLabel} failed to acquire migration lock, retry after ${waitTime}ms, force release lock in ${Math.ceil(deadLockTimer / 1000)}s`);
                 yield new Promise(resolve => setTimeout(resolve, waitTime));
                 return this.acquireLock(task, deadLockTimer);
             }
@@ -139,7 +140,7 @@ class RDBMSManager {
                     tableCreatedAt: sequelize_1.STRING,
                 });
                 yield this.seq.getQueryInterface().sequelize.query(`insert into ${this.lockTableName} values("${new Date().toISOString()}")`);
-                this.logger.info(`${this.migrationTableLabel}: migration lock acquired`);
+                this.logger.info(`${this.migrationTableLabel} lock acquired`);
             }
             // do task and release lock
             try {
@@ -157,10 +158,10 @@ class RDBMSManager {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             try {
                 yield this.seq.getQueryInterface().dropTable(this.lockTableName);
-                this.logger.info(`${this.migrationTableLabel}: migration lock released`);
+                this.logger.info(`${this.migrationTableLabel} lock released`);
             }
             catch (error) {
-                this.logger.error(`${this.migrationTableLabel}: failed to release migration lock`, error);
+                this.logger.error(`${this.migrationTableLabel} failed to release migration lock`, error);
             }
         });
     }

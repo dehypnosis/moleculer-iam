@@ -13,6 +13,7 @@ class OIDC_RDBMS_Adapter extends adapter_1.OIDCAdapter {
     constructor(props, options) {
         super(props);
         this.props = props;
+        this.displayName = "RDBMS";
         // create manager
         this.manager = new rdbms_1.RDBMSManager({
             logger: props.logger,

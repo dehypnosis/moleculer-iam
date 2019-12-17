@@ -8,5 +8,6 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 const moduleName = process.argv[2] || "simple";
 process.argv.splice(2, 1);
+process.env.DEBUG = "oidc-provider:*";
 Promise.resolve().then(() => __importStar(require("./" + moduleName)));
 //# sourceMappingURL=index.js.map

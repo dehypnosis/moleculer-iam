@@ -13,6 +13,7 @@ export type OIDC_RDBMS_AdapterOptions = RDBMSManagerOptions;
 // tslint:disable-next-line:class-name
 export class OIDC_RDBMS_Adapter extends OIDCAdapter {
   private readonly manager: RDBMSManager;
+  public readonly displayName = "RDBMS";
 
   constructor(protected readonly props: OIDCAdapterProps, options?: OIDC_RDBMS_AdapterOptions) {
     super(props);

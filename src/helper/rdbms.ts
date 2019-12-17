@@ -7,7 +7,7 @@ import { Logger, LogLevel } from "../logger";
 
 // ref: https://sequelize.org/v5/manual/
 
-export { DataTypes, FindOptions } from "sequelize";
+export { DataTypes, FindOptions, Op } from "sequelize";
 
 export type RDBMSManagerProps = {
   migrationTableName: string,
@@ -129,7 +129,7 @@ export class RDBMSManager {
   }
 
   private get migrationTableLabel() {
-    return kleur.blue(this.props.migrationTableName);
+    return kleur.green(this.props.migrationTableName);
   }
 
   private async acquireLock(task: () => Promise<void>, deadLockTimer = this.opts.migrationLockTimeoutSeconds! * 1000): Promise<void> {
@@ -142,7 +142,7 @@ export class RDBMSManager {
         const [rows] = await this.seq.getQueryInterface().sequelize.query(`select * from ${this.lockTableName}`);
         const row: any = rows[0];
         if (!row || new Date(row.tableCreatedAt).getTime() < Date.now() - 1000 * 30 || deadLockTimer <= 0) {
-          this.logger.info(`${this.migrationTableLabel}: release previous migration lock which is incomplete or dead for ${this.opts.migrationLockTimeoutSeconds!}s`);
+          this.logger.info(`${this.migrationTableLabel} will release previous lock which is incomplete or dead for ${this.opts.migrationLockTimeoutSeconds!}s`);
           await this.releaseLock();
           return this.acquireLock(task);
         }
@@ -151,7 +151,7 @@ export class RDBMSManager {
       // if lock table exists, retry after 5-10s
       const waitTime = Math.ceil(10000 * (Math.random() + 0.5));
       deadLockTimer -= waitTime;
-      this.logger.warn(`${this.migrationTableLabel}: failed to acquire migration lock, retry after ${waitTime}ms, force release lock in ${Math.ceil(deadLockTimer/1000)}s`);
+      this.logger.warn(`${this.migrationTableLabel} failed to acquire migration lock, retry after ${waitTime}ms, force release lock in ${Math.ceil(deadLockTimer/1000)}s`);
       await new Promise(resolve => setTimeout(resolve, waitTime));
       return this.acquireLock(task, deadLockTimer);
     } catch (error) {
@@ -160,7 +160,7 @@ export class RDBMSManager {
         tableCreatedAt: STRING,
       });
       await this.seq.getQueryInterface().sequelize.query(`insert into ${this.lockTableName} values("${new Date().toISOString()}")`);
-      this.logger.info(`${this.migrationTableLabel}: migration lock acquired`);
+      this.logger.info(`${this.migrationTableLabel} lock acquired`);
     }
 
     // do task and release lock
@@ -176,9 +176,9 @@ export class RDBMSManager {
   private async releaseLock(silent = false) {
     try {
       await this.seq.getQueryInterface().dropTable(this.lockTableName);
-      this.logger.info(`${this.migrationTableLabel}: migration lock released`);
+      this.logger.info(`${this.migrationTableLabel} lock released`);
     } catch (error) {
-      this.logger.error(`${this.migrationTableLabel}: failed to release migration lock`, error);
+      this.logger.error(`${this.migrationTableLabel} failed to release migration lock`, error);
     }
   }
 }

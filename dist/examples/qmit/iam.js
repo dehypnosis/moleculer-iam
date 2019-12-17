@@ -11,10 +11,19 @@ exports.broker = new moleculer_1.ServiceBroker(moleculer_qmit_1.createBrokerOpti
 }));
 // create IAM service
 exports.broker.createService(__1.IAMServiceSchema({
-    idp: {},
+    idp: {
+        claims: {
+            mandatoryScopes: [
+                "openid",
+                "profile",
+                "email",
+                "phone",
+            ],
+        },
+    },
     oidc: Object.assign({ app: {
-            isValidPath: path => path === "/" || path === "/help" || path.startsWith("/help/") || path === "/login" || path.startsWith("/login/"),
-        }, devMode: exports.isDev, issuer: exports.isDev ? "https://account.dev.qmit.pro" : "https://account.qmit.pro" }, config_1.config.oidc),
+            isValidPath: path => path === "/" || path === "/help" || path.startsWith("/help/"),
+        }, devMode: exports.isDev, issuer: exports.isDev ? "https://account.dev.qmit.pro" : "https://account.qmit.pro", op_policy_uri: exports.isDev ? "https://account.dev.qmit.pro/help/policy" : "https://account.qmit.pro/help/policy", op_tos_uri: exports.isDev ? "https://account.dev.qmit.pro/help/tos" : "https://account.qmit.pro/help/tos", service_documentation: exports.isDev ? "https://account.dev.qmit.pro/help" : "https://account.qmit.pro/help" }, config_1.config.oidc),
     server: {
         http: {
             hostname: "0.0.0.0",

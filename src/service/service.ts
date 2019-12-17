@@ -7,7 +7,7 @@
 import uuid from "uuid";
 import { Errors, ServiceSchema } from "moleculer";
 import { IdentityProvider, IdentityProviderOptions } from "../identity";
-import { OIDCProvider, OIDCErrors, OIDCProviderOptions } from "../oidc";
+import { OIDCProvider, errors as OIDCErrors, OIDCProviderOptions } from "../oidc";
 import { IAMServer, IAMServerOptions } from "../server";
 import { IAMServiceActionParams } from "./params";
 
