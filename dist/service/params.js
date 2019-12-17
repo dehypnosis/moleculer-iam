@@ -150,6 +150,11 @@ const clientCreateParams = exports.IAMServiceActionParams["client.create"] = {
         type: "boolean",
         default: true,
     },
+    /* custom props */
+    skip_consent: {
+        type: "boolean",
+        default: false,
+    },
 };
 const clientUpdateParams = exports.IAMServiceActionParams["client.update"] = {};
 for (const [param, schema] of Object.entries(clientCreateParams)) {

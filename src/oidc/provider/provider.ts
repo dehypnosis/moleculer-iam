@@ -68,6 +68,23 @@ export class OIDCProvider {
       // persistent storage for OP
       adapter: this.adapter.originalAdapterProxy,
 
+      // client metadata for local client management and custom claims schema
+      extraClientMetadata: {
+        properties: ["skip_consent"],
+        validator(k, v, meta) {
+          switch (k) {
+            case "skip_consent":
+              if (typeof v !== "boolean") {
+                // throw new errors.InvalidClientMetadata("skip_consent should be boolean type value");
+                meta.skip_consent = false;
+              }
+              break;
+            default:
+              throw new errors.InvalidClientMetadata("unknown client property: " + k);
+          }
+        },
+      },
+
       // bridge between IDP and OP
       async findAccount(ctx, id: string, token?: string) {
         // token is a reference to the token used for which a given account is being loaded,
@@ -111,6 +128,9 @@ export class OIDCProvider {
       frontchannel_logout_session_required: true,
       grant_types: ["implicit", "authorization_code"],
       response_types: ["code", "id_token", "id_token token", "code id_token", "code token", "code id_token token", "none"],
+
+      /* custom props */
+      skip_consent: true,
     });
 
     /* create router */

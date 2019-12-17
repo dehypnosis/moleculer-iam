@@ -150,6 +150,12 @@ const clientCreateParams = IAMServiceActionParams["client.create"] = {
     type: "boolean",
     default: true,
   },
+
+  /* custom props */
+  skip_consent: {
+    type: "boolean",
+    default: false,
+  },
 };
 
 const clientUpdateParams: ActionParams = IAMServiceActionParams["client.update"] = {};

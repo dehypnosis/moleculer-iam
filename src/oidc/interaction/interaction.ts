@@ -220,7 +220,7 @@ export class InteractionFactory {
             ...actions,
           },
           data: {
-            user: autoLogin ? await getPublicUserProps(user!) : undefined,
+            user: user ? await getPublicUserProps(user!) : undefined,
             client: client ? await getPublicClientProps(client) : undefined,
           },
         },
@@ -358,7 +358,7 @@ export class InteractionFactory {
         // TODO: 4. send sms via adaptor props
 
         // 5. extend TTL and store the code
-        await interaction.save(moment().isAfter((interaction.exp/1000) + 60*10, "s") ? interaction.exp + 60*10 : undefined);
+        await interaction.save(moment().isAfter((interaction.exp / 1000) + 60 * 10, "s") ? interaction.exp + 60 * 10 : undefined);
         await provider.interactionResult(ctx.req, ctx.res, {
           verifyPhone: {
             phone,
@@ -500,7 +500,7 @@ export class InteractionFactory {
       console.log(payload);
 
       // 6. extend TTL and store the state
-      await interaction.save(moment().isAfter((interaction.exp/1000) + 60*10, "s") ? interaction.exp + 60*10 : undefined);
+      await interaction.save(moment().isAfter((interaction.exp / 1000) + 60 * 10, "s") ? interaction.exp + 60 * 10 : undefined);
       await provider.interactionResult(ctx.req, ctx.res, {
         verifyEmail: {
           callback,
@@ -621,7 +621,7 @@ export class InteractionFactory {
       ctx.assert(interaction.prompt.name === "login" || interaction.prompt.name === "consent", "Invalid Request.");
 
       // extend TTL
-      await interaction.save(moment().isAfter((interaction.exp/1000) + 60*30, "s") ? interaction.exp + 60*30 : undefined);
+      await interaction.save(moment().isAfter((interaction.exp / 1000) + 60 * 30, "s") ? interaction.exp + 60 * 30 : undefined);
 
       return render(ctx, {
         interaction: {
@@ -646,6 +646,22 @@ export class InteractionFactory {
       const {user, client, interaction} = ctx.locals as InteractionRequestContext;
       ctx.assert(interaction.prompt.name === "consent", "Invalid Request.");
 
+      // 1. skip consent if client has such property
+      if (client && client.skip_consent) {
+        const redirect = await provider.interactionResult(ctx.req, ctx.res, {
+          // consent was given by the user to the client for this session
+          consent: {
+            rejectedScopes: [],
+            rejectedClaims: [],
+            replace: true,
+          },
+        }, {
+          mergeWithLastSubmission: true,
+        });
+        return render(ctx, {redirect});
+      }
+
+      // 2. or render consent form
       const data = {
         user: user ? await getPublicUserProps(user) : undefined,
         client: client ? await getPublicClientProps(client) : undefined,
@@ -661,6 +677,7 @@ export class InteractionFactory {
               data: {
                 rejectedScopes: [], // array of strings, scope names the end-user has not granted
                 rejectedClaims: [], // array of strings, claim names the end-user has not granted
+                replace: true,
               },
             },
             changeAccount: {

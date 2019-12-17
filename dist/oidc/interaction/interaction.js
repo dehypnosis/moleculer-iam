@@ -164,7 +164,7 @@ class InteractionFactory {
                             method: "POST",
                         } }, actions),
                     data: {
-                        user: autoLogin ? yield util_1.getPublicUserProps(user) : undefined,
+                        user: user ? yield util_1.getPublicUserProps(user) : undefined,
                         client: client ? yield util_1.getPublicClientProps(client) : undefined,
                     },
                 },
@@ -525,6 +525,21 @@ class InteractionFactory {
         router.get("/consent", parseContext, (ctx) => tslib_1.__awaiter(this, void 0, void 0, function* () {
             const { user, client, interaction } = ctx.locals;
             ctx.assert(interaction.prompt.name === "consent", "Invalid Request.");
+            // 1. skip consent if client has such property
+            if (client && client.skip_consent) {
+                const redirect = yield provider.interactionResult(ctx.req, ctx.res, {
+                    // consent was given by the user to the client for this session
+                    consent: {
+                        rejectedScopes: [],
+                        rejectedClaims: [],
+                        replace: true,
+                    },
+                }, {
+                    mergeWithLastSubmission: true,
+                });
+                return render(ctx, { redirect });
+            }
+            // 2. or render consent form
             const data = {
                 user: user ? yield util_1.getPublicUserProps(user) : undefined,
                 client: client ? yield util_1.getPublicClientProps(client) : undefined,
@@ -538,6 +553,7 @@ class InteractionFactory {
                             data: {
                                 rejectedScopes: [],
                                 rejectedClaims: [],
+                                replace: true,
                             },
                         }, changeAccount: {
                             url: url(`/login`),

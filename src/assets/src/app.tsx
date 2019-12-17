@@ -2,7 +2,7 @@ import React from "react";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import { OIDCInteraction, OIDCInteractionData } from "./oidc/interaction";
 import { ContextualMenuItemType, Spinner, SpinnerSize, Stack, Text, } from "./styles";
-import { UserContext, useUserContext, useUserContextFactory, UserContextMenu } from "./oidc";
+import { UserContext, UserContextLoadingIndicator, useUserContext, useUserContextFactory, UserContextMenu } from "./oidc";
 
 export const App: React.FunctionComponent = () => {
   // handle global OIDC props
@@ -55,19 +55,5 @@ export const App: React.FunctionComponent = () => {
         </Router>
       </UserContextLoadingIndicator>
     </UserContext.Provider>
-  );
-};
-
-const UserContextLoadingIndicator: React.FunctionComponent = ({children}) => {
-  const {loading} = useUserContext();
-  return loading ? (
-    <Stack
-      horizontalAlign="center"
-      verticalAlign="center"
-      verticalFill
-      children={<Spinner size={SpinnerSize.large} label={"Loading..."}/>}
-    />
-  ) : (
-    <>{children}</>
   );
 };

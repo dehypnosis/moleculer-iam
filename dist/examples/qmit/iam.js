@@ -14,7 +14,7 @@ exports.broker.createService(__1.IAMServiceSchema({
     idp: {},
     oidc: Object.assign({ app: {
             isValidPath: path => path === "/" || path === "/help" || path.startsWith("/help/") || path === "/login" || path.startsWith("/login/"),
-        }, issuer: exports.isDev ? "https://account.dev.qmit.pro" : "https://account.qmit.pro" }, config_1.config.oidc),
+        }, devMode: exports.isDev, issuer: exports.isDev ? "https://account.dev.qmit.pro" : "https://account.qmit.pro" }, config_1.config.oidc),
     server: {
         http: {
             hostname: "0.0.0.0",

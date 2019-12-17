@@ -10,18 +10,19 @@ const defaultChangeLocation = async (url: string) => {
     history.replaceState(undefined, document.title, url);
   } else {
     location.replace(url);
-    await new Promise(() => {});
+    await new Promise(() => {
+    });
   }
 };
 
 export interface IUserContext {
-  loading: boolean,
-  user: User | undefined,
-  signIn: (opts?: { redirectTo?: string, prompt?: "login" | "consent" | "none" }) => Promise<void>,
-  signOut: (opts?: { redirectTo?: string, }) => Promise<void>,
-  change: (opts?: { redirectTo?: string }) => Promise<void>,
-  manage: () => Promise<void>,
-  client: UserManager,
+  loading: boolean;
+  user: User | undefined;
+  signIn: (opts?: { redirectTo?: string, prompt?: "login" | "consent" | "none" }) => Promise<void>;
+  signOut: (opts?: { redirectTo?: string }) => Promise<void>;
+  change: (opts?: { redirectTo?: string }) => Promise<void>;
+  manage: (opts?: { newWindow?: boolean }) => Promise<void>;
+  client: UserManager;
 }
 
 export const UserContext = createContext({
@@ -79,7 +80,8 @@ export const useUserContextFactory = (
     }) => {
       const {redirectTo = location.href, prompt} = opts || {};
       await client.signinRedirect({state: redirectTo, useReplaceToNavigate: false, prompt});
-      await new Promise(() => {});
+      await new Promise(() => {
+      });
     };
 
     const signOut = async (opts?: {
@@ -87,22 +89,31 @@ export const useUserContextFactory = (
     }) => {
       const {redirectTo = location.href} = opts || {};
       await client.signoutRedirect({state: redirectTo, useReplaceToNavigate: false});
-      await new Promise(() => {});
+      await new Promise(() => {
+      });
     };
 
     const change = async (opts?: { redirectTo?: string }) => {
       const {redirectTo = location.href} = opts || {};
       await client.signinRedirect({state: redirectTo, useReplaceToNavigate: false, prompt: "login"});
-      await new Promise(() => {});
+      await new Promise(() => {
+      });
     };
 
-    const manage = async () => {
-      const url = `${client.settings.authority}`;
-      if (location.origin === client.settings.authority && history.replaceState) {
-        history.replaceState(undefined, document.title, url);
+    const manage = async (opts?: { newWindow?: boolean }) => {
+      const isRemote = location.origin !== client.settings.authority;
+      const {newWindow = isRemote} = opts || {};
+      const url = client.settings.authority!;
+      if (newWindow) {
+        window.open(url, "_blank");
       } else {
-        location.assign(url);
-        await new Promise(() => {});
+        if (history.replaceState && !isRemote) {
+          history.replaceState(undefined, document.title, url);
+        } else {
+          location.assign(url);
+          await new Promise(() => {
+          });
+        }
       }
     };
 
@@ -125,7 +136,7 @@ export const useUserContextFactory = (
             // ...
           } finally {
             if (automaticSignIn && !user) {
-              await signIn({ prompt: automaticSignIn });
+              await signIn({prompt: automaticSignIn});
             } else {
               try {
                 const signOutResult = await client.signoutRedirectCallback();

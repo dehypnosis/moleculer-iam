@@ -20,8 +20,8 @@ class OIDCProvider {
         this.working = false;
         const idp = props.idp;
         const logger = this.logger = props.logger || console;
-        const _a = _.defaultsDeep(options || {}, options_1.defaultOIDCProviderOptions), { issuer, trustProxy, adapter, app } = _a, providerConfig = tslib_1.__rest(_a, ["issuer", "trustProxy", "adapter", "app"]);
-        const isDev = issuer.startsWith("http://");
+        const _a = _.defaultsDeep(options || {}, options_1.defaultOIDCProviderOptions), { issuer, trustProxy, adapter, app, devMode } = _a, providerConfig = tslib_1.__rest(_a, ["issuer", "trustProxy", "adapter", "app", "devMode"]);
+        const devModeEnabled = devMode || issuer.startsWith("http://");
         /* create provider adapter */
         const adapterKey = Object.keys(adapter_1.OIDCAdapterConstructors).find(k => k.toLowerCase() === options.adapter.type.toLowerCase())
             || Object.keys(adapter_1.OIDCAdapterConstructors)[0];
@@ -30,7 +30,7 @@ class OIDCProvider {
         }, options.adapter.options);
         /* create provider interactions factory and client app renderer */
         const clientAppOption = app || {};
-        if (isDev) {
+        if (devModeEnabled) {
             logger.info("disable assets cache for debugging purpose");
             clientAppOption.assetsCacheMaxAge = 0;
         }
@@ -51,6 +51,22 @@ class OIDCProvider {
         const config = _.defaultsDeep(Object.assign({ 
             // persistent storage for OP
             adapter: this.adapter.originalAdapterProxy, 
+            // client metadata for local client management and custom claims schema
+            extraClientMetadata: {
+                properties: ["skip_consent"],
+                validator(k, v, meta) {
+                    switch (k) {
+                        case "skip_consent":
+                            if (typeof v !== "boolean") {
+                                // throw new errors.InvalidClientMetadata("skip_consent should be boolean type value");
+                                meta.skip_consent = false;
+                            }
+                            break;
+                        default:
+                            throw new types_1.errors.InvalidClientMetadata("unknown client property: " + k);
+                    }
+                },
+            }, 
             // bridge between IDP and OP
             findAccount(ctx, id, token) {
                 return tslib_1.__awaiter(this, void 0, void 0, function* () {
@@ -68,7 +84,7 @@ class OIDCProvider {
         // mount interaction routes
         original.app.use(interactionsFactory.routes(original));
         // apply debugging features
-        if (isDev) {
+        if (devModeEnabled) {
             debug_1.applyDebugOptions(original, logger, {
                 "disable-implicit-forbid-localhost": true,
                 "disable-implicit-force-https": true,
@@ -89,6 +105,8 @@ class OIDCProvider {
             frontchannel_logout_session_required: true,
             grant_types: ["implicit", "authorization_code"],
             response_types: ["code", "id_token", "id_token token", "code id_token", "code token", "code id_token token", "none"],
+            /* custom props */
+            skip_consent: true,
         });
         /* create router */
         const fns = [koa_mount_1.default(this.original.app)];

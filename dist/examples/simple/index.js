@@ -16,6 +16,7 @@ const serviceSchema = __1.IAMServiceSchema({
     idp: {},
     oidc: {
         issuer: "http://0.0.0.0:8080",
+        devMode: true,
         adapter: {
             // type: "Memory",
             type: "RDBMS",
