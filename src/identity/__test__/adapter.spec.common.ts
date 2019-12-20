@@ -8,17 +8,24 @@ import { IdentityClaimsSchema } from "../claims";
 
 export function doCommonAdapterTest(idp: IdentityProvider) {
   const testEmail = `${uuid.v4()}@tEsT.com`;
+  const testSchemaKeys = ["testnote", "testcomplex", "testscore"];
 
   let identity: Identity;
   beforeAll(async () => {
     await idp.start();
+    await idp.claims.forceDeleteClaimsSchemata(...testSchemaKeys).catch(err => {});
 
-    identity = await idp.create({
-      metadata: {federation: {}, softDeleted: false},
-      scope: ["openid", "profile", "email", "phone"],
-      claims: {sub: uuid().substr(0, 16), email: testEmail, name: "Tester", phone_number: "010-4477-1234"},
-      credentials: {password: "1234"},
-    });
+    try {
+      identity = await idp.create({
+        metadata: {federation: {}, softDeleted: false},
+        scope: ["openid", "profile", "email", "phone"],
+        claims: {sub: uuid(), email: testEmail, name: "Tester", phone_number: "010-4477-1234"},
+        credentials: {password: "1234"},
+      });
+      console.log(await identity.claims(), await identity.metadata());
+    } catch (error) {
+      console.error(error);
+    }
   });
 
   describe("CRUD identity", () => {
@@ -28,7 +35,7 @@ export function doCommonAdapterTest(idp: IdentityProvider) {
 
     it("identity cannot be created without sub (openid scope)", async () => {
       await expect(idp.create({
-        metadata: {federation: {}, softDeleted: false},
+        metadata: {},
         scope: ["openid", "profile", "email", "phone"],
         claims: {sub: identity.id, email: testEmail, name: "Tester", phone_number: "010-4477-1234"},
         credentials: {password: "1234"},
@@ -37,7 +44,7 @@ export function doCommonAdapterTest(idp: IdentityProvider) {
 
     it("identity cannot be created with same sub", async () => {
       await expect(idp.create({
-        metadata: {federation:{}, softDeleted:false},
+        metadata: {federation: {}, softDeleted: false},
         // @ts-ignore
         claims: {
           name: "what",
@@ -68,7 +75,7 @@ export function doCommonAdapterTest(idp: IdentityProvider) {
       await expect(identity.updateClaims({
         email_verified: true,
         phone_number_verified: true,
-      }).catch(err => console.error(err.error_detail))).resolves.not.toThrow();
+      })).resolves.not.toThrow();
 
       await expect(identity.claims("userinfo", "email phone")).resolves
         .toEqual(expect.objectContaining({
@@ -99,18 +106,30 @@ export function doCommonAdapterTest(idp: IdentityProvider) {
     });
 
     it("identity could read and update metadata", async () => {
-      await expect(identity.updateMetadata({ test: 12345 })).resolves.not.toThrow();
+      await expect(identity.updateMetadata({test: 12345})).resolves.not.toThrow();
       await expect(identity.metadata()).resolves.toEqual(expect.objectContaining({test: 12345}));
     });
 
     it("identity could be fetched by id, email, phone_number", async () => {
-      await expect(idp.find({ id: identity.id })).resolves.toEqual(expect.objectContaining({ id: identity.id }));
-      await expect(idp.find({ phone_number: "010 4477 1234" })).resolves.toEqual(expect.objectContaining({ id: identity.id }));
-      await expect(idp.find({ email: testEmail })).resolves.toEqual(expect.objectContaining({ id: identity.id }));
+      await expect(idp.find({id: identity.id}).then(id => id.claims())).resolves.toEqual(expect.objectContaining({sub: identity.id}));
+      await expect(idp.find({claims: {sub: identity.id}}).then(id => id.claims())).resolves.toEqual(expect.objectContaining({sub: identity.id}));
+      await expect(idp.find({claims: {phone_number: "010 4477 1234"}}).then(id => id.claims())).resolves.toEqual(expect.objectContaining({phone_number: "+82 10-4477-1234"}));
+      await expect(idp.find({claims: {email: testEmail}}).then(id => id.claims())).resolves.toEqual(expect.objectContaining({email: testEmail.toLowerCase()}));
     });
 
     it("identities could be fetched", async () => {
-      await expect(idp.get()).resolves.toEqual(expect.arrayContaining([expect.objectContaining({ id: identity.id })]));
+      await expect(
+        idp.get({
+          where: {
+            claims: {
+              sub: identity.id,
+              email: testEmail.toLowerCase(),
+            },
+          },
+        })
+          .then(identities => Promise.all(identities.map(idn => idn.claims()))),
+      )
+        .resolves.toEqual(expect.arrayContaining([expect.objectContaining({sub: identity.id})]));
       await expect(idp.count()).resolves.toBeGreaterThan(0);
     });
   });
@@ -119,18 +138,18 @@ export function doCommonAdapterTest(idp: IdentityProvider) {
     it("can add new claims with migration", async () => {
       await expect(idp.claims.defineClaimsSchema({
         scope: "profile",
-        key: "note",
+        key: "testnote",
         validation: {
           type: "string",
           optional: true,
         },
       })).resolves.not.toThrow();
 
-      await expect(identity.claims("userinfo", "profile")).resolves.toEqual(expect.objectContaining({ note: null }));
+      await expect(identity.claims("userinfo", "profile")).resolves.toEqual(expect.objectContaining({testnote: null}));
 
       await expect(idp.claims.defineClaimsSchema({
-        scope: "whatever",
-        key: "note",
+        scope: "testwhatever",
+        key: "testnote",
         validation: {
           type: "string",
           optional: true,
@@ -138,26 +157,26 @@ export function doCommonAdapterTest(idp: IdentityProvider) {
       })).resolves.not.toThrow();
 
       // scope moved...
-      await expect(identity.claims("userinfo", "profile")).resolves.toEqual(expect.not.objectContaining({ note: null }));
-      await expect(identity.claims("userinfo", "whatever")).resolves.toEqual(expect.objectContaining({ note: null }));
+      await expect(identity.claims("userinfo", "profile")).resolves.toEqual(expect.not.objectContaining({testnote: null}));
+      await expect(identity.claims("userinfo", "testwhatever")).resolves.toEqual(expect.objectContaining({testnote: null}));
 
       // again with default vaule
       await expect(idp.claims.defineClaimsSchema({
         scope: "profile",
-        key: "note",
+        key: "testnote",
         validation: {
           type: "string",
           optional: false,
         },
-        seed: "note-default-value",
+        seed: "testnote-default-value",
       })).resolves.not.toThrow();
-      await expect(identity.claims("userinfo", "profile")).resolves.toEqual(expect.objectContaining({ note: "note-default-value" }));
+      await expect(identity.claims("userinfo", "profile")).resolves.toEqual(expect.objectContaining({testnote: "testnote-default-value"}));
     });
 
     it("can add new claims with cutom migration function", async () => {
       await expect(idp.claims.defineClaimsSchema({
         scope: "profile",
-        key: "score",
+        key: "testscore",
         validation: {
           type: "number",
         },
@@ -166,7 +185,7 @@ export function doCommonAdapterTest(idp: IdentityProvider) {
 
       await expect(idp.claims.defineClaimsSchema({
         scope: "profile",
-        key: "score",
+        key: "testscore",
         validation: {
           type: "number",
           positive: true,
@@ -178,7 +197,7 @@ export function doCommonAdapterTest(idp: IdentityProvider) {
         }).toString(),
       })).resolves.not.toThrow();
 
-      await expect(identity.claims("userinfo", "profile")).resolves.toEqual(expect.objectContaining({ score: testEmail.length }));
+      await expect(identity.claims("userinfo", "profile")).resolves.toEqual(expect.objectContaining({testscore: testEmail.length}));
     });
   });
 
@@ -191,8 +210,8 @@ export function doCommonAdapterTest(idp: IdentityProvider) {
       };
       let initialSchema: IdentityClaimsSchema;
       await expect(idp.claims.defineClaimsSchema({
-        scope: "complex",
-        key: "complex",
+        scope: "testcomplex",
+        key: "testcomplex",
         validation: {
           type: "object",
           strict: false,
@@ -212,19 +231,19 @@ export function doCommonAdapterTest(idp: IdentityProvider) {
         return schema;
       })).resolves.not.toThrow();
 
-      await expect(identity.claims("complex")).resolves.toEqual(expect.objectContaining({
-        complex: seed,
+      await expect(identity.claims("testcomplex")).resolves.toEqual(expect.objectContaining({
+        testcomplex: seed,
       }));
 
       // now change strings as numbers
       const seed2 = {
         number: 5678,
         string: "test2",
-        numbers: [5,6,7,8],
+        numbers: [5, 6, 7, 8],
       };
       await expect(idp.claims.defineClaimsSchema({
-        scope: "complex",
-        key: "complex",
+        scope: "testcomplex",
+        key: "testcomplex",
         validation: {
           type: "object",
           strict: false,
@@ -247,17 +266,17 @@ export function doCommonAdapterTest(idp: IdentityProvider) {
       }`,
       }).catch(err => console.error(err.fields))).resolves.not.toThrow();
 
-      await expect(identity.claims("complex")).resolves.toEqual(expect.objectContaining({
-        complex: {
+      await expect(identity.claims("testcomplex")).resolves.toEqual(expect.objectContaining({
+        testcomplex: {
           ...seed,
-          numbers: [1,2,3,4],
+          numbers: [1, 2, 3, 4],
         },
       }));
 
       // revert to old version
       await expect(idp.claims.defineClaimsSchema({
-        scope: "complex",
-        key: "complex",
+        scope: "testcomplex",
+        key: "testcomplex",
         validation: {
           type: "object",
           strict: false,
@@ -280,8 +299,8 @@ export function doCommonAdapterTest(idp: IdentityProvider) {
       `,
       })).resolves.not.toThrow();
 
-      await expect(identity.claims("complex")).resolves.toEqual(expect.objectContaining({
-        complex: seed,
+      await expect(identity.claims("testcomplex")).resolves.toEqual(expect.objectContaining({
+        testcomplex: seed,
       }));
     });
   });
@@ -290,17 +309,20 @@ export function doCommonAdapterTest(idp: IdentityProvider) {
     it("can delete user and then user will not be found", async () => {
       const removal = await idp.create({
         metadata: {federation: {}, softDeleted: false},
-        scope: [], // mandatory scopes will put "openid", "profile", "email", "note" ...
-        claims: {sub: uuid().substr(0, 16), name: "Test", email: "aa"+testEmail, note: "xasdasd"},
+        scope: [], // mandatory scopes will put "openid", "profile", "email", ...
+        claims: {sub: uuid().substr(0, 16), name: "Test", email: "aa" + testEmail, testnote: "xasdasd"},
         credentials: {password: "1234"},
       });
       await expect(removal.delete(true)).resolves.not.toThrow();
-      await expect(idp.find({ id: removal.id })).rejects.toThrow();
+      await expect(idp.find({id: removal.id})).rejects.toThrow();
     });
   });
 
   afterAll(async () => {
-    await identity.delete(true);
+    if (identity) {
+      await identity.delete(true);
+    }
+    await idp.claims.forceDeleteClaimsSchemata(...testSchemaKeys).catch(err => console.error(err));
     await idp.stop();
   });
 }

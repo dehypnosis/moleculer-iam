@@ -5,3 +5,8 @@ export interface IdentityMetadata {
   softDeleted: boolean;
   [key: string]: any;
 }
+
+export const defaultIdentityMetadata = {
+  federation: {},
+  softDeleted: false,
+};

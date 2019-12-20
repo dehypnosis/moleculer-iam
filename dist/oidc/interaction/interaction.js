@@ -115,7 +115,8 @@ class InteractionFactory {
         router.get("/login", parseContext, (ctx) => tslib_1.__awaiter(this, void 0, void 0, function* () {
             const { user, client, interaction } = ctx.locals;
             // already signed in
-            const autoLogin = user && interaction.prompt.name !== "login" && !ctx.request.query.change;
+            const changeAccount = interaction.params.change_account || ctx.request.query.change_account;
+            const autoLogin = !changeAccount && user && interaction.prompt.name !== "login";
             if (autoLogin) {
                 const redirect = yield provider.interactionResult(ctx.req, ctx.res, {
                     // authentication/login prompt got resolved, omit if no authentication happened, i.e. the user
@@ -165,7 +166,7 @@ class InteractionFactory {
                             method: "POST",
                         } }, actions),
                     data: {
-                        user: user ? yield util_1.getPublicUserProps(user) : undefined,
+                        user: user && !changeAccount ? yield util_1.getPublicUserProps(user) : undefined,
                         client: client ? yield util_1.getPublicClientProps(client) : undefined,
                     },
                 },
@@ -179,7 +180,7 @@ class InteractionFactory {
             if (typeof password === "undefined") {
                 // 2. fetch identity
                 // tslint:disable-next-line:no-shadowed-variable
-                const user = yield idp.find({ email: email || "" });
+                const user = yield idp.find({ claims: { email: email || "" } });
                 return render(ctx, {
                     interaction: {
                         name: "login",
@@ -206,7 +207,7 @@ class InteractionFactory {
                 });
             }
             // 4. check account and password
-            const user = yield idp.find({ email: email || "" });
+            const user = yield idp.find({ claims: { email: email || "" } });
             if (!(yield user.assertCredentials({ password: password || "" }))) {
                 throw new error_1.Errors.InvalidCredentialsError();
             }
@@ -234,7 +235,7 @@ class InteractionFactory {
             const { test = false } = ctx.request.body;
             // 1. assert user with the phone number
             const { callback, phone_number } = ctx.request.body;
-            const user = yield idp.find({ phone_number: phone_number || "" });
+            const user = yield idp.find({ claims: { phone_number: phone_number || "" } });
             if (!user) {
                 ctx.throw(400, "Not a registered phone number.");
             }
@@ -311,7 +312,7 @@ class InteractionFactory {
                     }]);
             }
             // 3. find user and update identity phone_verified
-            const user = yield idp.find({ phone_number: phoneNumber || "" });
+            const user = yield idp.find({ claims: { phone_number: phoneNumber || "" } });
             ctx.assert(user);
             yield user.updateClaims({ phone_number_verified: true }, "phone");
             // 4. process callback interaction
@@ -339,7 +340,7 @@ class InteractionFactory {
             ctx.assert(interaction.prompt.name === "login" || interaction.prompt.name === "consent", "Invalid Request.");
             // 2. assert user with the email
             const { callback, email } = ctx.request.body;
-            const user = yield idp.find({ email: email || "" });
+            const user = yield idp.find({ claims: { email: email || "" } });
             if (!user) {
                 ctx.throw(400, "Not a registered email address.");
             }
@@ -403,7 +404,7 @@ class InteractionFactory {
             }
             // 2. assert user with the email
             const { email, callback } = interaction.result.verifyEmail;
-            const user = yield idp.find({ email: email || "" });
+            const user = yield idp.find({ claims: { email: email || "" } });
             ctx.assert(user);
             // 3. update identity email_verified as true
             yield user.updateClaims({ email_verified: true }, "email");
@@ -442,7 +443,7 @@ class InteractionFactory {
             const interaction = (yield provider.Interaction.find(ctx.params.interaction_uid));
             ctx.assert(interaction && interaction.result && interaction.result.resetPassword);
             // 2. assert user with the email
-            const user = yield idp.find({ email: interaction.result.resetPassword.email || "" });
+            const user = yield idp.find({ claims: { email: interaction.result.resetPassword.email || "" } });
             ctx.assert(user);
             // 3. validate and update credentials
             yield user.updateCredentials({ password: ctx.request.body.password || "" });
@@ -460,7 +461,7 @@ class InteractionFactory {
                 },
             });
         }));
-        // 2.6. handle register submit
+        // 2.7. handle register submit
         router.post("/register", parseContext, (ctx) => tslib_1.__awaiter(this, void 0, void 0, function* () {
             const { user, client, interaction } = ctx.locals;
             ctx.assert(interaction.prompt.name === "login" || interaction.prompt.name === "consent", "Invalid Request.");
@@ -482,6 +483,15 @@ class InteractionFactory {
                     },
                 },
             });
+        }));
+        // 2.8. handle federation
+        router.post("/federate", parseContext, (ctx) => tslib_1.__awaiter(this, void 0, void 0, function* () {
+            const { user, client, interaction } = ctx.locals;
+            ctx.assert(interaction.prompt.name === "login" || interaction.prompt.name === "consent", "Invalid Request.");
+            // tslint:disable-next-line:no-shadowed-variable
+            const { provider } = ctx.request.body;
+            const redirect = yield idp.federate(provider, url(`/federate_callback`));
+            return render(ctx, { redirect });
         }));
         // 3. handle consent
         router.get("/consent", parseContext, (ctx) => tslib_1.__awaiter(this, void 0, void 0, function* () {
@@ -521,7 +531,7 @@ class InteractionFactory {
                             url: url(`/login`),
                             method: "GET",
                             data: {
-                                change: true,
+                                change_account: true,
                             },
                             urlencoded: true,
                         } }, actions),

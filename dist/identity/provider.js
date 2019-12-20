@@ -6,18 +6,31 @@ const error_1 = require("./error");
 const adapter_1 = require("./adapter");
 const claims_1 = require("./claims");
 const validator_1 = require("../validator");
+const federation_1 = require("./federation");
 class IdentityProvider {
     constructor(props, opts) {
         this.props = props;
         /* lifecycle */
         this.working = false;
+        /* fetch account */
+        // args will be like { claims:{}, metadata:{}, ...}
+        this.validateFindArgs = validator_1.validator.compile({
+            email: {
+                type: "email",
+                normalize: true,
+                optional: true,
+            },
+            phone_number: {
+                type: "phone",
+                optional: true,
+            },
+        });
         this.logger = props.logger || console;
         const options = _.defaultsDeep(opts || {}, {
             adapter: {
                 type: "Memory",
                 options: {},
             },
-            claims: [],
         });
         // create adapter
         if (options.adapter instanceof adapter_1.IDPAdapter) {
@@ -35,6 +48,11 @@ class IdentityProvider {
             logger: this.logger,
             adapter: this.adapter,
         }, options.claims);
+        // prepare federation
+        this.federation = new federation_1.IdentityFederationManager({
+            logger: this.logger,
+            adapter: this.adapter,
+        }, options.federation);
     }
     start() {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
@@ -45,21 +63,6 @@ class IdentityProvider {
             yield this.adapter.start();
             // start claims manager
             yield this.claims.start();
-            // create dummies
-            yield this.create({
-                metadata: { federation: {}, softDeleted: false },
-                scope: "openid email profile phone".split(" "),
-                claims: {
-                    sub: "1",
-                    email: "test@test.com",
-                    name: "tester kim",
-                    phone_number: "010-4477-6418",
-                    phone_number_verified: false,
-                },
-                credentials: {
-                    password: "1234",
-                },
-            });
             this.logger.info("identity provider has been started");
             this.working = true;
         });
@@ -77,42 +80,54 @@ class IdentityProvider {
             this.working = false;
         });
     }
-    /* fetch account */
-    find(args, metadata = { softDeleted: false }) {
+    find(args) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            // validate args to normalize email and phone number
-            const result = validator_1.validator.validate(args, {
-                id: {
-                    type: "string",
-                    optional: true,
-                },
-                email: {
-                    type: "email",
-                    normalize: true,
-                    optional: true,
-                },
-                phone_number: {
-                    type: "phone",
-                    optional: true,
-                },
-            });
-            if (result !== true) {
-                throw new error_1.Errors.ValidationError(result);
+            // set softDeleted=false
+            if (!args.metadata || typeof args.metadata === "undefined") {
+                if (!args.metadata)
+                    args.metadata = {};
+                args.metadata.softDeleted = false;
             }
-            const identity = yield this.adapter.find(args, metadata);
+            // validate args to normalize email and phone number
+            if (args.claims) {
+                const result = this.validateFindArgs(args.claims);
+                if (result !== true) {
+                    throw new error_1.Errors.ValidationError(result);
+                }
+            }
+            const identity = yield this.adapter.find(args);
             if (!identity)
                 throw new error_1.Errors.IdentityNotExistsError();
             return identity;
         });
     }
-    get(args, metadata = { softDeleted: false }) {
+    // args will be like { claims:{}, metadata:{}, ...}
+    count(args) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            return this.adapter.get(Object.assign({ offset: 0, limit: 10 }, args), metadata);
+            // set softDeleted=false
+            if (!args || !args.metadata || typeof args.metadata === "undefined") {
+                if (!args)
+                    args = {};
+                if (!args.metadata)
+                    args.metadata = {};
+                args.metadata.softDeleted = false;
+            }
+            return this.adapter.count(args);
         });
     }
-    count(args = {}, metadata = { softDeleted: false }) {
+    // args will be like { where: { claims:{}, metadata:{}, ...}, offset: 0, limit: 100, ... }
+    get(args) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            return this.adapter.count(args, metadata);
+            args = Object.assign({ offset: 0, limit: 10 }, args);
+            // set softDeleted=false
+            if (!args.where || !args.where.metadata || typeof args.where.metadata === "undefined") {
+                if (!args.where)
+                    args.where = {};
+                if (!args.where.metadata)
+                    args.where.metadata = {};
+                args.where.metadata.softDeleted = false;
+            }
+            return this.adapter.get(args);
         });
     }
     /* create account */
@@ -121,6 +136,12 @@ class IdentityProvider {
             // push mandatory scopes
             args.scope = [...new Set([...args.scope, ...this.claims.mandatoryScopes])];
             return this.adapter.create(args);
+        });
+    }
+    /* federate account */
+    federate(provider, callbackURL) {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            return this.federation.authenticate(provider, callbackURL);
         });
     }
 }

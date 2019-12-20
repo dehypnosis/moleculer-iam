@@ -57,6 +57,8 @@ exports.defaultOIDCProviderOptions = {
         "S256",
         "plain",
     ],
+    /* extra params for /auth?change_account=true&blabla to not auto-fill signed in session account */
+    extraParams: ["change_account"],
     /* additional discovery properties */
     discovery: {
         claim_types_supported: [

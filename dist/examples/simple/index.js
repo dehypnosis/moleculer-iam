@@ -13,7 +13,20 @@ const broker = new moleculer_1.ServiceBroker({
     cacher: "Memory",
 });
 const serviceSchema = __1.IAMServiceSchema({
-    idp: {},
+    idp: {
+        adapter: {
+            // type: "Memory",
+            type: "RDBMS",
+            options: {
+                dialect: "mysql",
+                host: "mysql-dev.internal.qmit.pro",
+                database: "iam",
+                username: "iam",
+                password: "iam",
+                sqlLogLevel: "debug",
+            },
+        },
+    },
     oidc: {
         issuer: "http://0.0.0.0:8080",
         devMode: true,

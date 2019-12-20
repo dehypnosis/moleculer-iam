@@ -78,6 +78,7 @@ export const LoginInteraction: React.FunctionComponent<{ oidc: OIDCInteractionDa
             <Stack tokens={{childrenGap: 15}}>
               <PrimaryButton checked={loading} styles={ButtonStyles.largeThin} text={"Login with KakaoTalk"} style={{flex: "1 1 auto", backgroundColor: "#ffdc00", color: "black"}} onClick={() => handleFederation("kakaotalk")}/>
               <PrimaryButton checked={loading} styles={ButtonStyles.largeThin} text={"Login with Facebook"} style={{flex: "1 1 auto", backgroundColor: "#1876f2", color: "white"}} onClick={() => handleFederation("facebook")}/>
+              <Link onClick={() => !loading && handleFederation("google")} variant="small" style={{marginTop: "10px", color: ThemeStyles.palette.neutralTertiary}}>Login with Google</Link>
             </Stack>
           ) : (
             <Link style={{color: ThemeStyles.palette.neutralTertiary}} onClick={() => setOptionsVisible(true)}>Find more login options?</Link>

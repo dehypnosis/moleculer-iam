@@ -2,5 +2,5 @@
 
 ### CLI
 ```
-./migrations $ npx sequelize-cli migration:generate --name migrationScriptName
+./rdbms $ npx sequelize-cli migration:generate --name migration-script-name
 ```

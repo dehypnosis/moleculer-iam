@@ -7,7 +7,7 @@ import { Logger, LogLevel } from "../logger";
 
 // ref: https://sequelize.org/v5/manual/
 
-export { DataTypes, FindOptions, Op } from "sequelize";
+export * from "sequelize";
 
 export type RDBMSManagerProps = {
   migrationTableName: string,
@@ -16,7 +16,7 @@ export type RDBMSManagerProps = {
 };
 
 export type RDBMSManagerOptions = Omit<Options, "define" | "query" | "set" | "sync" | "operatorsAliases" | "minifyAliases" | "hooks" | "logging"> & {
-  sqlLogLevel?: LogLevel,
+  sqlLogLevel?: LogLevel | "none",
   migrationLockTimeoutSeconds?: number,
 };
 
@@ -37,7 +37,8 @@ export class RDBMSManager {
     this.logger = props.logger || console;
 
     // apply default options
-    const log = this.logger[opts.sqlLogLevel || "debug"] || this.logger.debug;
+    const log = opts.sqlLogLevel === "none" ? () => {
+    } : (this.logger[opts.sqlLogLevel || "debug"] || this.logger.debug);
     const defaults: Options & RDBMSManagerOptions = {
       logging: (sql: string) => log(sql),
       logQueryParameters: true,
@@ -68,6 +69,10 @@ export class RDBMSManager {
     });
   }
 
+  public get sequelize() {
+    return this.seq;
+  }
+
   public define(name: string, attr: ModelAttributes, opts?: ModelOptions): ModelClass {
     const model = this.seq.define(name, attr, opts) as ModelClass;
     model.sync = DontSync;
@@ -93,23 +98,22 @@ export class RDBMSManager {
     console.log(kleur.bgRed(`
 ============================[ROLLBACK COMMAND INVOKED]====================================
        ROLLBACK IS A DESTRUCTIVE COMMAND. BE CAREFUL TO NOT TO BEING DEPLOYED AS IS
-==========================================================================================`));
-    console.log();
+==========================================================================================`) + "\n");
 
     return new Promise((resolve, reject) => {
       this.rl.question(`Rollback ${this.migrationTableLabel} with option ${opts ? JSON.stringify(opts) : "(ALL)"}? (yes/y)\n`, async (answer: any) => {
         try {
-            if (typeof answer === "string" && ["yes", "y"].includes(answer.toLowerCase())) {
-              await this.acquireLock(async () => {
-                const results = await this.migrator.down(opts);
-                for (const r of results) {
-                  this.logger.info(`${this.migrationTableLabel}: ${kleur.yellow(r.file)} rollbacked`);
-                }
-              });
-            } else {
-              this.logger.info(`${this.migrationTableLabel}: rollback canceled`);
-            }
-            resolve();
+          if (typeof answer === "string" && ["yes", "y"].includes(answer.toLowerCase())) {
+            await this.acquireLock(async () => {
+              const results = await this.migrator.down(opts);
+              for (const r of results) {
+                this.logger.info(`${this.migrationTableLabel}: ${kleur.yellow(r.file)} rollbacked`);
+              }
+            });
+          } else {
+            this.logger.info(`${this.migrationTableLabel}: rollback canceled`);
+          }
+          resolve();
         } catch (error) {
           reject(error);
         }
@@ -146,12 +150,13 @@ export class RDBMSManager {
           await this.releaseLock();
           return this.acquireLock(task);
         }
-      } catch {}
+      } catch {
+      }
 
       // if lock table exists, retry after 5-10s
       const waitTime = Math.ceil(10000 * (Math.random() + 0.5));
       deadLockTimer -= waitTime;
-      this.logger.warn(`${this.migrationTableLabel} failed to acquire migration lock, retry after ${waitTime}ms, force release lock in ${Math.ceil(deadLockTimer/1000)}s`);
+      this.logger.warn(`${this.migrationTableLabel} failed to acquire migration lock, retry after ${waitTime}ms, force release lock in ${Math.ceil(deadLockTimer / 1000)}s`);
       await new Promise(resolve => setTimeout(resolve, waitTime));
       return this.acquireLock(task, deadLockTimer);
     } catch (error) {

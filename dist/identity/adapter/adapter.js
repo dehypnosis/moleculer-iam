@@ -3,13 +3,36 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
 const _ = tslib_1.__importStar(require("lodash"));
 const kleur_1 = tslib_1.__importDefault(require("kleur"));
-const object_hash_1 = tslib_1.__importDefault(require("object-hash"));
 const identity_1 = require("../identity");
+const metadata_1 = require("../metadata");
 const validator_1 = require("../../validator");
 const error_1 = require("../error");
 class IDPAdapter {
     constructor(props, options) {
         this.props = props;
+        this.getCachedActiveClaimsSchemata = _.memoize((scope, isUpdate = true) => tslib_1.__awaiter(this, void 0, void 0, function* () {
+            const claimsSchemata = yield this.getClaimsSchemata({ scope, active: true });
+            const activeClaimsVersions = claimsSchemata.reduce((obj, schema) => {
+                obj[schema.key] = schema.version;
+                return obj;
+            }, {});
+            // prepare to validate and merge old claims
+            const claimsValidationSchema = claimsSchemata.reduce((obj, claimsSchema) => {
+                obj[claimsSchema.key] = claimsSchema.validation;
+                return obj;
+            }, {
+                $$strict: true,
+            });
+            // prevent sub claim from being updated
+            if (isUpdate) {
+                delete claimsValidationSchema.sub;
+            }
+            return {
+                claimsSchemata,
+                activeClaimsVersions,
+                validateClaims: validator_1.validator.compile(claimsValidationSchema),
+            };
+        }), (...args) => JSON.stringify(args));
         this.logger = props.logger || console;
     }
     /* Lifecycle methods: do sort of DBMS schema migration and making connection */
@@ -26,7 +49,7 @@ class IDPAdapter {
     create(args) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             const { metadata, claims, credentials } = args;
-            if (yield this.find({ id: claims.sub }, { softDeleted: undefined })) {
+            if (yield this.find({ id: claims.sub })) {
                 throw new error_1.Errors.IdentityAlreadyExistsError();
             }
             // check openid scope sub field is defined
@@ -44,41 +67,31 @@ class IDPAdapter {
                 adapter: this,
             });
             // save metadata, claims, credentials
+            let transaction;
             try {
-                yield this.prepareToCreate(identity);
-                yield this.updateMetadata(identity, metadata);
-                yield this.updateClaims(identity, claims, { scope: args.scope });
-                yield this.updateCredentials(identity, credentials);
+                transaction = yield this.transaction();
+                yield this.createOrUpdateMetadata(identity, _.defaultsDeep(metadata, metadata_1.defaultIdentityMetadata));
+                yield this.createOrUpdateClaims(identity, claims, { scope: args.scope }, false);
+                yield this.createOrUpdateCredentials(identity, credentials);
+                yield this.onClaimsUpdated(identity);
+                yield transaction.commit();
             }
             catch (err) {
-                yield identity.delete(false);
+                if (transaction) {
+                    yield transaction.rollback();
+                }
+                yield this.delete(identity);
                 throw err;
             }
             return identity;
         });
     }
-    /* fetch claims cache and create claims entities (versioned, immutable) */
-    getClaimsCacheFilterKey(filter) {
-        return object_hash_1.default(filter, {
-            algorithm: "md5",
-            unorderedArrays: true,
-            unorderedObjects: true,
-            unorderedSets: true,
-        });
-    }
-    claims(identity, filter) {
+    /* fetch and create claims entities (versioned, immutable) */
+    getClaims(identity, filter) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            // check cache
-            const cacheFilterKey = this.getClaimsCacheFilterKey(filter);
-            if (this.getClaimsCache) {
-                const cachedClaims = yield this.getClaimsCache(identity, cacheFilterKey);
-                if (cachedClaims) {
-                    return cachedClaims;
-                }
-            }
             // get active claims
-            const claimsSchemata = yield this.getClaimsSchemata({ scope: filter.scope, active: true });
-            const claims = yield this.getClaimsVersion(identity, claimsSchemata.map(schema => ({
+            const { claimsSchemata } = yield this.getCachedActiveClaimsSchemata(filter.scope);
+            const claims = yield this.getVersionedClaims(identity, claimsSchemata.map(schema => ({
                 key: schema.key,
                 schemaVersion: schema.version,
             })));
@@ -87,51 +100,34 @@ class IDPAdapter {
                     claims[schema.key] = null;
                 }
             }
-            // save cache
-            if (this.setClaimsCache) {
-                yield this.setClaimsCache(identity, cacheFilterKey, claims);
-            }
             return claims;
         });
     }
-    updateClaims(identity, claims, filter) {
+    createOrUpdateClaims(identity, claims, filter, isUpdate = true) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            // load active claims schemata
-            const claimsSchemata = yield this.getClaimsSchemata({ scope: filter.scope, active: true });
-            const claimsSchemataObject = claimsSchemata.reduce((obj, schema) => {
-                obj[schema.key] = schema;
-                return obj;
-            }, {});
-            // prepare to validate and merge old claims
-            const claimsValidationSchema = claimsSchemata.reduce((obj, claimsSchema) => {
-                obj[claimsSchema.key] = claimsSchema.validation;
-                return obj;
-            }, {
-                $$strict: true,
-            });
-            const oldClaims = yield this.claims(identity, Object.assign(Object.assign({}, filter), { use: "userinfo" }));
-            // prevent sub claim from being updated
-            if (oldClaims.sub) {
-                delete claimsValidationSchema.sub;
+            // load old claims and active claims schemata
+            const oldClaims = yield this.getClaims(identity, Object.assign(Object.assign({}, filter), { use: "userinfo" }));
+            const { activeClaimsVersions, validateClaims } = yield this.getCachedActiveClaimsSchemata(filter.scope, isUpdate);
+            if (isUpdate) {
                 delete oldClaims.sub;
             }
-            const validate = validator_1.validator.compile(claimsValidationSchema);
-            // merge old claims
+            // merge old claims and validate merged one
             const mergedClaims = _.defaultsDeep(claims, oldClaims);
-            const result = validate(mergedClaims);
+            const result = validateClaims(mergedClaims);
             if (result !== true) {
                 throw new error_1.Errors.ValidationError(result, { claims, mergedClaims });
             }
-            yield this.putClaimsVersion(identity, Array.from(Object.entries(mergedClaims))
+            yield this.createOrUpdateVersionedClaims(identity, Array.from(Object.entries(mergedClaims))
                 .map(([key, value]) => ({
                 key,
                 value,
-                schemaVersion: claimsSchemataObject[key].version,
+                schemaVersion: activeClaimsVersions[key],
             })));
-            // clear cache
-            if (this.clearClaimsCache) {
-                yield this.clearClaimsCache(identity);
-            }
+        });
+    }
+    onClaimsSchemaUpdated() {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            this.getCachedActiveClaimsSchemata.cache.clear();
         });
     }
 }

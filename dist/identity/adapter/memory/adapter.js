@@ -4,7 +4,6 @@ const tslib_1 = require("tslib");
 const _ = tslib_1.__importStar(require("lodash"));
 const adapter_1 = require("../adapter");
 const identity_1 = require("../../identity");
-const error_1 = require("../../error");
 // tslint:disable-next-line:class-name
 class IDP_MemoryAdapter extends adapter_1.IDPAdapter {
     constructor(props, options) {
@@ -13,45 +12,42 @@ class IDP_MemoryAdapter extends adapter_1.IDPAdapter {
         this.displayName = "Memory";
         /* metadata */
         this.identityMetadataMap = new Map();
-        /* claims cache */
-        this.claimsCacheMap = new Map();
         /* claims */
         this.identityClaimsMap = new Map();
         /* credentials */
         this.identityCredentialsMap = new Map();
         /* claims schema */
         this.schemata = new Array();
-        /* transaction for migration */
-        this.migrationJobsMap = new Map();
         this.migrationLocksMap = new Map();
     }
     /* fetch */
-    find(args, metadata) {
+    // support only identity by id (sub), email, phone
+    find(args) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            // find identity by id, email, phone
             let foundId = "";
-            if (args.id) {
+            const argsId = args.id || args.claims && args.claims.sub;
+            if (argsId) {
                 const schema = yield this.getClaimsSchema({ key: "sub", active: true });
                 for (const [id, claims] of this.identityClaimsMap.entries()) {
-                    if (claims.some(c => c.key === "sub" && c.value === args.id && c.schemaVersion === schema.version)) {
+                    if (claims.some(c => c.key === "sub" && c.value === argsId && c.schemaVersion === schema.version)) {
                         foundId = id;
                         break;
                     }
                 }
             }
-            else if (args.email) {
+            else if (args.claims && args.claims.email) {
                 const schema = yield this.getClaimsSchema({ key: "email", active: true });
                 for (const [id, claims] of this.identityClaimsMap.entries()) {
-                    if (claims.some(c => c.key === "email" && c.value === args.email && c.schemaVersion === schema.version)) {
+                    if (claims.some(c => c.key === "email" && c.value === args.claims.email && c.schemaVersion === schema.version)) {
                         foundId = id;
                         break;
                     }
                 }
             }
-            else if (args.phone_number) {
+            else if (args.claims && args.claims.phone_number) {
                 const schema = yield this.getClaimsSchema({ key: "phone_number", active: true });
                 for (const [id, claims] of this.identityClaimsMap.entries()) {
-                    if (claims.some(c => c.key === "phone_number" && c.value === args.phone_number && c.schemaVersion === schema.version)) {
+                    if (claims.some(c => c.key === "phone_number" && c.value === args.claims.phone_number && c.schemaVersion === schema.version)) {
                         foundId = id;
                         break;
                     }
@@ -63,29 +59,18 @@ class IDP_MemoryAdapter extends adapter_1.IDPAdapter {
                     adapter: this,
                 });
                 // filter by metadata
-                if (typeof metadata.softDeleted !== "undefined") {
+                if (args.metadata && typeof args.metadata.softDeleted !== "undefined") {
                     const identityMetadata = yield identity.metadata();
-                    if (identityMetadata.softDeleted !== metadata.softDeleted) {
+                    if (identityMetadata.softDeleted !== args.metadata.softDeleted) {
                         return;
                     }
                 }
                 return identity;
             }
-            // return new Identity({
-            //   id: (id || email || phone) as string,
-            //   adapter: this,
-            //   claims: {
-            //     sub: (id || email || phone),
-            //     email: "dehypnosis@gmail.com",
-            //     phone_number: "010-4477-6418",
-            //     name: "Dong Wook Kim",
-            //     picture: "https://static2.sharepointonline.com/files/fabric/office-ui-fabric-react-assets/persona-female.png",
-            //   },
-            // });
         });
     }
     // only support offset, limit
-    get(args, metadata) {
+    get(args) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             const identities = [...this.identityMetadataMap.keys()]
                 .map(id => new identity_1.Identity({ id, adapter: this }));
@@ -93,15 +78,9 @@ class IDP_MemoryAdapter extends adapter_1.IDPAdapter {
                 .slice(args.offset || 0, typeof args.limit === "undefined" ? identities.length : args.limit);
         });
     }
-    count(args, metadata) {
+    count(args) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            return this.identityMetadataMap.size;
-        });
-    }
-    /* create */
-    prepareToCreate(identity) {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            this.identityClaimsMap.set(identity.id, []);
+            return (yield this.get(args)).length;
         });
     }
     /* delete */
@@ -115,74 +94,44 @@ class IDP_MemoryAdapter extends adapter_1.IDPAdapter {
             return true;
         });
     }
-    updateMetadata(identity, metadata) {
+    createOrUpdateMetadata(identity, metadata) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             const old = this.identityMetadataMap.get(identity.id);
             this.identityMetadataMap.set(identity.id, _.defaultsDeep(metadata, old || {}));
         });
     }
-    metadata(identity) {
+    getMetadata(identity) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             return this.identityMetadataMap.get(identity.id);
         });
     }
-    setClaimsCache(identity, cacheKey, claims) {
+    createOrUpdateVersionedClaims(identity, claims) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            let cache = this.claimsCacheMap.get(identity.id);
-            if (!cache) {
-                cache = new Map();
-                this.claimsCacheMap.set(identity.id, cache);
+            let oldClaims = this.identityClaimsMap.get(identity.id);
+            if (!oldClaims) {
+                oldClaims = [];
+                this.identityClaimsMap.set(identity.id, oldClaims);
             }
-            cache.set(cacheKey, claims);
-        });
-    }
-    getClaimsCache(identity, cacheKey) {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            let cache = this.claimsCacheMap.get(identity.id);
-            if (!cache) {
-                cache = new Map();
-                this.claimsCacheMap.set(identity.id, cache);
-                return;
-            }
-            return cache.get(cacheKey);
-        });
-    }
-    clearClaimsCache(identity) {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            if (identity) {
-                this.claimsCacheMap.delete(identity.id);
-            }
-            else {
-                this.claimsCacheMap.clear();
-            }
-        });
-    }
-    putClaimsVersion(identity, claims, migrationKey) {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            const job = () => tslib_1.__awaiter(this, void 0, void 0, function* () {
-                const oldClaims = this.identityClaimsMap.get(identity.id);
-                for (const claim of claims) {
-                    const oldClaim = oldClaims.find(c => c.key === claim.key && c.schemaVersion === claim.schemaVersion);
-                    if (oldClaim) {
-                        oldClaim.value = claim.value;
-                    }
-                    else {
-                        oldClaims.push(claim);
-                    }
+            for (const claim of claims) {
+                const oldClaim = oldClaims.find(c => c.key === claim.key && c.schemaVersion === claim.schemaVersion);
+                if (oldClaim) {
+                    oldClaim.value = claim.value;
                 }
-            });
-            if (migrationKey) {
-                this.migrationJobsMap.get(migrationKey).push(job);
-            }
-            else {
-                yield job();
+                else {
+                    oldClaims.push(claim);
+                }
             }
         });
     }
-    getClaimsVersion(identity, claims) {
+    onClaimsUpdated(identity) {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            // ...
+        });
+    }
+    getVersionedClaims(identity, claims) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             const foundClaims = {};
-            const storedClaims = this.identityClaimsMap.get(identity.id);
+            const storedClaims = this.identityClaimsMap.get(identity.id) || [];
             for (const { key, schemaVersion } of claims) {
                 const foundClaim = storedClaims.find(claim => {
                     if (key !== claim.key)
@@ -197,7 +146,7 @@ class IDP_MemoryAdapter extends adapter_1.IDPAdapter {
             return foundClaims;
         });
     }
-    updateCredentials(identity, credentials) {
+    createOrUpdateCredentials(identity, credentials) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             const cred = this.identityCredentialsMap.get(identity.id);
             if (cred && JSON.stringify(cred) === JSON.stringify(credentials))
@@ -218,17 +167,14 @@ class IDP_MemoryAdapter extends adapter_1.IDPAdapter {
             return true;
         });
     }
-    putClaimsSchema(schema, migrationKey) {
+    createClaimsSchema(schema) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            const job = () => tslib_1.__awaiter(this, void 0, void 0, function* () {
-                this.schemata.push(schema);
-            });
-            if (migrationKey) {
-                this.migrationJobsMap.get(migrationKey).push(job);
-            }
-            else {
-                yield job();
-            }
+            this.schemata.push(schema);
+        });
+    }
+    forceDeleteClaimsSchema(key) {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            this.schemata = this.schemata.filter(schema => schema.key !== key);
         });
     }
     getClaimsSchema(args) {
@@ -245,22 +191,14 @@ class IDP_MemoryAdapter extends adapter_1.IDPAdapter {
             });
         });
     }
-    setActiveClaimsSchema(args, migrationKey) {
+    setActiveClaimsSchema(args) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             const { key, version } = args;
-            const job = () => tslib_1.__awaiter(this, void 0, void 0, function* () {
-                this.schemata.forEach(sch => {
-                    if (key !== sch.key)
-                        return;
-                    sch.active = version === sch.version;
-                });
+            this.schemata.forEach(sch => {
+                if (key !== sch.key)
+                    return;
+                sch.active = version === sch.version;
             });
-            if (migrationKey) {
-                this.migrationJobsMap.get(migrationKey).push(job);
-            }
-            else {
-                yield job();
-            }
         });
     }
     getClaimsSchemata(args) {
@@ -279,32 +217,22 @@ class IDP_MemoryAdapter extends adapter_1.IDPAdapter {
             });
         });
     }
-    beginMigration(key) {
+    /* transaction and migration lock for distributed system */
+    transaction() {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            const jobs = this.migrationJobsMap.get(key);
-            if (jobs) {
-                throw new error_1.Errors.MigrationError("Migration is already being processed.");
-            }
-            this.migrationJobsMap.set(key, []);
-        });
-    }
-    commitMigration(key) {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            const jobs = this.migrationJobsMap.get(key);
-            if (!jobs) {
-                throw new error_1.Errors.MigrationError("There are no queued migration jobs to commit.");
-            }
-            yield Promise.all(jobs.map(job => job()));
-            this.migrationJobsMap.delete(key);
-        });
-    }
-    rollbackMigration(key) {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            const jobs = this.migrationJobsMap.get(key);
-            if (!jobs) {
-                throw new error_1.Errors.MigrationError("There are no queued migration jobs to rollback.");
-            }
-            this.migrationJobsMap.delete(key);
+            const logger = this.logger;
+            return {
+                commit() {
+                    return tslib_1.__awaiter(this, void 0, void 0, function* () {
+                        logger.warn("Memory adapter has not implemented transaction: commit()");
+                    });
+                },
+                rollback() {
+                    return tslib_1.__awaiter(this, void 0, void 0, function* () {
+                        logger.warn("Memory adapter has not implemented transaction: commit()");
+                    });
+                },
+            };
         });
     }
     acquireMigrationLock(key) {
@@ -319,7 +247,6 @@ class IDP_MemoryAdapter extends adapter_1.IDPAdapter {
     releaseMigrationLock(key) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             this.migrationLocksMap.delete(key);
-            this.migrationJobsMap.delete(key);
         });
     }
 }

@@ -18,9 +18,8 @@ const defaultChangeLocation = async (url: string) => {
 export interface IUserContext {
   loading: boolean;
   user: User | undefined;
-  signIn: (opts?: { redirectTo?: string, prompt?: "login" | "consent" | "none" }) => Promise<void>;
+  signIn: (opts?: { redirectTo?: string, prompt?: "login" | "consent" | "none", login_hint?: string, change_account?: boolean }) => Promise<void>;
   signOut: (opts?: { redirectTo?: string }) => Promise<void>;
-  change: (opts?: { redirectTo?: string }) => Promise<void>;
   manage: (opts?: { newWindow?: boolean }) => Promise<void>;
   client: UserManager;
 }
@@ -31,7 +30,6 @@ export const UserContext = createContext({
   user: undefined,
   signIn: undefined,
   signOut: undefined,
-  change: undefined,
   manage: undefined,
 } as any as IUserContext);
 
@@ -47,7 +45,6 @@ export const useUserContextFactory = (
     user: undefined,
     signIn: undefined,
     signOut: undefined,
-    change: undefined,
     manage: undefined,
   } as any as IUserContext);
 
@@ -59,7 +56,7 @@ export const useUserContextFactory = (
 
     // ref: https://github.com/IdentityModel/oidc-client-js/wiki
     const client = new UserManager(_.defaultsDeep(oidc || {}, {
-      authority: "http://0.0.0.0:8080",
+      authority: "http://localhost:8080",
       client_id: window.location.origin,
       redirect_uri: window.location.origin,
       post_logout_redirect_uri: window.location.origin,
@@ -77,9 +74,16 @@ export const useUserContextFactory = (
     const signIn = async (opts?: {
       redirectTo?: string,
       prompt?: "login" | "consent" | "none",
+      login_hint?: string,
+      change_account?: boolean,
     }) => {
-      const {redirectTo = location.href, prompt} = opts || {};
-      await client.signinRedirect({state: redirectTo, useReplaceToNavigate: false, prompt});
+      const {redirectTo = location.href, prompt, login_hint, change_account} = opts || {};
+      await client.signinRedirect({
+        state: redirectTo,
+        useReplaceToNavigate: false,
+        prompt, login_hint,
+        extraQueryParams: { change_account },
+      });
       await new Promise(() => {
       });
     };
@@ -89,13 +93,6 @@ export const useUserContextFactory = (
     }) => {
       const {redirectTo = location.href} = opts || {};
       await client.signoutRedirect({state: redirectTo, useReplaceToNavigate: false});
-      await new Promise(() => {
-      });
-    };
-
-    const change = async (opts?: { redirectTo?: string }) => {
-      const {redirectTo = location.href} = opts || {};
-      await client.signinRedirect({state: redirectTo, useReplaceToNavigate: false, prompt: "login"});
       await new Promise(() => {
       });
     };
@@ -117,7 +114,7 @@ export const useUserContextFactory = (
       }
     };
 
-    setContext({loading: true, client, user: undefined, signIn, signOut, change, manage});
+    setContext({loading: true, client, user: undefined, signIn, signOut, manage});
 
     client.getUser()
       .then(async (user) => {
@@ -133,7 +130,7 @@ export const useUserContextFactory = (
               }
             }
           } catch (err) {
-            // ...
+            await client.clearStaleState();
           } finally {
             if (automaticSignIn && !user) {
               await signIn({prompt: automaticSignIn});

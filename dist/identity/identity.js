@@ -1,12 +1,15 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
+const _ = tslib_1.__importStar(require("lodash"));
+const metadata_1 = require("./metadata");
 const validator_1 = require("../validator");
 const error_1 = require("./error");
 class Identity {
     constructor(props) {
         this.props = props;
         /* credentials */
+        // TODO: make credentials customizable...
         this.testCredentials = validator_1.validator.compile({
             password: {
                 type: "string",
@@ -33,7 +36,7 @@ class Identity {
      */
     claims(use = "userinfo", scope = "", claims, rejected) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            return this.props.adapter.claims(this, {
+            return this.props.adapter.getClaims(this, {
                 use,
                 scope: typeof scope === "string" ? scope.split(" ").filter(s => !!s) : scope,
                 claims,
@@ -43,20 +46,32 @@ class Identity {
     }
     updateClaims(claims, scope = "") {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            return this.props.adapter.updateClaims(this, claims, {
-                scope: typeof scope === "string" ? scope.split(" ").filter(s => !!s) : scope,
-            });
+            const transaction = yield this.props.adapter.transaction();
+            try {
+                yield this.props.adapter.createOrUpdateClaims(this, claims, {
+                    scope: typeof scope === "string" ? scope.split(" ").filter(s => !!s) : scope,
+                }, true);
+                yield this.props.adapter.onClaimsUpdated(this);
+                yield transaction.commit();
+            }
+            catch (err) {
+                yield transaction.rollback();
+                throw err;
+            }
         });
     }
     /* identity metadata (federation information, etc. not-versioned) */
     metadata() {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            return this.props.adapter.metadata(this);
+            const metadata = yield this.props.adapter.getMetadata(this);
+            if (!metadata)
+                throw new error_1.Errors.IdentityNotExistsError();
+            return metadata;
         });
     }
     updateMetadata(metadata) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            yield this.props.adapter.updateMetadata(this, metadata);
+            yield this.props.adapter.createOrUpdateMetadata(this, _.defaultsDeep(metadata, metadata_1.defaultIdentityMetadata));
         });
     }
     validateCredentials(credentials) {
@@ -75,7 +90,7 @@ class Identity {
     updateCredentials(credentials) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             yield this.validateCredentials(credentials);
-            return this.props.adapter.updateCredentials(this, credentials);
+            return this.props.adapter.createOrUpdateCredentials(this, credentials);
         });
     }
     /* delete identity */
@@ -85,7 +100,7 @@ class Identity {
                 yield this.props.adapter.delete(this);
             }
             else {
-                yield this.props.adapter.updateMetadata(this, { softDeleted: true });
+                yield this.props.adapter.createOrUpdateMetadata(this, { softDeleted: true });
             }
         });
     }
@@ -96,7 +111,7 @@ class Identity {
     }
     restoreSoftDeleted() {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            yield this.props.adapter.updateMetadata(this, { softDeleted: false });
+            yield this.props.adapter.createOrUpdateMetadata(this, { softDeleted: false });
         });
     }
 }

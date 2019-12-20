@@ -1,18 +1,17 @@
+import * as _ from "lodash";
 import { OIDCAccount, OIDCAccountClaims, OIDCAccountCredentials, OIDCClaimsInfo } from "../oidc";
 import { IDPAdapter } from "./adapter";
-import { IdentityMetadata } from "./metadata";
+import { defaultIdentityMetadata, IdentityMetadata } from "./metadata";
 import { validator } from "../validator";
 import { Errors } from "./error";
 
 export interface IdentityProps {
   id: string;
   adapter: IDPAdapter;
-
-  [key: string]: any;
 }
 
-export class Identity implements OIDCAccount {
-  constructor(public readonly props: IdentityProps) {
+export class Identity<T extends { [key: string]: any } = {}> implements OIDCAccount {
+  constructor(public readonly props: IdentityProps & T) {
   }
 
   public get id(): Readonly<string> {
@@ -33,7 +32,7 @@ export class Identity implements OIDCAccount {
    * @param rejected
    */
   public async claims(use: string = "userinfo", scope: string | string[] = "", claims?: OIDCClaimsInfo, rejected?: string[]): Promise<OIDCAccountClaims> {
-    return this.props.adapter.claims(this, {
+    return this.props.adapter.getClaims(this, {
       use,
       scope: typeof scope === "string" ? scope.split(" ").filter(s => !!s) : scope,
       claims,
@@ -42,21 +41,32 @@ export class Identity implements OIDCAccount {
   }
 
   public async updateClaims(claims: Partial<OIDCAccountClaims>, scope: string | string[] = ""): Promise<void> {
-    return this.props.adapter.updateClaims(this, claims, {
-      scope: typeof scope === "string" ? scope.split(" ").filter(s => !!s) : scope,
-    });
+    const transaction = await this.props.adapter.transaction();
+    try {
+      await this.props.adapter.createOrUpdateClaims(this, claims, {
+        scope: typeof scope === "string" ? scope.split(" ").filter(s => !!s) : scope,
+      }, true);
+      await this.props.adapter.onClaimsUpdated(this);
+      await transaction.commit();
+    } catch (err) {
+      await transaction.rollback();
+      throw err;
+    }
   }
 
   /* identity metadata (federation information, etc. not-versioned) */
   public async metadata(): Promise<IdentityMetadata> {
-    return this.props.adapter.metadata(this);
+    const metadata = await this.props.adapter.getMetadata(this);
+    if (!metadata) throw new Errors.IdentityNotExistsError();
+    return metadata;
   }
 
   public async updateMetadata(metadata: Partial<IdentityMetadata>): Promise<void> {
-    await this.props.adapter.updateMetadata(this, metadata);
+    await this.props.adapter.createOrUpdateMetadata(this, _.defaultsDeep(metadata, defaultIdentityMetadata));
   }
 
   /* credentials */
+  // TODO: make credentials customizable...
   private readonly testCredentials = validator.compile({
     password: {
       type: "string",
@@ -79,7 +89,7 @@ export class Identity implements OIDCAccount {
 
   public async updateCredentials(credentials: Partial<OIDCAccountCredentials>): Promise<boolean> {
     await this.validateCredentials(credentials);
-    return this.props.adapter.updateCredentials(this, credentials);
+    return this.props.adapter.createOrUpdateCredentials(this, credentials);
   }
 
   /* delete identity */
@@ -87,7 +97,7 @@ export class Identity implements OIDCAccount {
     if (permanently) {
       await this.props.adapter.delete(this);
     } else {
-      await this.props.adapter.updateMetadata(this, { softDeleted: true });
+      await this.props.adapter.createOrUpdateMetadata(this, {softDeleted: true});
     }
   }
 
@@ -96,6 +106,6 @@ export class Identity implements OIDCAccount {
   }
 
   public async restoreSoftDeleted(): Promise<void> {
-    await this.props.adapter.updateMetadata(this, { softDeleted: false });
+    await this.props.adapter.createOrUpdateMetadata(this, {softDeleted: false});
   }
 }

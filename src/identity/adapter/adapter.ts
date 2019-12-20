@@ -1,23 +1,29 @@
 import * as _ from "lodash";
 import kleur from "kleur";
-import hashObject from "object-hash";
 import { Logger } from "../../logger";
-import { FindOptions } from "../../helper/rdbms";
-import { OIDCAccountClaims, OIDCAccountClaimsFilter, OIDCAccountCredentials, OIDCClaimsInfo } from "../../oidc";
+import { FindOptions, WhereAttributeHash } from "../../helper/rdbms";
+import { OIDCAccountClaims, OIDCAccountClaimsFilter, OIDCAccountCredentials } from "../../oidc";
 import { Identity } from "../identity";
-import { IdentityMetadata } from "../metadata";
+import { defaultIdentityMetadata, IdentityMetadata } from "../metadata";
 import { IdentityClaimsSchema } from "../claims";
-import { ValidationSchema, validator  } from "../../validator";
+import { ValidationSchema, ValidationError, validator } from "../../validator";
 import { Errors } from "../error";
 
 export type IDPAdapterProps = {
   logger?: Logger,
 };
 
+export interface Transaction {
+  commit(): Promise<void>;
+
+  rollback(): Promise<void>;
+}
+
+export type IDPAdapterEvent = "claimsSchemaUpdate" | "";
+
 export abstract class IDPAdapter {
   protected readonly logger: Logger;
   public readonly abstract displayName: string;
-
   constructor(protected readonly props: IDPAdapterProps, options?: any) {
     this.logger = props.logger || console;
   }
@@ -32,17 +38,19 @@ export abstract class IDPAdapter {
   }
 
   /* CRD identity */
-  public abstract async find(args: { id?: string, email?: string, phone_number?: string }, metadata: Partial<IdentityMetadata>): Promise<Identity | void>;
 
-  public abstract async get(args: FindOptions, metadata: Partial<IdentityMetadata>): Promise<Identity[]>;
+  // args will be like { claims:{}, metadata:{}, ... }
+  public abstract async find(args: WhereAttributeHash): Promise<Identity | void>;
 
-  public abstract async count(args: Omit<FindOptions, "limit" | "offset">, metadata: Partial<IdentityMetadata>): Promise<number>;
+  // args will be like { claims:{}, metadata:{}, ... }
+  public abstract async count(args: WhereAttributeHash): Promise<number>;
 
-  public abstract async prepareToCreate(identity: Identity): Promise<void>;
+  // args will be like { where: { claims:{}, metadata:{}, ...}, offset: 0, limit: 100, ... }
+  public abstract async get(args: FindOptions): Promise<Identity[]>;
 
-  public async create(args: { metadata: IdentityMetadata, scope: string[], claims: OIDCAccountClaims, credentials: Partial<OIDCAccountCredentials> }): Promise<Identity> {
+  public async create(args: { metadata: Partial<IdentityMetadata>, scope: string[], claims: OIDCAccountClaims, credentials: Partial<OIDCAccountCredentials> }): Promise<Identity> {
     const {metadata, claims, credentials} = args;
-    if (await this.find({id: claims.sub}, {softDeleted: undefined})) {
+    if (await this.find({id: claims.sub})) {
       throw new Errors.IdentityAlreadyExistsError();
     }
 
@@ -63,13 +71,19 @@ export abstract class IDPAdapter {
     });
 
     // save metadata, claims, credentials
+    let transaction: Transaction;
     try {
-      await this.prepareToCreate(identity);
-      await this.updateMetadata(identity, metadata);
-      await this.updateClaims(identity, claims, {scope: args.scope});
-      await this.updateCredentials(identity, credentials);
+      transaction = await this.transaction();
+      await this.createOrUpdateMetadata(identity, _.defaultsDeep(metadata, defaultIdentityMetadata));
+      await this.createOrUpdateClaims(identity, claims, {scope: args.scope}, false);
+      await this.createOrUpdateCredentials(identity, credentials);
+      await this.onClaimsUpdated(identity);
+      await transaction.commit();
     } catch (err) {
-      await identity.delete(false);
+      if (transaction!) {
+        await transaction!.rollback();
+      }
+      await this.delete(identity);
       throw err;
     }
 
@@ -78,131 +92,116 @@ export abstract class IDPAdapter {
 
   public abstract async delete(identity: Identity): Promise<boolean>;
 
-  /* fetch claims cache and create claims entities (versioned, immutable) */
-  protected getClaimsCacheFilterKey(filter: OIDCAccountClaimsFilter) {
-    return hashObject(filter, {
-      algorithm: "md5",
-      unorderedArrays: true,
-      unorderedObjects: true,
-      unorderedSets: true,
-    });
-  }
-
-  public async claims(identity: Identity, filter: OIDCAccountClaimsFilter): Promise<OIDCAccountClaims> {
-    // check cache
-    const cacheFilterKey = this.getClaimsCacheFilterKey(filter);
-    if (this.getClaimsCache) {
-      const cachedClaims = await this.getClaimsCache(identity, cacheFilterKey);
-      if (cachedClaims) {
-        return cachedClaims;
-      }
-    }
-
+  /* fetch and create claims entities (versioned, immutable) */
+  public async getClaims(identity: Identity, filter: OIDCAccountClaimsFilter): Promise<OIDCAccountClaims> {
     // get active claims
-    const claimsSchemata = await this.getClaimsSchemata({scope: filter.scope, active: true});
-    const claims = await this.getClaimsVersion(
+    const { claimsSchemata } = await this.getCachedActiveClaimsSchemata(filter.scope);
+    const claims = await this.getVersionedClaims(
       identity,
       claimsSchemata.map(schema => ({
         key: schema.key,
         schemaVersion: schema.version,
       })),
     ) as OIDCAccountClaims;
+
     for (const schema of claimsSchemata) {
       if (typeof claims[schema.key] === "undefined") {
         claims[schema.key] = null;
       }
     }
 
-    // save cache
-    if (this.setClaimsCache) {
-      await this.setClaimsCache(identity, cacheFilterKey, claims);
-    }
-
     return claims;
   }
 
-  public async updateClaims(identity: Identity, claims: Partial<OIDCAccountClaims>, filter: Omit<OIDCAccountClaimsFilter, "use">): Promise<void> {
-    // load active claims schemata
-    const claimsSchemata = await this.getClaimsSchemata({scope: filter.scope, active: true});
-    const claimsSchemataObject = claimsSchemata.reduce((obj, schema) => {
-      obj[schema.key] = schema;
-      return obj;
-    }, {} as { [key: string]: IdentityClaimsSchema });
+  protected readonly getCachedActiveClaimsSchemata = _.memoize(
+    async (scope: string[], isUpdate = true) => {
+      const claimsSchemata = await this.getClaimsSchemata({scope, active: true});
+      const activeClaimsVersions = claimsSchemata.reduce((obj, schema) => {
+        obj[schema.key] = schema.version;
+        return obj;
+      }, {} as { [key: string]: string });
 
-    // prepare to validate and merge old claims
-    const claimsValidationSchema = claimsSchemata.reduce((obj, claimsSchema) => {
-      obj[claimsSchema.key] = claimsSchema.validation;
-      return obj;
-    }, {
-      $$strict: true,
-    } as ValidationSchema);
-    const oldClaims = await this.claims(identity, {...filter, use: "userinfo"});
+      // prepare to validate and merge old claims
+      const claimsValidationSchema = claimsSchemata.reduce((obj, claimsSchema) => {
+        obj[claimsSchema.key] = claimsSchema.validation;
+        return obj;
+      }, {
+        $$strict: true,
+      } as ValidationSchema);
 
-    // prevent sub claim from being updated
-    if (oldClaims.sub) {
-      delete claimsValidationSchema.sub;
+      // prevent sub claim from being updated
+      if (isUpdate) {
+        delete claimsValidationSchema.sub;
+      }
+
+      return {
+        claimsSchemata,
+        activeClaimsVersions,
+        validateClaims: validator.compile(claimsValidationSchema),
+      };
+    },
+    (...args: any[]) => JSON.stringify(args),
+  );
+
+  public async createOrUpdateClaims(identity: Identity, claims: Partial<OIDCAccountClaims>, filter: Omit<OIDCAccountClaimsFilter, "use">, isUpdate = true): Promise<void> {
+    // load old claims and active claims schemata
+    const oldClaims = await this.getClaims(identity, {...filter, use: "userinfo"});
+    const {activeClaimsVersions, validateClaims} = await this.getCachedActiveClaimsSchemata(filter.scope, isUpdate);
+    if (isUpdate) {
       delete oldClaims.sub;
     }
-    const validate = validator.compile(claimsValidationSchema);
 
-    // merge old claims
+    // merge old claims and validate merged one
     const mergedClaims = _.defaultsDeep(claims, oldClaims);
-    const result = validate(mergedClaims);
+    const result = validateClaims(mergedClaims);
     if (result !== true) {
       throw new Errors.ValidationError(result, {claims, mergedClaims});
     }
 
-    await this.putClaimsVersion(
+    await this.createOrUpdateVersionedClaims(
       identity,
       Array.from(Object.entries(mergedClaims))
         .map(([key, value]) => ({
           key,
           value,
-          schemaVersion: claimsSchemataObject[key].version,
+          schemaVersion: activeClaimsVersions[key],
         })),
     );
-
-    // clear cache
-    if (this.clearClaimsCache) {
-      await this.clearClaimsCache(identity);
-    }
   }
 
-  public abstract async setClaimsCache?(identity: Identity, cacheFilterKey: string, claims: OIDCAccountClaims): Promise<void>;
+  public abstract async onClaimsUpdated(identity: Identity): Promise<void>;
 
-  public abstract async getClaimsCache?(identity: Identity, cacheFilterKey: string): Promise<OIDCAccountClaims | void>;
+  public abstract async createOrUpdateVersionedClaims(identity: Identity, claims: Array<{ key: string, value: any, schemaVersion: string }>): Promise<void>;
 
-  public abstract async clearClaimsCache?(identity?: Identity): Promise<void>;
+  public abstract async getVersionedClaims(identity: Identity, claims: Array<{ key: string, schemaVersion?: string }>): Promise<Partial<OIDCAccountClaims>>;
 
-  public abstract async putClaimsVersion(identity: Identity, claims: Array<{ key: string, value: any, schemaVersion: string }>, migrationKey?: string): Promise<void>;
+  public abstract async createClaimsSchema(schema: IdentityClaimsSchema): Promise<void>;
 
-  public abstract async getClaimsVersion(identity: Identity, claims: Array<{ key: string, schemaVersion?: string }>): Promise<Partial<OIDCAccountClaims>>;
+  public abstract async forceDeleteClaimsSchema(key: string): Promise<void>;
 
-  public abstract async putClaimsSchema(schema: IdentityClaimsSchema, migrationKey?: string): Promise<void>;
+  public async onClaimsSchemaUpdated(): Promise<void> {
+    this.getCachedActiveClaimsSchemata.cache.clear!();
+  }
 
   public abstract async getClaimsSchema(args: { key: string, version?: string, active?: boolean }): Promise<IdentityClaimsSchema | void>;
 
   // scope: [] means all scopes
   public abstract async getClaimsSchemata(args: { scope: string[], key?: string, version?: string, active?: boolean }): Promise<IdentityClaimsSchema[]>;
 
-  public abstract async setActiveClaimsSchema(args: { key: string, version: string }, migrationKey?: string): Promise<void>;
+  public abstract async setActiveClaimsSchema(args: { key: string, version: string }): Promise<void>;
 
   /* identity metadata (for federation information, soft deletion, etc. not-versioned) */
-  public abstract async metadata(identity: Identity): Promise<IdentityMetadata>;
+  public abstract async getMetadata(identity: Identity): Promise<IdentityMetadata | void>;
 
-  public abstract async updateMetadata(identity: Identity, metadata: Partial<IdentityMetadata>): Promise<void>;
+  public abstract async createOrUpdateMetadata(identity: Identity, metadata: Partial<IdentityMetadata>): Promise<void>;
 
   /* identity credentials */
   public abstract async assertCredentials(identity: Identity, credentials: Partial<OIDCAccountCredentials>): Promise<boolean>;
 
-  public abstract async updateCredentials(identity: Identity, credentials: Partial<OIDCAccountCredentials>): Promise<boolean>;
+  public abstract async createOrUpdateCredentials(identity: Identity, credentials: Partial<OIDCAccountCredentials>): Promise<boolean>;
 
-  /* manage claims schema */
-  public abstract async beginMigration(key: string): Promise<void>;
-
-  public abstract async commitMigration(key: string): Promise<void>;
-
-  public abstract async rollbackMigration(key: string): Promise<void>;
+  /* transaction and migration lock for distributed system */
+  public abstract async transaction(): Promise<Transaction>;
 
   public abstract async acquireMigrationLock(key: string): Promise<void>;
 

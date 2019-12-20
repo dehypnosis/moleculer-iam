@@ -93,6 +93,7 @@ export const IdentityClaimsSchemaPayloadValidationSchema: ValidationSchema = {
     `,
     alphadash: true,
     lowercase: true,
+    pattern: /^(?!(metadata)).*$/i, // metadata is preserved
     trim: true,
   },
   description: {

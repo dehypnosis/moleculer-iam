@@ -1,11 +1,10 @@
 import * as _ from "lodash";
-import { IDPAdapter, IDPAdapterProps } from "../adapter";
+import { IDPAdapter, IDPAdapterProps, Transaction } from "../adapter";
 import { OIDCAccountClaims, OIDCAccountCredentials } from "../../../oidc";
 import { IdentityMetadata } from "../../metadata";
 import { IdentityClaimsSchema } from "../../claims";
 import { Identity } from "../../identity";
-import { FindOptions } from "../../../helper/rdbms";
-import { Errors } from "../../error";
+import { FindOptions, WhereAttributeHash } from "../../../helper/rdbms";
 
 export type IDP_MemoryAdapterOptions = {};
 
@@ -18,29 +17,30 @@ export class IDP_MemoryAdapter extends IDPAdapter {
   }
 
   /* fetch */
-  public async find(args: { id?: string, email?: string, phone_number?: string }, metadata: Partial<IdentityMetadata>): Promise<Identity | void> {
-    // find identity by id, email, phone
+  // support only identity by id (sub), email, phone
+  public async find(args: WhereAttributeHash): Promise<Identity | void> {
     let foundId: string = "";
-    if (args.id) {
+    const argsId = args.id || args.claims && (args.claims as any).sub;
+    if (argsId) {
       const schema = await this.getClaimsSchema({key: "sub", active: true}) as IdentityClaimsSchema;
       for (const [id, claims] of this.identityClaimsMap.entries()) {
-        if (claims.some(c => c.key === "sub" && c.value === args.id && c.schemaVersion === schema.version)) {
+        if (claims.some(c => c.key === "sub" && c.value === argsId && c.schemaVersion === schema.version)) {
           foundId = id;
           break;
         }
       }
-    } else if (args.email) {
+    } else if (args.claims && (args.claims as any).email) {
       const schema = await this.getClaimsSchema({key: "email", active: true}) as IdentityClaimsSchema;
       for (const [id, claims] of this.identityClaimsMap.entries()) {
-        if (claims.some(c => c.key === "email" && c.value === args.email && c.schemaVersion === schema.version)) {
+        if (claims.some(c => c.key === "email" && c.value === (args.claims as any).email && c.schemaVersion === schema.version)) {
           foundId = id;
           break;
         }
       }
-    } else if (args.phone_number) {
+    } else if (args.claims && (args.claims as any).phone_number) {
       const schema = await this.getClaimsSchema({key: "phone_number", active: true}) as IdentityClaimsSchema;
       for (const [id, claims] of this.identityClaimsMap.entries()) {
-        if (claims.some(c => c.key === "phone_number" && c.value === args.phone_number && c.schemaVersion === schema.version)) {
+        if (claims.some(c => c.key === "phone_number" && c.value === (args.claims as any).phone_number && c.schemaVersion === schema.version)) {
           foundId = id;
           break;
         }
@@ -54,9 +54,9 @@ export class IDP_MemoryAdapter extends IDPAdapter {
       });
 
       // filter by metadata
-      if (typeof metadata.softDeleted !== "undefined") {
+      if (args.metadata && typeof (args.metadata as any).softDeleted !== "undefined") {
         const identityMetadata = await identity.metadata();
-        if (identityMetadata.softDeleted !== metadata.softDeleted) {
+        if (identityMetadata.softDeleted !== (args.metadata as any).softDeleted) {
           return;
         }
       }
@@ -66,7 +66,7 @@ export class IDP_MemoryAdapter extends IDPAdapter {
   }
 
   // only support offset, limit
-  public async get(args: FindOptions, metadata: Partial<IdentityMetadata>): Promise<Identity[]> {
+  public async get(args: FindOptions): Promise<Identity[]> {
     const identities = [...this.identityMetadataMap.keys()]
       .map(id => new Identity({id, adapter: this}));
 
@@ -77,13 +77,8 @@ export class IDP_MemoryAdapter extends IDPAdapter {
       );
   }
 
-  public async count(args: Omit<FindOptions, "limit" | "offset">, metadata: Partial<IdentityMetadata>): Promise<number> {
-    return this.identityMetadataMap.size;
-  }
-
-  /* create */
-  public async prepareToCreate(identity: Identity): Promise<void> {
-    this.identityClaimsMap.set(identity.id, []);
+  public async count(args: WhereAttributeHash): Promise<number> {
+    return (await this.get(args)).length;
   }
 
   /* delete */
@@ -99,72 +94,41 @@ export class IDP_MemoryAdapter extends IDPAdapter {
   /* metadata */
   private readonly identityMetadataMap = new Map<string, IdentityMetadata>();
 
-  public async updateMetadata(identity: Identity, metadata: Partial<IdentityMetadata>): Promise<void> {
+  public async createOrUpdateMetadata(identity: Identity, metadata: Partial<IdentityMetadata>): Promise<void> {
     const old = this.identityMetadataMap.get(identity.id);
     this.identityMetadataMap.set(identity.id, _.defaultsDeep(metadata, old || {}) as IdentityMetadata);
   }
 
-  public async metadata(identity: Identity): Promise<IdentityMetadata> {
-    return this.identityMetadataMap.get(identity.id)!;
-  }
-
-  /* claims cache */
-  private readonly claimsCacheMap = new Map<string, Map<string, OIDCAccountClaims>>();
-
-  public async setClaimsCache(identity: Identity, cacheKey: string, claims: OIDCAccountClaims): Promise<void> {
-    let cache = this.claimsCacheMap.get(identity.id);
-    if (!cache) {
-      cache = new Map<string, OIDCAccountClaims>();
-      this.claimsCacheMap.set(identity.id, cache);
-    }
-    cache.set(cacheKey, claims);
-  }
-
-  public async getClaimsCache(identity: Identity, cacheKey: string): Promise<OIDCAccountClaims | void> {
-    let cache = this.claimsCacheMap.get(identity.id);
-    if (!cache) {
-      cache = new Map<string, OIDCAccountClaims>();
-      this.claimsCacheMap.set(identity.id, cache);
-      return;
-    }
-    return cache.get(cacheKey);
-  }
-
-  public async clearClaimsCache(identity?: Identity): Promise<void> {
-    if (identity) {
-      this.claimsCacheMap.delete(identity.id);
-    } else {
-      this.claimsCacheMap.clear();
-    }
+  public async getMetadata(identity: Identity): Promise<IdentityMetadata | void> {
+    return this.identityMetadataMap.get(identity.id);
   }
 
   /* claims */
   private readonly identityClaimsMap = new Map<string, Array<{ key: string; value: any; schemaVersion: string }>>();
 
-  public async putClaimsVersion(identity: Identity, claims: Array<{ key: string; value: any; schemaVersion: string }>, migrationKey?: string): Promise<void> {
-
-    const job = async () => {
-      const oldClaims = this.identityClaimsMap.get(identity.id)!;
-      for (const claim of claims) {
-        const oldClaim = oldClaims.find(c => c.key === claim.key && c.schemaVersion === claim.schemaVersion);
-        if (oldClaim) {
-          oldClaim.value = claim.value;
-        } else {
-          oldClaims.push(claim);
-        }
+  public async createOrUpdateVersionedClaims(identity: Identity, claims: Array<{ key: string; value: any; schemaVersion: string }>): Promise<void> {
+    let oldClaims = this.identityClaimsMap.get(identity.id);
+    if (!oldClaims) {
+      oldClaims = [];
+      this.identityClaimsMap.set(identity.id, oldClaims);
+    }
+    for (const claim of claims) {
+      const oldClaim = oldClaims.find(c => c.key === claim.key && c.schemaVersion === claim.schemaVersion);
+      if (oldClaim) {
+        oldClaim.value = claim.value;
+      } else {
+        oldClaims.push(claim);
       }
-    };
-
-    if (migrationKey) {
-      this.migrationJobsMap.get(migrationKey)!.push(job);
-    } else {
-      await job();
     }
   }
 
-  public async getClaimsVersion(identity: Identity, claims: Array<{ key: string; schemaVersion?: string }>): Promise<Partial<OIDCAccountClaims>> {
+  public async onClaimsUpdated(identity: Identity): Promise<void> {
+    // ...
+  }
+
+  public async getVersionedClaims(identity: Identity, claims: Array<{ key: string; schemaVersion?: string }>): Promise<Partial<OIDCAccountClaims>> {
     const foundClaims: Partial<OIDCAccountClaims> = {};
-    const storedClaims = this.identityClaimsMap.get(identity.id)!;
+    const storedClaims = this.identityClaimsMap.get(identity.id) || [];
     for (const {key, schemaVersion} of claims) {
       const foundClaim = storedClaims.find(claim => {
         if (key !== claim.key) return false;
@@ -179,7 +143,7 @@ export class IDP_MemoryAdapter extends IDPAdapter {
   /* credentials */
   private readonly identityCredentialsMap = new Map<string, Partial<OIDCAccountCredentials>>();
 
-  public async updateCredentials(identity: Identity, credentials: Partial<OIDCAccountCredentials>): Promise<boolean> {
+  public async createOrUpdateCredentials(identity: Identity, credentials: Partial<OIDCAccountCredentials>): Promise<boolean> {
     const cred = this.identityCredentialsMap.get(identity.id);
     if (cred && JSON.stringify(cred) === JSON.stringify(credentials)) return false;
 
@@ -198,18 +162,14 @@ export class IDP_MemoryAdapter extends IDPAdapter {
   }
 
   /* claims schema */
-  private readonly schemata = new Array<IdentityClaimsSchema>();
+  private schemata = new Array<IdentityClaimsSchema>();
 
-  public async putClaimsSchema(schema: IdentityClaimsSchema, migrationKey?: string): Promise<void> {
-    const job = async () => {
-      this.schemata.push(schema);
-    };
+  public async createClaimsSchema(schema: IdentityClaimsSchema): Promise<void> {
+    this.schemata.push(schema);
+  }
 
-    if (migrationKey) {
-      this.migrationJobsMap.get(migrationKey)!.push(job);
-    } else {
-      await job();
-    }
+  public async forceDeleteClaimsSchema(key: string): Promise<void> {
+    this.schemata = this.schemata.filter(schema => schema.key !== key);
   }
 
   public async getClaimsSchema(args: { key: string; version?: string; active?: boolean }): Promise<IdentityClaimsSchema | void> {
@@ -222,20 +182,12 @@ export class IDP_MemoryAdapter extends IDPAdapter {
     });
   }
 
-  public async setActiveClaimsSchema(args: { key: string; version: string }, migrationKey?: string): Promise<void> {
+  public async setActiveClaimsSchema(args: { key: string; version: string }): Promise<void> {
     const {key, version} = args;
-    const job = async () => {
-      this.schemata.forEach(sch => {
-        if (key !== sch.key) return;
-        sch.active = version === sch.version;
-      });
-    };
-
-    if (migrationKey) {
-      this.migrationJobsMap.get(migrationKey)!.push(job);
-    } else {
-      await job();
-    }
+    this.schemata.forEach(sch => {
+      if (key !== sch.key) return;
+      sch.active = version === sch.version;
+    });
   }
 
   public async getClaimsSchemata(args: { scope: string[], key?: string, version?: string, active?: boolean }): Promise<IdentityClaimsSchema[]> {
@@ -249,32 +201,17 @@ export class IDP_MemoryAdapter extends IDPAdapter {
     });
   }
 
-  /* transaction for migration */
-  private readonly migrationJobsMap = new Map<string, Array<() => Promise<void>>>();
-
-  public async beginMigration(key: string): Promise<void> {
-    const jobs = this.migrationJobsMap.get(key);
-    if (jobs) {
-      throw new Errors.MigrationError("Migration is already being processed.");
-    }
-    this.migrationJobsMap.set(key, []);
-  }
-
-  public async commitMigration(key: string): Promise<void> {
-    const jobs = this.migrationJobsMap.get(key);
-    if (!jobs) {
-      throw new Errors.MigrationError("There are no queued migration jobs to commit.");
-    }
-    await Promise.all(jobs.map(job => job()));
-    this.migrationJobsMap.delete(key);
-  }
-
-  public async rollbackMigration(key: string): Promise<void> {
-    const jobs = this.migrationJobsMap.get(key);
-    if (!jobs) {
-      throw new Errors.MigrationError("There are no queued migration jobs to rollback.");
-    }
-    this.migrationJobsMap.delete(key);
+  /* transaction and migration lock for distributed system */
+  public async transaction(): Promise<Transaction> {
+    const logger = this.logger;
+    return {
+      async commit(): Promise<void> {
+        logger.warn("Memory adapter has not implemented transaction: commit()");
+      },
+      async rollback(): Promise<void> {
+        logger.warn("Memory adapter has not implemented transaction: commit()");
+      },
+    };
   }
 
   private readonly migrationLocksMap = new Map<string, boolean>();
@@ -290,6 +227,5 @@ export class IDP_MemoryAdapter extends IDPAdapter {
 
   public async releaseMigrationLock(key: string): Promise<void> {
     this.migrationLocksMap.delete(key);
-    this.migrationJobsMap.delete(key);
   }
 }

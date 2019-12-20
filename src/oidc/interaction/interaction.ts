@@ -1,7 +1,6 @@
 import Router, { IMiddleware } from "koa-router";
 import bodyParser from "koa-bodyparser";
 import noCache from "koajs-nocache";
-import { validator, ValidationSchema } from "../../validator";
 import { Identity, IdentityProvider } from "../../identity";
 import { Logger } from "../../logger";
 import { KoaContextWithOIDC, Provider, Configuration, Interaction, Client, interactionPolicy } from "../provider";
@@ -98,7 +97,7 @@ export class InteractionFactory {
               if (!fields[field]) fields[field] = [];
               fields[field].push(message);
               return fields;
-            }, {} as {[fieldName: string]: string[]}),
+            }, {} as { [fieldName: string]: string[] }),
             /*
               detail: {
                 username: [{"type": "required", "message": "The 'username' field is required.",}],
@@ -114,8 +113,8 @@ export class InteractionFactory {
             detail: err.error_detail,
           } as ClientApplicationError;
         } else {
-          logger.error(error);
           error = err;
+          logger.error(error);
         }
 
         // delegate error handling
@@ -155,7 +154,8 @@ export class InteractionFactory {
       const {user, client, interaction} = ctx.locals as InteractionRequestContext;
 
       // already signed in
-      const autoLogin = user && interaction.prompt.name !== "login" && !ctx.request.query.change;
+      const changeAccount = interaction.params.change_account || ctx.request.query.change_account;
+      const autoLogin = !changeAccount && user && interaction.prompt.name !== "login";
       if (autoLogin) {
         const redirect = await provider.interactionResult(ctx.req, ctx.res, {
           // authentication/login prompt got resolved, omit if no authentication happened, i.e. the user
@@ -216,7 +216,7 @@ export class InteractionFactory {
             ...actions,
           },
           data: {
-            user: user ? await getPublicUserProps(user!) : undefined,
+            user: user && !changeAccount ? await getPublicUserProps(user!) : undefined,
             client: client ? await getPublicClientProps(client) : undefined,
           },
         },
@@ -233,7 +233,7 @@ export class InteractionFactory {
 
         // 2. fetch identity
         // tslint:disable-next-line:no-shadowed-variable
-        const user = await idp.find({email: email || ""});
+        const user = await idp.find({claims: {email: email || ""}});
         return render(ctx, {
           interaction: {
             name: "login",
@@ -265,7 +265,7 @@ export class InteractionFactory {
       }
 
       // 4. check account and password
-      const user = await idp.find({email: email || ""});
+      const user = await idp.find({claims: {email: email || ""}});
       if (!await user.assertCredentials({password: password || ""})) {
         throw new Errors.InvalidCredentialsError();
       }
@@ -303,7 +303,7 @@ export class InteractionFactory {
 
       // 1. assert user with the phone number
       const {callback, phone_number} = ctx.request.body;
-      const user = await idp.find({phone_number: phone_number || ""});
+      const user = await idp.find({claims: {phone_number: phone_number || ""}});
       if (!user) {
         ctx.throw(400, "Not a registered phone number.");
       }
@@ -394,7 +394,7 @@ export class InteractionFactory {
       }
 
       // 3. find user and update identity phone_verified
-      const user = await idp.find({phone_number: phoneNumber || ""});
+      const user = await idp.find({claims: {phone_number: phoneNumber || ""}});
       ctx.assert(user);
       await user.updateClaims({phone_number_verified: true}, "phone");
 
@@ -429,7 +429,7 @@ export class InteractionFactory {
 
       // 2. assert user with the email
       const {callback, email} = ctx.request.body;
-      const user = await idp.find({email: email || ""});
+      const user = await idp.find({claims: {email: email || ""}});
       if (!user) {
         ctx.throw(400, "Not a registered email address.");
       }
@@ -501,7 +501,7 @@ export class InteractionFactory {
 
       // 2. assert user with the email
       const {email, callback} = interaction.result.verifyEmail;
-      const user = await idp.find({email: email || ""});
+      const user = await idp.find({claims: {email: email || ""}});
       ctx.assert(user);
 
       // 3. update identity email_verified as true
@@ -546,7 +546,7 @@ export class InteractionFactory {
       ctx.assert(interaction && interaction.result && interaction.result.resetPassword);
 
       // 2. assert user with the email
-      const user = await idp.find({email: interaction.result.resetPassword.email || ""});
+      const user = await idp.find({claims: {email: interaction.result.resetPassword.email || ""}});
       ctx.assert(user);
 
       // 3. validate and update credentials
@@ -568,7 +568,7 @@ export class InteractionFactory {
       });
     });
 
-    // 2.6. handle register submit
+    // 2.7. handle register submit
     router.post("/register", parseContext, async ctx => {
       const {user, client, interaction} = ctx.locals as InteractionRequestContext;
       ctx.assert(interaction.prompt.name === "login" || interaction.prompt.name === "consent", "Invalid Request.");
@@ -592,6 +592,17 @@ export class InteractionFactory {
           },
         },
       });
+    });
+
+    // 2.8. handle federation
+    router.post("/federate", parseContext, async (ctx, next) => {
+      const {user, client, interaction} = ctx.locals as InteractionRequestContext;
+      ctx.assert(interaction.prompt.name === "login" || interaction.prompt.name === "consent", "Invalid Request.");
+    });
+
+    router.get("/federate/:provider", parseContext, async (ctx, next) => {
+      const {user, client, interaction} = ctx.locals as InteractionRequestContext;
+      ctx.assert(interaction.prompt.name === "login" || interaction.prompt.name === "consent", "Invalid Request.");
     });
 
     // 3. handle consent
@@ -637,7 +648,7 @@ export class InteractionFactory {
               url: url(`/login`),
               method: "GET",
               data: {
-                change: true,
+                change_account: true,
               },
               urlencoded: true,
             },

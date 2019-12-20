@@ -1,14 +1,14 @@
 import path from "path";
-import { DataTypes, FindOptions, RDBMSManager, RDBMSManagerOptions } from "../../../helper/rdbms";
+import { FindOptions, Sequelize, Op, WhereAttributeHash, RDBMSManager, RDBMSManagerOptions, Transaction } from "../../../helper/rdbms";
 import { IDPAdapter, IDPAdapterProps } from "../adapter";
 import { IdentityMetadata } from "../../metadata";
 import { Identity } from "../../identity";
 import { IdentityClaimsSchema } from "../../claims";
 import * as _ from "lodash";
-import { OIDCAccountClaims, OIDCAccountCredentials } from "../../../oidc";
-import { Errors } from "../../error";
-
-// const {STRING, JSON, DATE} = DataTypes;
+import { OIDCAccountClaims, OIDCAccountClaimsFilter, OIDCAccountCredentials } from "../../../oidc";
+import { defineAdapterModels } from "./model";
+import bcrypt from "bcrypt";
+import DataLoader from "dataloader";
 
 export type IDP_RDBMS_AdapterOptions = RDBMSManagerOptions;
 
@@ -34,6 +34,9 @@ export class IDP_RDBMS_Adapter extends IDPAdapter {
   public async start(): Promise<void> {
     // await this.manager.rollback({ to: 0 }); // uncomment this line to develop migrations scripts
     await this.manager.migrate();
+
+    // define models
+    await defineAdapterModels(this.manager);
     await super.start();
   }
 
@@ -42,279 +45,272 @@ export class IDP_RDBMS_Adapter extends IDPAdapter {
     await super.stop();
   }
 
-  /* fetch */
-  public async find(args: { id?: string, email?: string, phone_number?: string }, metadata: Partial<IdentityMetadata>): Promise<Identity | void> {
-    // find identity by id, email, phone
-    let foundId: string = "";
-    if (args.id) {
-      const schema = await this.getClaimsSchema({key: "sub", active: true}) as IdentityClaimsSchema;
-      for (const [id, claims] of this.identityClaimsMap.entries()) {
-        if (claims.some(c => c.key === "sub" && c.value === args.id && c.schemaVersion === schema.version)) {
-          foundId = id;
-          break;
-        }
-      }
-    } else if (args.email) {
-      const schema = await this.getClaimsSchema({key: "email", active: true}) as IdentityClaimsSchema;
-      for (const [id, claims] of this.identityClaimsMap.entries()) {
-        if (claims.some(c => c.key === "email" && c.value === args.email && c.schemaVersion === schema.version)) {
-          foundId = id;
-          break;
-        }
-      }
-    } else if (args.phone_number) {
-      const schema = await this.getClaimsSchema({key: "phone_number", active: true}) as IdentityClaimsSchema;
-      for (const [id, claims] of this.identityClaimsMap.entries()) {
-        if (claims.some(c => c.key === "phone_number" && c.value === args.phone_number && c.schemaVersion === schema.version)) {
-          foundId = id;
-          break;
-        }
-      }
-    }
+  /* fetch from synced cache */
+  public get IdentityCache() {
+    return this.manager.getModel("IdentityCache")!;
+  }
 
-    if (foundId) {
-      const identity = new Identity({
-        id: foundId,
-        adapter: this,
+  // args will be like { claims:{}, metadata:{}, ... }
+  public async find(args: WhereAttributeHash): Promise<Identity | void> {
+    return this.IdentityCache.findOne({where: args, attributes: ["id"]})
+      .then(raw => {
+        if (!raw) return;
+        return new Identity({
+          id: raw.get("id") as string,
+          adapter: this,
+        });
       });
-
-      // filter by metadata
-      if (typeof metadata.softDeleted !== "undefined") {
-        const identityMetadata = await identity.metadata();
-        if (identityMetadata.softDeleted !== metadata.softDeleted) {
-          return;
-        }
-      }
-
-      return identity;
-    }
   }
 
-  // only support offset, limit
-  public async get(args: FindOptions, metadata: Partial<IdentityMetadata>): Promise<Identity[]> {
-    const identities = [...this.identityMetadataMap.keys()]
-      .map(id => new Identity({id, adapter: this}));
+  // args will be like { claims:{}, metadata:{}, ... }
+  public async count(args: WhereAttributeHash): Promise<number> {
+    return this.IdentityCache.count({where: args});
+  }
 
-    return identities
-      .slice(
-        args.offset || 0,
-        typeof args.limit === "undefined" ? identities.length : args.limit,
+  // args will be like { where: { claims:{}, metadata:{}, ...}, offset: 0, limit: 100, ... }
+  public async get(args: FindOptions): Promise<Identity[]> {
+    args.attributes = ["id"];
+    return this.IdentityCache.findAll(args)
+      .then(raws =>
+        raws.map(raw => {
+          return new Identity({
+            id: raw.get("id") as string,
+            adapter: this,
+          });
+        }),
       );
-  }
-
-  public async count(args: Omit<FindOptions, "limit" | "offset">, metadata: Partial<IdentityMetadata>): Promise<number> {
-    return this.identityMetadataMap.size;
-  }
-
-  /* create */
-  public async prepareToCreate(identity: Identity): Promise<void> {
-    this.identityClaimsMap.set(identity.id, []);
   }
 
   /* delete */
   public async delete(identity: Identity): Promise<boolean> {
-    if (!this.identityMetadataMap.has(identity.id)) return false;
-
-    this.identityMetadataMap.delete(identity.id);
-    this.identityClaimsMap.delete(identity.id);
-    this.identityCredentialsMap.delete(identity.id);
-    return true;
+    const where: WhereAttributeHash = {id: identity.id};
+    let count = await this.IdentityMetadata.destroy({where});
+    count += await this.IdentityClaims.destroy({where});
+    count += await this.IdentityClaimsCache.destroy({where});
+    count += await this.IdentityCredentials.destroy({where});
+    return count > 0;
   }
 
   /* metadata */
-  private readonly identityMetadataMap = new Map<string, IdentityMetadata>();
-
-  public async updateMetadata(identity: Identity, metadata: Partial<IdentityMetadata>): Promise<void> {
-    const old = this.identityMetadataMap.get(identity.id);
-    this.identityMetadataMap.set(identity.id, _.defaultsDeep(metadata, old || {}) as IdentityMetadata);
+  public get IdentityMetadata() {
+    return this.manager.getModel("IdentityMetadata")!;
   }
 
-  public async metadata(identity: Identity): Promise<IdentityMetadata> {
-    return this.identityMetadataMap.get(identity.id)!;
-  }
-
-  /* claims cache */
-  private readonly claimsCacheMap = new Map<string, Map<string, OIDCAccountClaims>>();
-
-  public async setClaimsCache(identity: Identity, cacheKey: string, claims: OIDCAccountClaims): Promise<void> {
-    let cache = this.claimsCacheMap.get(identity.id);
-    if (!cache) {
-      cache = new Map<string, OIDCAccountClaims>();
-      this.claimsCacheMap.set(identity.id, cache);
+  public async createOrUpdateMetadata(identity: Identity, metadata: Partial<IdentityMetadata>): Promise<void> {
+    const [model, created] = await this.IdentityMetadata.findOrCreate({
+      where: {id: identity.id},
+      defaults: {data: metadata},
+    });
+    if (!created) {
+      await model.update({
+        data: _.defaultsDeep(metadata, (model.get({plain: true}) as any).data as IdentityMetadata || {}),
+      });
     }
-    cache.set(cacheKey, claims);
   }
 
-  public async getClaimsCache(identity: Identity, cacheKey: string): Promise<OIDCAccountClaims | void> {
-    let cache = this.claimsCacheMap.get(identity.id);
-    if (!cache) {
-      cache = new Map<string, OIDCAccountClaims>();
-      this.claimsCacheMap.set(identity.id, cache);
-      return;
-    }
-    return cache.get(cacheKey);
-  }
-
-  public async clearClaimsCache(identity?: Identity): Promise<void> {
-    if (identity) {
-      this.claimsCacheMap.delete(identity.id);
-    } else {
-      this.claimsCacheMap.clear();
-    }
+  public async getMetadata(identity: Identity): Promise<IdentityMetadata | void> {
+    return this.IdentityMetadata.findOne({where: {id: identity.id}})
+      .then(raw => raw ? raw.get("data") as IdentityMetadata : undefined);
   }
 
   /* claims */
-  private readonly identityClaimsMap = new Map<string, Array<{ key: string; value: any; schemaVersion: string }>>();
-
-  public async putClaimsVersion(identity: Identity, claims: Array<{ key: string; value: any; schemaVersion: string }>, migrationKey?: string): Promise<void> {
-
-    const job = async () => {
-      const oldClaims = this.identityClaimsMap.get(identity.id)!;
-      for (const claim of claims) {
-        const oldClaim = oldClaims.find(c => c.key === claim.key && c.schemaVersion === claim.schemaVersion);
-        if (oldClaim) {
-          oldClaim.value = claim.value;
-        } else {
-          oldClaims.push(claim);
-        }
-      }
-    };
-
-    if (migrationKey) {
-      this.migrationJobsMap.get(migrationKey)!.push(job);
-    } else {
-      await job();
-    }
+  public get IdentityClaims() {
+    return this.manager.getModel("IdentityClaims")!;
   }
 
-  public async getClaimsVersion(identity: Identity, claims: Array<{ key: string; schemaVersion?: string }>): Promise<Partial<OIDCAccountClaims>> {
-    const foundClaims: Partial<OIDCAccountClaims> = {};
-    const storedClaims = this.identityClaimsMap.get(identity.id)!;
-    for (const {key, schemaVersion} of claims) {
-      const foundClaim = storedClaims.find(claim => {
-        if (key !== claim.key) return false;
-        if (typeof schemaVersion !== "undefined" && schemaVersion !== claim.schemaVersion) return false;
-        return true;
-      });
-      if (foundClaim) foundClaims[key] = foundClaim.value;
-    }
-    return foundClaims;
+  public async createOrUpdateVersionedClaims(identity: Identity, claims: Array<{ key: string; value: any; schemaVersion: string }>): Promise<void> {
+    await this.IdentityClaims.bulkCreate(
+      claims.map(({key, value, schemaVersion}) => ({id: identity.id, key, schemaVersion, value})),
+      {
+        fields: ["id", "key", "schemaVersion", "value"],
+        updateOnDuplicate: ["value"],
+      },
+    );
+  }
+
+  private readonly getVersionedClaimsLoader = new DataLoader<{ identity: Identity, claims: Array<{ key: string; schemaVersion?: string }> }, Partial<OIDCAccountClaims>>(
+    async (entries) => {
+      const where: WhereAttributeHash = {
+        id: entries.map(entry => entry.identity.id),
+        key: [...new Set(entries.reduce((keys, entry) => keys.concat(entry.claims.map(c => c.key)), [] as string[]))],
+      };
+      const foundClaimsList: Array<Partial<OIDCAccountClaims>> = new Array(entries.length).fill(null).map(() => ({}));
+      const raws = await this.IdentityClaims.findAll({where});
+      for (const raw of raws) {
+        const claim = raw.get({plain: true}) as { id: string, key: string, value: string, schemaVersion: string };
+        const entryIndex = entries.findIndex(e => e.identity.id === claim.id);
+        const entry = entries[entryIndex];
+        const foundClaims = foundClaimsList[entryIndex];
+        const specificVersion = entry.claims.find(c => c.key === claim.key)!.schemaVersion;
+        if (typeof specificVersion === "undefined" || specificVersion === claim.schemaVersion) {
+          foundClaims[claim.key] = claim.value;
+        }
+      }
+      return foundClaimsList;
+    },
+    {
+      cache: false,
+      maxBatchSize: 100,
+    },
+  );
+
+  public async getVersionedClaims(identity: Identity, claims: Array<{ key: string; schemaVersion?: string }>): Promise<Partial<OIDCAccountClaims>> {
+    return this.getVersionedClaimsLoader.load({identity, claims});
+    // const where: WhereAttributeHash = {
+    //   id: identity.id,
+    //   key: claims.map(c => c.key),
+    // };
+    //
+    // const foundClaims: Partial<OIDCAccountClaims> = {};
+    // await this.IdentityClaims.findAll({where})
+    //   .then(raws => {
+    //     raws.forEach(raw => {
+    //       const claim = raw.get({plain: true}) as { key: string, value: string, schemaVersion: string };
+    //       const specificVersion = claims.find(c => c.key === claim.key)!.schemaVersion;
+    //       if (typeof specificVersion === "undefined" || specificVersion === claim.schemaVersion) {
+    //         foundClaims[claim.key] = claim.value;
+    //       }
+    //     });
+    //   });
+    //
+    // return foundClaims;
+  }
+
+  /* cache */
+  public get IdentityClaimsCache() {
+    return this.manager.getModel("IdentityClaimsCache")!;
+  }
+
+  public async onClaimsUpdated(identity: Identity): Promise<void> {
+    const claims = await identity.claims();
+    // this.logger.info("sync indentity claims cache:", claims);
+    await this.IdentityClaimsCache.upsert({
+      id: identity.id,
+      data: claims,
+    });
   }
 
   /* credentials */
-  private readonly identityCredentialsMap = new Map<string, Partial<OIDCAccountCredentials>>();
+  public get IdentityCredentials() {
+    return this.manager.getModel("IdentityCredentials")!;
+  }
 
-  public async updateCredentials(identity: Identity, credentials: Partial<OIDCAccountCredentials>): Promise<boolean> {
-    const cred = this.identityCredentialsMap.get(identity.id);
-    if (cred && JSON.stringify(cred) === JSON.stringify(credentials)) return false;
+  public async createOrUpdateCredentials(identity: Identity, credentials: Partial<OIDCAccountCredentials>): Promise<boolean> {
+    const hashedCredentials: Partial<OIDCAccountCredentials> = {};
+    // hash credentials
+    if (credentials.password) {
+      hashedCredentials.password = await bcrypt.hash(credentials.password, 10);
+    }
 
-    this.identityCredentialsMap.set(identity.id, {...cred, ...credentials});
+    const [model, created] = await this.IdentityCredentials.findOrCreate({
+      where: {id: identity.id},
+      defaults: hashedCredentials,
+    });
+
+    if (!created) {
+      // not changed
+      if (await this.assertCredentials(identity, credentials)) return false;
+      await model.update(hashedCredentials);
+    }
     return true;
   }
 
   public async assertCredentials(identity: Identity, credentials: Partial<OIDCAccountCredentials>): Promise<boolean> {
-    const cred = this.identityCredentialsMap.get(identity.id);
-    if (!cred) return false;
-
-    for (const [type, value] of Object.entries(credentials)) {
-      if (cred[type as keyof OIDCAccountCredentials] !== value) return false;
+    const model = await this.IdentityCredentials.findOne({where: {id: identity.id}});
+    if (!model) {
+      return false;
     }
-    return true;
+
+    const hashedCredentials = model.get({plain: true}) as OIDCAccountCredentials;
+    if (credentials.password) {
+      return bcrypt.compare(credentials.password, hashedCredentials.password);
+    }
+
+    this.logger.error(`unimplemented credentials type: ${Object.keys(credentials)}`);
+    return false;
   }
 
   /* claims schema */
-  private readonly schemata = new Array<IdentityClaimsSchema>();
+  public get IdentityClaimsSchema() {
+    return this.manager.getModel("IdentityClaimsSchema")!;
+  }
 
-  public async putClaimsSchema(schema: IdentityClaimsSchema, migrationKey?: string): Promise<void> {
-    const job = async () => {
-      this.schemata.push(schema);
-    };
+  public async createClaimsSchema(schema: IdentityClaimsSchema): Promise<void> {
+    await this.IdentityClaimsSchema.upsert(schema);
+  }
 
-    if (migrationKey) {
-      this.migrationJobsMap.get(migrationKey)!.push(job);
-    } else {
-      await job();
-    }
+  public async forceDeleteClaimsSchema(key: string): Promise<void> {
+    await this.IdentityClaimsSchema.destroy({where: {key}});
   }
 
   public async getClaimsSchema(args: { key: string; version?: string; active?: boolean }): Promise<IdentityClaimsSchema | void> {
     const {key, version, active} = args;
-    return this.schemata.find(sch => {
-      if (key !== sch.key) return false;
-      if (typeof version !== "undefined" && version !== sch.version) return false;
-      if (typeof active !== "undefined" && active !== sch.active) return false;
-      return true;
-    });
+    const where: WhereAttributeHash = {key};
+
+    if (typeof version !== "undefined") {
+      where.version = version;
+    }
+    if (typeof active !== "undefined") {
+      where.active = active;
+    }
+
+    return this.IdentityClaimsSchema
+      .findOne({where})
+      .then(raw => raw ? raw.get({plain: true}) as IdentityClaimsSchema : undefined);
   }
 
-  public async setActiveClaimsSchema(args: { key: string; version: string }, migrationKey?: string): Promise<void> {
+  public async setActiveClaimsSchema(args: { key: string; version: string }): Promise<void> {
     const {key, version} = args;
-    const job = async () => {
-      this.schemata.forEach(sch => {
-        if (key !== sch.key) return;
-        sch.active = version === sch.version;
-      });
-    };
-
-    if (migrationKey) {
-      this.migrationJobsMap.get(migrationKey)!.push(job);
-    } else {
-      await job();
-    }
+    await this.IdentityClaimsSchema.update({active: Sequelize.literal(`version = '${version}'`)}, {where: {key}, fields: ["active"]});
   }
 
   public async getClaimsSchemata(args: { scope: string[], key?: string, version?: string, active?: boolean }): Promise<IdentityClaimsSchema[]> {
     const {scope, key, version, active} = args;
-    return this.schemata.filter(schema => {
-      if (scope.length !== 0 && !scope.includes(schema.scope)) return false;
-      if (typeof key !== "undefined" && key !== schema.key) return false;
-      if (typeof version !== "undefined" && version !== schema.version) return false;
-      if (typeof active !== "undefined" && active !== schema.active) return false;
-      return true;
+    const where: WhereAttributeHash = {};
+
+    if (scope.length !== 0) {
+      where.scope = scope;
+    }
+    if (typeof key !== "undefined") {
+      where.key = key;
+    }
+    if (typeof version !== "undefined") {
+      where.version = version;
+    }
+    if (typeof active !== "undefined") {
+      where.active = active;
+    }
+
+    return this.IdentityClaimsSchema
+      .findAll({where})
+      .then(raws => raws.map(raw => raw.get({plain: true}) as IdentityClaimsSchema));
+  }
+
+  /* transaction and migration lock for distributed system */
+  public async transaction(): Promise<Transaction> {
+    return this.manager.sequelize.transaction({
+      autocommit: false,
+      type: Transaction.TYPES.DEFERRED,
+      isolationLevel: Transaction.ISOLATION_LEVELS.READ_UNCOMMITTED,
     });
   }
 
-  /* transaction for migration */
-  private readonly migrationJobsMap = new Map<string, Array<() => Promise<void>>>();
-
-  public async beginMigration(key: string): Promise<void> {
-    const jobs = this.migrationJobsMap.get(key);
-    if (jobs) {
-      throw new Errors.MigrationError("Migration is already being processed.");
-    }
-    this.migrationJobsMap.set(key, []);
+  public get IdentityClaimsMigrationLock() {
+    return this.manager.getModel("IdentityClaimsMigrationLock")!;
   }
-
-  public async commitMigration(key: string): Promise<void> {
-    const jobs = this.migrationJobsMap.get(key);
-    if (!jobs) {
-      throw new Errors.MigrationError("There are no queued migration jobs to commit.");
-    }
-    await Promise.all(jobs.map(job => job()));
-    this.migrationJobsMap.delete(key);
-  }
-
-  public async rollbackMigration(key: string): Promise<void> {
-    const jobs = this.migrationJobsMap.get(key);
-    if (!jobs) {
-      throw new Errors.MigrationError("There are no queued migration jobs to rollback.");
-    }
-    this.migrationJobsMap.delete(key);
-  }
-
-  private readonly migrationLocksMap = new Map<string, boolean>();
 
   public async acquireMigrationLock(key: string): Promise<void> {
-    if (this.migrationLocksMap.get(key)) {
-      await new Promise(resolve => setTimeout(resolve, 1000));
+    const [lock, created] = await this.IdentityClaimsMigrationLock.findOrCreate({where: {key}});
+
+    // old lock found
+    if (!created) {
+      this.logger.info(`retry to acquire migration lock after 5s: ${key}`);
+      await new Promise(resolve => setTimeout(resolve, 5 * 1000));
       return this.acquireMigrationLock(key);
     }
-
-    this.migrationLocksMap.set(key, true);
   }
 
   public async releaseMigrationLock(key: string): Promise<void> {
-    this.migrationLocksMap.delete(key);
-    this.migrationJobsMap.delete(key);
+    await this.IdentityClaimsMigrationLock.destroy({where: {key}});
   }
 }

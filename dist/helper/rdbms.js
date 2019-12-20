@@ -7,9 +7,7 @@ const readline_1 = tslib_1.__importDefault(require("readline"));
 const umzug_1 = tslib_1.__importDefault(require("umzug"));
 const sequelize_1 = require("sequelize");
 // ref: https://sequelize.org/v5/manual/
-var sequelize_2 = require("sequelize");
-exports.DataTypes = sequelize_2.DataTypes;
-exports.Op = sequelize_2.Op;
+tslib_1.__exportStar(require("sequelize"), exports);
 const DontSync = (() => {
     throw new Error("shall not use sync: try to create migration scripts!");
 });
@@ -21,7 +19,8 @@ class RDBMSManager {
         this.rl = readline_1.default.createInterface(process.stdin, process.stdout);
         this.logger = props.logger || console;
         // apply default options
-        const log = this.logger[opts.sqlLogLevel || "debug"] || this.logger.debug;
+        const log = opts.sqlLogLevel === "none" ? () => {
+        } : (this.logger[opts.sqlLogLevel || "debug"] || this.logger.debug);
         const defaults = {
             logging: (sql) => log(sql),
             logQueryParameters: true,
@@ -46,6 +45,9 @@ class RDBMSManager {
                 path: this.props.migrationDirPath || __dirname,
             },
         });
+    }
+    get sequelize() {
+        return this.seq;
     }
     define(name, attr, opts) {
         const model = this.seq.define(name, attr, opts);
@@ -72,8 +74,7 @@ class RDBMSManager {
             console.log(kleur.bgRed(`
 ============================[ROLLBACK COMMAND INVOKED]====================================
        ROLLBACK IS A DESTRUCTIVE COMMAND. BE CAREFUL TO NOT TO BEING DEPLOYED AS IS
-==========================================================================================`));
-            console.log();
+==========================================================================================`) + "\n");
             return new Promise((resolve, reject) => {
                 this.rl.question(`Rollback ${this.migrationTableLabel} with option ${opts ? JSON.stringify(opts) : "(ALL)"}? (yes/y)\n`, (answer) => tslib_1.__awaiter(this, void 0, void 0, function* () {
                     try {
@@ -126,7 +127,8 @@ class RDBMSManager {
                         return this.acquireLock(task);
                     }
                 }
-                catch (_a) { }
+                catch (_a) {
+                }
                 // if lock table exists, retry after 5-10s
                 const waitTime = Math.ceil(10000 * (Math.random() + 0.5));
                 deadLockTimer -= waitTime;

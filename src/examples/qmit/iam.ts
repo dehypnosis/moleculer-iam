@@ -36,7 +36,7 @@ broker.createService(
     },
     server: {
       http: {
-        hostname: "0.0.0.0",
+        hostname: "localhost",
         port: 8080,
       },
     },

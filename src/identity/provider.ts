@@ -7,7 +7,8 @@ import { IDPAdapter, IDPAdapterConstructors, IDPAdapterConstructorOptions } from
 import { OIDCAccountClaims, OIDCAccountCredentials } from "../oidc";
 import { IdentityClaimsManager, IdentityClaimsManagerOptions } from "./claims";
 import { IdentityMetadata } from "./metadata";
-import { validator } from "../validator";
+import { validator, ValidationError } from "../validator";
+import { WhereAttributeHash } from "sequelize";
 
 export type IdentityProviderProps = {
   logger?: Logger,
@@ -30,7 +31,6 @@ export class IdentityProvider {
         type: "Memory",
         options: {},
       },
-      claims: [],
     });
 
     // create adapter
@@ -87,44 +87,65 @@ export class IdentityProvider {
   }
 
   /* fetch account */
-  public async find(args: { id?: string, email?: string, phone_number?: string }, metadata: Partial<IdentityMetadata> = {softDeleted: false}): Promise<Identity> {
+  // args will be like { claims:{}, metadata:{}, ...}
+  public readonly validateFindArgs = validator.compile({
+    email: {
+      type: "email",
+      normalize: true,
+      optional: true,
+    },
+    phone_number: {
+      type: "phone",
+      optional: true,
+    },
+  });
 
-    // validate args to normalize email and phone number
-    const result = validator.validate(args, {
-      id: {
-        type: "string",
-        optional: true,
-      },
-      email: {
-        type: "email",
-        normalize: true,
-        optional: true,
-      },
-      phone_number: {
-        type: "phone",
-        optional: true,
-      },
-    });
-
-    if (result !== true) {
-      throw new Errors.ValidationError(result);
+  public async find(args: WhereAttributeHash): Promise<Identity> {
+    // set softDeleted=false
+    if (!(args as any).metadata || typeof (args as any).metadata === "undefined") {
+      if (!(args as any).metadata) (args as any).metadata = {};
+      (args as any).metadata.softDeleted = false;
     }
 
-    const identity = await this.adapter.find(args, metadata);
+    // validate args to normalize email and phone number
+    if ((args as any).claims) {
+      const result = this.validateFindArgs((args as any).claims);
+      if (result !== true) {
+        throw new Errors.ValidationError(result);
+      }
+    }
+
+    const identity = await this.adapter.find(args);
     if (!identity) throw new Errors.IdentityNotExistsError();
     return identity;
   }
 
-  public async get(args?: FindOptions, metadata: Partial<IdentityMetadata> = {softDeleted: false}): Promise<Identity[]> {
-    return this.adapter.get({offset: 0, limit: 10, ...args}, metadata);
+  // args will be like { claims:{}, metadata:{}, ...}
+  public async count(args?: WhereAttributeHash): Promise<number> {
+    // set softDeleted=false
+    if (!args || !(args as any).metadata || typeof (args as any).metadata === "undefined") {
+      if (!args) args = {};
+      if (!(args as any).metadata) (args as any).metadata = {};
+      (args as any).metadata.softDeleted = false;
+    }
+    return this.adapter.count(args);
   }
 
-  public async count(args: Omit<FindOptions, "offset" | "limit"> = {}, metadata: Partial<IdentityMetadata> = {softDeleted: false}): Promise<number> {
-    return this.adapter.count(args, metadata);
+  // args will be like { where: { claims:{}, metadata:{}, ...}, offset: 0, limit: 100, ... }
+  public async get(args?: FindOptions): Promise<Identity[]> {
+    args = {offset: 0, limit: 10, ...args};
+
+    // set softDeleted=false
+    if (!args.where || !(args.where as any).metadata || typeof (args.where as any).metadata === "undefined") {
+      if (!args.where) args.where = {};
+      if (!(args.where as any).metadata) (args.where as any).metadata = {};
+      (args.where as any).metadata.softDeleted = false;
+    }
+    return this.adapter.get(args);
   }
 
   /* create account */
-  public async create(args: { metadata: IdentityMetadata, scope: string[], claims: OIDCAccountClaims, credentials: Partial<OIDCAccountCredentials> }): Promise<Identity> {
+  public async create(args: { metadata: Partial<IdentityMetadata>, scope: string[], claims: OIDCAccountClaims, credentials: Partial<OIDCAccountCredentials> }): Promise<Identity> {
     // push mandatory scopes
     args.scope = [...new Set([...args.scope, ...this.claims.mandatoryScopes])];
     return this.adapter.create(args);

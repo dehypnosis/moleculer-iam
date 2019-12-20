@@ -33,4 +33,4 @@ module.exports = {
         }
     }),
 };
-//# sourceMappingURL=20191127022419-initialModels.js.map
+//# sourceMappingURL=20191127022419-initial-models.js.map

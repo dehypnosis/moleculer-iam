@@ -27,8 +27,7 @@ export const UserContextMenu: React.FunctionComponent<{
           styles={{
             root: {
               padding: "20px",
-              width: "100%",
-              minWidth: "320px",
+              width: "320px",
             },
           }}
           horizontalAlign={"center"}
@@ -43,7 +42,7 @@ export const UserContextMenu: React.FunctionComponent<{
             initialsColor={ThemeStyles.palette.themePrimary}
             styles={{
               root: {flexDirection: "column", height: "auto"},
-              details: {display: "block", textAlign: "center", paddingTop: "15px"},
+              details: {display: "block", textAlign: "center", paddingTop: "15px", maxWidth: "280px"},
             }}
           />
           {(!user || !hideManageAccount)

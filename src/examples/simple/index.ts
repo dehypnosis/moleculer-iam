@@ -16,9 +16,21 @@ const broker = new ServiceBroker({
 
 const serviceSchema = IAMServiceSchema({
   idp: {
+    adapter: {
+      // type: "Memory",
+      type: "RDBMS",
+      options: {
+        dialect: "mysql",
+        host: "mysql-dev.internal.qmit.pro",
+        database: "iam",
+        username: "iam",
+        password: "iam",
+        sqlLogLevel: "debug",
+      },
+    },
   },
   oidc: {
-    issuer: "http://0.0.0.0:8080",
+    issuer: "http://localhost:8080",
     devMode: true,
 
     adapter: {
@@ -48,7 +60,7 @@ const serviceSchema = IAMServiceSchema({
   },
   server: {
     http: {
-      hostname: "0.0.0.0",
+      hostname: "localhost",
       port: 8080,
     },
   },

@@ -105,7 +105,7 @@ export class IAMServer {
     }
 
     if (config.http || !this.https && !this.http2 && !this.http2s) {
-      const {hostname, port = 8080, ...opts} = config.http || {hostname: "0.0.0.0"};
+      const {hostname, port = 8080, ...opts} = config.http || {hostname: "localhost"};
       this.http = http.createServer(opts, handler);
       this.http.listen(port, hostname, undefined, this.listenCallback("http", "http", hostname, port));
     }

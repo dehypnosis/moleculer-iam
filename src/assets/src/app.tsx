@@ -36,7 +36,7 @@ export const App: React.FunctionComponent = () => {
                       iconProps: {
                         iconName: "UserSync",
                       },
-                      onClick: () => { signIn({prompt: "login"}); },
+                      onClick: () => { signIn({prompt: "login", change_account: true}); },
                     },
                     {
                       key: "setting",

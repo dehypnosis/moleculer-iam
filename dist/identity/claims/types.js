@@ -27,6 +27,7 @@ exports.IdentityClaimsSchemaPayloadValidationSchema = {
     `,
         alphadash: true,
         lowercase: true,
+        pattern: /^(?!(metadata)).*$/i,
         trim: true,
     },
     description: {

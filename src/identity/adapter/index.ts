@@ -1,7 +1,7 @@
 import { IDP_MemoryAdapter, IDP_MemoryAdapterOptions } from "./memory";
 import { IDP_RDBMS_Adapter, IDP_RDBMS_AdapterOptions } from "./rdbms";
 
-export { IDPAdapter } from "./adapter";
+export { IDPAdapter, Transaction } from "./adapter";
 
 export const IDPAdapterConstructors = {
   Memory: IDP_MemoryAdapter,

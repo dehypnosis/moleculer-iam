@@ -12,9 +12,11 @@ const idp = new IdentityProvider({
       database: "iam",
       username: "iam",
       password: "iam",
-      sqlLogLevel: "debug",
+      sqlLogLevel: "none",
     },
   },
 });
+
+jest.setTimeout(1000*60*4);
 
 doCommonAdapterTest(idp);
