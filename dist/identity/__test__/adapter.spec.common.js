@@ -94,10 +94,10 @@ function doCommonAdapterTest(idp) {
             yield expect(identity.metadata()).resolves.toEqual(expect.objectContaining({ test: 12345 }));
         }));
         it("identity could be fetched by id, email, phone_number", () => tslib_1.__awaiter(this, void 0, void 0, function* () {
-            yield expect(idp.find({ id: identity.id }).then(id => id.claims())).resolves.toEqual(expect.objectContaining({ sub: identity.id }));
-            yield expect(idp.find({ claims: { sub: identity.id } }).then(id => id.claims())).resolves.toEqual(expect.objectContaining({ sub: identity.id }));
-            yield expect(idp.find({ claims: { phone_number: "010 4477 1234" } }).then(id => id.claims())).resolves.toEqual(expect.objectContaining({ phone_number: "+82 10-4477-1234" }));
-            yield expect(idp.find({ claims: { email: testEmail } }).then(id => id.claims())).resolves.toEqual(expect.objectContaining({ email: testEmail.toLowerCase() }));
+            yield expect(idp.findOrFail({ id: identity.id }).then(id => id.claims())).resolves.toEqual(expect.objectContaining({ sub: identity.id }));
+            yield expect(idp.findOrFail({ claims: { sub: identity.id } }).then(id => id.claims())).resolves.toEqual(expect.objectContaining({ sub: identity.id }));
+            yield expect(idp.findOrFail({ claims: { phone_number: "010 4477 1234" } }).then(id => id.claims())).resolves.toEqual(expect.objectContaining({ phone_number: "+82 10-4477-1234" }));
+            yield expect(idp.findOrFail({ claims: { email: testEmail } }).then(id => id.claims())).resolves.toEqual(expect.objectContaining({ email: testEmail.toLowerCase() }));
         }));
         it("identities could be fetched", () => tslib_1.__awaiter(this, void 0, void 0, function* () {
             yield expect(idp.get({
@@ -276,7 +276,7 @@ function doCommonAdapterTest(idp) {
                 credentials: { password: "1234" },
             });
             yield expect(removal.delete(true)).resolves.not.toThrow();
-            yield expect(idp.find({ id: removal.id })).rejects.toThrow();
+            yield expect(idp.findOrFail({ id: removal.id })).rejects.toThrow();
         }));
     });
     afterAll(() => tslib_1.__awaiter(this, void 0, void 0, function* () {

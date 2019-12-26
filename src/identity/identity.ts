@@ -1,8 +1,7 @@
 import * as _ from "lodash";
 import { OIDCAccount, OIDCAccountClaims, OIDCAccountCredentials, OIDCClaimsInfo } from "../oidc";
-import { IDPAdapter } from "./adapter";
+import { IDPAdapter, Transaction } from "./adapter";
 import { defaultIdentityMetadata, IdentityMetadata } from "./metadata";
-import { validator } from "../validator";
 import { Errors } from "./error";
 
 export interface IdentityProps {
@@ -40,16 +39,21 @@ export class Identity<T extends { [key: string]: any } = {}> implements OIDCAcco
     });
   }
 
-  public async updateClaims(claims: Partial<OIDCAccountClaims>, scope: string | string[] = ""): Promise<void> {
-    const transaction = await this.props.adapter.transaction();
+  public async updateClaims(claims: Partial<OIDCAccountClaims>, scope: string | string[] = "", transaction?: Transaction): Promise<void> {
+    let isolated = false;
+    if (!transaction) {
+      isolated = true;
+      transaction = await this.props.adapter.transaction();
+    }
     try {
+      const scopeWithoutOpenID = (typeof scope === "string" ? scope.split(" ").filter(s => !!s) : scope).filter(s => s !== "openid");
       await this.props.adapter.createOrUpdateClaims(this, claims, {
-        scope: typeof scope === "string" ? scope.split(" ").filter(s => !!s) : scope,
-      }, true);
-      await this.props.adapter.onClaimsUpdated(this);
-      await transaction.commit();
+        scope: scopeWithoutOpenID,
+      }, transaction);
+      await this.props.adapter.onClaimsUpdated(this, transaction);
+      if (isolated) await transaction.commit();
     } catch (err) {
-      await transaction.rollback();
+      if (isolated) await transaction.rollback();
       throw err;
     }
   }
@@ -61,43 +65,30 @@ export class Identity<T extends { [key: string]: any } = {}> implements OIDCAcco
     return metadata;
   }
 
-  public async updateMetadata(metadata: Partial<IdentityMetadata>): Promise<void> {
-    await this.props.adapter.createOrUpdateMetadata(this, _.defaultsDeep(metadata, defaultIdentityMetadata));
+  public async updateMetadata(metadata: Partial<IdentityMetadata>, transaction?: Transaction): Promise<void> {
+    await this.props.adapter.createOrUpdateMetadata(this, _.defaultsDeep(metadata, defaultIdentityMetadata), transaction);
   }
 
   /* credentials */
-  // TODO: make credentials customizable...
-  private readonly testCredentials = validator.compile({
-    password: {
-      type: "string",
-      min: 4,
-      max: 16,
-      optional: true,
-    },
-  });
-
   public async validateCredentials(credentials: Partial<OIDCAccountCredentials>): Promise<void> {
-    const result = this.testCredentials(credentials);
-    if (result !== true) {
-      throw new Errors.ValidationError(result);
-    }
+    return this.props.adapter.validateCredentials(credentials);
   }
 
   public async assertCredentials(credentials: Partial<OIDCAccountCredentials>): Promise<boolean> {
-    return await this.props.adapter.assertCredentials(this, credentials);
+    return this.props.adapter.assertCredentials(this, credentials);
   }
 
-  public async updateCredentials(credentials: Partial<OIDCAccountCredentials>): Promise<boolean> {
-    await this.validateCredentials(credentials);
-    return this.props.adapter.createOrUpdateCredentials(this, credentials);
+  public async updateCredentials(credentials: Partial<OIDCAccountCredentials>, transaction?: Transaction): Promise<boolean> {
+    await this.props.adapter.validateCredentials(credentials);
+    return this.props.adapter.createOrUpdateCredentials(this, credentials, transaction);
   }
 
   /* delete identity */
-  public async delete(permanently: boolean = false): Promise<void> {
+  public async delete(permanently: boolean = false, transaction?: Transaction): Promise<void> {
     if (permanently) {
-      await this.props.adapter.delete(this);
+      await this.props.adapter.delete(this, transaction);
     } else {
-      await this.props.adapter.createOrUpdateMetadata(this, {softDeleted: true});
+      await this.props.adapter.createOrUpdateMetadata(this, {softDeleted: true}, transaction);
     }
   }
 
@@ -105,7 +96,7 @@ export class Identity<T extends { [key: string]: any } = {}> implements OIDCAcco
     return this.metadata().then(meta => meta.softDeleted);
   }
 
-  public async restoreSoftDeleted(): Promise<void> {
-    await this.props.adapter.createOrUpdateMetadata(this, {softDeleted: false});
+  public async restoreSoftDeleted(transaction?: Transaction): Promise<void> {
+    await this.props.adapter.createOrUpdateMetadata(this, {softDeleted: false}, transaction);
   }
 }

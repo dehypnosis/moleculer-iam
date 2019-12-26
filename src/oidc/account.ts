@@ -13,6 +13,7 @@ export type OIDCClaimsInfo = {
 
 export interface OIDCAccountCredentials {
   password: string;
+  password_confirmation?: string;
 }
 
 export type OIDCAccountClaimsFilter = {

@@ -28,7 +28,7 @@ const serviceSchema = __1.IAMServiceSchema({
         },
     },
     oidc: {
-        issuer: "http://0.0.0.0:8080",
+        issuer: "http://localhost:8080",
         devMode: true,
         adapter: {
             // type: "Memory",
@@ -51,10 +51,27 @@ const serviceSchema = __1.IAMServiceSchema({
         features: {
         // devInteractions: ({ enabled: true }) as never,
         },
+        // federation
+        federation: {
+        /*
+        kakao: {
+          clientID: "XXX",
+          clientSecret: "YYY",
+        },
+        google: {
+          clientID: "XXX",
+          clientSecret: "YYY",
+        },
+        facebook: {
+          clientID: "XXX",
+          clientSecret: "YYY",
+        },
+        */
+        },
     },
     server: {
         http: {
-            hostname: "0.0.0.0",
+            hostname: "localhost",
             port: 8080,
         },
     },

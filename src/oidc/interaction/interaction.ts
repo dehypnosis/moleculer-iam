@@ -1,13 +1,14 @@
 import Router, { IMiddleware } from "koa-router";
 import bodyParser from "koa-bodyparser";
 import noCache from "koajs-nocache";
+import moment from "moment";
 import { Identity, IdentityProvider } from "../../identity";
 import { Logger } from "../../logger";
 import { KoaContextWithOIDC, Provider, Configuration, Interaction, Client, interactionPolicy } from "../provider";
 import { ClientApplicationError, ClientApplicationRenderer } from "./app";
 import { getPublicClientProps, getPublicUserProps } from "./util";
-import moment from "moment";
 import { Errors } from "../../identity/error";
+import { IdentityFederationManager, IdentityFederationManagerOptions } from "./federation";
 
 /*
 * can add more user interactive features (prompts) into base policy which includes login, consent prompts
@@ -16,10 +17,19 @@ import { Errors } from "../../identity/error";
 * ROUTE:        https://github.com/panva/node-oidc-provider/blob/06940e52ec5281d33bac2208fc014ac5ac741d5a/example/routes/koa.js
 */
 
+/*
+TODO: refactor all this mess into the IDP methods
+ */
+
 export type InteractionFactoryProps = {
   idp: IdentityProvider;
   app: ClientApplicationRenderer;
   logger: Logger;
+};
+
+export type InteractionFactoryOptions = {
+  federation: IdentityFederationManagerOptions;
+  devModeEnabled?: boolean;
 };
 
 export type InteractionRequestContext = {
@@ -31,7 +41,7 @@ export type InteractionRequestContext = {
 export class InteractionFactory {
   private readonly router: Router<any, any>;
 
-  constructor(protected readonly props: InteractionFactoryProps) {
+  constructor(protected readonly props: InteractionFactoryProps, protected readonly opts: Partial<InteractionFactoryOptions> = {}) {
     // create router
     this.router = new Router({
       prefix: "/interaction",
@@ -94,7 +104,9 @@ export class InteractionFactory {
             status: 422,
             detail: err.fields.reduce((fields, e) => {
               const {field, message} = e;
-              if (!fields[field]) fields[field] = [];
+              if (!fields[field]) {
+                fields[field] = [];
+              }
               fields[field].push(message);
               return fields;
             }, {} as { [fieldName: string]: string[] }),
@@ -122,12 +134,12 @@ export class InteractionFactory {
       }
     });
 
-    const parseContext: IMiddleware = async (ctx: KoaContextWithOIDC, next) => {
+    const parseContext: IMiddleware = async (ctx: any, next) => {
       // fetch interaction details
       const interaction = await provider.interactionDetails(ctx.req, ctx.res);
 
       // fetch identity and client
-      const user = interaction.session ? (await idp.find({id: interaction.session!.accountId})) : undefined;
+      const user = interaction.session && interaction.session.accountId ? (await idp.findOrFail({id: interaction.session.accountId})) : undefined;
       const client = interaction.params.client_id ? (await provider.Client.find(interaction.params.client_id)) : undefined;
       const locals: InteractionRequestContext = {interaction, user, client};
       ctx.locals = locals;
@@ -154,22 +166,24 @@ export class InteractionFactory {
       const {user, client, interaction} = ctx.locals as InteractionRequestContext;
 
       // already signed in
-      const changeAccount = interaction.params.change_account || ctx.request.query.change_account;
+      const changeAccount = ctx.request.query.change_account || (interaction.params.change_account === true || interaction.params.change_account === "true" || interaction.params.change_account === 1);
       const autoLogin = !changeAccount && user && interaction.prompt.name !== "login";
       if (autoLogin) {
+        const login = {
+          account: user!.id,
+          remember: true,
+        };
+
         const redirect = await provider.interactionResult(ctx.req, ctx.res, {
-          // authentication/login prompt got resolved, omit if no authentication happened, i.e. the user
-          // cancelled
-          login: {
-            account: user!.id,
-            remember: true,
-            // acr: string, // acr value for the authentication
-            // remember: boolean, // true if provider should use a persistent cookie rather than a session one, defaults to true
-            // ts: number, // unix timestamp of the authentication, defaults to now()
-          },
+          ...interaction.result,
+          login,
         }, {
           mergeWithLastSubmission: true,
         });
+
+        // overwrite session
+        await provider.setProviderSession(ctx.req, ctx.res, login);
+
         return render(ctx, {redirect});
       }
 
@@ -206,18 +220,25 @@ export class InteractionFactory {
               data: {
                 phone_number: "",
                 callback: "login",
-                test: true,
+                registered: true,
               },
             },
             register: {
               url: url(`/register`),
               method: "POST",
+              data: {
+                name: "",
+                email: "",
+                password: "",
+                password_confirmation: "",
+              },
             },
             ...actions,
           },
           data: {
             user: user && !changeAccount ? await getPublicUserProps(user!) : undefined,
             client: client ? await getPublicClientProps(client) : undefined,
+            federationProviders: federation.availableProviders,
           },
         },
       });
@@ -233,7 +254,7 @@ export class InteractionFactory {
 
         // 2. fetch identity
         // tslint:disable-next-line:no-shadowed-variable
-        const user = await idp.find({claims: {email: email || ""}});
+        const user = await idp.findOrFail({claims: {email: email || ""}});
         return render(ctx, {
           interaction: {
             name: "login",
@@ -265,7 +286,7 @@ export class InteractionFactory {
       }
 
       // 4. check account and password
-      const user = await idp.find({claims: {email: email || ""}});
+      const user = await idp.findOrFail({claims: {email: email || ""}});
       if (!await user.assertCredentials({password: password || ""})) {
         throw new Errors.InvalidCredentialsError();
       }
@@ -280,8 +301,7 @@ export class InteractionFactory {
       };
 
       const redirect = await provider.interactionResult(ctx.req, ctx.res, {
-        // authentication/login prompt got resolved, omit if no authentication happened, i.e. the user
-        // cancelled
+        ...interaction.result,
         login,
       }, {
         mergeWithLastSubmission: true,
@@ -298,18 +318,22 @@ export class InteractionFactory {
     router.post("/verify_phone_number", parseContext, async ctx => {
       const {client, interaction} = ctx.locals as InteractionRequestContext;
 
-      // will not send message when 'test'
-      const {test = false} = ctx.request.body;
+      // 'registered' means verifying already registered phone number
+      const {registered = false} = ctx.request.body;
 
       // 1. assert user with the phone number
+      await idp.validate({scope: "phone", claims: ctx.request.body});
+
       const {callback, phone_number} = ctx.request.body;
       const user = await idp.find({claims: {phone_number: phone_number || ""}});
-      if (!user) {
+      if (registered && !user) {
         ctx.throw(400, "Not a registered phone number.");
+      } else if (!registered && user) {
+        ctx.throw(400, "Already registered phone number.");
       }
 
       // 3. check too much resend
-      if (!test && interaction && interaction.result && interaction.result.verifyPhoneNumber) {
+      if (interaction && interaction.result && interaction.result.verifyPhoneNumber) {
         const old = interaction.result.verifyPhoneNumber;
 
         if (old.phoneNumber === phone_number && old.expiresAt && moment().isBefore(old.expiresAt)) {
@@ -317,26 +341,25 @@ export class InteractionFactory {
         }
       }
 
-      // 4. create code
+      // 4. create and send code
       const expiresAt = moment().add(phoneNumberVerificationTimeoutSeconds, "s").toISOString();
       const code = Math.floor(Math.random() * 1000000).toString();
 
-      if (!test) {
-        // TODO: 4. send sms via adaptor props
+      // TODO: send sms via adaptor props
 
-        // 5. extend TTL and store the code
-        await interaction.save(moment().isAfter((interaction.exp / 1000) + 60 * 10, "s") ? interaction.exp + 60 * 10 : undefined);
-        await provider.interactionResult(ctx.req, ctx.res, {
-          verifyPhoneNumber: {
-            phoneNumber: phone_number,
-            callback,
-            code,
-            expiresAt,
-          },
-        }, {
-          mergeWithLastSubmission: true,
-        });
-      }
+      // 5. extend TTL and store the code
+      await interaction.save(moment().isAfter((interaction.exp / 1000) + 60 * 10, "s") ? interaction.exp + 60 * 10 : undefined);
+      await provider.interactionResult(ctx.req, ctx.res, {
+        ...interaction.result,
+        verifyPhoneNumber: {
+          phoneNumber: phone_number,
+          callback,
+          code,
+          expiresAt,
+        },
+      }, {
+        mergeWithLastSubmission: true,
+      });
 
       // 5. render with submit, resend endpoint
       return render(ctx, {
@@ -355,17 +378,13 @@ export class InteractionFactory {
               method: "POST",
               data: {
                 ...ctx.request.body,
-                test: false,
               },
             },
           },
           data: {
             phoneNumber: phone_number,
             timeoutSeconds: phoneNumberVerificationTimeoutSeconds,
-            // TODO: remove this
-            debug: {
-              code,
-            },
+            ...(this.opts.devModeEnabled ? {debug: {code}} : {}),
           },
         },
       });
@@ -393,28 +412,73 @@ export class InteractionFactory {
         }]);
       }
 
-      // 3. find user and update identity phone_verified
-      const user = await idp.find({claims: {phone_number: phoneNumber || ""}});
-      ctx.assert(user);
-      await user.updateClaims({phone_number_verified: true}, "phone");
-
-      // 4. process callback interaction
+      // 3. process callback interaction
       switch (callback) {
         case "login":
+          // find user and update identity phone_number_verified
+          const user = await idp.findOrFail({claims: {phone_number: phoneNumber || ""}});
+          await user.updateClaims({phone_number_verified: true}, "phone");
+
+          const login = {
+            account: user.id,
+            remember: true,
+            // acr: string, // acr value for the authentication
+            // remember: boolean, // true if provider should use a persistent cookie rather than a session one, defaults to true
+            // ts: number, // unix timestamp of the authentication, defaults to now()
+          };
+
           // make it user signed in
           const redirect = await provider.interactionResult(ctx.req, ctx.res, {
-            login: {
-              account: user.id,
-              remember: true,
-              // acr: string, // acr value for the authentication
-              // remember: boolean, // true if provider should use a persistent cookie rather than a session one, defaults to true
-              // ts: number, // unix timestamp of the authentication, defaults to now()
+            ...interaction.result,
+            login,
+            verifyPhoneNumber: null,
+          }, {
+            mergeWithLastSubmission: true,
+          });
+
+          // overwrite session
+          await provider.setProviderSession(ctx.req, ctx.res, login);
+
+          return render(ctx, {redirect});
+
+        case "register":
+          ctx.assert(interaction.result.register && interaction.result.register.claims && interaction.result.register.claims.phone_number);
+          const { claims } = interaction.result.register;
+
+          // store verified state
+          await provider.interactionResult(ctx.req, ctx.res, {
+            ...interaction.result,
+            register: {
+              ...interaction.result.register,
+              claims: {
+                ...claims,
+                phone_number_verified: true,
+              },
             },
             verifyPhoneNumber: null,
           }, {
             mergeWithLastSubmission: true,
           });
-          return render(ctx, {redirect});
+
+          // to complete register
+          return render(ctx, {
+            interaction: {
+              name: "register",
+              action: {
+                submit: {
+                  url: url(`/register`),
+                  method: "POST",
+                  data: {
+                    save: true,
+                  },
+                },
+              },
+              data: {
+                email: claims.email,
+                name: claims.name,
+              },
+            },
+          });
 
         default:
           ctx.throw(`Unimplemented verify_phone_number_callback: ${callback}`);
@@ -448,7 +512,7 @@ export class InteractionFactory {
       const payload = {
         email,
         callback,
-        user: await getPublicUserProps(user),
+        user: await getPublicUserProps(user as Identity),
         url: `${url("/verify_email_callback")}/${interaction.uid}`,
         expiresAt,
       };
@@ -459,6 +523,7 @@ export class InteractionFactory {
       // 6. extend TTL and store the state
       await interaction.save(moment().isAfter((interaction.exp / 1000) + 60 * 10, "s") ? interaction.exp + 60 * 10 : undefined);
       await provider.interactionResult(ctx.req, ctx.res, {
+        ...interaction.result,
         verifyEmail: {
           callback,
           email,
@@ -482,10 +547,7 @@ export class InteractionFactory {
           data: {
             email,
             timeoutSeconds: emailVerificationTimeoutSeconds,
-            // TODO: remove this
-            debug: {
-              payload,
-            },
+            ...(this.opts.devModeEnabled ? {debug: {payload}} : {}),
           },
         },
       });
@@ -501,8 +563,7 @@ export class InteractionFactory {
 
       // 2. assert user with the email
       const {email, callback} = interaction.result.verifyEmail;
-      const user = await idp.find({claims: {email: email || ""}});
-      ctx.assert(user);
+      const user = await idp.findOrFail({claims: {email: email || ""}});
 
       // 3. update identity email_verified as true
       await user.updateClaims({email_verified: true}, "email");
@@ -546,11 +607,14 @@ export class InteractionFactory {
       ctx.assert(interaction && interaction.result && interaction.result.resetPassword);
 
       // 2. assert user with the email
-      const user = await idp.find({claims: {email: interaction.result.resetPassword.email || ""}});
+      const user = await idp.findOrFail({claims: {email: interaction.result.resetPassword.email || ""}});
       ctx.assert(user);
 
       // 3. validate and update credentials
-      await user.updateCredentials({password: ctx.request.body.password || ""});
+      const updated = await user.updateCredentials({password: ctx.request.body.password || ""});
+      if (!updated) {
+        throw new Errors.UnexpectedError("credentials has not been updated.");
+      }
 
       // 4. forget verifyEmail state
       interaction.result.verifyEmail = null;
@@ -570,13 +634,156 @@ export class InteractionFactory {
 
     // 2.7. handle register submit
     router.post("/register", parseContext, async ctx => {
-      const {user, client, interaction} = ctx.locals as InteractionRequestContext;
+      const {client, interaction} = ctx.locals as InteractionRequestContext;
       ctx.assert(interaction.prompt.name === "login" || interaction.prompt.name === "consent", "Invalid Request.");
 
-      // extend TTL
+      // 1. extend TTL
       await interaction.save(moment().isAfter((interaction.exp / 1000) + 60 * 30, "s") ? interaction.exp + 60 * 30 : undefined);
 
+      // 2. enter email, name, password, password_confirmation
+      if (!interaction.result || !interaction.result.register || interaction.result.register.email || typeof ctx.request.body.email !== "undefined") {
+        // 2.1. assert user not exists
+        const user = await idp.find({claims: {email: ctx.request.body.email || ""}});
+        if (user) {
+          throw new Errors.IdentityAlreadyExistsError();
+        }
+
+        // 2.2. validate claims
+        const {email, name, password, password_confirmation} = ctx.request.body;
+        // tslint:disable-next-line:no-shadowed-variable
+        const claims = {email, name};
+        // tslint:disable-next-line:no-shadowed-variable
+        const credentials = {password, password_confirmation};
+        await idp.validate({scope: ["email", "profile"], claims, credentials});
+
+        // 2.3. store claims temporarily
+        await provider.interactionResult(ctx.req, ctx.res, {
+          ...interaction.result,
+          // consent was given by the user to the client for this session
+          register: {
+            claims,
+            credentials,
+          },
+        }, {
+          mergeWithLastSubmission: true,
+        });
+
+        return render(ctx, {
+          interaction: {
+            name: "register",
+            action: {
+              submit: {
+                url: url(`/register`),
+                method: "POST",
+                data: {
+                  phone_number: "",
+                  birthdate: "",
+                  gender: "",
+                },
+              },
+            },
+            data: {
+              ...claims,
+            },
+          },
+        });
+      }
+
+      ctx.assert(interaction.result.register);
+
+      // 3. enter phone_number, birthdate, gender
+      // tslint:disable-next-line:prefer-const
+      let {claims, credentials} = interaction.result.register;
+      if (!claims.birthdate || !claims.gender || typeof ctx.request.body.birthdate !== "undefined") {
+        // 3.1. validate claims
+        const {phone_number, birthdate, gender} = ctx.request.body;
+        claims = {...claims, birthdate, gender};
+        if (phone_number) {
+          const user = await idp.find({claims: {phone_number}});
+          if (user) {
+            throw new Errors.ValidationError([{
+              type: "duplicatePhoneNumber",
+              field: "phone_number",
+              message: `Already registered phone number.`,
+            }]);
+          }
+          claims.phone_number = phone_number;
+        }
+        await idp.validate({scope: ["email", "profile", "birthdate", "gender"].concat(phone_number ? ["phone"] : []), claims, credentials});
+
+        // 3.2. store claims temporarily
+        await provider.interactionResult(ctx.req, ctx.res, {
+          ...interaction.result,
+          // consent was given by the user to the client for this session
+          register: {
+            claims,
+            credentials,
+          },
+        }, {
+          mergeWithLastSubmission: true,
+        });
+      }
+
+      // 3.3. let verify phone number or submit
+      const shouldVerifyPhoneNumber = claims.phone_number && claims.phone_number_verified !== true;
+      if (shouldVerifyPhoneNumber) {
+        return render(ctx, {
+          interaction: {
+            name: "verify_phone_number",
+            action: {
+              send: {
+                url: url(`/verify_phone_number`),
+                method: "POST",
+                data: {
+                  phone_number: claims.phone_number,
+                  callback: "register",
+                  registered: false,
+                },
+              },
+            },
+            data: {
+              phoneNumber: claims.phone_number,
+            },
+          },
+        });
+      }
+
+      // 4. finish registration
+      let redirect: string|undefined;
+      if (ctx.request.body.save) {
+        // 4.1. create user
+        const identity = await idp.create({
+          scope: ["email", "profile", "birthdate", "gender"].concat(claims.phone_number ? ["phone"] : []),
+          claims,
+          credentials,
+          metadata: {},
+        });
+
+        // 4.2. let signed in
+        const login = {
+          account: identity.id,
+          remember: true,
+          // acr: string, // acr value for the authentication
+          // remember: boolean, // true if provider should use a persistent cookie rather than a session one, defaults to true
+          // ts: number, // unix timestamp of the authentication, defaults to now()
+        };
+
+        redirect = await provider.interactionResult(ctx.req, ctx.res, {
+          ...interaction.result,
+          login,
+          register: null,
+        }, {
+          mergeWithLastSubmission: true,
+        });
+
+        // overwrite session
+        await provider.setProviderSession(ctx.req, ctx.res, login);
+
+        // TODO: 5. send email which includes (email verification link) with adaptor props
+      }
+
       return render(ctx, {
+        redirect,
         interaction: {
           name: "register",
           action: {
@@ -584,25 +791,59 @@ export class InteractionFactory {
               url: url(`/register`),
               method: "POST",
               data: {
-                email: "",
-                password: "",
-                confirmPassword: "",
+                save: true,
               },
             },
+          },
+          data: {
+            email: claims.email,
+            name: claims.name,
           },
         },
       });
     });
 
     // 2.8. handle federation
+    const federation = new IdentityFederationManager({
+      logger,
+      idp,
+      callbackURL: providerName => url(`/federate/${providerName}`),
+    }, this.opts.federation);
+
     router.post("/federate", parseContext, async (ctx, next) => {
       const {user, client, interaction} = ctx.locals as InteractionRequestContext;
       ctx.assert(interaction.prompt.name === "login" || interaction.prompt.name === "consent", "Invalid Request.");
+
+      await federation.request(ctx.request.body.provider, ctx, next);
     });
 
     router.get("/federate/:provider", parseContext, async (ctx, next) => {
       const {user, client, interaction} = ctx.locals as InteractionRequestContext;
       ctx.assert(interaction.prompt.name === "login" || interaction.prompt.name === "consent", "Invalid Request.");
+
+      const federatedUser = await federation.callback(ctx.params.provider, ctx, next);
+      if (!federatedUser) {
+        throw new Errors.IdentityNotExistsError();
+      }
+
+      const login = {
+        account: federatedUser.id,
+        remember: true,
+        // acr: string, // acr value for the authentication
+        // remember: boolean, // true if provider should use a persistent cookie rather than a session one, defaults to true
+        // ts: number, // unix timestamp of the authentication, defaults to now()
+      };
+
+      // make user signed in
+      const redirect = await provider.interactionResult(ctx.req, ctx.res, {
+        ...interaction.result,
+        login,
+      });
+
+      // overwrite session
+      await provider.setProviderSession(ctx.req, ctx.res, login);
+
+      await render(ctx, {redirect});
     });
 
     // 3. handle consent
@@ -613,6 +854,7 @@ export class InteractionFactory {
       // 1. skip consent if client has such property
       if (client && client.skip_consent) {
         const redirect = await provider.interactionResult(ctx.req, ctx.res, {
+          ...interaction.result,
           // consent was given by the user to the client for this session
           consent: {
             rejectedScopes: [],
@@ -683,6 +925,7 @@ export class InteractionFactory {
 
       // 2. finish interaction and give redirection uri
       const redirect = await provider.interactionResult(ctx.req, ctx.res, {
+        ...interaction.result,
         // consent was given by the user to the client for this session
         consent: ctx.request.body,
       }, {

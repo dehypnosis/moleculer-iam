@@ -1,6 +1,7 @@
+import * as _ from "lodash";
 import { ServiceBroker } from "moleculer";
 import { createBrokerOptions } from "moleculer-qmit";
-import { IAMServiceSchema } from "../../";
+import { IAMServiceSchema, IAMServiceSchemaOptions } from "../../";
 import { config } from "./config";
 
 export const {isDebug, isDev} = config;
@@ -12,7 +13,7 @@ export const broker = new ServiceBroker(createBrokerOptions({
 
 // create IAM service
 broker.createService(
-  IAMServiceSchema({
+  IAMServiceSchema(_.defaultsDeep({
     idp: {
       claims: {
         mandatoryScopes: [
@@ -32,7 +33,6 @@ broker.createService(
       op_policy_uri: isDev ? "https://account.dev.qmit.pro/help/policy" : "https://account.qmit.pro/help/policy",
       op_tos_uri: isDev ? "https://account.dev.qmit.pro/help/tos" : "https://account.qmit.pro/help/tos",
       service_documentation: isDev ? "https://account.dev.qmit.pro/help" : "https://account.qmit.pro/help",
-      ...config.oidc,
     },
     server: {
       http: {
@@ -40,5 +40,5 @@ broker.createService(
         port: 8080,
       },
     },
-  }),
+  } as IAMServiceSchemaOptions, config.iam)),
 );

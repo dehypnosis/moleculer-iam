@@ -65,7 +65,7 @@ export const LoginInteractionFindEmail: React.FunctionComponent<{ oidc: OIDCInte
         value={phoneNumber}
         errorMessage={errors.phone_number}
         onChange={(e, v) => setPhoneNumber(v || "")}
-        onKeyUp={e => e.key === "Enter" && !loading && handleNext()}
+        onKeyUp={e => e.key === "Enter" && handleNext()}
         styles={TextFieldStyles.bold}
       />
     </OIDCInteractionPage>

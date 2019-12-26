@@ -36,6 +36,12 @@ class MigrationError extends IdentityProviderError {
         this.error_description = desc;
     }
 }
+class UnexpectedError extends IdentityProviderError {
+    constructor(message, status = 500) {
+        super(status, "unexpected_error");
+        this.error_description = message || "Unexpected Error";
+    }
+}
 exports.Errors = {
     IdentityProviderError,
     IdentityAlreadyExistsError,
@@ -43,5 +49,6 @@ exports.Errors = {
     InvalidCredentialsError,
     ValidationError,
     MigrationError,
+    UnexpectedError,
 };
 //# sourceMappingURL=error.js.map

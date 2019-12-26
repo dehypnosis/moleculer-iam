@@ -111,10 +111,10 @@ export function doCommonAdapterTest(idp: IdentityProvider) {
     });
 
     it("identity could be fetched by id, email, phone_number", async () => {
-      await expect(idp.find({id: identity.id}).then(id => id.claims())).resolves.toEqual(expect.objectContaining({sub: identity.id}));
-      await expect(idp.find({claims: {sub: identity.id}}).then(id => id.claims())).resolves.toEqual(expect.objectContaining({sub: identity.id}));
-      await expect(idp.find({claims: {phone_number: "010 4477 1234"}}).then(id => id.claims())).resolves.toEqual(expect.objectContaining({phone_number: "+82 10-4477-1234"}));
-      await expect(idp.find({claims: {email: testEmail}}).then(id => id.claims())).resolves.toEqual(expect.objectContaining({email: testEmail.toLowerCase()}));
+      await expect(idp.findOrFail({id: identity.id}).then(id => id.claims())).resolves.toEqual(expect.objectContaining({sub: identity.id}));
+      await expect(idp.findOrFail({claims: {sub: identity.id}}).then(id => id.claims())).resolves.toEqual(expect.objectContaining({sub: identity.id}));
+      await expect(idp.findOrFail({claims: {phone_number: "010 4477 1234"}}).then(id => id.claims())).resolves.toEqual(expect.objectContaining({phone_number: "+82 10-4477-1234"}));
+      await expect(idp.findOrFail({claims: {email: testEmail}}).then(id => id.claims())).resolves.toEqual(expect.objectContaining({email: testEmail.toLowerCase()}));
     });
 
     it("identities could be fetched", async () => {
@@ -314,7 +314,7 @@ export function doCommonAdapterTest(idp: IdentityProvider) {
         credentials: {password: "1234"},
       });
       await expect(removal.delete(true)).resolves.not.toThrow();
-      await expect(idp.find({id: removal.id})).rejects.toThrow();
+      await expect(idp.findOrFail({id: removal.id})).rejects.toThrow();
     });
   });
 

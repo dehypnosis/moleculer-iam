@@ -94,7 +94,7 @@ export class IDP_MemoryAdapter extends IDPAdapter {
   /* metadata */
   private readonly identityMetadataMap = new Map<string, IdentityMetadata>();
 
-  public async createOrUpdateMetadata(identity: Identity, metadata: Partial<IdentityMetadata>): Promise<void> {
+  public async createOrUpdateMetadata(identity: Identity, metadata: Partial<IdentityMetadata>, transaction?: Transaction): Promise<void> {
     const old = this.identityMetadataMap.get(identity.id);
     this.identityMetadataMap.set(identity.id, _.defaultsDeep(metadata, old || {}) as IdentityMetadata);
   }
@@ -122,7 +122,7 @@ export class IDP_MemoryAdapter extends IDPAdapter {
     }
   }
 
-  public async onClaimsUpdated(identity: Identity): Promise<void> {
+  public async onClaimsUpdated(identity: Identity, transaction?: Transaction): Promise<void> {
     // ...
   }
 
@@ -143,7 +143,7 @@ export class IDP_MemoryAdapter extends IDPAdapter {
   /* credentials */
   private readonly identityCredentialsMap = new Map<string, Partial<OIDCAccountCredentials>>();
 
-  public async createOrUpdateCredentials(identity: Identity, credentials: Partial<OIDCAccountCredentials>): Promise<boolean> {
+  public async createOrUpdateCredentials(identity: Identity, credentials: Partial<OIDCAccountCredentials>, transaction?: Transaction): Promise<boolean> {
     const cred = this.identityCredentialsMap.get(identity.id);
     if (cred && JSON.stringify(cred) === JSON.stringify(credentials)) return false;
 
@@ -164,7 +164,7 @@ export class IDP_MemoryAdapter extends IDPAdapter {
   /* claims schema */
   private schemata = new Array<IdentityClaimsSchema>();
 
-  public async createClaimsSchema(schema: IdentityClaimsSchema): Promise<void> {
+  public async createClaimsSchema(schema: IdentityClaimsSchema, transaction?: Transaction): Promise<void> {
     this.schemata.push(schema);
   }
 
@@ -182,7 +182,7 @@ export class IDP_MemoryAdapter extends IDPAdapter {
     });
   }
 
-  public async setActiveClaimsSchema(args: { key: string; version: string }): Promise<void> {
+  public async setActiveClaimsSchema(args: { key: string; version: string }, transaction?: Transaction): Promise<void> {
     const {key, version} = args;
     this.schemata.forEach(sch => {
       if (key !== sch.key) return;

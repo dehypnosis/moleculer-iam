@@ -14,7 +14,7 @@ class InternalInteractionConfigurationFactory {
             return tslib_1.__awaiter(this, void 0, void 0, function* () {
                 const oidc = ctx.oidc;
                 // fetch identity and client
-                const user = oidc.session ? yield idp.find({ id: oidc.session.accountId() }) : undefined;
+                const user = oidc.session ? yield idp.findOrFail({ id: oidc.session.accountId() }) : undefined;
                 const clientId = oidc.session.state.clientId;
                 const client = clientId ? (yield oidc.provider.Client.find(clientId)) : undefined;
                 return { user, client };

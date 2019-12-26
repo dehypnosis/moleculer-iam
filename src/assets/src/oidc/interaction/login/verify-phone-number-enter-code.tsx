@@ -3,6 +3,9 @@ import { useOIDCInteractionContext, OIDCInteractionData, OIDCInteractionPage, re
 import { TextFieldStyles, Text, TextField, Image, Stack } from "../../styles";
 import { useWithLoading } from "../hook";
 
+/* sub-pages */
+import { LoginInteractionRegisterComplete } from "./register-complete";
+
 export const LoginInteractionVerifyPhoneNumberEnterCode: React.FunctionComponent<{ oidc: OIDCInteractionData }> = ({oidc}) => {
   // states
   const context = useOIDCInteractionContext();
@@ -28,7 +31,7 @@ export const LoginInteractionVerifyPhoneNumberEnterCode: React.FunctionComponent
       code,
     });
 
-    const {error, redirect} = result;
+    const {error, redirect, interaction} = result;
     if (error) {
       if (error.status === 422) {
         setErrors(error.detail);
@@ -37,9 +40,21 @@ export const LoginInteractionVerifyPhoneNumberEnterCode: React.FunctionComponent
       }
     } else if (redirect) {
       window.location.assign(redirect);
-      await new Promise(() => {});
+      await new Promise(() => {
+      });
+    } else if (interaction) {
+      const result2 = await requestOIDCInteraction(interaction!.action!.submit);
+      // tslint:disable-next-line:no-shadowed-variable
+      const {error, redirect} = result2;
+      if (error) {
+        setErrors({global: error.message});
+      } else if (redirect) {
+        context.push(<LoginInteractionRegisterComplete oidc={result2}/>);
+      } else {
+        console.error("stuck to handle interaction:", result2);
+      }
     } else {
-      console.error("stuck in interaction");
+      console.error("stuck to handle interaction:", result);
     }
   }, [code]);
 
@@ -47,6 +62,7 @@ export const LoginInteractionVerifyPhoneNumberEnterCode: React.FunctionComponent
     const result = await requestOIDCInteraction(oidc.interaction!.action!.send);
 
     const {error, interaction} = result;
+    console.log(interaction);
     if (error) {
       setErrors({code: error.message});
     } else {
@@ -98,7 +114,7 @@ export const LoginInteractionVerifyPhoneNumberEnterCode: React.FunctionComponent
         errorMessage={errors.code}
         description={`${(Math.floor(remainingSeconds / 60)).toString().padStart(2, "0")}:${(remainingSeconds % 60).toString().padStart(2, "0")}`}
         onChange={(e, v) => setCode(v || "")}
-        onKeyUp={e => e.key === "Enter" && !loading && handleVerify()}
+        onKeyUp={e => e.key === "Enter" && handleVerify()}
         styles={TextFieldStyles.bold}
       />
     </OIDCInteractionPage>

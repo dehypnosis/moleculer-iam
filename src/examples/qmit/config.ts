@@ -10,7 +10,7 @@ export const config = vault(async (get, list) => {
     env,
     isDev,
     isDebug: !!process.env.APP_DEBUG,
-    oidc: (await get(`${isDev ? "dev" : "prod"}/data/iam`)).data,
+    iam: (await get(`${isDev ? "dev" : "prod"}/data/iam`)).data,
   };
 }, {
   uri: "https://vault.internal.qmit.pro",

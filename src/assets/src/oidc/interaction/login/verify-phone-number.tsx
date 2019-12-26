@@ -22,7 +22,7 @@ export const LoginInteractionVerifyPhoneNumber: React.FunctionComponent<{ oidc: 
       if (error.status === 422) {
         setErrors(error.detail);
       } else {
-        setErrors({phoneNumber: error.message});
+        setErrors({global: error.message});
       }
     } else {
       console.log(interaction);

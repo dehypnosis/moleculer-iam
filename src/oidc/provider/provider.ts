@@ -61,7 +61,7 @@ export class OIDCProvider {
       app: clientApp,
       logger,
       idp,
-    });
+    }, { federation: options.federation, devModeEnabled });
 
     /* create original provider */
     const config: OriginalProviderConfiguration = _.defaultsDeep({
@@ -90,7 +90,7 @@ export class OIDCProvider {
         // token is a reference to the token used for which a given account is being loaded,
         // it is undefined in scenarios where account claims are returned from authorization endpoint
         // ctx is the koa request context
-        return idp.find({id})
+        return idp.findOrFail({id})
           .catch(async err => {
             await ctx.oidc.session.destroy();
             throw err;
@@ -126,7 +126,7 @@ export class OIDCProvider {
       policy_uri: `${issuer}/help/policy`,
       tos_uri: `${issuer}/help/tos`,
       logo_uri: undefined,
-      redirect_uris: [issuer],
+      redirect_uris: [...new Set([issuer, "http://localhost:8181", "http://localhost:8080"])],
       post_logout_redirect_uris: [issuer],
       frontchannel_logout_uri: `${issuer}`,
       frontchannel_logout_session_required: true,
@@ -138,7 +138,7 @@ export class OIDCProvider {
     });
 
     /* create router */
-    const fns = [mount(this.original.app)];
+    const fns = [mount(this.original.app as any)];
     if (this.clientApp.router) {
       fns.push(this.clientApp.router);
     }

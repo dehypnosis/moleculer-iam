@@ -5,6 +5,7 @@ import { TextFieldStyles, ButtonStyles, ThemeStyles, Link, TextField, Stack, Pri
 /* sub pages */
 import { LoginInteractionEnterPassword } from "./password";
 import { LoginInteractionFindEmail } from "./find-email";
+import { LoginInteractionRegister } from "./register";
 import { useWithLoading } from "../hook";
 
 export const LoginInteraction: React.FunctionComponent<{ oidc: OIDCInteractionData }> = ({oidc}) => {
@@ -13,6 +14,7 @@ export const LoginInteraction: React.FunctionComponent<{ oidc: OIDCInteractionDa
   const [email, setEmail] = useState(oidc.interaction!.data.user ? oidc.interaction!.data.user.email : oidc.interaction!.action!.submit.data.email || "");
   const [optionsVisible, setOptionsVisible] = useState(false);
   const { loading, errors, setLoading, setErrors, withLoading } = useWithLoading();
+  const federationProviders: string[] = oidc.interaction!.data.federationProviders;
 
   // push password page right after mount when user session is alive
   useEffect(() => {
@@ -39,7 +41,7 @@ export const LoginInteraction: React.FunctionComponent<{ oidc: OIDCInteractionDa
   }, [email]);
 
   const handleSignUp = withLoading(async () => {
-    await requestOIDCInteraction(oidc.interaction!.action!.register);
+    context.push(<LoginInteractionRegister oidc={oidc}/>);
   }, []);
 
   const handleFindEmail = withLoading(async () => {
@@ -72,33 +74,46 @@ export const LoginInteraction: React.FunctionComponent<{ oidc: OIDCInteractionDa
       ]}
       error={errors.global}
       footer={
-        <>
-          <Separator><span style={{color: ThemeStyles.palette.neutralTertiary}}>OR</span></Separator>
-          {optionsVisible ? (
-            <Stack tokens={{childrenGap: 15}}>
-              <PrimaryButton checked={loading} styles={ButtonStyles.largeThin} text={"Login with KakaoTalk"} style={{flex: "1 1 auto", backgroundColor: "#ffdc00", color: "black"}} onClick={() => handleFederation("kakaotalk")}/>
-              <PrimaryButton checked={loading} styles={ButtonStyles.largeThin} text={"Login with Facebook"} style={{flex: "1 1 auto", backgroundColor: "#1876f2", color: "white"}} onClick={() => handleFederation("facebook")}/>
-              <Link onClick={() => !loading && handleFederation("google")} variant="small" style={{marginTop: "10px", color: ThemeStyles.palette.neutralTertiary}}>Login with Google</Link>
-            </Stack>
-          ) : (
-            <Link style={{color: ThemeStyles.palette.neutralTertiary}} onClick={() => setOptionsVisible(true)}>Find more login options?</Link>
-          )}
-        </>
+        federationProviders.length > 0 ? (
+          <>
+            <Separator><span style={{color: ThemeStyles.palette.neutralTertiary}}>OR</span></Separator>
+            {optionsVisible ? (
+              <Stack tokens={{childrenGap: 15}}>
+                {federationProviders.includes("kakao")
+                  ? <PrimaryButton checked={loading} styles={ButtonStyles.largeThin} text={"Login with Kakao"} style={{flex: "1 1 auto", backgroundColor: "#ffdc00", color: "black"}} onClick={() => handleFederation("kakao")}/>
+                  : null
+                }
+                {federationProviders.includes("facebook")
+                  ? <PrimaryButton checked={loading} styles={ButtonStyles.largeThin} text={"Login with Facebook"} style={{flex: "1 1 auto", backgroundColor: "#1876f2", color: "white"}} onClick={() => handleFederation("facebook")}/>
+                  : null
+                }
+                {federationProviders.includes("google")
+                  ? <Link onClick={() => handleFederation("google")} variant="small" style={{marginTop: "10px", color: ThemeStyles.palette.neutralTertiary}}>Login with Google</Link>
+                  : null
+                }
+              </Stack>
+            ) : (
+              <Link style={{color: ThemeStyles.palette.neutralTertiary}} onClick={() => setOptionsVisible(true)}>Find more login options?</Link>
+            )}
+          </>
+        ) : undefined
       }
     >
-      <TextField
-        label="Email"
-        type="text"
-        inputMode="email"
-        placeholder="Enter your email"
-        autoFocus
-        tabIndex={1}
-        value={email}
-        errorMessage={errors.email}
-        onChange={(e, v) => setEmail(v || "")}
-        onKeyUp={e => e.key === "Enter" && handleNext()}
-        styles={TextFieldStyles.bold}
-      />
+      <form onSubmit={(e) => { e.preventDefault(); handleNext(); }}>
+        <TextField
+          label="Email"
+          type="text"
+          inputMode="email"
+          placeholder="Enter your email"
+          autoFocus
+          tabIndex={1}
+          value={email}
+          errorMessage={errors.email}
+          onChange={(e, v) => setEmail(v || "")}
+          onKeyUp={e => e.key === "Enter" && handleNext()}
+          styles={TextFieldStyles.bold}
+        />
+      </form>
       <Link onClick={handleFindEmail} tabIndex={5} variant="small" style={{marginTop: "10px"}}>Forgot email?</Link>
     </OIDCInteractionPage>
   );

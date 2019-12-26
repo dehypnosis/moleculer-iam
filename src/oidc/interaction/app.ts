@@ -110,6 +110,16 @@ export class ClientApplicationRenderer {
       );
     }
 
+    fns.push(async (ctx, next) => {
+      await next();
+
+      // set 404 status as 200 for matched SPA path
+      if (ctx.status === 404 && await this.isValidPath(ctx.path)) {
+        ctx.status = 200;
+        return this.render(ctx);
+      }
+    });
+
     if (fns.length > 0) {
       this.router = compose(fns);
     }
@@ -145,11 +155,6 @@ export class ClientApplicationRenderer {
     }
 
     // response HTML (app)
-    // set 404 status as 200 for matched SPA path
-    if (props && props.error && props.error.status === 404 && await this.isValidPath(ctx.path)) {
-      ctx.status = 200;
-      props = undefined;
-    }
     ctx.type = contentTypes.HTML;
     ctx.status = error ? error.status : 200;
     return ctx.body = await this.renderHTML(props);

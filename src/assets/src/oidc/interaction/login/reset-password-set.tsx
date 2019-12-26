@@ -59,7 +59,7 @@ export const ResetPasswordInteraction: React.FunctionComponent<{ oidc: OIDCInter
         value={password}
         errorMessage={errors.password}
         onChange={(e, v) => setPassword(v || "")}
-        onKeyUp={e => e.key === "Enter" && !loading && handleSubmit()}
+        onKeyUp={e => e.key === "Enter" && handleSubmit()}
         styles={TextFieldStyles.bold}
       />
     </OIDCInteractionPage>

@@ -1,6 +1,6 @@
 import * as _ from "lodash";
 import { createContext, useContext, useLayoutEffect, useState } from "react";
-import { User, UserManager, UserManagerSettings } from "oidc-client";
+import { User, UserManager, UserManagerSettings, Log } from "oidc-client";
 
 export { User };
 
@@ -56,7 +56,7 @@ export const useUserContextFactory = (
 
     // ref: https://github.com/IdentityModel/oidc-client-js/wiki
     const client = new UserManager(_.defaultsDeep(oidc || {}, {
-      authority: "http://localhost:8080",
+      authority: window.location.origin, // should set oidc provider origin from cross site
       client_id: window.location.origin,
       redirect_uri: window.location.origin,
       post_logout_redirect_uri: window.location.origin,
@@ -66,10 +66,11 @@ export const useUserContextFactory = (
       scope: ["openid", "profile", "email", "phone", "offline_access"].join(" "),
       loadUserInfo: true,
       automaticSilentRenew: true,
+      monitorSession: true,
       checkSessionInterval: 1000,
     }));
 
-    // Log.logger = console;
+    Log.logger = console;
 
     const signIn = async (opts?: {
       redirectTo?: string,
@@ -82,7 +83,7 @@ export const useUserContextFactory = (
         state: redirectTo,
         useReplaceToNavigate: false,
         prompt, login_hint,
-        extraQueryParams: { change_account },
+        extraQueryParams: {change_account},
       });
       await new Promise(() => {
       });
@@ -118,35 +119,40 @@ export const useUserContextFactory = (
 
     client.getUser()
       .then(async (user) => {
-        if (user) {
-          setContext(ctx => ({...ctx, user: user!, loading: false}));
-        } else {
-          try {
-            if (location.hash) {
-              user = await client.signinRedirectCallback();
-              setContext(ctx => ({...ctx, user: user!}));
-              if (user.state) {
-                await changeLocation(user.state);
-              }
+        try {
+          // try sign in callback
+          if (location.hash) {
+            user = await client.signinRedirectCallback();
+            console.log(user);
+            setContext(ctx => ({...ctx, user: user!}));
+            if (user.state) {
+              await changeLocation(user.state);
             }
-          } catch (err) {
-            await client.clearStaleState();
-          } finally {
-            if (automaticSignIn && !user) {
-              await signIn({prompt: automaticSignIn});
-            } else {
-              try {
-                const signOutResult = await client.signoutRedirectCallback();
-                if (signOutResult.state) {
-                  await changeLocation(signOutResult.state);
-                }
-              } catch (err) {
-                // ...
-              }
-            }
-
-            setContext(ctx => ({...ctx, loading: false}));
           }
+        } catch (err) {
+          console.debug(err);
+        } finally {
+          // try automatic sign in
+          if (automaticSignIn && !user) {
+            await signIn({prompt: automaticSignIn});
+          } else {
+
+            // try sign out callback
+            try {
+              const signOutResult = await client.signoutRedirectCallback();
+              if (signOutResult.state) {
+                await changeLocation(signOutResult.state);
+              }
+            } catch (err) {
+              console.debug(err);
+            }
+          }
+
+          // clear old states
+          await client.clearStaleState();
+
+          // set loaded user
+          setContext(ctx => ({...ctx, user: user!, loading: false}));
         }
       });
   }, []);

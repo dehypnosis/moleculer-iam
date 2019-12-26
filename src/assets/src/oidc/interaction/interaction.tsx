@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { LoginInteractionRegisterStep2 } from "./login/register-step2";
 import { OIDCInteractionError, OIDCInteractionData } from "./types";
 import { OIDCInteractionContext } from "./context";
 import { AnimationStyles } from "../styles";

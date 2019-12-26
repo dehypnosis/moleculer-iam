@@ -35,7 +35,7 @@ export class InternalInteractionConfigurationFactory {
       const oidc = ctx.oidc as typeof ctx.state.oidc;
 
       // fetch identity and client
-      const user = oidc.session ? await idp.find({ id: oidc.session!.accountId() as string }) : undefined;
+      const user = oidc.session ? await idp.findOrFail({ id: oidc.session!.accountId() as string }) : undefined;
       const clientId = oidc.session!.state!.clientId;
       const client = clientId ? (await oidc.provider.Client.find(clientId)) : undefined;
       return { user, client };

@@ -9,6 +9,7 @@ import { IdentityClaimsManager, IdentityClaimsManagerOptions } from "./claims";
 import { IdentityMetadata } from "./metadata";
 import { validator, ValidationError } from "../validator";
 import { WhereAttributeHash } from "sequelize";
+import uuid from "uuid";
 
 export type IdentityProviderProps = {
   logger?: Logger,
@@ -88,7 +89,7 @@ export class IdentityProvider {
 
   /* fetch account */
   // args will be like { claims:{}, metadata:{}, ...}
-  public readonly validateFindArgs = validator.compile({
+  public readonly validateEmailOrPhoneNumber = validator.compile({
     email: {
       type: "email",
       normalize: true,
@@ -98,9 +99,9 @@ export class IdentityProvider {
       type: "phone",
       optional: true,
     },
-  });
+  }) as (args: {email?: string, phone_number?: string}) => ValidationError[] | true;
 
-  public async find(args: WhereAttributeHash): Promise<Identity> {
+  public async find(args: WhereAttributeHash): Promise<Identity | void> {
     // set softDeleted=false
     if (!(args as any).metadata || typeof (args as any).metadata === "undefined") {
       if (!(args as any).metadata) (args as any).metadata = {};
@@ -109,14 +110,20 @@ export class IdentityProvider {
 
     // validate args to normalize email and phone number
     if ((args as any).claims) {
-      const result = this.validateFindArgs((args as any).claims);
+      const result = this.validateEmailOrPhoneNumber((args as any).claims);
       if (result !== true) {
         throw new Errors.ValidationError(result);
       }
     }
 
-    const identity = await this.adapter.find(args);
-    if (!identity) throw new Errors.IdentityNotExistsError();
+    return this.adapter.find(args);
+  }
+
+  public async findOrFail(args: WhereAttributeHash): Promise<Identity> {
+    const identity = await this.find(args);
+    if (!identity) {
+      throw new Errors.IdentityNotExistsError();
+    }
     return identity;
   }
 
@@ -145,9 +152,22 @@ export class IdentityProvider {
   }
 
   /* create account */
-  public async create(args: { metadata: Partial<IdentityMetadata>, scope: string[], claims: OIDCAccountClaims, credentials: Partial<OIDCAccountCredentials> }): Promise<Identity> {
+  public async create(args: { metadata: Partial<IdentityMetadata>, scope: string[] | string, claims: Partial<OIDCAccountClaims>, credentials: Partial<OIDCAccountCredentials> }): Promise<Identity> {
+    if (args.claims && !args.claims.sub) {
+      args.claims.sub = uuid.v4();
+    }
+    if (typeof args.scope === "string") {
+      args.scope = args.scope.split(" ").map(s => s.trim()).filter(s => !!s);
+    }
     // push mandatory scopes
     args.scope = [...new Set([...args.scope, ...this.claims.mandatoryScopes])];
-    return this.adapter.create(args);
+    return this.adapter.create(args as any);
+  }
+
+  public async validate(args: { scope: string[] | string, claims: Partial<OIDCAccountClaims>, credentials?: Partial<OIDCAccountCredentials> }): Promise<void> {
+    if (typeof args.scope === "string") {
+      args.scope = args.scope.split(" ").map(s => s.trim()).filter(s => !!s);
+    }
+    return this.adapter.validate(args as any);
   }
 }

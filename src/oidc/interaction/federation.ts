@@ -1,11 +1,13 @@
+import * as _ from "lodash";
 import { Context } from "koa";
-import { Profile, Strategy, Authenticator } from "passport";
+import { Profile, Authenticator } from "passport";
 import { KoaPassport } from "koa-passport";
 import { Identity, IdentityProvider } from "../../identity";
 import { Logger } from "../../logger";
 import { Errors } from "../../identity/error";
+import { defaultIdentityFederationManagerOptions, Strategies, FederationCallback, IdentityFederationManagerOptions } from "./federation_options";
 
-import { IOAuth2StrategyOption as GoogleOptions, OAuth2Strategy as GoogleStrategy } from "passport-google-oauth";
+export * from "./federation_options";
 
 export type IdentityFederationManagerProps = {
   idp: IdentityProvider,
@@ -13,31 +15,28 @@ export type IdentityFederationManagerProps = {
   logger?: Logger,
 };
 
-export type FederationCallback = (idp: IdentityProvider, profile: Profile) => Promise<Identity>;
-
-export type IdentityFederationManagerOptions = {
-  google?: Omit<GoogleOptions, "callbackURL"> & { scope: string[], callback: FederationCallback },
-};
-
-const Strategies: {[provider: string]: new(opts: any, callback: any) => Strategy} = {
-  google: GoogleStrategy,
-};
-
 export class IdentityFederationManager {
   private readonly logger: Logger;
   private readonly passport: Authenticator;
-  private readonly scopes: {[provider: string]: string[] } = {};
+  private readonly scopes: { [provider: string]: string[] } = {};
+  private readonly callbacks: { [provider: string]: FederationCallback } = {};
 
   constructor(protected readonly props: IdentityFederationManagerProps, opts: IdentityFederationManagerOptions = {}) {
     this.logger = props.logger || console;
 
     this.passport = new KoaPassport() as any;
 
+    opts = _.defaultsDeep(opts, defaultIdentityFederationManagerOptions);
+
     for (const [provider, options] of Object.entries(opts)) {
+      if (!options || !options.clientID) {
+        continue;
+      }
       const callbackURL = props.callbackURL(provider);
-      const { scope, callback, ...providerOpts } = options!;
-      this.logger.info(`enable identity federation from ${provider} with ${scope.join(", ")} scopes: ${callbackURL}`);
-      this.scopes[provider] = scope;
+      const {scope, callback, ...providerOpts} = options!;
+      this.scopes[provider] = typeof scope === "string" ? scope.split(" ").map(s => s.trim()).filter(s => !!s) : scope!;
+      this.callbacks[provider] = callback!;
+      this.logger.info(`enable identity federation from ${provider} with ${this.scopes[provider].join(", ")} scopes: ${callbackURL}`);
       this.passport.use(
         new (Strategies[provider])(
           {
@@ -46,11 +45,7 @@ export class IdentityFederationManager {
           },
           async (accessToken: string, refreshToken: string, profile: Profile, done: any) => {
             try {
-              const identity = await callback(props.idp, profile);
-              if (!identity) {
-                throw new Errors.IdentityNotExistsError();
-              }
-              done(null, identity);
+              done(null, {accessToken, profile});
             } catch (error) {
               done(error, null);
             }
@@ -60,19 +55,56 @@ export class IdentityFederationManager {
     }
   }
 
-  public async federate(provider: string, ctx: Context, next: () => Promise<Identity>) {
+  public get availableProviders(): string[] {
+    return Object.keys(this.scopes);
+  }
+
+  public async request(provider: string, ctx: Context, next: () => Promise<void>): Promise<void> {
     return new Promise((resolve, reject) => {
       this.passport.authenticate(provider, {
         scope: this.scopes[provider],
         session: false,
         failWithError: true,
-      }, (err: any, identity?: Identity) => {
-        if (err) {
-          return reject(err);
-        }
-        return resolve(identity);
+        prompt: "consent",
       })(ctx, next)
-        .catch(reject);
+        .catch(reject)
+        .then(resolve);
+    });
+  }
+
+  public async callback(provider: string, ctx: Context, next: () => Promise<void>): Promise<Identity> {
+    return new Promise((resolve, reject) => {
+      this.passport.authenticate(provider, {
+        scope: this.scopes[provider],
+        session: false,
+        failWithError: true,
+        prompt: "consent",
+      }, async (err: any, args: { accessToken: string, profile: Profile }) => {
+        try {
+          if (err) {
+            throw err;
+          }
+
+          const identity = await this.callbacks[provider]({
+            idp: this.props.idp,
+            logger: this.logger,
+            scope: this.scopes[provider],
+            ...args,
+          });
+
+          if (!identity) {
+            throw new Errors.IdentityNotExistsError();
+          }
+          resolve(identity);
+        } catch (error) {
+          this.logger.error(error);
+          reject(error);
+        }
+      })(ctx, next)
+        .catch((err: any) => {
+          this.logger.error(err);
+          reject(err);
+        });
     });
   }
 }

@@ -3,6 +3,7 @@ import { InternalInteractionConfiguration, InternalInteractionConfigurationKeys 
 export * from "./app";
 export * from "./internal";
 export * from "./interaction";
+export * from "./federation";
 
 export type InteractionConfigurationKeys = "interactions" | InternalInteractionConfigurationKeys;
 export type InteractionConfiguration = InternalInteractionConfiguration & {

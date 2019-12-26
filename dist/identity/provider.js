@@ -6,7 +6,7 @@ const error_1 = require("./error");
 const adapter_1 = require("./adapter");
 const claims_1 = require("./claims");
 const validator_1 = require("../validator");
-const federation_1 = require("./federation");
+const uuid_1 = tslib_1.__importDefault(require("uuid"));
 class IdentityProvider {
     constructor(props, opts) {
         this.props = props;
@@ -14,7 +14,7 @@ class IdentityProvider {
         this.working = false;
         /* fetch account */
         // args will be like { claims:{}, metadata:{}, ...}
-        this.validateFindArgs = validator_1.validator.compile({
+        this.validateEmailOrPhoneNumber = validator_1.validator.compile({
             email: {
                 type: "email",
                 normalize: true,
@@ -48,11 +48,6 @@ class IdentityProvider {
             logger: this.logger,
             adapter: this.adapter,
         }, options.claims);
-        // prepare federation
-        this.federation = new federation_1.IdentityFederationManager({
-            logger: this.logger,
-            adapter: this.adapter,
-        }, options.federation);
     }
     start() {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
@@ -90,14 +85,20 @@ class IdentityProvider {
             }
             // validate args to normalize email and phone number
             if (args.claims) {
-                const result = this.validateFindArgs(args.claims);
+                const result = this.validateEmailOrPhoneNumber(args.claims);
                 if (result !== true) {
                     throw new error_1.Errors.ValidationError(result);
                 }
             }
-            const identity = yield this.adapter.find(args);
-            if (!identity)
+            return this.adapter.find(args);
+        });
+    }
+    findOrFail(args) {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            const identity = yield this.find(args);
+            if (!identity) {
                 throw new error_1.Errors.IdentityNotExistsError();
+            }
             return identity;
         });
     }
@@ -133,15 +134,23 @@ class IdentityProvider {
     /* create account */
     create(args) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            if (args.claims && !args.claims.sub) {
+                args.claims.sub = uuid_1.default.v4();
+            }
+            if (typeof args.scope === "string") {
+                args.scope = args.scope.split(" ").map(s => s.trim()).filter(s => !!s);
+            }
             // push mandatory scopes
             args.scope = [...new Set([...args.scope, ...this.claims.mandatoryScopes])];
             return this.adapter.create(args);
         });
     }
-    /* federate account */
-    federate(provider, callbackURL) {
+    validate(args) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            return this.federation.authenticate(provider, callbackURL);
+            if (typeof args.scope === "string") {
+                args.scope = args.scope.split(" ").map(s => s.trim()).filter(s => !!s);
+            }
+            return this.adapter.validate(args);
         });
     }
 }

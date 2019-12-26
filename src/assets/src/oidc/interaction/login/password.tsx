@@ -56,19 +56,21 @@ export const LoginInteractionEnterPassword: React.FunctionComponent<{ oidc: OIDC
       ]}
       error={errors.global}
     >
-      <TextField
-        label="Password"
-        type="password"
-        inputMode="text"
-        placeholder="Enter your password"
-        autoFocus
-        tabIndex={1}
-        value={password}
-        errorMessage={errors.password}
-        onChange={(e, v) => setPassword(v || "")}
-        onKeyUp={e => e.key === "Enter" && !loading && handleLogin()}
-        styles={TextFieldStyles.bold}
-      />
+      <form onSubmit={(e) => { e.preventDefault(); handleLogin(); }}>
+        <TextField
+          label="Password"
+          type="password"
+          inputMode="text"
+          placeholder="Enter your password"
+          autoFocus
+          tabIndex={1}
+          value={password}
+          errorMessage={errors.password}
+          onChange={(e, v) => setPassword(v || "")}
+          onKeyUp={e => e.key === "Enter" && handleLogin()}
+          styles={TextFieldStyles.bold}
+        />
+      </form>
       <Link tabIndex={4} onClick={handleResetPassword} variant="small" style={{marginTop: "10px"}}>Forgot password?</Link>
     </OIDCInteractionPage>
   );

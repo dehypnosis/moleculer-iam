@@ -3,6 +3,11 @@ import PhoneNumber from "awesome-phonenumber";
 
 export { Validator, ValidationSchema, ValidationError, ValidationRule, RuleObject };
 
+// make regexp serializable
+Object.defineProperty(RegExp.prototype, "toJSON", {
+  value() { return this.source.toString(); },
+});
+
 export const validator = new Validator({
   messages: {
     invalidPhoneNumber: `Invalid mobile phone number format.`,

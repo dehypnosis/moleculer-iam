@@ -1,7 +1,9 @@
 "use strict";
 
-import { IAMServiceSchema } from "../../";
+import { IAMServiceSchema, OIDCAccountClaims } from "../../";
 import { ServiceBroker } from "moleculer";
+import request from "request-promise-native";
+import { Errors } from "../../identity/error";
 
 // create moleculer service (optional)
 const broker = new ServiceBroker({
@@ -56,6 +58,24 @@ const serviceSchema = IAMServiceSchema({
 
     features: {
       // devInteractions: ({ enabled: true }) as never,
+    },
+
+    // federation
+    federation: {
+      /*
+      kakao: {
+        clientID: "XXX",
+        clientSecret: "YYY",
+      },
+      google: {
+        clientID: "XXX",
+        clientSecret: "YYY",
+      },
+      facebook: {
+        clientID: "XXX",
+        clientSecret: "YYY",
+      },
+      */
     },
   },
   server: {

@@ -1,11 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
+const _ = tslib_1.__importStar(require("lodash"));
 const path_1 = tslib_1.__importDefault(require("path"));
 const rdbms_1 = require("../../../helper/rdbms");
 const adapter_1 = require("../adapter");
 const identity_1 = require("../../identity");
-const _ = tslib_1.__importStar(require("lodash"));
 const model_1 = require("./model");
 const bcrypt_1 = tslib_1.__importDefault(require("bcrypt"));
 const dataloader_1 = tslib_1.__importDefault(require("dataloader"));
@@ -76,8 +76,9 @@ class IDP_RDBMS_Adapter extends adapter_1.IDPAdapter {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             return this.IdentityCache.findOne({ where: args, attributes: ["id"] })
                 .then(raw => {
-                if (!raw)
+                if (!raw) {
                     return;
+                }
                 return new identity_1.Identity({
                     id: raw.get("id"),
                     adapter: this,
@@ -119,15 +120,18 @@ class IDP_RDBMS_Adapter extends adapter_1.IDPAdapter {
     get IdentityMetadata() {
         return this.manager.getModel("IdentityMetadata");
     }
-    createOrUpdateMetadata(identity, metadata) {
+    createOrUpdateMetadata(identity, metadata, transaction) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             const [model, created] = yield this.IdentityMetadata.findOrCreate({
                 where: { id: identity.id },
                 defaults: { data: metadata },
+                transaction,
             });
             if (!created) {
                 yield model.update({
                     data: _.defaultsDeep(metadata, model.get({ plain: true }).data || {}),
+                }, {
+                    transaction,
                 });
             }
         });
@@ -177,13 +181,15 @@ class IDP_RDBMS_Adapter extends adapter_1.IDPAdapter {
     get IdentityClaimsCache() {
         return this.manager.getModel("IdentityClaimsCache");
     }
-    onClaimsUpdated(identity) {
+    onClaimsUpdated(identity, transaction) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             const claims = yield identity.claims();
             // this.logger.info("sync indentity claims cache:", claims);
             yield this.IdentityClaimsCache.upsert({
                 id: identity.id,
                 data: claims,
+            }, {
+                transaction,
             });
         });
     }
@@ -191,7 +197,7 @@ class IDP_RDBMS_Adapter extends adapter_1.IDPAdapter {
     get IdentityCredentials() {
         return this.manager.getModel("IdentityCredentials");
     }
-    createOrUpdateCredentials(identity, credentials) {
+    createOrUpdateCredentials(identity, credentials, transaction) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             const hashedCredentials = {};
             // hash credentials
@@ -201,12 +207,14 @@ class IDP_RDBMS_Adapter extends adapter_1.IDPAdapter {
             const [model, created] = yield this.IdentityCredentials.findOrCreate({
                 where: { id: identity.id },
                 defaults: hashedCredentials,
+                transaction,
             });
             if (!created) {
                 // not changed
-                if (yield this.assertCredentials(identity, credentials))
+                if (yield this.assertCredentials(identity, credentials)) {
                     return false;
-                yield model.update(hashedCredentials);
+                }
+                yield model.update(hashedCredentials, { transaction });
             }
             return true;
         });
@@ -219,7 +227,11 @@ class IDP_RDBMS_Adapter extends adapter_1.IDPAdapter {
             }
             const hashedCredentials = model.get({ plain: true });
             if (credentials.password) {
-                return bcrypt_1.default.compare(credentials.password, hashedCredentials.password);
+                return bcrypt_1.default.compare(credentials.password, hashedCredentials.password)
+                    .catch(error => {
+                    this.logger.error(error);
+                    return false;
+                });
             }
             this.logger.error(`unimplemented credentials type: ${Object.keys(credentials)}`);
             return false;
@@ -229,11 +241,30 @@ class IDP_RDBMS_Adapter extends adapter_1.IDPAdapter {
     get IdentityClaimsSchema() {
         return this.manager.getModel("IdentityClaimsSchema");
     }
-    createClaimsSchema(schema) {
+    createClaimsSchema(schema, transaction) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            yield this.IdentityClaimsSchema.upsert(schema);
+            yield this.IdentityClaimsSchema.upsert(schema, { transaction });
         });
     }
+    /*
+    private serializeRegExpIncludedClaimsSchema(schema: IdentityClaimsSchema): IdentityClaimsSchema {
+      if (schema.validation && (schema.validation as any).regexp && (schema.validation as any).regexp instanceof RegExp) {
+        const schemaWithRegExp = _.cloneDeep(schema);
+        (schemaWithRegExp.validation as any).regexp = (schema.validation as any).regexp.source.toString();
+        return schemaWithRegExp;
+      }
+      return schema;
+    }
+  
+    private unserializeRegExpIncludedClaimsSchema(schema: IdentityClaimsSchema): IdentityClaimsSchema {
+      if (schema.validation && (schema.validation as any).regexp && !((schema.validation as any).regexp instanceof RegExp)) {
+        const schemaWithRegExp = _.cloneDeep(schema);
+        (schemaWithRegExp.validation as any).regexp = new RegExp((schema.validation as any).regexp);
+        return schemaWithRegExp;
+      }
+      return schema;
+    }
+    */
     forceDeleteClaimsSchema(key) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             yield this.IdentityClaimsSchema.destroy({ where: { key } });
@@ -254,10 +285,10 @@ class IDP_RDBMS_Adapter extends adapter_1.IDPAdapter {
                 .then(raw => raw ? raw.get({ plain: true }) : undefined);
         });
     }
-    setActiveClaimsSchema(args) {
+    setActiveClaimsSchema(args, transaction) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             const { key, version } = args;
-            yield this.IdentityClaimsSchema.update({ active: rdbms_1.Sequelize.literal(`version = '${version}'`) }, { where: { key }, fields: ["active"] });
+            yield this.IdentityClaimsSchema.update({ active: rdbms_1.Sequelize.literal(`version = '${version}'`) }, { where: { key }, fields: ["active"], transaction });
         });
     }
     getClaimsSchemata(args) {

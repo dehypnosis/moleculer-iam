@@ -94,7 +94,7 @@ class IDP_MemoryAdapter extends adapter_1.IDPAdapter {
             return true;
         });
     }
-    createOrUpdateMetadata(identity, metadata) {
+    createOrUpdateMetadata(identity, metadata, transaction) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             const old = this.identityMetadataMap.get(identity.id);
             this.identityMetadataMap.set(identity.id, _.defaultsDeep(metadata, old || {}));
@@ -123,7 +123,7 @@ class IDP_MemoryAdapter extends adapter_1.IDPAdapter {
             }
         });
     }
-    onClaimsUpdated(identity) {
+    onClaimsUpdated(identity, transaction) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             // ...
         });
@@ -146,7 +146,7 @@ class IDP_MemoryAdapter extends adapter_1.IDPAdapter {
             return foundClaims;
         });
     }
-    createOrUpdateCredentials(identity, credentials) {
+    createOrUpdateCredentials(identity, credentials, transaction) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             const cred = this.identityCredentialsMap.get(identity.id);
             if (cred && JSON.stringify(cred) === JSON.stringify(credentials))
@@ -167,7 +167,7 @@ class IDP_MemoryAdapter extends adapter_1.IDPAdapter {
             return true;
         });
     }
-    createClaimsSchema(schema) {
+    createClaimsSchema(schema, transaction) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             this.schemata.push(schema);
         });
@@ -191,7 +191,7 @@ class IDP_MemoryAdapter extends adapter_1.IDPAdapter {
             });
         });
     }
-    setActiveClaimsSchema(args) {
+    setActiveClaimsSchema(args, transaction) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             const { key, version } = args;
             this.schemata.forEach(sch => {

@@ -4,6 +4,10 @@ const tslib_1 = require("tslib");
 const fastest_validator_1 = tslib_1.__importDefault(require("fastest-validator"));
 exports.Validator = fastest_validator_1.default;
 const awesome_phonenumber_1 = tslib_1.__importDefault(require("awesome-phonenumber"));
+// make regexp serializable
+Object.defineProperty(RegExp.prototype, "toJSON", {
+    value() { return this.source.toString(); },
+});
 exports.validator = new fastest_validator_1.default({
     messages: {
         invalidPhoneNumber: `Invalid mobile phone number format.`,

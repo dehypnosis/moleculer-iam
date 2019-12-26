@@ -1,7 +1,7 @@
 import crypto from "crypto";
 import { Configuration } from "./types";
 import { OIDCAdapterConstructorOptions } from "../adapter";
-import { InteractionConfigurationKeys, InternalInteractionDeviceFlowConfigurationKeys, ClientApplicationRendererOptions } from "../interaction";
+import { InteractionConfigurationKeys, InternalInteractionDeviceFlowConfigurationKeys, ClientApplicationRendererOptions, IdentityFederationManagerOptions } from "../interaction";
 
 export type OIDCProviderOptions = Omit<Configuration, "adapter"|"claims"|"scopes"|"dynamicScopes"> & {
   issuer: string,
@@ -17,6 +17,7 @@ export type OIDCProviderOptions = Omit<Configuration, "adapter"|"claims"|"scopes
 }
   & { [key in InteractionConfigurationKeys]?: never; }
   & { app?: ClientApplicationRendererOptions }
+  & { federation?: IdentityFederationManagerOptions }
   & { devMode?: boolean };
 
 export const defaultOIDCProviderOptions: OIDCProviderOptions = {

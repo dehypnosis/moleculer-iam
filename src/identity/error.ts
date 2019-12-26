@@ -45,6 +45,13 @@ class MigrationError extends IdentityProviderError {
   }
 }
 
+class UnexpectedError extends IdentityProviderError {
+  constructor(message?: string, status: number = 500) {
+    super(status, "unexpected_error");
+    this.error_description = message || "Unexpected Error";
+  }
+}
+
 export const Errors = {
   IdentityProviderError,
   IdentityAlreadyExistsError,
@@ -52,4 +59,5 @@ export const Errors = {
   InvalidCredentialsError,
   ValidationError,
   MigrationError,
+  UnexpectedError,
 };

@@ -4,7 +4,6 @@
  * MIT Licensed
  */
 
-import uuid from "uuid";
 import { Errors, ServiceSchema } from "moleculer";
 import { IdentityProvider, IdentityProviderOptions } from "../identity";
 import { OIDCProvider, errors as OIDCErrors, OIDCProviderOptions } from "../oidc";

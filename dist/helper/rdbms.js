@@ -130,7 +130,7 @@ class RDBMSManager {
                 catch (_a) {
                 }
                 // if lock table exists, retry after 5-10s
-                const waitTime = Math.ceil(10000 * (Math.random() + 0.5));
+                const waitTime = Math.ceil(5000 * (Math.random() + 1));
                 deadLockTimer -= waitTime;
                 this.logger.warn(`${this.migrationTableLabel} failed to acquire migration lock, retry after ${waitTime}ms, force release lock in ${Math.ceil(deadLockTimer / 1000)}s`);
                 yield new Promise(resolve => setTimeout(resolve, waitTime));

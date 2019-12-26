@@ -12,7 +12,7 @@ exports.config = vault_sync_1.default((get, list) => tslib_1.__awaiter(void 0, v
         env,
         isDev,
         isDebug: !!process.env.APP_DEBUG,
-        oidc: (yield get(`${isDev ? "dev" : "prod"}/data/iam`)).data,
+        iam: (yield get(`${isDev ? "dev" : "prod"}/data/iam`)).data,
     };
 }), {
     uri: "https://vault.internal.qmit.pro",

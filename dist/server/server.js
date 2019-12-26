@@ -58,7 +58,7 @@ class IAMServer {
                 this.https.listen(port, hostname, undefined, this.listenCallback("https", "https", hostname, port));
             }
             if (config.http || !this.https && !this.http2 && !this.http2s) {
-                const _d = config.http || { hostname: "0.0.0.0" }, { hostname, port = 8080 } = _d, opts = tslib_1.__rest(_d, ["hostname", "port"]);
+                const _d = config.http || { hostname: "localhost" }, { hostname, port = 8080 } = _d, opts = tslib_1.__rest(_d, ["hostname", "port"]);
                 this.http = http.createServer(opts, handler);
                 this.http.listen(port, hostname, undefined, this.listenCallback("http", "http", hostname, port));
             }

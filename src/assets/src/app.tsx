@@ -11,7 +11,10 @@ export const App: React.FunctionComponent = () => {
     return <OIDCInteraction oidc={oidc}/>;
   }
 
-  const context = useUserContextFactory(undefined, {
+  const context = useUserContextFactory({
+    authority: location.origin === "http://localhost:8181" ? "http://localhost:8080" : location.origin,
+    client_id: location.origin === "http://localhost:8181" ? "http://localhost:8080" : location.origin,
+  }, {
     automaticSignIn: !(location.pathname.startsWith("/help/") || location.pathname === "/help") ? "login" : undefined,
   });
 

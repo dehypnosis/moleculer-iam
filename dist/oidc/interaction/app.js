@@ -50,6 +50,14 @@ class ClientApplicationRenderer {
                 preload: false,
             }));
         }
+        fns.push((ctx, next) => tslib_1.__awaiter(this, void 0, void 0, function* () {
+            yield next();
+            // set 404 status as 200 for matched SPA path
+            if (ctx.status === 404 && (yield this.isValidPath(ctx.path))) {
+                ctx.status = 200;
+                return this.render(ctx);
+            }
+        }));
         if (fns.length > 0) {
             this.router = koa_compose_1.default(fns);
         }
@@ -81,11 +89,6 @@ class ClientApplicationRenderer {
                 return ctx.redirect(props.redirect);
             }
             // response HTML (app)
-            // set 404 status as 200 for matched SPA path
-            if (props && props.error && props.error.status === 404 && (yield this.isValidPath(ctx.path))) {
-                ctx.status = 200;
-                props = undefined;
-            }
             ctx.type = contentTypes.HTML;
             ctx.status = error ? error.status : 200;
             return ctx.body = yield this.renderHTML(props);

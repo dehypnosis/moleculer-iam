@@ -1,10 +1,10 @@
+import * as _ from "lodash";
 import path from "path";
 import { FindOptions, Sequelize, Op, WhereAttributeHash, RDBMSManager, RDBMSManagerOptions, Transaction } from "../../../helper/rdbms";
 import { IDPAdapter, IDPAdapterProps } from "../adapter";
 import { IdentityMetadata } from "../../metadata";
 import { Identity } from "../../identity";
 import { IdentityClaimsSchema } from "../../claims";
-import * as _ from "lodash";
 import { OIDCAccountClaims, OIDCAccountClaimsFilter, OIDCAccountCredentials } from "../../../oidc";
 import { defineAdapterModels } from "./model";
 import bcrypt from "bcrypt";
@@ -54,7 +54,9 @@ export class IDP_RDBMS_Adapter extends IDPAdapter {
   public async find(args: WhereAttributeHash): Promise<Identity | void> {
     return this.IdentityCache.findOne({where: args, attributes: ["id"]})
       .then(raw => {
-        if (!raw) return;
+        if (!raw) {
+          return;
+        }
         return new Identity({
           id: raw.get("id") as string,
           adapter: this,
@@ -96,14 +98,17 @@ export class IDP_RDBMS_Adapter extends IDPAdapter {
     return this.manager.getModel("IdentityMetadata")!;
   }
 
-  public async createOrUpdateMetadata(identity: Identity, metadata: Partial<IdentityMetadata>): Promise<void> {
+  public async createOrUpdateMetadata(identity: Identity, metadata: Partial<IdentityMetadata>, transaction?: Transaction): Promise<void> {
     const [model, created] = await this.IdentityMetadata.findOrCreate({
       where: {id: identity.id},
       defaults: {data: metadata},
+      transaction,
     });
     if (!created) {
       await model.update({
         data: _.defaultsDeep(metadata, (model.get({plain: true}) as any).data as IdentityMetadata || {}),
+      }, {
+        transaction,
       });
     }
   }
@@ -181,12 +186,14 @@ export class IDP_RDBMS_Adapter extends IDPAdapter {
     return this.manager.getModel("IdentityClaimsCache")!;
   }
 
-  public async onClaimsUpdated(identity: Identity): Promise<void> {
+  public async onClaimsUpdated(identity: Identity, transaction?: Transaction): Promise<void> {
     const claims = await identity.claims();
     // this.logger.info("sync indentity claims cache:", claims);
     await this.IdentityClaimsCache.upsert({
       id: identity.id,
       data: claims,
+    }, {
+      transaction,
     });
   }
 
@@ -195,7 +202,7 @@ export class IDP_RDBMS_Adapter extends IDPAdapter {
     return this.manager.getModel("IdentityCredentials")!;
   }
 
-  public async createOrUpdateCredentials(identity: Identity, credentials: Partial<OIDCAccountCredentials>): Promise<boolean> {
+  public async createOrUpdateCredentials(identity: Identity, credentials: Partial<OIDCAccountCredentials>, transaction?: Transaction): Promise<boolean> {
     const hashedCredentials: Partial<OIDCAccountCredentials> = {};
     // hash credentials
     if (credentials.password) {
@@ -205,12 +212,15 @@ export class IDP_RDBMS_Adapter extends IDPAdapter {
     const [model, created] = await this.IdentityCredentials.findOrCreate({
       where: {id: identity.id},
       defaults: hashedCredentials,
+      transaction,
     });
 
     if (!created) {
       // not changed
-      if (await this.assertCredentials(identity, credentials)) return false;
-      await model.update(hashedCredentials);
+      if (await this.assertCredentials(identity, credentials)) {
+        return false;
+      }
+      await model.update(hashedCredentials, {transaction});
     }
     return true;
   }
@@ -223,7 +233,11 @@ export class IDP_RDBMS_Adapter extends IDPAdapter {
 
     const hashedCredentials = model.get({plain: true}) as OIDCAccountCredentials;
     if (credentials.password) {
-      return bcrypt.compare(credentials.password, hashedCredentials.password);
+      return bcrypt.compare(credentials.password, hashedCredentials.password)
+        .catch(error => {
+          this.logger.error(error);
+          return false;
+        });
     }
 
     this.logger.error(`unimplemented credentials type: ${Object.keys(credentials)}`);
@@ -235,9 +249,29 @@ export class IDP_RDBMS_Adapter extends IDPAdapter {
     return this.manager.getModel("IdentityClaimsSchema")!;
   }
 
-  public async createClaimsSchema(schema: IdentityClaimsSchema): Promise<void> {
-    await this.IdentityClaimsSchema.upsert(schema);
+  public async createClaimsSchema(schema: IdentityClaimsSchema, transaction?: Transaction): Promise<void> {
+    await this.IdentityClaimsSchema.upsert(schema, {transaction});
   }
+
+  /*
+  private serializeRegExpIncludedClaimsSchema(schema: IdentityClaimsSchema): IdentityClaimsSchema {
+    if (schema.validation && (schema.validation as any).regexp && (schema.validation as any).regexp instanceof RegExp) {
+      const schemaWithRegExp = _.cloneDeep(schema);
+      (schemaWithRegExp.validation as any).regexp = (schema.validation as any).regexp.source.toString();
+      return schemaWithRegExp;
+    }
+    return schema;
+  }
+
+  private unserializeRegExpIncludedClaimsSchema(schema: IdentityClaimsSchema): IdentityClaimsSchema {
+    if (schema.validation && (schema.validation as any).regexp && !((schema.validation as any).regexp instanceof RegExp)) {
+      const schemaWithRegExp = _.cloneDeep(schema);
+      (schemaWithRegExp.validation as any).regexp = new RegExp((schema.validation as any).regexp);
+      return schemaWithRegExp;
+    }
+    return schema;
+  }
+  */
 
   public async forceDeleteClaimsSchema(key: string): Promise<void> {
     await this.IdentityClaimsSchema.destroy({where: {key}});
@@ -259,9 +293,9 @@ export class IDP_RDBMS_Adapter extends IDPAdapter {
       .then(raw => raw ? raw.get({plain: true}) as IdentityClaimsSchema : undefined);
   }
 
-  public async setActiveClaimsSchema(args: { key: string; version: string }): Promise<void> {
+  public async setActiveClaimsSchema(args: { key: string; version: string }, transaction?: Transaction): Promise<void> {
     const {key, version} = args;
-    await this.IdentityClaimsSchema.update({active: Sequelize.literal(`version = '${version}'`)}, {where: {key}, fields: ["active"]});
+    await this.IdentityClaimsSchema.update({active: Sequelize.literal(`version = '${version}'`)}, {where: {key}, fields: ["active"], transaction});
   }
 
   public async getClaimsSchemata(args: { scope: string[], key?: string, version?: string, active?: boolean }): Promise<IdentityClaimsSchema[]> {

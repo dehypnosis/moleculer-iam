@@ -9,7 +9,7 @@ module.exports = webpackMerge(
   {
     ...common,
     devServer: {
-      host: "0.0.0.0",
+      host: "localhost",
       disableHostCheck: true,
       port: 8181,
       writeToDisk: true,
