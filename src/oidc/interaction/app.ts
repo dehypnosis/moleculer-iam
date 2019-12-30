@@ -79,7 +79,7 @@ const contentTypes = {
 };
 
 export class ClientApplicationRenderer {
-  public readonly router?: compose.ComposedMiddleware<any>;
+  public readonly router: compose.ComposedMiddleware<any>;
   private readonly renderHTML: ClientApplicationRenderHTML;
   private readonly isValidPath: (path: string) => boolean | Promise<boolean>;
 
@@ -120,9 +120,7 @@ export class ClientApplicationRenderer {
       }
     });
 
-    if (fns.length > 0) {
-      this.router = compose(fns);
-    }
+    this.router = compose(fns);
   }
 
   private static normalizeError(error: any): ClientApplicationError {

@@ -103,7 +103,7 @@ class OIDCProvider {
             policy_uri: `${issuer}/help/policy`,
             tos_uri: `${issuer}/help/tos`,
             logo_uri: undefined,
-            redirect_uris: [...new Set([issuer, "http://localhost:8181", "http://localhost:8080"])],
+            redirect_uris: [...new Set([issuer].concat(devModeEnabled ? ["http://localhost:8181", "http://localhost:8080"] : []))],
             post_logout_redirect_uris: [issuer],
             frontchannel_logout_uri: `${issuer}`,
             frontchannel_logout_session_required: true,
@@ -113,11 +113,10 @@ class OIDCProvider {
             skip_consent: true,
         });
         /* create router */
-        const fns = [koa_mount_1.default(this.original.app)];
-        if (this.clientApp.router) {
-            fns.push(this.clientApp.router);
-        }
-        this.router = koa_compose_1.default(fns);
+        this.router = koa_compose_1.default([
+            koa_mount_1.default(this.original.app),
+            this.clientApp.router,
+        ]);
     }
     get idp() {
         return this.props.idp;

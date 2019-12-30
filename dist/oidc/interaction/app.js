@@ -58,9 +58,7 @@ class ClientApplicationRenderer {
                 return this.render(ctx);
             }
         }));
-        if (fns.length > 0) {
-            this.router = koa_compose_1.default(fns);
-        }
+        this.router = koa_compose_1.default(fns);
     }
     static normalizeError(error) {
         return {

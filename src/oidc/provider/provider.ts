@@ -126,7 +126,7 @@ export class OIDCProvider {
       policy_uri: `${issuer}/help/policy`,
       tos_uri: `${issuer}/help/tos`,
       logo_uri: undefined,
-      redirect_uris: [...new Set([issuer, "http://localhost:8181", "http://localhost:8080"])],
+      redirect_uris: [...new Set([issuer].concat(devModeEnabled ? ["http://localhost:8181", "http://localhost:8080"] : []))],
       post_logout_redirect_uris: [issuer],
       frontchannel_logout_uri: `${issuer}`,
       frontchannel_logout_session_required: true,
@@ -138,11 +138,10 @@ export class OIDCProvider {
     });
 
     /* create router */
-    const fns = [mount(this.original.app as any)];
-    if (this.clientApp.router) {
-      fns.push(this.clientApp.router);
-    }
-    this.router = compose(fns);
+    this.router = compose([
+      mount(this.original.app as any),
+      this.clientApp.router,
+    ]) as any;
   }
 
   public get idp() {
