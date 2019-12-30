@@ -58,10 +58,10 @@ class IDP_MemoryAdapter extends adapter_1.IDPAdapter {
                     id: foundId,
                     adapter: this,
                 });
-                // filter by metadata
-                if (args.metadata && typeof args.metadata.softDeleted !== "undefined") {
+                // filter by metadata just straight forward for test
+                if (args.metadata) {
                     const identityMetadata = yield identity.metadata();
-                    if (identityMetadata.softDeleted !== args.metadata.softDeleted) {
+                    if (!_.isMatch(identityMetadata, args.metadata)) {
                         return;
                     }
                 }
@@ -72,8 +72,20 @@ class IDP_MemoryAdapter extends adapter_1.IDPAdapter {
     // only support offset, limit
     get(args) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            const identities = [...this.identityMetadataMap.keys()]
+            let identities = [...this.identityMetadataMap.keys()]
                 .map(id => new identity_1.Identity({ id, adapter: this }));
+            // filter by metadata just straight forward for test
+            if (args.where && args.where.metadata) {
+                const filteredIdentities = [];
+                // filter by metadata just straight forward for test
+                for (const identity of identities) {
+                    const identityMetadata = yield identity.metadata();
+                    if (_.isMatch(identityMetadata, args.where.metadata)) {
+                        filteredIdentities.push(identity);
+                    }
+                }
+                identities = filteredIdentities;
+            }
             return identities
                 .slice(args.offset || 0, typeof args.limit === "undefined" ? identities.length : args.limit);
         });
@@ -123,7 +135,7 @@ class IDP_MemoryAdapter extends adapter_1.IDPAdapter {
             }
         });
     }
-    onClaimsUpdated(identity, transaction) {
+    onClaimsUpdated(identity, updatedClaims, transaction) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             // ...
         });
@@ -237,11 +249,17 @@ class IDP_MemoryAdapter extends adapter_1.IDPAdapter {
     }
     acquireMigrationLock(key) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            if (this.migrationLocksMap.get(key)) {
+            if (this.migrationLocksMap.size > 0) {
                 yield new Promise(resolve => setTimeout(resolve, 1000));
                 return this.acquireMigrationLock(key);
             }
             this.migrationLocksMap.set(key, true);
+        });
+    }
+    touchMigrationLock(key, migratedIdentitiesNumber) {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            // ...
+            this.logger.warn("Memory adapter has not implemented dead lock resolving strategy, migration is working for: ", key, migratedIdentitiesNumber);
         });
     }
     releaseMigrationLock(key) {

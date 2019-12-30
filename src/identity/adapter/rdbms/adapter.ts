@@ -1,5 +1,8 @@
 import * as _ from "lodash";
 import path from "path";
+import bcrypt from "bcrypt";
+import DataLoader from "dataloader";
+import moment from "moment";
 import { FindOptions, Sequelize, Op, WhereAttributeHash, RDBMSManager, RDBMSManagerOptions, Transaction } from "../../../helper/rdbms";
 import { IDPAdapter, IDPAdapterProps } from "../adapter";
 import { IdentityMetadata } from "../../metadata";
@@ -7,10 +10,8 @@ import { Identity } from "../../identity";
 import { IdentityClaimsSchema } from "../../claims";
 import { OIDCAccountClaims, OIDCAccountClaimsFilter, OIDCAccountCredentials } from "../../../oidc";
 import { defineAdapterModels } from "./model";
-import bcrypt from "bcrypt";
-import DataLoader from "dataloader";
 
-export type IDP_RDBMS_AdapterOptions = RDBMSManagerOptions;
+export type IDP_RDBMS_AdapterOptions = RDBMSManagerOptions & { claimsMigrationLockTimeoutSeconds?: number };
 
 /* Postgres, MySQL, MariaDB, SQLite and Microsoft SQL Server supported */
 
@@ -18,16 +19,21 @@ export type IDP_RDBMS_AdapterOptions = RDBMSManagerOptions;
 export class IDP_RDBMS_Adapter extends IDPAdapter {
   private readonly manager: RDBMSManager;
   public readonly displayName = "RDBMS";
+  private claimsMigrationLockTimeoutSeconds: number;
 
   constructor(protected readonly props: IDPAdapterProps, options?: IDP_RDBMS_AdapterOptions) {
     super(props);
 
     // create manager
+    const {claimsMigrationLockTimeoutSeconds, ...opts} = options || {};
     this.manager = new RDBMSManager({
       logger: props.logger,
       migrationDirPath: path.join(__dirname, "./migrations"),
       migrationTableName: "idpMigrations",
     }, options);
+
+    // set options
+    this.claimsMigrationLockTimeoutSeconds = claimsMigrationLockTimeoutSeconds || 100;
   }
 
   /* define and migrate model schema */
@@ -84,13 +90,28 @@ export class IDP_RDBMS_Adapter extends IDPAdapter {
   }
 
   /* delete */
-  public async delete(identity: Identity): Promise<boolean> {
-    const where: WhereAttributeHash = {id: identity.id};
-    let count = await this.IdentityMetadata.destroy({where});
-    count += await this.IdentityClaims.destroy({where});
-    count += await this.IdentityClaimsCache.destroy({where});
-    count += await this.IdentityCredentials.destroy({where});
-    return count > 0;
+  public async delete(identity: Identity, transaction?: Transaction): Promise<boolean> {
+    let isolated = false;
+    if (!transaction) {
+      transaction = await this.transaction();
+      isolated = true;
+    }
+    try {
+      const where: WhereAttributeHash = {id: identity.id};
+      let count = await this.IdentityMetadata.destroy({where, transaction});
+      count += await this.IdentityClaims.destroy({where, transaction});
+      count += await this.IdentityClaimsCache.destroy({where, transaction});
+      count += await this.IdentityCredentials.destroy({where, transaction});
+      if (isolated) {
+        await transaction.commit();
+      }
+      return count > 0;
+    } catch (error) {
+      if (isolated) {
+        await transaction.rollback();
+      }
+      throw error;
+    }
   }
 
   /* metadata */
@@ -186,12 +207,13 @@ export class IDP_RDBMS_Adapter extends IDPAdapter {
     return this.manager.getModel("IdentityClaimsCache")!;
   }
 
-  public async onClaimsUpdated(identity: Identity, transaction?: Transaction): Promise<void> {
-    const claims = await identity.claims();
-    // this.logger.info("sync indentity claims cache:", claims);
+  public async onClaimsUpdated(identity: Identity, updatedClaims: Partial<OIDCAccountClaims>, transaction?: Transaction): Promise<void> {
+    const claims: Partial<OIDCAccountClaims> = await this.IdentityClaimsCache.findOne({where: {id: identity.id}}).then(raw => raw ? raw.get("data") as any : {});
+    const mergedClaims = _.defaultsDeep(updatedClaims, claims);
+    // this.logger.info("sync identity claims cache:", mergedClaims);
     await this.IdentityClaimsCache.upsert({
       id: identity.id,
-      data: claims,
+      data: mergedClaims,
     }, {
       transaction,
     });
@@ -334,14 +356,28 @@ export class IDP_RDBMS_Adapter extends IDPAdapter {
   }
 
   public async acquireMigrationLock(key: string): Promise<void> {
-    const [lock, created] = await this.IdentityClaimsMigrationLock.findOrCreate({where: {key}});
+    const lock = await this.IdentityClaimsMigrationLock.findOne();
+    if (lock) {
+      const now = moment();
+      const deadline = moment(lock.get("updatedAt") as Date).add(this.claimsMigrationLockTimeoutSeconds, "s");
 
-    // old lock found
-    if (!created) {
+      // force release lock
+      if (now.isAfter(deadline)) {
+        const deadLockKey = lock.get("key") as string;
+        this.logger.info(`force release migration lock which is dead over ${this.claimsMigrationLockTimeoutSeconds} seconds:`, deadLockKey);
+        await this.releaseMigrationLock(deadLockKey);
+      }
+
+      // acquire lock again
       this.logger.info(`retry to acquire migration lock after 5s: ${key}`);
       await new Promise(resolve => setTimeout(resolve, 5 * 1000));
       return this.acquireMigrationLock(key);
     }
+    await this.IdentityClaimsMigrationLock.create({key});
+  }
+
+  public async touchMigrationLock(key: string, migratedIdentitiesNumber: number): Promise<void> {
+    await this.IdentityClaimsMigrationLock.update({number: migratedIdentitiesNumber}, {where: {key}});
   }
 
   public async releaseMigrationLock(key: string): Promise<void> {

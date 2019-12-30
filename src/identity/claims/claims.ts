@@ -1,5 +1,6 @@
 import * as _ from "lodash";
 import * as vm from "vm";
+import Terser from "terser";
 import hashObject from "object-hash";
 import { validator, ValidationError } from "../../validator";
 import { Logger } from "../../logger";
@@ -49,7 +50,9 @@ export class IdentityClaimsManager {
       ...this.options.baseClaims!,
     ];
 
-    await Promise.all(payloads.map(payload => this.defineClaimsSchema(payload)));
+    for (const payload of payloads) {
+      await this.defineClaimsSchema(payload);
+    }
 
     this.logger.info("identity claims manager has been started");
   }
@@ -75,6 +78,13 @@ export class IdentityClaimsManager {
         payload,
       });
     }
+
+    // normalize migration codes
+    const { code, error } = Terser.minify(`(${payload.migration!})(oldClaim, seedClaim, claims);`, { ecma: 6, compress: false, mangle: false, output: { beautify: true, indent_level: 2 } });
+    if (error) {
+      throw error;
+    }
+    payload.migration = code;
 
     const schema: IdentityClaimsSchema = {
       ...payload,
@@ -104,10 +114,11 @@ export class IdentityClaimsManager {
   private compileClaimsMigrationStrategy(schema: IdentityClaimsSchema) {
     // compile function
     try {
-      const script = new vm.Script(`(${schema.migration!})(oldClaim, seedClaim, claims)`, {
+      const script = new vm.Script(schema.migration!, {
         displayErrors: true,
         timeout: 100,
       });
+      // uncomment to read function codes on jest cov_ errors: console.log(`(${schema.migration!})(oldClaim, seedClaim, claims)`);
 
       return (oldClaim: any, seedClaim: any, claims: any): any => {
         return script.runInNewContext({oldClaim, seedClaim: _.cloneDeep(seedClaim), claims});
@@ -130,7 +141,6 @@ export class IdentityClaimsManager {
     let transaction: Transaction;
     try {
       transaction = await this.props.adapter.transaction();
-      await this.props.adapter.onClaimsSchemaUpdated();
 
       // migrate in batches
       const limit = 100;
@@ -142,7 +152,7 @@ export class IdentityClaimsManager {
         }
         await Promise.all(identities.map(async identity => {
           try {
-            await this.props.adapter.onClaimsUpdated(identity, transaction);
+            await this.props.adapter.onClaimsUpdated(identity, {}, transaction);
           } catch (error) {
             this.logger.error("failed to reload user claims", error);
             throw error;
@@ -152,6 +162,7 @@ export class IdentityClaimsManager {
       }
 
       await transaction.commit();
+      await this.props.adapter.onClaimsSchemaUpdated();
 
     } catch (error) {
       this.logger.error(`force reload identity claims failed`, error);
@@ -160,11 +171,6 @@ export class IdentityClaimsManager {
       }
       throw error;
     }
-  }
-
-  public async forceReleaseMigrationLock(key: string): Promise<void> {
-    this.logger.info(`force release migration lock:`, key);
-    await this.props.adapter.releaseMigrationLock(key);
   }
 
   public async forceDeleteClaimsSchemata(...keys: string[]): Promise<void> {
@@ -192,7 +198,7 @@ export class IdentityClaimsManager {
     try {
       // validate payload and create schema
       const schema = this.createClaimsSchema(payload);
-      const optionalClaimFilter: WhereAttributeHash | undefined = this.mandatoryScopes.includes(schema.scope) ? undefined : {claims: {[schema.key]: {[Op.ne]: null}}};
+      const scopeFilter: WhereAttributeHash = {metadata: {scope: {[schema.scope]: true}}};
 
       // compile claims schema and validate it with default value
       const validateClaims = this.compileClaimsValidator(schema);
@@ -209,27 +215,33 @@ export class IdentityClaimsManager {
         try {
           // activate
           await this.props.adapter.setActiveClaimsSchema({key: schema.key, version: schema.version}, transaction);
-          await this.props.adapter.onClaimsSchemaUpdated();
 
           // migrate in batches
           const limit = 100;
           let offset = 0;
           while (true) {
-            const identities = await this.props.adapter.get({offset, limit, where: optionalClaimFilter});
+            const identities = await this.props.adapter.get({offset, limit, where: scopeFilter});
             if (identities.length === 0) {
               break;
             }
             await Promise.all(identities.map(async identity => {
               try {
-                await this.props.adapter.onClaimsUpdated(identity, transaction);
+                await this.props.adapter.onClaimsUpdated(identity, {}, transaction);
               } catch (error) {
                 this.logger.error("failed to update user claims", error);
                 throw error;
               }
             }));
+
+            // notice current migration is alive
+            if (this.props.adapter.touchMigrationLock) {
+              await this.props.adapter.touchMigrationLock(schema.key, offset + identities.length);
+            }
+
             offset += limit;
           }
 
+          await this.props.adapter.onClaimsSchemaUpdated();
           await transaction.commit();
           return schema;
 
@@ -271,14 +283,13 @@ export class IdentityClaimsManager {
         // create new claims schema
         await this.props.adapter.createClaimsSchema(schema, transaction);
         await this.props.adapter.setActiveClaimsSchema({key: schema.key, version: schema.version}, transaction);
-        await this.props.adapter.onClaimsSchemaUpdated();
 
         // migrate in batches
         const limit = 100;
         let offset = 0;
 
         while (true) {
-          const identities = await this.props.adapter.get({offset, limit, where: optionalClaimFilter});
+          const identities = await this.props.adapter.get({offset, limit, where: scopeFilter});
           if (identities.length === 0) {
             break;
           }
@@ -298,6 +309,7 @@ export class IdentityClaimsManager {
                   .then(result => result[schema.key])
                 : undefined;
               oldClaim = typeof oldClaim === "undefined" ? null : oldClaim;
+
               newClaim = migrateClaims(oldClaim, schema.seed, claims);
               newClaim = typeof newClaim === "undefined" ? null : newClaim;
               this.logger.info(`migrate user claims ${identity.id}:${schema.key}:${schema.version.substr(0, 8)}`, oldClaim, "->", newClaim);
@@ -312,7 +324,7 @@ export class IdentityClaimsManager {
               }], transaction);
 
               if (JSON.stringify(oldClaim) !== JSON.stringify(newClaim)) {
-                await this.props.adapter.onClaimsUpdated(identity, transaction);
+                await this.props.adapter.onClaimsUpdated(identity, {[schema.key]: newClaim}, transaction);
               }
             } catch (error) {
               const detail = {id: identity.id, oldClaim, newClaim, error, index: index + offset};
@@ -320,10 +332,17 @@ export class IdentityClaimsManager {
               throw new Errors.ValidationError([], detail);
             }
           }));
+
+          // notice current migration is alive
+          if (this.props.adapter.touchMigrationLock) {
+            await this.props.adapter.touchMigrationLock(schema.key, offset + identities.length);
+          }
+
           offset += limit;
         }
 
         // commit transaction
+        await this.props.adapter.onClaimsSchemaUpdated();
         await transaction.commit();
 
         this.logger.info(`identity claims migration finished: ${schema.key}:${schema.parentVersion ? schema.parentVersion.substr(0, 8) + " -> " : ""}${schema.version.substr(0, 8)}`);

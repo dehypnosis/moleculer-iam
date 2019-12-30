@@ -16,7 +16,7 @@ function doCommonAdapterTest(idp) {
                 claims: { sub: uuid_1.default(), email: testEmail, name: "Tester", phone_number: "010-4477-1234" },
                 credentials: { password: "1234" },
             });
-            console.log(yield identity.claims(), yield identity.metadata());
+            // console.log(await identity.claims(), await identity.metadata());
         }
         catch (error) {
             console.error(error);
@@ -64,7 +64,7 @@ function doCommonAdapterTest(idp) {
             yield expect(identity.updateClaims({
                 email_verified: true,
                 phone_number_verified: true,
-            })).resolves.not.toThrow();
+            }, ["phone", "email"])).resolves.not.toThrow();
             yield expect(identity.claims("userinfo", "email phone")).resolves
                 .toEqual(expect.objectContaining({
                 email_verified: true,
@@ -147,7 +147,7 @@ function doCommonAdapterTest(idp) {
             })).resolves.not.toThrow();
             yield expect(identity.claims("userinfo", "profile")).resolves.toEqual(expect.objectContaining({ testnote: "testnote-default-value" }));
         }));
-        it("can add new claims with cutom migration function", () => tslib_1.__awaiter(this, void 0, void 0, function* () {
+        it("can add new claims with custom migration function", () => tslib_1.__awaiter(this, void 0, void 0, function* () {
             yield expect(idp.claims.defineClaimsSchema({
                 scope: "profile",
                 key: "testscore",
@@ -165,8 +165,9 @@ function doCommonAdapterTest(idp) {
                     default: 100,
                 },
                 seed: 1,
-                migration: ((old, def, claims) => {
-                    return claims.email.length;
+                migration: ( /* istanbul ignore next */(old, def, claims) => {
+                    console.log(claims);
+                    return claims.email && claims.email.length || 0;
                 }).toString(),
             })).resolves.not.toThrow();
             yield expect(identity.claims("userinfo", "profile")).resolves.toEqual(expect.objectContaining({ testscore: testEmail.length }));
@@ -201,6 +202,7 @@ function doCommonAdapterTest(idp) {
                 initialSchema = schema;
                 return schema;
             })).resolves.not.toThrow();
+            yield identity.updateClaims({ testcomplex: seed }, "testcomplex");
             yield expect(identity.claims("testcomplex")).resolves.toEqual(expect.objectContaining({
                 testcomplex: seed,
             }));
@@ -233,7 +235,7 @@ function doCommonAdapterTest(idp) {
           numbers: old.strings.map(s => parseInt(s)),
         } : seed;
       }`,
-            }).catch(err => console.error(err.fields))).resolves.not.toThrow();
+            })).resolves.not.toThrow();
             yield expect(identity.claims("testcomplex")).resolves.toEqual(expect.objectContaining({
                 testcomplex: Object.assign(Object.assign({}, seed), { numbers: [1, 2, 3, 4] }),
             }));

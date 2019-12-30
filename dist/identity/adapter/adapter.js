@@ -98,7 +98,7 @@ class IDPAdapter {
                 yield this.createOrUpdateMetadata(identity, _.defaultsDeep(metadata, metadata_1.defaultIdentityMetadata), transaction);
                 yield this.createOrUpdateClaims(identity, claims, { scope: args.scope }, transaction);
                 yield this.createOrUpdateCredentials(identity, credentials, transaction);
-                yield this.onClaimsUpdated(identity, transaction);
+                yield this.onClaimsUpdated(identity, claims, transaction);
                 if (isolated) {
                     yield transaction.commit();
                 }
@@ -141,13 +141,37 @@ class IDPAdapter {
             if (result !== true) {
                 throw new error_1.Errors.ValidationError(result, { claims, mergedClaims });
             }
-            yield this.createOrUpdateVersionedClaims(identity, Array.from(Object.entries(mergedClaims))
-                .filter(([key]) => activeClaimsVersions[key])
-                .map(([key, value]) => ({
-                key,
-                value,
-                schemaVersion: activeClaimsVersions[key],
-            })), transaction);
+            let isolated = false;
+            if (!transaction) {
+                isolated = true;
+                transaction = yield this.transaction();
+            }
+            try {
+                // update claims
+                yield this.createOrUpdateVersionedClaims(identity, Array.from(Object.entries(mergedClaims))
+                    .filter(([key]) => activeClaimsVersions[key])
+                    .map(([key, value]) => ({
+                    key,
+                    value,
+                    schemaVersion: activeClaimsVersions[key],
+                })), transaction);
+                // set metadata scope
+                yield this.createOrUpdateMetadata(identity, {
+                    scope: filter.scope.reduce((obj, s) => {
+                        obj[s] = true;
+                        return obj;
+                    }, {}),
+                }, transaction);
+                if (isolated) {
+                    yield transaction.commit();
+                }
+            }
+            catch (error) {
+                if (isolated) {
+                    yield transaction.rollback();
+                }
+                throw error;
+            }
         });
     }
     onClaimsSchemaUpdated() {

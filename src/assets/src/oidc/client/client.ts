@@ -130,7 +130,7 @@ export const useUserContextFactory = (
             }
           }
         } catch (err) {
-          console.debug(err);
+          console.debug("signinRedirectCallback:", err);
         } finally {
           // try automatic sign in
           if (automaticSignIn && !user) {
@@ -144,7 +144,7 @@ export const useUserContextFactory = (
                 await changeLocation(signOutResult.state);
               }
             } catch (err) {
-              console.debug(err);
+              console.debug("signoutRedirectCallback:", err);
             }
           }
 
@@ -154,6 +154,9 @@ export const useUserContextFactory = (
           // set loaded user
           setContext(ctx => ({...ctx, user: user!, loading: false}));
         }
+      })
+      .catch(err => {
+        console.debug("getUser:", err);
       });
   }, []);
 

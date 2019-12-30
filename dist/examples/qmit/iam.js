@@ -19,7 +19,6 @@ exports.broker.createService(__1.IAMServiceSchema(_.defaultsDeep({
                 "openid",
                 "profile",
                 "email",
-                "phone",
             ],
         },
     },
@@ -35,7 +34,7 @@ exports.broker.createService(__1.IAMServiceSchema(_.defaultsDeep({
     },
     server: {
         http: {
-            hostname: "localhost",
+            hostname: "0.0.0.0",
             port: 8080,
         },
     },

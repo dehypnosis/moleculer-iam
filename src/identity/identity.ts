@@ -9,8 +9,8 @@ export interface IdentityProps {
   adapter: IDPAdapter;
 }
 
-export class Identity<T extends { [key: string]: any } = {}> implements OIDCAccount {
-  constructor(public readonly props: IdentityProps & T) {
+export class Identity implements OIDCAccount {
+  constructor(public readonly props: IdentityProps) {
   }
 
   public get id(): Readonly<string> {
@@ -50,13 +50,15 @@ export class Identity<T extends { [key: string]: any } = {}> implements OIDCAcco
       await this.props.adapter.createOrUpdateClaims(this, claims, {
         scope: scopeWithoutOpenID,
       }, transaction);
-      await this.props.adapter.onClaimsUpdated(this, transaction);
+      await this.props.adapter.onClaimsUpdated(this, claims, transaction);
       if (isolated) await transaction.commit();
     } catch (err) {
       if (isolated) await transaction.rollback();
       throw err;
     }
   }
+
+  // TODO: deleteClaims
 
   /* identity metadata (federation information, etc. not-versioned) */
   public async metadata(): Promise<IdentityMetadata> {

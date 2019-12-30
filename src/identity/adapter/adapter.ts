@@ -92,7 +92,7 @@ export abstract class IDPAdapter {
       await this.createOrUpdateMetadata(identity, _.defaultsDeep(metadata, defaultIdentityMetadata), transaction);
       await this.createOrUpdateClaims(identity, claims, {scope: args.scope}, transaction);
       await this.createOrUpdateCredentials(identity, credentials, transaction);
-      await this.onClaimsUpdated(identity, transaction);
+      await this.onClaimsUpdated(identity, claims, transaction);
       if (isolated) {
         await transaction.commit();
       }
@@ -161,26 +161,52 @@ export abstract class IDPAdapter {
     const {activeClaimsVersions, validateClaims} = await this.getCachedActiveClaimsSchemata(filter.scope);
 
     // merge old claims and validate merged one
-    const mergedClaims = _.defaultsDeep(claims, oldClaims);
+    const mergedClaims: Partial<OIDCAccountClaims> = _.defaultsDeep(claims, oldClaims);
     const result = validateClaims(mergedClaims);
     if (result !== true) {
       throw new Errors.ValidationError(result, {claims, mergedClaims});
     }
 
-    await this.createOrUpdateVersionedClaims(
-      identity,
-      Array.from(Object.entries(mergedClaims))
-        .filter(([key]) => activeClaimsVersions[key])
-        .map(([key, value]) => ({
-          key,
-          value,
-          schemaVersion: activeClaimsVersions[key],
-        })),
-      transaction,
-    );
+    let isolated = false;
+    if (!transaction) {
+      isolated = true;
+      transaction = await this.transaction();
+    }
+
+    try {
+      // update claims
+      await this.createOrUpdateVersionedClaims(
+        identity,
+        Array.from(Object.entries(mergedClaims))
+          .filter(([key]) => activeClaimsVersions[key])
+          .map(([key, value]) => ({
+            key,
+            value,
+            schemaVersion: activeClaimsVersions[key],
+          })),
+        transaction,
+      );
+
+      // set metadata scope
+      await this.createOrUpdateMetadata(identity, {
+        scope: filter.scope.reduce((obj, s) => {
+          obj[s] = true;
+          return obj;
+        }, {} as { [k: string]: boolean }),
+      }, transaction);
+
+      if (isolated) {
+        await transaction.commit();
+      }
+    } catch (error) {
+      if (isolated) {
+        await transaction.rollback();
+      }
+      throw error;
+    }
   }
 
-  public abstract async onClaimsUpdated(identity: Identity, transaction?: Transaction): Promise<void>;
+  public abstract async onClaimsUpdated(identity: Identity, updatedClaims: Partial<OIDCAccountClaims>, transaction?: Transaction): Promise<void>;
 
   public abstract async createOrUpdateVersionedClaims(identity: Identity, claims: Array<{ key: string, value: any, schemaVersion: string }>, transaction?: Transaction): Promise<void>;
 
@@ -237,6 +263,8 @@ export abstract class IDPAdapter {
   public abstract async transaction(): Promise<Transaction>;
 
   public abstract async acquireMigrationLock(key: string): Promise<void>;
+
+  public abstract async touchMigrationLock(key: string, migratedIdentitiesNumber: number): Promise<void>;
 
   public abstract async releaseMigrationLock(key: string): Promise<void>;
 }

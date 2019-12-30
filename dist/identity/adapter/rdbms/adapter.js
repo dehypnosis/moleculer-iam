@@ -3,12 +3,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
 const _ = tslib_1.__importStar(require("lodash"));
 const path_1 = tslib_1.__importDefault(require("path"));
+const bcrypt_1 = tslib_1.__importDefault(require("bcrypt"));
+const dataloader_1 = tslib_1.__importDefault(require("dataloader"));
+const moment_1 = tslib_1.__importDefault(require("moment"));
 const rdbms_1 = require("../../../helper/rdbms");
 const adapter_1 = require("../adapter");
 const identity_1 = require("../../identity");
 const model_1 = require("./model");
-const bcrypt_1 = tslib_1.__importDefault(require("bcrypt"));
-const dataloader_1 = tslib_1.__importDefault(require("dataloader"));
 /* Postgres, MySQL, MariaDB, SQLite and Microsoft SQL Server supported */
 // tslint:disable-next-line:class-name
 class IDP_RDBMS_Adapter extends adapter_1.IDPAdapter {
@@ -39,11 +40,14 @@ class IDP_RDBMS_Adapter extends adapter_1.IDPAdapter {
             maxBatchSize: 100,
         });
         // create manager
+        const _a = options || {}, { claimsMigrationLockTimeoutSeconds } = _a, opts = tslib_1.__rest(_a, ["claimsMigrationLockTimeoutSeconds"]);
         this.manager = new rdbms_1.RDBMSManager({
             logger: props.logger,
             migrationDirPath: path_1.default.join(__dirname, "./migrations"),
             migrationTableName: "idpMigrations",
         }, options);
+        // set options
+        this.claimsMigrationLockTimeoutSeconds = claimsMigrationLockTimeoutSeconds || 100;
     }
     /* define and migrate model schema */
     start() {
@@ -106,14 +110,30 @@ class IDP_RDBMS_Adapter extends adapter_1.IDPAdapter {
         });
     }
     /* delete */
-    delete(identity) {
+    delete(identity, transaction) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            const where = { id: identity.id };
-            let count = yield this.IdentityMetadata.destroy({ where });
-            count += yield this.IdentityClaims.destroy({ where });
-            count += yield this.IdentityClaimsCache.destroy({ where });
-            count += yield this.IdentityCredentials.destroy({ where });
-            return count > 0;
+            let isolated = false;
+            if (!transaction) {
+                transaction = yield this.transaction();
+                isolated = true;
+            }
+            try {
+                const where = { id: identity.id };
+                let count = yield this.IdentityMetadata.destroy({ where, transaction });
+                count += yield this.IdentityClaims.destroy({ where, transaction });
+                count += yield this.IdentityClaimsCache.destroy({ where, transaction });
+                count += yield this.IdentityCredentials.destroy({ where, transaction });
+                if (isolated) {
+                    yield transaction.commit();
+                }
+                return count > 0;
+            }
+            catch (error) {
+                if (isolated) {
+                    yield transaction.rollback();
+                }
+                throw error;
+            }
         });
     }
     /* metadata */
@@ -181,13 +201,14 @@ class IDP_RDBMS_Adapter extends adapter_1.IDPAdapter {
     get IdentityClaimsCache() {
         return this.manager.getModel("IdentityClaimsCache");
     }
-    onClaimsUpdated(identity, transaction) {
+    onClaimsUpdated(identity, updatedClaims, transaction) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            const claims = yield identity.claims();
-            // this.logger.info("sync indentity claims cache:", claims);
+            const claims = yield this.IdentityClaimsCache.findOne({ where: { id: identity.id } }).then(raw => raw ? raw.get("data") : {});
+            const mergedClaims = _.defaultsDeep(updatedClaims, claims);
+            // this.logger.info("sync identity claims cache:", mergedClaims);
             yield this.IdentityClaimsCache.upsert({
                 id: identity.id,
-                data: claims,
+                data: mergedClaims,
             }, {
                 transaction,
             });
@@ -327,13 +348,27 @@ class IDP_RDBMS_Adapter extends adapter_1.IDPAdapter {
     }
     acquireMigrationLock(key) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            const [lock, created] = yield this.IdentityClaimsMigrationLock.findOrCreate({ where: { key } });
-            // old lock found
-            if (!created) {
+            const lock = yield this.IdentityClaimsMigrationLock.findOne();
+            if (lock) {
+                const now = moment_1.default();
+                const deadline = moment_1.default(lock.get("updatedAt")).add(this.claimsMigrationLockTimeoutSeconds, "s");
+                // force release lock
+                if (now.isAfter(deadline)) {
+                    const deadLockKey = lock.get("key");
+                    this.logger.info(`force release migration lock which is dead over ${this.claimsMigrationLockTimeoutSeconds} seconds:`, deadLockKey);
+                    yield this.releaseMigrationLock(deadLockKey);
+                }
+                // acquire lock again
                 this.logger.info(`retry to acquire migration lock after 5s: ${key}`);
                 yield new Promise(resolve => setTimeout(resolve, 5 * 1000));
                 return this.acquireMigrationLock(key);
             }
+            yield this.IdentityClaimsMigrationLock.create({ key });
+        });
+    }
+    touchMigrationLock(key, migratedIdentitiesNumber) {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            yield this.IdentityClaimsMigrationLock.update({ number: migratedIdentitiesNumber }, { where: { key } });
         });
     }
     releaseMigrationLock(key) {

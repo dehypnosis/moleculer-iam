@@ -4,7 +4,7 @@ import { OIDCAccountClaims, OIDCAccountCredentials } from "../../../oidc";
 import { IdentityMetadata } from "../../metadata";
 import { IdentityClaimsSchema } from "../../claims";
 import { Identity } from "../../identity";
-import { FindOptions, WhereAttributeHash } from "../../../helper/rdbms";
+import { Op, FindOptions, WhereAttributeHash } from "../../../helper/rdbms";
 
 export type IDP_MemoryAdapterOptions = {};
 
@@ -17,6 +17,7 @@ export class IDP_MemoryAdapter extends IDPAdapter {
   }
 
   /* fetch */
+
   // support only identity by id (sub), email, phone
   public async find(args: WhereAttributeHash): Promise<Identity | void> {
     let foundId: string = "";
@@ -53,10 +54,10 @@ export class IDP_MemoryAdapter extends IDPAdapter {
         adapter: this,
       });
 
-      // filter by metadata
-      if (args.metadata && typeof (args.metadata as any).softDeleted !== "undefined") {
+      // filter by metadata just straight forward for test
+      if (args.metadata) {
         const identityMetadata = await identity.metadata();
-        if (identityMetadata.softDeleted !== (args.metadata as any).softDeleted) {
+        if (!_.isMatch(identityMetadata, args.metadata as any)) {
           return;
         }
       }
@@ -67,8 +68,21 @@ export class IDP_MemoryAdapter extends IDPAdapter {
 
   // only support offset, limit
   public async get(args: FindOptions): Promise<Identity[]> {
-    const identities = [...this.identityMetadataMap.keys()]
+    let identities = [...this.identityMetadataMap.keys()]
       .map(id => new Identity({id, adapter: this}));
+
+    // filter by metadata just straight forward for test
+    if (args.where && (args.where as any).metadata) {
+      const filteredIdentities: Identity[] = [];
+      // filter by metadata just straight forward for test
+      for (const identity of identities) {
+        const identityMetadata = await identity.metadata();
+        if (_.isMatch(identityMetadata, (args.where as any).metadata)) {
+          filteredIdentities.push(identity);
+        }
+      }
+      identities = filteredIdentities;
+    }
 
     return identities
       .slice(
@@ -122,7 +136,7 @@ export class IDP_MemoryAdapter extends IDPAdapter {
     }
   }
 
-  public async onClaimsUpdated(identity: Identity, transaction?: Transaction): Promise<void> {
+  public async onClaimsUpdated(identity: Identity, updatedClaims: Partial<OIDCAccountClaims>, transaction?: Transaction): Promise<void> {
     // ...
   }
 
@@ -217,12 +231,17 @@ export class IDP_MemoryAdapter extends IDPAdapter {
   private readonly migrationLocksMap = new Map<string, boolean>();
 
   public async acquireMigrationLock(key: string): Promise<void> {
-    if (this.migrationLocksMap.get(key)) {
+    if (this.migrationLocksMap.size > 0) {
       await new Promise(resolve => setTimeout(resolve, 1000));
       return this.acquireMigrationLock(key);
     }
 
     this.migrationLocksMap.set(key, true);
+  }
+
+  public async touchMigrationLock(key: string, migratedIdentitiesNumber: number): Promise<void> {
+    // ...
+    this.logger.warn("Memory adapter has not implemented dead lock resolving strategy, migration is working for: ", key, migratedIdentitiesNumber);
   }
 
   public async releaseMigrationLock(key: string): Promise<void> {

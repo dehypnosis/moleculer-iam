@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+/* istanbul ignore next */
 const defaultMigration = (oldClaim, seedClaim, claims) => {
     return typeof oldClaim === "undefined" || oldClaim === null
         ? seedClaim

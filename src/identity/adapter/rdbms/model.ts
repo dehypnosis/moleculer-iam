@@ -1,6 +1,6 @@
 import { DataTypes, RDBMSManager } from "../../../helper/rdbms";
 
-const {STRING, JSON, DATE, BOOLEAN, TEXT} = DataTypes;
+const {STRING, JSON, DATE, BOOLEAN, TEXT, INTEGER} = DataTypes;
 
 export async function defineAdapterModels(manager: RDBMSManager) {
   const IdentityClaimsSchema = await manager.define("IdentityClaimsSchema", {
@@ -60,6 +60,8 @@ export async function defineAdapterModels(manager: RDBMSManager) {
 
   const IdentityClaimsMigrationLock = await manager.define("IdentityClaimsMigrationLock", {
     key: {type: STRING, primaryKey: true},
+    number: {type: INTEGER},
+    updatedAt: {type: DATE},
     createdAt: {type: DATE},
   }, {
     freezeTableName: true,

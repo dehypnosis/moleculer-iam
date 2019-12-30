@@ -45,7 +45,7 @@ class Identity {
                 yield this.props.adapter.createOrUpdateClaims(this, claims, {
                     scope: scopeWithoutOpenID,
                 }, transaction);
-                yield this.props.adapter.onClaimsUpdated(this, transaction);
+                yield this.props.adapter.onClaimsUpdated(this, claims, transaction);
                 if (isolated)
                     yield transaction.commit();
             }
@@ -56,6 +56,7 @@ class Identity {
             }
         });
     }
+    // TODO: deleteClaims
     /* identity metadata (federation information, etc. not-versioned) */
     metadata() {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {

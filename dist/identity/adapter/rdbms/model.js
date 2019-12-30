@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
 const rdbms_1 = require("../../../helper/rdbms");
-const { STRING, JSON, DATE, BOOLEAN, TEXT } = rdbms_1.DataTypes;
+const { STRING, JSON, DATE, BOOLEAN, TEXT, INTEGER } = rdbms_1.DataTypes;
 function defineAdapterModels(manager) {
     return tslib_1.__awaiter(this, void 0, void 0, function* () {
         const IdentityClaimsSchema = yield manager.define("IdentityClaimsSchema", {
@@ -57,6 +57,8 @@ function defineAdapterModels(manager) {
         });
         const IdentityClaimsMigrationLock = yield manager.define("IdentityClaimsMigrationLock", {
             key: { type: STRING, primaryKey: true },
+            number: { type: INTEGER },
+            updatedAt: { type: DATE },
             createdAt: { type: DATE },
         }, {
             freezeTableName: true,

@@ -20,7 +20,7 @@ broker.createService(
           "openid",
           "profile",
           "email",
-          "phone",
+          // "phone",
         ],
       },
     },
@@ -36,7 +36,7 @@ broker.createService(
     },
     server: {
       http: {
-        hostname: "localhost",
+        hostname: "0.0.0.0",
         port: 8080,
       },
     },

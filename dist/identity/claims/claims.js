@@ -3,12 +3,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
 const _ = tslib_1.__importStar(require("lodash"));
 const vm = tslib_1.__importStar(require("vm"));
+const terser_1 = tslib_1.__importDefault(require("terser"));
 const object_hash_1 = tslib_1.__importDefault(require("object-hash"));
 const validator_1 = require("../../validator");
 const error_1 = require("../error");
 const types_1 = require("./types");
 const options_1 = require("./options");
-const rdbms_1 = require("../../helper/rdbms");
 class IdentityClaimsManager {
     constructor(props, opts) {
         this.props = props;
@@ -31,7 +31,9 @@ class IdentityClaimsManager {
                 },
                 ...this.options.baseClaims,
             ];
-            yield Promise.all(payloads.map(payload => this.defineClaimsSchema(payload)));
+            for (const payload of payloads) {
+                yield this.defineClaimsSchema(payload);
+            }
             this.logger.info("identity claims manager has been started");
         });
     }
@@ -56,6 +58,12 @@ class IdentityClaimsManager {
                 payload,
             });
         }
+        // normalize migration codes
+        const { code, error } = terser_1.default.minify(`(${payload.migration})(oldClaim, seedClaim, claims);`, { ecma: 6, compress: false, mangle: false, output: { beautify: true, indent_level: 2 } });
+        if (error) {
+            throw error;
+        }
+        payload.migration = code;
         const schema = Object.assign(Object.assign({}, payload), { version: this.hashClaimsSchemaPayload(payload), active: true });
         return schema;
     }
@@ -76,10 +84,11 @@ class IdentityClaimsManager {
     compileClaimsMigrationStrategy(schema) {
         // compile function
         try {
-            const script = new vm.Script(`(${schema.migration})(oldClaim, seedClaim, claims)`, {
+            const script = new vm.Script(schema.migration, {
                 displayErrors: true,
                 timeout: 100,
             });
+            // uncomment to read function codes on jest cov_ errors: console.log(`(${schema.migration!})(oldClaim, seedClaim, claims)`);
             return (oldClaim, seedClaim, claims) => {
                 return script.runInNewContext({ oldClaim, seedClaim: _.cloneDeep(seedClaim), claims });
             };
@@ -102,7 +111,6 @@ class IdentityClaimsManager {
             let transaction;
             try {
                 transaction = yield this.props.adapter.transaction();
-                yield this.props.adapter.onClaimsSchemaUpdated();
                 // migrate in batches
                 const limit = 100;
                 let offset = 0;
@@ -113,7 +121,7 @@ class IdentityClaimsManager {
                     }
                     yield Promise.all(identities.map((identity) => tslib_1.__awaiter(this, void 0, void 0, function* () {
                         try {
-                            yield this.props.adapter.onClaimsUpdated(identity, transaction);
+                            yield this.props.adapter.onClaimsUpdated(identity, {}, transaction);
                         }
                         catch (error) {
                             this.logger.error("failed to reload user claims", error);
@@ -123,6 +131,7 @@ class IdentityClaimsManager {
                     offset += limit;
                 }
                 yield transaction.commit();
+                yield this.props.adapter.onClaimsSchemaUpdated();
             }
             catch (error) {
                 this.logger.error(`force reload identity claims failed`, error);
@@ -131,12 +140,6 @@ class IdentityClaimsManager {
                 }
                 throw error;
             }
-        });
-    }
-    forceReleaseMigrationLock(key) {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            this.logger.info(`force release migration lock:`, key);
-            yield this.props.adapter.releaseMigrationLock(key);
         });
     }
     forceDeleteClaimsSchemata(...keys) {
@@ -167,7 +170,7 @@ class IdentityClaimsManager {
             try {
                 // validate payload and create schema
                 const schema = this.createClaimsSchema(payload);
-                const optionalClaimFilter = this.mandatoryScopes.includes(schema.scope) ? undefined : { claims: { [schema.key]: { [rdbms_1.Op.ne]: null } } };
+                const scopeFilter = { metadata: { scope: { [schema.scope]: true } } };
                 // compile claims schema and validate it with default value
                 const validateClaims = this.compileClaimsValidator(schema);
                 // compile migration function
@@ -181,26 +184,30 @@ class IdentityClaimsManager {
                     try {
                         // activate
                         yield this.props.adapter.setActiveClaimsSchema({ key: schema.key, version: schema.version }, transaction);
-                        yield this.props.adapter.onClaimsSchemaUpdated();
                         // migrate in batches
                         const limit = 100;
                         let offset = 0;
                         while (true) {
-                            const identities = yield this.props.adapter.get({ offset, limit, where: optionalClaimFilter });
+                            const identities = yield this.props.adapter.get({ offset, limit, where: scopeFilter });
                             if (identities.length === 0) {
                                 break;
                             }
                             yield Promise.all(identities.map((identity) => tslib_1.__awaiter(this, void 0, void 0, function* () {
                                 try {
-                                    yield this.props.adapter.onClaimsUpdated(identity, transaction);
+                                    yield this.props.adapter.onClaimsUpdated(identity, {}, transaction);
                                 }
                                 catch (error) {
                                     this.logger.error("failed to update user claims", error);
                                     throw error;
                                 }
                             })));
+                            // notice current migration is alive
+                            if (this.props.adapter.touchMigrationLock) {
+                                yield this.props.adapter.touchMigrationLock(schema.key, offset + identities.length);
+                            }
                             offset += limit;
                         }
+                        yield this.props.adapter.onClaimsSchemaUpdated();
                         yield transaction.commit();
                         return schema;
                     }
@@ -238,12 +245,11 @@ class IdentityClaimsManager {
                     // create new claims schema
                     yield this.props.adapter.createClaimsSchema(schema, transaction);
                     yield this.props.adapter.setActiveClaimsSchema({ key: schema.key, version: schema.version }, transaction);
-                    yield this.props.adapter.onClaimsSchemaUpdated();
                     // migrate in batches
                     const limit = 100;
                     let offset = 0;
                     while (true) {
-                        const identities = yield this.props.adapter.get({ offset, limit, where: optionalClaimFilter });
+                        const identities = yield this.props.adapter.get({ offset, limit, where: scopeFilter });
                         if (identities.length === 0) {
                             break;
                         }
@@ -274,7 +280,7 @@ class IdentityClaimsManager {
                                         schemaVersion: schema.version,
                                     }], transaction);
                                 if (JSON.stringify(oldClaim) !== JSON.stringify(newClaim)) {
-                                    yield this.props.adapter.onClaimsUpdated(identity, transaction);
+                                    yield this.props.adapter.onClaimsUpdated(identity, { [schema.key]: newClaim }, transaction);
                                 }
                             }
                             catch (error) {
@@ -283,9 +289,14 @@ class IdentityClaimsManager {
                                 throw new error_1.Errors.ValidationError([], detail);
                             }
                         })));
+                        // notice current migration is alive
+                        if (this.props.adapter.touchMigrationLock) {
+                            yield this.props.adapter.touchMigrationLock(schema.key, offset + identities.length);
+                        }
                         offset += limit;
                     }
                     // commit transaction
+                    yield this.props.adapter.onClaimsSchemaUpdated();
                     yield transaction.commit();
                     this.logger.info(`identity claims migration finished: ${schema.key}:${schema.parentVersion ? schema.parentVersion.substr(0, 8) + " -> " : ""}${schema.version.substr(0, 8)}`);
                     return schema;

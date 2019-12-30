@@ -61,6 +61,7 @@ export interface IdentityClaimsSchemaPayload {
   description?: string;
 }
 
+/* istanbul ignore next */
 const defaultMigration = (oldClaim: any, seedClaim: any, claims: OIDCAccountClaims) => {
   return typeof oldClaim === "undefined" || oldClaim === null
     ? seedClaim

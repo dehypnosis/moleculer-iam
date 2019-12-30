@@ -22,7 +22,7 @@ export function doCommonAdapterTest(idp: IdentityProvider) {
         claims: {sub: uuid(), email: testEmail, name: "Tester", phone_number: "010-4477-1234"},
         credentials: {password: "1234"},
       });
-      console.log(await identity.claims(), await identity.metadata());
+      // console.log(await identity.claims(), await identity.metadata());
     } catch (error) {
       console.error(error);
     }
@@ -75,7 +75,7 @@ export function doCommonAdapterTest(idp: IdentityProvider) {
       await expect(identity.updateClaims({
         email_verified: true,
         phone_number_verified: true,
-      })).resolves.not.toThrow();
+      }, ["phone", "email"])).resolves.not.toThrow();
 
       await expect(identity.claims("userinfo", "email phone")).resolves
         .toEqual(expect.objectContaining({
@@ -173,7 +173,7 @@ export function doCommonAdapterTest(idp: IdentityProvider) {
       await expect(identity.claims("userinfo", "profile")).resolves.toEqual(expect.objectContaining({testnote: "testnote-default-value"}));
     });
 
-    it("can add new claims with cutom migration function", async () => {
+    it("can add new claims with custom migration function", async () => {
       await expect(idp.claims.defineClaimsSchema({
         scope: "profile",
         key: "testscore",
@@ -192,8 +192,9 @@ export function doCommonAdapterTest(idp: IdentityProvider) {
           default: 100, // default for create/update
         },
         seed: 1, // default for migration
-        migration: ((old: any, def: any, claims: OIDCAccountClaims) => {
-          return claims.email!.length;
+        migration: (/* istanbul ignore next */ (old: any, def: any, claims: OIDCAccountClaims) => {
+          console.log(claims);
+          return claims.email && claims.email.length || 0;
         }).toString(),
       })).resolves.not.toThrow();
 
@@ -231,6 +232,8 @@ export function doCommonAdapterTest(idp: IdentityProvider) {
         return schema;
       })).resolves.not.toThrow();
 
+      await identity.updateClaims({testcomplex: seed}, "testcomplex");
+
       await expect(identity.claims("testcomplex")).resolves.toEqual(expect.objectContaining({
         testcomplex: seed,
       }));
@@ -264,7 +267,7 @@ export function doCommonAdapterTest(idp: IdentityProvider) {
           numbers: old.strings.map(s => parseInt(s)),
         } : seed;
       }`,
-      }).catch(err => console.error(err.fields))).resolves.not.toThrow();
+      })).resolves.not.toThrow();
 
       await expect(identity.claims("testcomplex")).resolves.toEqual(expect.objectContaining({
         testcomplex: {

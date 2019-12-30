@@ -1,1 +1,1 @@
-{"version":3,"file":"metadata.js","sourceRoot":"","sources":["../../src/identity/metadata.ts"],"names":[],"mappings":";;AAQa,QAAA,uBAAuB,GAAG;IACrC,UAAU,EAAE,EAAE;IACd,WAAW,EAAE,KAAK;CACnB,CAAC"}
+{"version":3,"file":"metadata.js","sourceRoot":"","sources":["../../src/identity/metadata.ts"],"names":[],"mappings":";;AAWa,QAAA,uBAAuB,GAAG;IACrC,UAAU,EAAE,EAAE;IACd,KAAK,EAAE,EAAE;IACT,WAAW,EAAE,KAAK;CACnB,CAAC"}
