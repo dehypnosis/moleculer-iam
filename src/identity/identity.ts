@@ -37,7 +37,6 @@ export class Identity implements OIDCAccount {
    */
   public async claims(use: string = "userinfo", scope: string | string[] = "", claims?: OIDCClaimsInfo, rejected?: string[]): Promise<OIDCAccountClaims> {
     return this.adapter.getClaims(this.id, {
-      use,
       scope: typeof scope === "string" ? scope.split(" ").filter(s => !!s) : scope,
       claims,
       rejected,

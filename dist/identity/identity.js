@@ -29,7 +29,6 @@ class Identity {
     claims(use = "userinfo", scope = "", claims, rejected) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             return this.adapter.getClaims(this.id, {
-                use,
                 scope: typeof scope === "string" ? scope.split(" ").filter(s => !!s) : scope,
                 claims,
                 rejected,

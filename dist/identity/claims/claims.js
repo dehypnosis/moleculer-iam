@@ -263,7 +263,7 @@ class IdentityClaimsManager {
                             let claims;
                             try {
                                 // create new value
-                                claims = yield this.adapter.getClaims(id, { use: "userinfo", scope: [] });
+                                claims = yield this.adapter.getClaims(id, { scope: [] });
                                 oldClaim = parentSchema
                                     ? yield this.adapter.getVersionedClaims(id, [{
                                             key: schema.key,

@@ -304,7 +304,7 @@ export class IdentityClaimsManager {
             let claims: OIDCAccountClaims;
             try {
               // create new value
-              claims = await this.adapter.getClaims(id, {use: "userinfo", scope: []});
+              claims = await this.adapter.getClaims(id, {scope: []});
               oldClaim = parentSchema
                 ? await this.adapter.getVersionedClaims(id, [{
                   key: schema.key,

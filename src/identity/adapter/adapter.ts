@@ -103,7 +103,7 @@ export abstract class IDPAdapter {
   public abstract async delete(id: string, transaction?: Transaction): Promise<boolean>;
 
   /* fetch and create claims entities (versioned, immutable) */
-  public async getClaims(id: string, filter: OIDCAccountClaimsFilter): Promise<OIDCAccountClaims> {
+  public async getClaims(id: string, filter: Omit<OIDCAccountClaimsFilter, "use">): Promise<OIDCAccountClaims> {
     // get active claims
     const {claimsSchemata} = await this.getCachedActiveClaimsSchemata(filter.scope);
     const claims = await this.getVersionedClaims(
@@ -150,7 +150,7 @@ export abstract class IDPAdapter {
 
   public async createOrUpdateClaims(id: string, claims: Partial<OIDCAccountClaims>, filter: Omit<OIDCAccountClaimsFilter, "use">, transaction?: Transaction): Promise<void> {
     // load old claims and active claims schemata
-    const oldClaims = await this.getClaims(id, {...filter, use: "userinfo"});
+    const oldClaims = await this.getClaims(id, filter);
     const {activeClaimsVersions, validateClaims} = await this.getCachedActiveClaimsSchemata(filter.scope);
 
     // merge old claims and validate merged one

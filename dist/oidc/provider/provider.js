@@ -266,7 +266,7 @@ class OIDCProvider {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             // set available scopes and claims
             const claimsSchemata = yield this.idp.claims.getActiveClaimsSchemata();
-            // set dynamic claims option (very hacky)
+            // set supported option (hacky)
             // ref: https://github.com/panva/node-oidc-provider/blob/ae8a4589c582b96f4e9ca0432307da15792ac29d/lib/helpers/claims.js#L54
             const claimsFilter = this.config.claims;
             const claimsSupported = this.config.claimsSupported;
@@ -281,8 +281,17 @@ class OIDCProvider {
                 obj[schema.key] = null;
                 claimsSupported.add(schema.key);
             });
-            // set dynamic scopes option (also hacky)
-            this.config.scopes = new Set(claimsSchemata.map(schema => schema.scope));
+            // set supported scopes (also hacky)
+            const scopes = this.config.scopes;
+            const availableScopes = claimsSchemata.map(schema => schema.scope).concat(["openid", "offline_access"]);
+            for (const s of availableScopes) {
+                scopes.add(s);
+            }
+            for (const s of scopes.values()) {
+                if (!availableScopes.includes(s)) {
+                    scopes.delete(s);
+                }
+            }
             // log result
             this.logger.info(`available idp claims per scope:\n${[...claimsFilter.entries()]
                 .map(([scope, claims]) => {

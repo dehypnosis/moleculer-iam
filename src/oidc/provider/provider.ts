@@ -61,7 +61,7 @@ export class OIDCProvider {
       app: clientApp,
       logger,
       idp,
-    }, { federation: options.federation, devModeEnabled });
+    }, {federation: options.federation, devModeEnabled});
 
     /* create original provider */
     const config: OriginalProviderConfiguration = _.defaultsDeep({
@@ -321,7 +321,7 @@ export class OIDCProvider {
     // set available scopes and claims
     const claimsSchemata = await this.idp.claims.getActiveClaimsSchemata();
 
-    // set dynamic claims option (very hacky)
+    // set supported option (hacky)
     // ref: https://github.com/panva/node-oidc-provider/blob/ae8a4589c582b96f4e9ca0432307da15792ac29d/lib/helpers/claims.js#L54
     const claimsFilter = this.config.claims! as unknown as Map<string, null | { [claim: string]: any }>;
     const claimsSupported = (this.config as any).claimsSupported as Set<string>;
@@ -336,8 +336,17 @@ export class OIDCProvider {
       claimsSupported.add(schema.key);
     });
 
-    // set dynamic scopes option (also hacky)
-    this.config.scopes = new Set(claimsSchemata.map(schema => schema.scope)) as any;
+    // set supported scopes (also hacky)
+    const scopes = this.config.scopes as unknown as Set<string>;
+    const availableScopes = claimsSchemata.map(schema => schema.scope).concat(["openid", "offline_access"]);
+    for (const s of availableScopes) {
+      scopes.add(s);
+    }
+    for (const s of scopes.values()) {
+      if (!availableScopes.includes(s)) {
+        scopes.delete(s);
+      }
+    }
 
     // log result
     this.logger.info(`available idp claims per scope:\n${

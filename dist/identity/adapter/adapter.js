@@ -126,7 +126,7 @@ class IDPAdapter {
     createOrUpdateClaims(id, claims, filter, transaction) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             // load old claims and active claims schemata
-            const oldClaims = yield this.getClaims(id, Object.assign(Object.assign({}, filter), { use: "userinfo" }));
+            const oldClaims = yield this.getClaims(id, filter);
             const { activeClaimsVersions, validateClaims } = yield this.getCachedActiveClaimsSchemata(filter.scope);
             // merge old claims and validate merged one
             const mergedClaims = _.defaultsDeep(claims, oldClaims);

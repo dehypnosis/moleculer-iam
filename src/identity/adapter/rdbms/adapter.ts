@@ -175,9 +175,9 @@ export class IDP_RDBMS_Adapter extends IDPAdapter {
   }
 
   public async onClaimsUpdated(id: string, updatedClaims: Partial<OIDCAccountClaims>, transaction?: Transaction): Promise<void> {
-    const claims: Partial<OIDCAccountClaims> = await this.IdentityClaimsCache.findOne({where: {id}}).then(raw => raw ? raw.get("data") as any : {});
+    const claims: Partial<OIDCAccountClaims> = await this.getClaims(id, {scope: []});
     const mergedClaims = _.defaultsDeep(updatedClaims, claims);
-    // this.logger.info("sync identity claims cache:", mergedClaims);
+    // this.logger.info("sync identity claims cache:", updatedClaims);
     await this.IdentityClaimsCache.upsert({
       id,
       data: mergedClaims,
