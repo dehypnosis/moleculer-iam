@@ -3,7 +3,6 @@ import kleur from "kleur";
 import { Logger } from "../../logger";
 import { FindOptions, WhereAttributeHash } from "../../helper/rdbms";
 import { OIDCAccountClaims, OIDCAccountClaimsFilter, OIDCAccountCredentials } from "../../oidc";
-import { Identity } from "../identity";
 import { defaultIdentityMetadata, IdentityMetadata } from "../metadata";
 import { IdentityClaimsSchema } from "../claims";
 import { ValidationSchema, ValidationError, validator } from "../../validator";
@@ -39,13 +38,13 @@ export abstract class IDPAdapter {
   /* CRD identity */
 
   // args will be like { claims:{}, metadata:{}, ... }
-  public abstract async find(args: WhereAttributeHash): Promise<Identity | void>;
+  public abstract async find(args: WhereAttributeHash): Promise<string | void>;
 
   // args will be like { claims:{}, metadata:{}, ... }
   public abstract async count(args: WhereAttributeHash): Promise<number>;
 
   // args will be like { where: { claims:{}, metadata:{}, ...}, offset: 0, limit: 100, ... }
-  public abstract async get(args: FindOptions): Promise<Identity[]>;
+  public abstract async get(args: FindOptions): Promise<string[]>;
 
   public async validate(args: { scope: string[], claims: Partial<OIDCAccountClaims>, credentials?: Partial<OIDCAccountCredentials> }): Promise<void> {
     const {validateClaims} = await this.getCachedActiveClaimsSchemata(args.scope);
@@ -60,7 +59,7 @@ export abstract class IDPAdapter {
     }
   }
 
-  public async create(args: { metadata: Partial<IdentityMetadata>, scope: string[], claims: OIDCAccountClaims, credentials: Partial<OIDCAccountCredentials> }, transaction?: Transaction): Promise<Identity> {
+  public async create(args: { metadata: Partial<IdentityMetadata>, scope: string[], claims: OIDCAccountClaims, credentials: Partial<OIDCAccountCredentials> }, transaction?: Transaction): Promise<string> {
     const {metadata, claims, credentials} = args;
     if (await this.find({id: claims.sub})) {
       throw new Errors.IdentityAlreadyExistsError();
@@ -76,23 +75,17 @@ export abstract class IDPAdapter {
       }]);
     }
 
-    // create empty identity
-    const identity = new Identity({
-      id: claims.sub,
-      adapter: this,
-    });
-
     // save metadata, claims, credentials
     let isolated = false;
     if (!transaction) {
       transaction = transaction = await this.transaction();
       isolated = true;
     }
+    const id = claims.sub;
     try {
-      await this.createOrUpdateMetadata(identity, _.defaultsDeep(metadata, defaultIdentityMetadata), transaction);
-      await this.createOrUpdateClaims(identity, claims, {scope: args.scope}, transaction);
-      await this.createOrUpdateCredentials(identity, credentials, transaction);
-      await this.onClaimsUpdated(identity, claims, transaction);
+      await this.createOrUpdateMetadata(id, _.defaultsDeep(metadata, defaultIdentityMetadata), transaction);
+      await this.createOrUpdateClaims(id, claims, {scope: args.scope}, transaction);
+      await this.createOrUpdateCredentials(id, credentials, transaction);
       if (isolated) {
         await transaction.commit();
       }
@@ -100,21 +93,21 @@ export abstract class IDPAdapter {
       if (isolated) {
         await transaction!.rollback();
       }
-      await this.delete(identity, isolated ? undefined : transaction);
+      await this.delete(id, isolated ? undefined : transaction);
       throw err;
     }
 
-    return identity;
+    return id;
   }
 
-  public abstract async delete(identity: Identity, transaction?: Transaction): Promise<boolean>;
+  public abstract async delete(id: string, transaction?: Transaction): Promise<boolean>;
 
   /* fetch and create claims entities (versioned, immutable) */
-  public async getClaims(identity: Identity, filter: OIDCAccountClaimsFilter): Promise<OIDCAccountClaims> {
+  public async getClaims(id: string, filter: OIDCAccountClaimsFilter): Promise<OIDCAccountClaims> {
     // get active claims
     const {claimsSchemata} = await this.getCachedActiveClaimsSchemata(filter.scope);
     const claims = await this.getVersionedClaims(
-      identity,
+      id,
       claimsSchemata.map(schema => ({
         key: schema.key,
         schemaVersion: schema.version,
@@ -155,9 +148,9 @@ export abstract class IDPAdapter {
     (...args: any[]) => JSON.stringify(args),
   );
 
-  public async createOrUpdateClaims(identity: Identity, claims: Partial<OIDCAccountClaims>, filter: Omit<OIDCAccountClaimsFilter, "use">, transaction?: Transaction): Promise<void> {
+  public async createOrUpdateClaims(id: string, claims: Partial<OIDCAccountClaims>, filter: Omit<OIDCAccountClaimsFilter, "use">, transaction?: Transaction): Promise<void> {
     // load old claims and active claims schemata
-    const oldClaims = await this.getClaims(identity, {...filter, use: "userinfo"});
+    const oldClaims = await this.getClaims(id, {...filter, use: "userinfo"});
     const {activeClaimsVersions, validateClaims} = await this.getCachedActiveClaimsSchemata(filter.scope);
 
     // merge old claims and validate merged one
@@ -174,11 +167,13 @@ export abstract class IDPAdapter {
     }
 
     try {
+      const validClaimEntries = Array.from(Object.entries(mergedClaims))
+        .filter(([key]) => activeClaimsVersions[key]);
+
       // update claims
       await this.createOrUpdateVersionedClaims(
-        identity,
-        Array.from(Object.entries(mergedClaims))
-          .filter(([key]) => activeClaimsVersions[key])
+        id,
+        validClaimEntries
           .map(([key, value]) => ({
             key,
             value,
@@ -188,12 +183,22 @@ export abstract class IDPAdapter {
       );
 
       // set metadata scope
-      await this.createOrUpdateMetadata(identity, {
+      await this.createOrUpdateMetadata(id, {
         scope: filter.scope.reduce((obj, s) => {
           obj[s] = true;
           return obj;
         }, {} as { [k: string]: boolean }),
       }, transaction);
+
+      // notify update for cache
+      await this.onClaimsUpdated(
+        id,
+        validClaimEntries.reduce((obj, [key, claim]) => {
+          obj[key] = claim;
+          return obj;
+        }, {} as Partial<OIDCAccountClaims>),
+        transaction,
+      );
 
       if (isolated) {
         await transaction.commit();
@@ -206,11 +211,62 @@ export abstract class IDPAdapter {
     }
   }
 
-  public abstract async onClaimsUpdated(identity: Identity, updatedClaims: Partial<OIDCAccountClaims>, transaction?: Transaction): Promise<void>;
+  public async deleteClaims(id: string, scope: string[], transaction?: Transaction): Promise<void> {
+    const {claimsSchemata} = await this.getCachedActiveClaimsSchemata(scope);
 
-  public abstract async createOrUpdateVersionedClaims(identity: Identity, claims: Array<{ key: string, value: any, schemaVersion: string }>, transaction?: Transaction): Promise<void>;
+    let isolated = false;
+    if (!transaction) {
+      isolated = true;
+      transaction = await this.transaction();
+    }
 
-  public abstract async getVersionedClaims(identity: Identity, claims: Array<{ key: string, schemaVersion?: string }>): Promise<Partial<OIDCAccountClaims>>;
+    try {
+      // update claims as null
+      await this.createOrUpdateVersionedClaims(
+        id,
+        claimsSchemata
+          .map(schema => ({
+            key: schema.key,
+            value: null,
+            schemaVersion: schema.version,
+          })),
+        transaction,
+      );
+
+      // set metadata scope as false
+      await this.createOrUpdateMetadata(id, {
+        scope: scope.reduce((obj, s) => {
+          obj[s] = false;
+          return obj;
+        }, {} as { [k: string]: boolean }),
+      }, transaction);
+
+      // notify update for cache
+      await this.onClaimsUpdated(
+        id,
+        claimsSchemata.reduce((obj, schema) => {
+          obj[schema.key] = null;
+          return obj;
+        }, {} as Partial<OIDCAccountClaims>),
+        transaction,
+      );
+
+      if (isolated) {
+        await transaction.commit();
+      }
+    } catch (error) {
+      if (isolated) {
+        await transaction.rollback();
+      }
+      throw error;
+    }
+  }
+
+  public abstract async onClaimsUpdated(id: string, updatedClaims: Partial<OIDCAccountClaims>, transaction?: Transaction): Promise<void>;
+
+  public abstract async createOrUpdateVersionedClaims(id: string, claims: Array<{ key: string, value: any, schemaVersion: string }>, transaction?: Transaction): Promise<void>;
+
+  public abstract async getVersionedClaims(id: string, claims: Array<{ key: string, schemaVersion?: string }>): Promise<Partial<OIDCAccountClaims>>;
 
   public abstract async createClaimsSchema(schema: IdentityClaimsSchema, transaction?: Transaction): Promise<void>;
 
@@ -228,20 +284,19 @@ export abstract class IDPAdapter {
   public abstract async setActiveClaimsSchema(args: { key: string; version: string }, transaction?: Transaction): Promise<void>;
 
   /* identity metadata (for federation information, soft deletion, etc. not-versioned) */
-  public abstract async getMetadata(identity: Identity): Promise<IdentityMetadata | void>;
+  public abstract async getMetadata(id: string): Promise<IdentityMetadata | void>;
 
-  public abstract async createOrUpdateMetadata(identity: Identity, metadata: Partial<IdentityMetadata>, transaction?: Transaction): Promise<void>;
+  public abstract async createOrUpdateMetadata(id: string, metadata: Partial<IdentityMetadata>, transaction?: Transaction): Promise<void>;
 
   /* identity credentials */
-  public abstract async assertCredentials(identity: Identity, credentials: Partial<OIDCAccountCredentials>): Promise<boolean>;
+  public abstract async assertCredentials(id: string, credentials: Partial<OIDCAccountCredentials>): Promise<boolean>;
 
-  public abstract async createOrUpdateCredentials(identity: Identity, credentials: Partial<OIDCAccountCredentials>, transaction?: Transaction): Promise<boolean>;
+  public abstract async createOrUpdateCredentials(id: string, credentials: Partial<OIDCAccountCredentials>, transaction?: Transaction): Promise<boolean>;
 
-  // TODO: make credentials safe...
   private readonly testCredentials = validator.compile({
     password: {
       type: "string",
-      min: 4,
+      min: 8,
       max: 32,
       optional: true,
     },

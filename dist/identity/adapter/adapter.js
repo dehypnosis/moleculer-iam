@@ -3,7 +3,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
 const _ = tslib_1.__importStar(require("lodash"));
 const kleur_1 = tslib_1.__importDefault(require("kleur"));
-const identity_1 = require("../identity");
 const metadata_1 = require("../metadata");
 const validator_1 = require("../../validator");
 const error_1 = require("../error");
@@ -29,11 +28,10 @@ class IDPAdapter {
                 validateClaims: validator_1.validator.compile(claimsValidationSchema),
             };
         }), (...args) => JSON.stringify(args));
-        // TODO: make credentials safe...
         this.testCredentials = validator_1.validator.compile({
             password: {
                 type: "string",
-                min: 4,
+                min: 8,
                 max: 32,
                 optional: true,
             },
@@ -83,22 +81,17 @@ class IDPAdapter {
                         actual: claims.sub,
                     }]);
             }
-            // create empty identity
-            const identity = new identity_1.Identity({
-                id: claims.sub,
-                adapter: this,
-            });
             // save metadata, claims, credentials
             let isolated = false;
             if (!transaction) {
                 transaction = transaction = yield this.transaction();
                 isolated = true;
             }
+            const id = claims.sub;
             try {
-                yield this.createOrUpdateMetadata(identity, _.defaultsDeep(metadata, metadata_1.defaultIdentityMetadata), transaction);
-                yield this.createOrUpdateClaims(identity, claims, { scope: args.scope }, transaction);
-                yield this.createOrUpdateCredentials(identity, credentials, transaction);
-                yield this.onClaimsUpdated(identity, claims, transaction);
+                yield this.createOrUpdateMetadata(id, _.defaultsDeep(metadata, metadata_1.defaultIdentityMetadata), transaction);
+                yield this.createOrUpdateClaims(id, claims, { scope: args.scope }, transaction);
+                yield this.createOrUpdateCredentials(id, credentials, transaction);
                 if (isolated) {
                     yield transaction.commit();
                 }
@@ -107,18 +100,18 @@ class IDPAdapter {
                 if (isolated) {
                     yield transaction.rollback();
                 }
-                yield this.delete(identity, isolated ? undefined : transaction);
+                yield this.delete(id, isolated ? undefined : transaction);
                 throw err;
             }
-            return identity;
+            return id;
         });
     }
     /* fetch and create claims entities (versioned, immutable) */
-    getClaims(identity, filter) {
+    getClaims(id, filter) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             // get active claims
             const { claimsSchemata } = yield this.getCachedActiveClaimsSchemata(filter.scope);
-            const claims = yield this.getVersionedClaims(identity, claimsSchemata.map(schema => ({
+            const claims = yield this.getVersionedClaims(id, claimsSchemata.map(schema => ({
                 key: schema.key,
                 schemaVersion: schema.version,
             })));
@@ -130,10 +123,10 @@ class IDPAdapter {
             return claims;
         });
     }
-    createOrUpdateClaims(identity, claims, filter, transaction) {
+    createOrUpdateClaims(id, claims, filter, transaction) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             // load old claims and active claims schemata
-            const oldClaims = yield this.getClaims(identity, Object.assign(Object.assign({}, filter), { use: "userinfo" }));
+            const oldClaims = yield this.getClaims(id, Object.assign(Object.assign({}, filter), { use: "userinfo" }));
             const { activeClaimsVersions, validateClaims } = yield this.getCachedActiveClaimsSchemata(filter.scope);
             // merge old claims and validate merged one
             const mergedClaims = _.defaultsDeep(claims, oldClaims);
@@ -147,21 +140,67 @@ class IDPAdapter {
                 transaction = yield this.transaction();
             }
             try {
+                const validClaimEntries = Array.from(Object.entries(mergedClaims))
+                    .filter(([key]) => activeClaimsVersions[key]);
                 // update claims
-                yield this.createOrUpdateVersionedClaims(identity, Array.from(Object.entries(mergedClaims))
-                    .filter(([key]) => activeClaimsVersions[key])
+                yield this.createOrUpdateVersionedClaims(id, validClaimEntries
                     .map(([key, value]) => ({
                     key,
                     value,
                     schemaVersion: activeClaimsVersions[key],
                 })), transaction);
                 // set metadata scope
-                yield this.createOrUpdateMetadata(identity, {
+                yield this.createOrUpdateMetadata(id, {
                     scope: filter.scope.reduce((obj, s) => {
                         obj[s] = true;
                         return obj;
                     }, {}),
                 }, transaction);
+                // notify update for cache
+                yield this.onClaimsUpdated(id, validClaimEntries.reduce((obj, [key, claim]) => {
+                    obj[key] = claim;
+                    return obj;
+                }, {}), transaction);
+                if (isolated) {
+                    yield transaction.commit();
+                }
+            }
+            catch (error) {
+                if (isolated) {
+                    yield transaction.rollback();
+                }
+                throw error;
+            }
+        });
+    }
+    deleteClaims(id, scope, transaction) {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            const { claimsSchemata } = yield this.getCachedActiveClaimsSchemata(scope);
+            let isolated = false;
+            if (!transaction) {
+                isolated = true;
+                transaction = yield this.transaction();
+            }
+            try {
+                // update claims as null
+                yield this.createOrUpdateVersionedClaims(id, claimsSchemata
+                    .map(schema => ({
+                    key: schema.key,
+                    value: null,
+                    schemaVersion: schema.version,
+                })), transaction);
+                // set metadata scope as false
+                yield this.createOrUpdateMetadata(id, {
+                    scope: scope.reduce((obj, s) => {
+                        obj[s] = false;
+                        return obj;
+                    }, {}),
+                }, transaction);
+                // notify update for cache
+                yield this.onClaimsUpdated(id, claimsSchemata.reduce((obj, schema) => {
+                    obj[schema.key] = null;
+                    return obj;
+                }, {}), transaction);
                 if (isolated) {
                     yield transaction.commit();
                 }

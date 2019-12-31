@@ -42,7 +42,7 @@ class OIDCProvider {
             logger,
             idp,
         });
-        const interactionsFactory = new interaction_1.InteractionFactory({
+        const interactionFactory = new interaction_1.InteractionFactory({
             app: clientApp,
             logger,
             idp,
@@ -51,6 +51,8 @@ class OIDCProvider {
         const config = _.defaultsDeep(Object.assign({ 
             // persistent storage for OP
             adapter: this.adapter.originalAdapterProxy, 
+            // all dynamic scopes (eg. user:update, calendar:remove, ..) are implicitly accepted
+            dynamicScopes: [/.+/], 
             // client metadata for local client management and custom claims schema
             extraClientMetadata: {
                 properties: ["skip_consent"],
@@ -81,12 +83,12 @@ class OIDCProvider {
                 });
             }, 
             // interactions and configuration
-            interactions: interactionsFactory.interactions() }, internalInteractionConfigFactory.configuration()), providerConfig);
+            interactions: interactionFactory.interactions() }, internalInteractionConfigFactory.configuration()), providerConfig);
         const original = this.original = new types_1.Provider(issuer, config);
         original.env = "production";
         original.proxy = trustProxy !== false;
         // mount interaction routes
-        original.app.use(interactionsFactory.routes(original));
+        original.app.use(interactionFactory.routes(original));
         // apply debugging features
         if (devModeEnabled) {
             debug_1.applyDebugOptions(original, logger, {

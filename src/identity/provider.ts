@@ -22,7 +22,7 @@ export type IdentityProviderOptions = {
 
 export class IdentityProvider {
   private readonly logger: Logger;
-  private readonly adapter: IDPAdapter;
+  public readonly adapter: IDPAdapter;
   public readonly claims: IdentityClaimsManager;
 
   constructor(protected readonly props: IdentityProviderProps, opts?: Partial<IdentityProviderOptions>) {
@@ -116,7 +116,7 @@ export class IdentityProvider {
       }
     }
 
-    return this.adapter.find(args);
+    return this.adapter.find(args).then(id => id ? new Identity({ id, provider: this }) : undefined);
   }
 
   public async findOrFail(args: WhereAttributeHash): Promise<Identity> {
@@ -148,7 +148,8 @@ export class IdentityProvider {
       if (!(args.where as any).metadata) (args.where as any).metadata = {};
       (args.where as any).metadata.softDeleted = false;
     }
-    return this.adapter.get(args);
+    return this.adapter.get(args)
+      .then(ids => ids.map(id => new Identity({ id, provider: this })));
   }
 
   /* create account */
@@ -161,7 +162,8 @@ export class IdentityProvider {
     }
     // push mandatory scopes
     args.scope = [...new Set([...args.scope, ...this.claims.mandatoryScopes])];
-    return this.adapter.create(args as any);
+    return this.adapter.create(args as any)
+      .then(id => new Identity({ id, provider: this }));
   }
 
   public async validate(args: { scope: string[] | string, claims: Partial<OIDCAccountClaims>, credentials?: Partial<OIDCAccountCredentials> }): Promise<void> {

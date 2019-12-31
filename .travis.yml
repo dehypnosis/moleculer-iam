@@ -5,5 +5,11 @@ cache:
 node_js:
   - "10"
   - "12"
+services:
+  - mysql
+before_install:
+  - mysql -e 'CREATE DATABASE IF NOT EXISTS iam;'
+env:
+  - TRAVIS=true
 after_success:
   - npm run coverall

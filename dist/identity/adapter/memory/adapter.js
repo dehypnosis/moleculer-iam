@@ -3,7 +3,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
 const _ = tslib_1.__importStar(require("lodash"));
 const adapter_1 = require("../adapter");
-const identity_1 = require("../../identity");
 // tslint:disable-next-line:class-name
 class IDP_MemoryAdapter extends adapter_1.IDPAdapter {
     constructor(props, options) {
@@ -54,40 +53,35 @@ class IDP_MemoryAdapter extends adapter_1.IDPAdapter {
                 }
             }
             if (foundId) {
-                const identity = new identity_1.Identity({
-                    id: foundId,
-                    adapter: this,
-                });
                 // filter by metadata just straight forward for test
                 if (args.metadata) {
-                    const identityMetadata = yield identity.metadata();
-                    if (!_.isMatch(identityMetadata, args.metadata)) {
+                    const identityMetadata = yield this.getMetadata(foundId);
+                    if (!identityMetadata || !_.isMatch(identityMetadata, args.metadata)) {
                         return;
                     }
                 }
-                return identity;
+                return foundId;
             }
         });
     }
     // only support offset, limit
     get(args) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            let identities = [...this.identityMetadataMap.keys()]
-                .map(id => new identity_1.Identity({ id, adapter: this }));
+            let ids = [...this.identityMetadataMap.keys()];
             // filter by metadata just straight forward for test
             if (args.where && args.where.metadata) {
-                const filteredIdentities = [];
+                const filteredIds = [];
                 // filter by metadata just straight forward for test
-                for (const identity of identities) {
-                    const identityMetadata = yield identity.metadata();
-                    if (_.isMatch(identityMetadata, args.where.metadata)) {
-                        filteredIdentities.push(identity);
+                for (const id of ids) {
+                    const identityMetadata = yield this.getMetadata(id);
+                    if (identityMetadata && _.isMatch(identityMetadata, args.where.metadata)) {
+                        filteredIds.push(id);
                     }
                 }
-                identities = filteredIdentities;
+                ids = filteredIds;
             }
-            return identities
-                .slice(args.offset || 0, typeof args.limit === "undefined" ? identities.length : args.limit);
+            return ids
+                .slice(args.offset || 0, typeof args.limit === "undefined" ? ids.length : args.limit);
         });
     }
     count(args) {
@@ -96,33 +90,33 @@ class IDP_MemoryAdapter extends adapter_1.IDPAdapter {
         });
     }
     /* delete */
-    delete(identity) {
+    delete(id) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            if (!this.identityMetadataMap.has(identity.id))
+            if (!this.identityMetadataMap.has(id))
                 return false;
-            this.identityMetadataMap.delete(identity.id);
-            this.identityClaimsMap.delete(identity.id);
-            this.identityCredentialsMap.delete(identity.id);
+            this.identityMetadataMap.delete(id);
+            this.identityClaimsMap.delete(id);
+            this.identityCredentialsMap.delete(id);
             return true;
         });
     }
-    createOrUpdateMetadata(identity, metadata, transaction) {
+    createOrUpdateMetadata(id, metadata, transaction) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            const old = this.identityMetadataMap.get(identity.id);
-            this.identityMetadataMap.set(identity.id, _.defaultsDeep(metadata, old || {}));
+            const old = this.identityMetadataMap.get(id);
+            this.identityMetadataMap.set(id, _.defaultsDeep(metadata, old || {}));
         });
     }
-    getMetadata(identity) {
+    getMetadata(id) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            return this.identityMetadataMap.get(identity.id);
+            return this.identityMetadataMap.get(id);
         });
     }
-    createOrUpdateVersionedClaims(identity, claims) {
+    createOrUpdateVersionedClaims(id, claims) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            let oldClaims = this.identityClaimsMap.get(identity.id);
+            let oldClaims = this.identityClaimsMap.get(id);
             if (!oldClaims) {
                 oldClaims = [];
-                this.identityClaimsMap.set(identity.id, oldClaims);
+                this.identityClaimsMap.set(id, oldClaims);
             }
             for (const claim of claims) {
                 const oldClaim = oldClaims.find(c => c.key === claim.key && c.schemaVersion === claim.schemaVersion);
@@ -135,15 +129,15 @@ class IDP_MemoryAdapter extends adapter_1.IDPAdapter {
             }
         });
     }
-    onClaimsUpdated(identity, updatedClaims, transaction) {
+    onClaimsUpdated(id, updatedClaims, transaction) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             // ...
         });
     }
-    getVersionedClaims(identity, claims) {
+    getVersionedClaims(id, claims) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             const foundClaims = {};
-            const storedClaims = this.identityClaimsMap.get(identity.id) || [];
+            const storedClaims = this.identityClaimsMap.get(id) || [];
             for (const { key, schemaVersion } of claims) {
                 const foundClaim = storedClaims.find(claim => {
                     if (key !== claim.key)
@@ -158,18 +152,18 @@ class IDP_MemoryAdapter extends adapter_1.IDPAdapter {
             return foundClaims;
         });
     }
-    createOrUpdateCredentials(identity, credentials, transaction) {
+    createOrUpdateCredentials(id, credentials, transaction) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            const cred = this.identityCredentialsMap.get(identity.id);
+            const cred = this.identityCredentialsMap.get(id);
             if (cred && JSON.stringify(cred) === JSON.stringify(credentials))
                 return false;
-            this.identityCredentialsMap.set(identity.id, Object.assign(Object.assign({}, cred), credentials));
+            this.identityCredentialsMap.set(id, Object.assign(Object.assign({}, cred), credentials));
             return true;
         });
     }
-    assertCredentials(identity, credentials) {
+    assertCredentials(id, credentials) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            const cred = this.identityCredentialsMap.get(identity.id);
+            const cred = this.identityCredentialsMap.get(id);
             if (!cred)
                 return false;
             for (const [type, value] of Object.entries(credentials)) {

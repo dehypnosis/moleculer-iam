@@ -20,7 +20,7 @@ export function doCommonAdapterTest(idp: IdentityProvider) {
         metadata: {federation: {}, softDeleted: false},
         scope: ["openid", "profile", "email", "phone"],
         claims: {sub: uuid(), email: testEmail, name: "Tester", phone_number: "010-4477-1234"},
-        credentials: {password: "1234"},
+        credentials: {password: "12341234"},
       });
       // console.log(await identity.claims(), await identity.metadata());
     } catch (error) {
@@ -38,7 +38,7 @@ export function doCommonAdapterTest(idp: IdentityProvider) {
         metadata: {},
         scope: ["openid", "profile", "email", "phone"],
         claims: {sub: identity.id, email: testEmail, name: "Tester", phone_number: "010-4477-1234"},
-        credentials: {password: "1234"},
+        credentials: {password: "12341234"},
       })).rejects.toThrow();
     });
 
@@ -89,12 +89,12 @@ export function doCommonAdapterTest(idp: IdentityProvider) {
     });
 
     it("identity could assert and update own credentials", async () => {
-      await expect(identity.assertCredentials({password: "1234"})).resolves.toBeTruthy();
-      await expect(identity.assertCredentials({password: "2345"})).resolves.toBeFalsy();
-      await expect(identity.updateCredentials({password: "2345"})).resolves.toBeTruthy();
-      await expect(identity.updateCredentials({password: "2345"})).resolves.toBeFalsy();
-      await expect(identity.assertCredentials({password: "2345"})).resolves.toBeTruthy();
-      await expect(identity.updateCredentials({password: "1234"})).resolves.toBeTruthy();
+      await expect(identity.assertCredentials({password: "12341234"})).resolves.toBeTruthy();
+      await expect(identity.assertCredentials({password: "23452345"})).resolves.toBeFalsy();
+      await expect(identity.updateCredentials({password: "23452345"})).resolves.toBeTruthy();
+      await expect(identity.updateCredentials({password: "23452345"})).resolves.toBeFalsy();
+      await expect(identity.assertCredentials({password: "23452345"})).resolves.toBeTruthy();
+      await expect(identity.updateCredentials({password: "12341234"})).resolves.toBeTruthy();
     });
 
     it("identity could be soft deleted and restored", async () => {
@@ -202,7 +202,7 @@ export function doCommonAdapterTest(idp: IdentityProvider) {
     });
   });
 
-  describe("Complex claims definition", () => {
+  describe("Complex claims definition and remove claims by scopes", () => {
     it("can create object claims and migrate and revert", async () => {
       const seed = {
         number: 1234,
@@ -232,10 +232,15 @@ export function doCommonAdapterTest(idp: IdentityProvider) {
         return schema;
       })).resolves.not.toThrow();
 
-      await identity.updateClaims({testcomplex: seed}, "testcomplex");
+      await expect(identity.updateClaims({testcomplex: seed}, "testcomplex")).resolves.not.toThrow();
 
-      await expect(identity.claims("testcomplex")).resolves.toEqual(expect.objectContaining({
+      await expect(identity.claims("userinfo", "testcomplex")).resolves.toEqual(expect.objectContaining({
         testcomplex: seed,
+      }));
+      await expect(identity.metadata()).resolves.toEqual(expect.objectContaining({
+        scope: expect.objectContaining({
+          testcomplex: true,
+        }),
       }));
 
       // now change strings as numbers
@@ -269,7 +274,7 @@ export function doCommonAdapterTest(idp: IdentityProvider) {
       }`,
       })).resolves.not.toThrow();
 
-      await expect(identity.claims("testcomplex")).resolves.toEqual(expect.objectContaining({
+      await expect(identity.claims("userinfo", "testcomplex")).resolves.toEqual(expect.objectContaining({
         testcomplex: {
           ...seed,
           numbers: [1, 2, 3, 4],
@@ -302,8 +307,19 @@ export function doCommonAdapterTest(idp: IdentityProvider) {
       `,
       })).resolves.not.toThrow();
 
-      await expect(identity.claims("testcomplex")).resolves.toEqual(expect.objectContaining({
+      await expect(identity.claims("userinfo", "testcomplex")).resolves.toEqual(expect.objectContaining({
         testcomplex: seed,
+      }));
+
+      // delete claims by scope
+      await expect(identity.deleteClaims("testcomplex")).resolves.not.toThrow();
+      await expect(identity.claims("userinfo", "testcomplex")).resolves.toEqual(expect.objectContaining({
+        testcomplex: null,
+      }));
+      await expect(identity.metadata()).resolves.toEqual(expect.objectContaining({
+        scope: expect.objectContaining({
+          testcomplex: false,
+        }),
       }));
     });
   });
@@ -314,7 +330,7 @@ export function doCommonAdapterTest(idp: IdentityProvider) {
         metadata: {federation: {}, softDeleted: false},
         scope: [], // mandatory scopes will put "openid", "profile", "email", ...
         claims: {sub: uuid().substr(0, 16), name: "Test", email: "aa" + testEmail, testnote: "xasdasd"},
-        credentials: {password: "1234"},
+        credentials: {password: "12341234"},
       });
       await expect(removal.delete(true)).resolves.not.toThrow();
       await expect(idp.findOrFail({id: removal.id})).rejects.toThrow();

@@ -3,8 +3,7 @@ import { IDPAdapter, IDPAdapterProps, Transaction } from "../adapter";
 import { OIDCAccountClaims, OIDCAccountCredentials } from "../../../oidc";
 import { IdentityMetadata } from "../../metadata";
 import { IdentityClaimsSchema } from "../../claims";
-import { Identity } from "../../identity";
-import { Op, FindOptions, WhereAttributeHash } from "../../../helper/rdbms";
+import { FindOptions, WhereAttributeHash } from "../../../helper/rdbms";
 
 export type IDP_MemoryAdapterOptions = {};
 
@@ -19,7 +18,7 @@ export class IDP_MemoryAdapter extends IDPAdapter {
   /* fetch */
 
   // support only identity by id (sub), email, phone
-  public async find(args: WhereAttributeHash): Promise<Identity | void> {
+  public async find(args: WhereAttributeHash): Promise<string | void> {
     let foundId: string = "";
     const argsId = args.id || args.claims && (args.claims as any).sub;
     if (argsId) {
@@ -49,45 +48,39 @@ export class IDP_MemoryAdapter extends IDPAdapter {
     }
 
     if (foundId) {
-      const identity = new Identity({
-        id: foundId,
-        adapter: this,
-      });
-
       // filter by metadata just straight forward for test
       if (args.metadata) {
-        const identityMetadata = await identity.metadata();
-        if (!_.isMatch(identityMetadata, args.metadata as any)) {
+        const identityMetadata = await this.getMetadata(foundId);
+        if (!identityMetadata || !_.isMatch(identityMetadata, args.metadata as any)) {
           return;
         }
       }
 
-      return identity;
+      return foundId;
     }
   }
 
   // only support offset, limit
-  public async get(args: FindOptions): Promise<Identity[]> {
-    let identities = [...this.identityMetadataMap.keys()]
-      .map(id => new Identity({id, adapter: this}));
+  public async get(args: FindOptions): Promise<string[]> {
+    let ids = [...this.identityMetadataMap.keys()];
 
     // filter by metadata just straight forward for test
     if (args.where && (args.where as any).metadata) {
-      const filteredIdentities: Identity[] = [];
+      const filteredIds: string[] = [];
       // filter by metadata just straight forward for test
-      for (const identity of identities) {
-        const identityMetadata = await identity.metadata();
-        if (_.isMatch(identityMetadata, (args.where as any).metadata)) {
-          filteredIdentities.push(identity);
+      for (const id of ids) {
+        const identityMetadata = await this.getMetadata(id);
+        if (identityMetadata &&  _.isMatch(identityMetadata, (args.where as any).metadata)) {
+          filteredIds.push(id);
         }
       }
-      identities = filteredIdentities;
+      ids = filteredIds;
     }
 
-    return identities
+    return ids
       .slice(
         args.offset || 0,
-        typeof args.limit === "undefined" ? identities.length : args.limit,
+        typeof args.limit === "undefined" ? ids.length : args.limit,
       );
   }
 
@@ -96,35 +89,35 @@ export class IDP_MemoryAdapter extends IDPAdapter {
   }
 
   /* delete */
-  public async delete(identity: Identity): Promise<boolean> {
-    if (!this.identityMetadataMap.has(identity.id)) return false;
+  public async delete(id: string): Promise<boolean> {
+    if (!this.identityMetadataMap.has(id)) return false;
 
-    this.identityMetadataMap.delete(identity.id);
-    this.identityClaimsMap.delete(identity.id);
-    this.identityCredentialsMap.delete(identity.id);
+    this.identityMetadataMap.delete(id);
+    this.identityClaimsMap.delete(id);
+    this.identityCredentialsMap.delete(id);
     return true;
   }
 
   /* metadata */
   private readonly identityMetadataMap = new Map<string, IdentityMetadata>();
 
-  public async createOrUpdateMetadata(identity: Identity, metadata: Partial<IdentityMetadata>, transaction?: Transaction): Promise<void> {
-    const old = this.identityMetadataMap.get(identity.id);
-    this.identityMetadataMap.set(identity.id, _.defaultsDeep(metadata, old || {}) as IdentityMetadata);
+  public async createOrUpdateMetadata(id: string, metadata: Partial<IdentityMetadata>, transaction?: Transaction): Promise<void> {
+    const old = this.identityMetadataMap.get(id);
+    this.identityMetadataMap.set(id, _.defaultsDeep(metadata, old || {}) as IdentityMetadata);
   }
 
-  public async getMetadata(identity: Identity): Promise<IdentityMetadata | void> {
-    return this.identityMetadataMap.get(identity.id);
+  public async getMetadata(id: string): Promise<IdentityMetadata | void> {
+    return this.identityMetadataMap.get(id);
   }
 
   /* claims */
   private readonly identityClaimsMap = new Map<string, Array<{ key: string; value: any; schemaVersion: string }>>();
 
-  public async createOrUpdateVersionedClaims(identity: Identity, claims: Array<{ key: string; value: any; schemaVersion: string }>): Promise<void> {
-    let oldClaims = this.identityClaimsMap.get(identity.id);
+  public async createOrUpdateVersionedClaims(id: string, claims: Array<{ key: string; value: any; schemaVersion: string }>): Promise<void> {
+    let oldClaims = this.identityClaimsMap.get(id);
     if (!oldClaims) {
       oldClaims = [];
-      this.identityClaimsMap.set(identity.id, oldClaims);
+      this.identityClaimsMap.set(id, oldClaims);
     }
     for (const claim of claims) {
       const oldClaim = oldClaims.find(c => c.key === claim.key && c.schemaVersion === claim.schemaVersion);
@@ -136,13 +129,13 @@ export class IDP_MemoryAdapter extends IDPAdapter {
     }
   }
 
-  public async onClaimsUpdated(identity: Identity, updatedClaims: Partial<OIDCAccountClaims>, transaction?: Transaction): Promise<void> {
+  public async onClaimsUpdated(id: string, updatedClaims: Partial<OIDCAccountClaims>, transaction?: Transaction): Promise<void> {
     // ...
   }
 
-  public async getVersionedClaims(identity: Identity, claims: Array<{ key: string; schemaVersion?: string }>): Promise<Partial<OIDCAccountClaims>> {
+  public async getVersionedClaims(id: string, claims: Array<{ key: string; schemaVersion?: string }>): Promise<Partial<OIDCAccountClaims>> {
     const foundClaims: Partial<OIDCAccountClaims> = {};
-    const storedClaims = this.identityClaimsMap.get(identity.id) || [];
+    const storedClaims = this.identityClaimsMap.get(id) || [];
     for (const {key, schemaVersion} of claims) {
       const foundClaim = storedClaims.find(claim => {
         if (key !== claim.key) return false;
@@ -157,16 +150,16 @@ export class IDP_MemoryAdapter extends IDPAdapter {
   /* credentials */
   private readonly identityCredentialsMap = new Map<string, Partial<OIDCAccountCredentials>>();
 
-  public async createOrUpdateCredentials(identity: Identity, credentials: Partial<OIDCAccountCredentials>, transaction?: Transaction): Promise<boolean> {
-    const cred = this.identityCredentialsMap.get(identity.id);
+  public async createOrUpdateCredentials(id: string, credentials: Partial<OIDCAccountCredentials>, transaction?: Transaction): Promise<boolean> {
+    const cred = this.identityCredentialsMap.get(id);
     if (cred && JSON.stringify(cred) === JSON.stringify(credentials)) return false;
 
-    this.identityCredentialsMap.set(identity.id, {...cred, ...credentials});
+    this.identityCredentialsMap.set(id, {...cred, ...credentials});
     return true;
   }
 
-  public async assertCredentials(identity: Identity, credentials: Partial<OIDCAccountCredentials>): Promise<boolean> {
-    const cred = this.identityCredentialsMap.get(identity.id);
+  public async assertCredentials(id: string, credentials: Partial<OIDCAccountCredentials>): Promise<boolean> {
+    const cred = this.identityCredentialsMap.get(id);
     if (!cred) return false;
 
     for (const [type, value] of Object.entries(credentials)) {

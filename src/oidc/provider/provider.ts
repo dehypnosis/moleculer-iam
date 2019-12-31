@@ -57,7 +57,7 @@ export class OIDCProvider {
       idp,
     });
 
-    const interactionsFactory = new InteractionFactory({
+    const interactionFactory = new InteractionFactory({
       app: clientApp,
       logger,
       idp,
@@ -67,6 +67,9 @@ export class OIDCProvider {
     const config: OriginalProviderConfiguration = _.defaultsDeep({
       // persistent storage for OP
       adapter: this.adapter.originalAdapterProxy,
+
+      // all dynamic scopes (eg. user:update, calendar:remove, ..) are implicitly accepted
+      dynamicScopes: [/.+/],
 
       // client metadata for local client management and custom claims schema
       extraClientMetadata: {
@@ -98,7 +101,7 @@ export class OIDCProvider {
       },
 
       // interactions and configuration
-      interactions: interactionsFactory.interactions(),
+      interactions: interactionFactory.interactions(),
       ...internalInteractionConfigFactory.configuration(),
     } as OriginalProviderConfiguration, providerConfig);
 
@@ -107,7 +110,7 @@ export class OIDCProvider {
     original.proxy = trustProxy !== false;
 
     // mount interaction routes
-    original.app.use(interactionsFactory.routes(original));
+    original.app.use(interactionFactory.routes(original));
 
     // apply debugging features
     if (devModeEnabled) {

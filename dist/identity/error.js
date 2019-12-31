@@ -42,6 +42,12 @@ class UnexpectedError extends IdentityProviderError {
         this.error_description = message || "Unexpected Error";
     }
 }
+class BadRequestError extends IdentityProviderError {
+    constructor(message, status = 400) {
+        super(status, "bad_request");
+        this.error_description = message || "Bad Request";
+    }
+}
 exports.Errors = {
     IdentityProviderError,
     IdentityAlreadyExistsError,
@@ -50,5 +56,6 @@ exports.Errors = {
     ValidationError,
     MigrationError,
     UnexpectedError,
+    BadRequestError,
 };
 //# sourceMappingURL=error.js.map

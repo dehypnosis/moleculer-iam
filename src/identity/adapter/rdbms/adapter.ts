@@ -57,17 +57,9 @@ export class IDP_RDBMS_Adapter extends IDPAdapter {
   }
 
   // args will be like { claims:{}, metadata:{}, ... }
-  public async find(args: WhereAttributeHash): Promise<Identity | void> {
+  public async find(args: WhereAttributeHash): Promise<string | void> {
     return this.IdentityCache.findOne({where: args, attributes: ["id"]})
-      .then(raw => {
-        if (!raw) {
-          return;
-        }
-        return new Identity({
-          id: raw.get("id") as string,
-          adapter: this,
-        });
-      });
+      .then(raw => raw ? raw.get("id") as string : undefined);
   }
 
   // args will be like { claims:{}, metadata:{}, ... }
@@ -76,28 +68,21 @@ export class IDP_RDBMS_Adapter extends IDPAdapter {
   }
 
   // args will be like { where: { claims:{}, metadata:{}, ...}, offset: 0, limit: 100, ... }
-  public async get(args: FindOptions): Promise<Identity[]> {
+  public async get(args: FindOptions): Promise<string[]> {
     args.attributes = ["id"];
     return this.IdentityCache.findAll(args)
-      .then(raws =>
-        raws.map(raw => {
-          return new Identity({
-            id: raw.get("id") as string,
-            adapter: this,
-          });
-        }),
-      );
+      .then(raws => raws.map(raw => raw.get("id") as string));
   }
 
   /* delete */
-  public async delete(identity: Identity, transaction?: Transaction): Promise<boolean> {
+  public async delete(id: string, transaction?: Transaction): Promise<boolean> {
     let isolated = false;
     if (!transaction) {
       transaction = await this.transaction();
       isolated = true;
     }
     try {
-      const where: WhereAttributeHash = {id: identity.id};
+      const where: WhereAttributeHash = {id};
       let count = await this.IdentityMetadata.destroy({where, transaction});
       count += await this.IdentityClaims.destroy({where, transaction});
       count += await this.IdentityClaimsCache.destroy({where, transaction});
@@ -119,9 +104,9 @@ export class IDP_RDBMS_Adapter extends IDPAdapter {
     return this.manager.getModel("IdentityMetadata")!;
   }
 
-  public async createOrUpdateMetadata(identity: Identity, metadata: Partial<IdentityMetadata>, transaction?: Transaction): Promise<void> {
+  public async createOrUpdateMetadata(id: string, metadata: Partial<IdentityMetadata>, transaction?: Transaction): Promise<void> {
     const [model, created] = await this.IdentityMetadata.findOrCreate({
-      where: {id: identity.id},
+      where: {id},
       defaults: {data: metadata},
       transaction,
     });
@@ -134,8 +119,8 @@ export class IDP_RDBMS_Adapter extends IDPAdapter {
     }
   }
 
-  public async getMetadata(identity: Identity): Promise<IdentityMetadata | void> {
-    return this.IdentityMetadata.findOne({where: {id: identity.id}})
+  public async getMetadata(id: string): Promise<IdentityMetadata | void> {
+    return this.IdentityMetadata.findOne({where: {id}})
       .then(raw => raw ? raw.get("data") as IdentityMetadata : undefined);
   }
 
@@ -144,9 +129,9 @@ export class IDP_RDBMS_Adapter extends IDPAdapter {
     return this.manager.getModel("IdentityClaims")!;
   }
 
-  public async createOrUpdateVersionedClaims(identity: Identity, claims: Array<{ key: string; value: any; schemaVersion: string }>): Promise<void> {
+  public async createOrUpdateVersionedClaims(id: string, claims: Array<{ key: string; value: any; schemaVersion: string }>): Promise<void> {
     await this.IdentityClaims.bulkCreate(
-      claims.map(({key, value, schemaVersion}) => ({id: identity.id, key, schemaVersion, value})),
+      claims.map(({key, value, schemaVersion}) => ({id, key, schemaVersion, value})),
       {
         fields: ["id", "key", "schemaVersion", "value"],
         updateOnDuplicate: ["value"],
@@ -154,17 +139,17 @@ export class IDP_RDBMS_Adapter extends IDPAdapter {
     );
   }
 
-  private readonly getVersionedClaimsLoader = new DataLoader<{ identity: Identity, claims: Array<{ key: string; schemaVersion?: string }> }, Partial<OIDCAccountClaims>>(
+  private readonly getVersionedClaimsLoader = new DataLoader<{ id: string, claims: Array<{ key: string; schemaVersion?: string }> }, Partial<OIDCAccountClaims>>(
     async (entries) => {
       const where: WhereAttributeHash = {
-        id: entries.map(entry => entry.identity.id),
+        id: entries.map(entry => entry.id),
         key: [...new Set(entries.reduce((keys, entry) => keys.concat(entry.claims.map(c => c.key)), [] as string[]))],
       };
       const foundClaimsList: Array<Partial<OIDCAccountClaims>> = new Array(entries.length).fill(null).map(() => ({}));
       const raws = await this.IdentityClaims.findAll({where});
       for (const raw of raws) {
         const claim = raw.get({plain: true}) as { id: string, key: string, value: string, schemaVersion: string };
-        const entryIndex = entries.findIndex(e => e.identity.id === claim.id);
+        const entryIndex = entries.findIndex(e => e.id === claim.id);
         const entry = entries[entryIndex];
         const foundClaims = foundClaimsList[entryIndex];
         const specificVersion = entry.claims.find(c => c.key === claim.key)!.schemaVersion;
@@ -180,26 +165,8 @@ export class IDP_RDBMS_Adapter extends IDPAdapter {
     },
   );
 
-  public async getVersionedClaims(identity: Identity, claims: Array<{ key: string; schemaVersion?: string }>): Promise<Partial<OIDCAccountClaims>> {
-    return this.getVersionedClaimsLoader.load({identity, claims});
-    // const where: WhereAttributeHash = {
-    //   id: identity.id,
-    //   key: claims.map(c => c.key),
-    // };
-    //
-    // const foundClaims: Partial<OIDCAccountClaims> = {};
-    // await this.IdentityClaims.findAll({where})
-    //   .then(raws => {
-    //     raws.forEach(raw => {
-    //       const claim = raw.get({plain: true}) as { key: string, value: string, schemaVersion: string };
-    //       const specificVersion = claims.find(c => c.key === claim.key)!.schemaVersion;
-    //       if (typeof specificVersion === "undefined" || specificVersion === claim.schemaVersion) {
-    //         foundClaims[claim.key] = claim.value;
-    //       }
-    //     });
-    //   });
-    //
-    // return foundClaims;
+  public async getVersionedClaims(id: string, claims: Array<{ key: string; schemaVersion?: string }>): Promise<Partial<OIDCAccountClaims>> {
+    return this.getVersionedClaimsLoader.load({id, claims});
   }
 
   /* cache */
@@ -207,12 +174,12 @@ export class IDP_RDBMS_Adapter extends IDPAdapter {
     return this.manager.getModel("IdentityClaimsCache")!;
   }
 
-  public async onClaimsUpdated(identity: Identity, updatedClaims: Partial<OIDCAccountClaims>, transaction?: Transaction): Promise<void> {
-    const claims: Partial<OIDCAccountClaims> = await this.IdentityClaimsCache.findOne({where: {id: identity.id}}).then(raw => raw ? raw.get("data") as any : {});
+  public async onClaimsUpdated(id: string, updatedClaims: Partial<OIDCAccountClaims>, transaction?: Transaction): Promise<void> {
+    const claims: Partial<OIDCAccountClaims> = await this.IdentityClaimsCache.findOne({where: {id}}).then(raw => raw ? raw.get("data") as any : {});
     const mergedClaims = _.defaultsDeep(updatedClaims, claims);
     // this.logger.info("sync identity claims cache:", mergedClaims);
     await this.IdentityClaimsCache.upsert({
-      id: identity.id,
+      id,
       data: mergedClaims,
     }, {
       transaction,
@@ -224,7 +191,7 @@ export class IDP_RDBMS_Adapter extends IDPAdapter {
     return this.manager.getModel("IdentityCredentials")!;
   }
 
-  public async createOrUpdateCredentials(identity: Identity, credentials: Partial<OIDCAccountCredentials>, transaction?: Transaction): Promise<boolean> {
+  public async createOrUpdateCredentials(id: string, credentials: Partial<OIDCAccountCredentials>, transaction?: Transaction): Promise<boolean> {
     const hashedCredentials: Partial<OIDCAccountCredentials> = {};
     // hash credentials
     if (credentials.password) {
@@ -232,14 +199,14 @@ export class IDP_RDBMS_Adapter extends IDPAdapter {
     }
 
     const [model, created] = await this.IdentityCredentials.findOrCreate({
-      where: {id: identity.id},
+      where: {id},
       defaults: hashedCredentials,
       transaction,
     });
 
     if (!created) {
       // not changed
-      if (await this.assertCredentials(identity, credentials)) {
+      if (await this.assertCredentials(id, credentials)) {
         return false;
       }
       await model.update(hashedCredentials, {transaction});
@@ -247,8 +214,8 @@ export class IDP_RDBMS_Adapter extends IDPAdapter {
     return true;
   }
 
-  public async assertCredentials(identity: Identity, credentials: Partial<OIDCAccountCredentials>): Promise<boolean> {
-    const model = await this.IdentityCredentials.findOne({where: {id: identity.id}});
+  public async assertCredentials(id: string, credentials: Partial<OIDCAccountCredentials>): Promise<boolean> {
+    const model = await this.IdentityCredentials.findOne({where: {id}});
     if (!model) {
       return false;
     }

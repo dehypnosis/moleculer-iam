@@ -52,6 +52,13 @@ class UnexpectedError extends IdentityProviderError {
   }
 }
 
+class BadRequestError extends IdentityProviderError {
+  constructor(message?: string, status: number = 400) {
+    super(status, "bad_request");
+    this.error_description = message || "Bad Request";
+  }
+}
+
 export const Errors = {
   IdentityProviderError,
   IdentityAlreadyExistsError,
@@ -60,4 +67,5 @@ export const Errors = {
   ValidationError,
   MigrationError,
   UnexpectedError,
+  BadRequestError,
 };

@@ -24,7 +24,7 @@ exports.IdentityClaimsSchemaPayloadValidationSchema = {
         type: "string",
         description: `
       Unique key for the custom claims, cannot be modified later.
-      Claims will be embedded in id_token and userinfo with this key.
+      Claims will be embedded in userinfo token with this key.
     `,
         alphadash: true,
         lowercase: true,

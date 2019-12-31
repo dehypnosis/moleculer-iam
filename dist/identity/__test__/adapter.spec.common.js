@@ -14,7 +14,7 @@ function doCommonAdapterTest(idp) {
                 metadata: { federation: {}, softDeleted: false },
                 scope: ["openid", "profile", "email", "phone"],
                 claims: { sub: uuid_1.default(), email: testEmail, name: "Tester", phone_number: "010-4477-1234" },
-                credentials: { password: "1234" },
+                credentials: { password: "12341234" },
             });
             // console.log(await identity.claims(), await identity.metadata());
         }
@@ -31,7 +31,7 @@ function doCommonAdapterTest(idp) {
                 metadata: {},
                 scope: ["openid", "profile", "email", "phone"],
                 claims: { sub: identity.id, email: testEmail, name: "Tester", phone_number: "010-4477-1234" },
-                credentials: { password: "1234" },
+                credentials: { password: "12341234" },
             })).rejects.toThrow();
         }));
         it("identity cannot be created with same sub", () => tslib_1.__awaiter(this, void 0, void 0, function* () {
@@ -75,12 +75,12 @@ function doCommonAdapterTest(idp) {
             })).rejects.toThrow();
         }));
         it("identity could assert and update own credentials", () => tslib_1.__awaiter(this, void 0, void 0, function* () {
-            yield expect(identity.assertCredentials({ password: "1234" })).resolves.toBeTruthy();
-            yield expect(identity.assertCredentials({ password: "2345" })).resolves.toBeFalsy();
-            yield expect(identity.updateCredentials({ password: "2345" })).resolves.toBeTruthy();
-            yield expect(identity.updateCredentials({ password: "2345" })).resolves.toBeFalsy();
-            yield expect(identity.assertCredentials({ password: "2345" })).resolves.toBeTruthy();
-            yield expect(identity.updateCredentials({ password: "1234" })).resolves.toBeTruthy();
+            yield expect(identity.assertCredentials({ password: "12341234" })).resolves.toBeTruthy();
+            yield expect(identity.assertCredentials({ password: "23452345" })).resolves.toBeFalsy();
+            yield expect(identity.updateCredentials({ password: "23452345" })).resolves.toBeTruthy();
+            yield expect(identity.updateCredentials({ password: "23452345" })).resolves.toBeFalsy();
+            yield expect(identity.assertCredentials({ password: "23452345" })).resolves.toBeTruthy();
+            yield expect(identity.updateCredentials({ password: "12341234" })).resolves.toBeTruthy();
         }));
         it("identity could be soft deleted and restored", () => tslib_1.__awaiter(this, void 0, void 0, function* () {
             yield expect(identity.isSoftDeleted()).resolves.not.toBeTruthy();
@@ -173,7 +173,7 @@ function doCommonAdapterTest(idp) {
             yield expect(identity.claims("userinfo", "profile")).resolves.toEqual(expect.objectContaining({ testscore: testEmail.length }));
         }));
     });
-    describe("Complex claims definition", () => {
+    describe("Complex claims definition and remove claims by scopes", () => {
         it("can create object claims and migrate and revert", () => tslib_1.__awaiter(this, void 0, void 0, function* () {
             const seed = {
                 number: 1234,
@@ -202,9 +202,14 @@ function doCommonAdapterTest(idp) {
                 initialSchema = schema;
                 return schema;
             })).resolves.not.toThrow();
-            yield identity.updateClaims({ testcomplex: seed }, "testcomplex");
-            yield expect(identity.claims("testcomplex")).resolves.toEqual(expect.objectContaining({
+            yield expect(identity.updateClaims({ testcomplex: seed }, "testcomplex")).resolves.not.toThrow();
+            yield expect(identity.claims("userinfo", "testcomplex")).resolves.toEqual(expect.objectContaining({
                 testcomplex: seed,
+            }));
+            yield expect(identity.metadata()).resolves.toEqual(expect.objectContaining({
+                scope: expect.objectContaining({
+                    testcomplex: true,
+                }),
             }));
             // now change strings as numbers
             const seed2 = {
@@ -236,7 +241,7 @@ function doCommonAdapterTest(idp) {
         } : seed;
       }`,
             })).resolves.not.toThrow();
-            yield expect(identity.claims("testcomplex")).resolves.toEqual(expect.objectContaining({
+            yield expect(identity.claims("userinfo", "testcomplex")).resolves.toEqual(expect.objectContaining({
                 testcomplex: Object.assign(Object.assign({}, seed), { numbers: [1, 2, 3, 4] }),
             }));
             // revert to old version
@@ -264,8 +269,18 @@ function doCommonAdapterTest(idp) {
         }
       `,
             })).resolves.not.toThrow();
-            yield expect(identity.claims("testcomplex")).resolves.toEqual(expect.objectContaining({
+            yield expect(identity.claims("userinfo", "testcomplex")).resolves.toEqual(expect.objectContaining({
                 testcomplex: seed,
+            }));
+            // delete claims by scope
+            yield expect(identity.deleteClaims("testcomplex")).resolves.not.toThrow();
+            yield expect(identity.claims("userinfo", "testcomplex")).resolves.toEqual(expect.objectContaining({
+                testcomplex: null,
+            }));
+            yield expect(identity.metadata()).resolves.toEqual(expect.objectContaining({
+                scope: expect.objectContaining({
+                    testcomplex: false,
+                }),
             }));
         }));
     });
@@ -275,7 +290,7 @@ function doCommonAdapterTest(idp) {
                 metadata: { federation: {}, softDeleted: false },
                 scope: [],
                 claims: { sub: uuid_1.default().substr(0, 16), name: "Test", email: "aa" + testEmail, testnote: "xasdasd" },
-                credentials: { password: "1234" },
+                credentials: { password: "12341234" },
             });
             yield expect(removal.delete(true)).resolves.not.toThrow();
             yield expect(idp.findOrFail({ id: removal.id })).rejects.toThrow();

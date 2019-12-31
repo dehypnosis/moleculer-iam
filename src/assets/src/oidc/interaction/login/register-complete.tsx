@@ -40,7 +40,7 @@ export const LoginInteractionRegisterComplete: React.FunctionComponent<{ oidc: O
       ]}
       error={errors.global}
     >
-      <Text>It is highly recommended to enter the mobile phone number to make it easier to find the your lost account.</Text>
+      <Text>From now on, you can use all of the services of plco with this single ID. So don't forget it please. 🙂</Text>
     </OIDCInteractionPage>
   );
 };

@@ -1,20 +1,25 @@
 import * as _ from "lodash";
 import { OIDCAccount, OIDCAccountClaims, OIDCAccountCredentials, OIDCClaimsInfo } from "../oidc";
-import { IDPAdapter, Transaction } from "./adapter";
+import { Transaction } from "./adapter";
 import { defaultIdentityMetadata, IdentityMetadata } from "./metadata";
 import { Errors } from "./error";
+import { IdentityProvider } from "./provider";
 
 export interface IdentityProps {
   id: string;
-  adapter: IDPAdapter;
+  provider: IdentityProvider;
 }
 
 export class Identity implements OIDCAccount {
-  constructor(public readonly props: IdentityProps) {
+  constructor(private readonly props: IdentityProps) {
   }
 
   public get id(): Readonly<string> {
     return this.props.id;
+  }
+
+  private get adapter() {
+    return this.props.provider.adapter;
   }
 
   public get accountId(): Readonly<string> {
@@ -31,7 +36,7 @@ export class Identity implements OIDCAccount {
    * @param rejected
    */
   public async claims(use: string = "userinfo", scope: string | string[] = "", claims?: OIDCClaimsInfo, rejected?: string[]): Promise<OIDCAccountClaims> {
-    return this.props.adapter.getClaims(this, {
+    return this.adapter.getClaims(this.id, {
       use,
       scope: typeof scope === "string" ? scope.split(" ").filter(s => !!s) : scope,
       claims,
@@ -40,57 +45,57 @@ export class Identity implements OIDCAccount {
   }
 
   public async updateClaims(claims: Partial<OIDCAccountClaims>, scope: string | string[] = "", transaction?: Transaction): Promise<void> {
-    let isolated = false;
-    if (!transaction) {
-      isolated = true;
-      transaction = await this.props.adapter.transaction();
-    }
-    try {
-      const scopeWithoutOpenID = (typeof scope === "string" ? scope.split(" ").filter(s => !!s) : scope).filter(s => s !== "openid");
-      await this.props.adapter.createOrUpdateClaims(this, claims, {
-        scope: scopeWithoutOpenID,
-      }, transaction);
-      await this.props.adapter.onClaimsUpdated(this, claims, transaction);
-      if (isolated) await transaction.commit();
-    } catch (err) {
-      if (isolated) await transaction.rollback();
-      throw err;
-    }
+    const scopeWithoutOpenID = (typeof scope === "string" ? scope.split(" ").filter(s => !!s) : scope).filter(s => s !== "openid");
+    await this.adapter.createOrUpdateClaims(this.id, claims, {
+      scope: scopeWithoutOpenID,
+    }, transaction);
   }
 
-  // TODO: deleteClaims
+  public get mandatoryScopes() {
+    return this.props.provider.claims.mandatoryScopes;
+  }
+
+  public async deleteClaims(scope: string | string[] = "", transaction?: Transaction): Promise<void> {
+    // check mandatory scopes
+    const scopes = (typeof scope === "string" ? scope.split(" ").filter(s => !!s) : scope);
+    if (scopes.some(s => this.mandatoryScopes.includes(s))) {
+      throw new Errors.BadRequestError(`cannot delete mandatory scopes: ${this.mandatoryScopes}`);
+    }
+
+    await this.adapter.deleteClaims(this.id, scopes, transaction);
+  }
 
   /* identity metadata (federation information, etc. not-versioned) */
   public async metadata(): Promise<IdentityMetadata> {
-    const metadata = await this.props.adapter.getMetadata(this);
-    if (!metadata) throw new Errors.IdentityNotExistsError();
+    const metadata = await this.adapter.getMetadata(this.id);
+    if (!metadata) throw new Errors.UnexpectedError(`empty metadata: ${this.id}`);
     return metadata;
   }
 
   public async updateMetadata(metadata: Partial<IdentityMetadata>, transaction?: Transaction): Promise<void> {
-    await this.props.adapter.createOrUpdateMetadata(this, _.defaultsDeep(metadata, defaultIdentityMetadata), transaction);
+    await this.adapter.createOrUpdateMetadata(this.id, _.defaultsDeep(metadata, defaultIdentityMetadata), transaction);
   }
 
   /* credentials */
   public async validateCredentials(credentials: Partial<OIDCAccountCredentials>): Promise<void> {
-    return this.props.adapter.validateCredentials(credentials);
+    return this.adapter.validateCredentials(credentials);
   }
 
   public async assertCredentials(credentials: Partial<OIDCAccountCredentials>): Promise<boolean> {
-    return this.props.adapter.assertCredentials(this, credentials);
+    return this.adapter.assertCredentials(this.id, credentials);
   }
 
   public async updateCredentials(credentials: Partial<OIDCAccountCredentials>, transaction?: Transaction): Promise<boolean> {
-    await this.props.adapter.validateCredentials(credentials);
-    return this.props.adapter.createOrUpdateCredentials(this, credentials, transaction);
+    await this.adapter.validateCredentials(credentials);
+    return this.adapter.createOrUpdateCredentials(this.id, credentials, transaction);
   }
 
   /* delete identity */
   public async delete(permanently: boolean = false, transaction?: Transaction): Promise<void> {
     if (permanently) {
-      await this.props.adapter.delete(this, transaction);
+      await this.adapter.delete(this.id, transaction);
     } else {
-      await this.props.adapter.createOrUpdateMetadata(this, {softDeleted: true}, transaction);
+      await this.adapter.createOrUpdateMetadata(this.id, {softDeleted: true}, transaction);
     }
   }
 
@@ -99,6 +104,6 @@ export class Identity implements OIDCAccount {
   }
 
   public async restoreSoftDeleted(transaction?: Transaction): Promise<void> {
-    await this.props.adapter.createOrUpdateMetadata(this, {softDeleted: false}, transaction);
+    await this.adapter.createOrUpdateMetadata(this.id, {softDeleted: false}, transaction);
   }
 }

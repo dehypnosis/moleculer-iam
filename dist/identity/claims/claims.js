@@ -18,6 +18,9 @@ class IdentityClaimsManager {
         // prepare base claims
         this.options = _.defaultsDeep(opts || {}, options_1.defaultIdentityClaimsManagerOptions);
     }
+    get adapter() {
+        return this.props.adapter;
+    }
     /* lifecycle */
     start() {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
@@ -102,7 +105,7 @@ class IdentityClaimsManager {
     }
     getActiveClaimsSchemata() {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            return this.props.adapter.getClaimsSchemata({ scope: [], active: true });
+            return this.adapter.getClaimsSchemata({ scope: [], active: true });
         });
     }
     forceReloadClaims(where) {
@@ -110,18 +113,18 @@ class IdentityClaimsManager {
             this.logger.info(`force reload identity claims: onClaimsUpdated()`, where);
             let transaction;
             try {
-                transaction = yield this.props.adapter.transaction();
+                transaction = yield this.adapter.transaction();
                 // migrate in batches
                 const limit = 100;
                 let offset = 0;
                 while (true) {
-                    const identities = yield this.props.adapter.get({ where, offset, limit });
+                    const identities = yield this.adapter.get({ where, offset, limit });
                     if (identities.length === 0) {
                         break;
                     }
                     yield Promise.all(identities.map((identity) => tslib_1.__awaiter(this, void 0, void 0, function* () {
                         try {
-                            yield this.props.adapter.onClaimsUpdated(identity, {}, transaction);
+                            yield this.adapter.onClaimsUpdated(identity, {}, transaction);
                         }
                         catch (error) {
                             this.logger.error("failed to reload user claims", error);
@@ -131,7 +134,7 @@ class IdentityClaimsManager {
                     offset += limit;
                 }
                 yield transaction.commit();
-                yield this.props.adapter.onClaimsSchemaUpdated();
+                yield this.adapter.onClaimsSchemaUpdated();
             }
             catch (error) {
                 this.logger.error(`force reload identity claims failed`, error);
@@ -145,12 +148,12 @@ class IdentityClaimsManager {
     forceDeleteClaimsSchemata(...keys) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             for (const key of keys) {
-                yield this.props.adapter.acquireMigrationLock(key);
-                const transaction = yield this.props.adapter.transaction();
+                yield this.adapter.acquireMigrationLock(key);
+                const transaction = yield this.adapter.transaction();
                 try {
                     this.logger.info("force delete claims schema:", key);
-                    yield this.props.adapter.forceDeleteClaimsSchema(key, transaction);
-                    yield this.props.adapter.onClaimsSchemaUpdated();
+                    yield this.adapter.forceDeleteClaimsSchema(key, transaction);
+                    yield this.adapter.onClaimsSchemaUpdated();
                     yield transaction.commit();
                 }
                 catch (error) {
@@ -159,14 +162,14 @@ class IdentityClaimsManager {
                     throw error;
                 }
                 finally {
-                    yield this.props.adapter.releaseMigrationLock(key);
+                    yield this.adapter.releaseMigrationLock(key);
                 }
             }
         });
     }
     defineClaimsSchema(payload) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            yield this.props.adapter.acquireMigrationLock(payload.key);
+            yield this.adapter.acquireMigrationLock(payload.key);
             try {
                 // validate payload and create schema
                 const schema = this.createClaimsSchema(payload);
@@ -176,25 +179,25 @@ class IdentityClaimsManager {
                 // compile migration function
                 const migrateClaims = this.compileClaimsMigrationStrategy(schema);
                 // restore inactive schema version if does
-                const inactiveSchema = yield this.props.adapter.getClaimsSchema({ key: schema.key, version: schema.version, active: false });
+                const inactiveSchema = yield this.adapter.getClaimsSchema({ key: schema.key, version: schema.version, active: false });
                 if (inactiveSchema) {
                     this.logger.info(`activate identity claims schema for ${schema.key}:${schema.version.substr(0, 8)}`);
                     // tslint:disable-next-line:no-shadowed-variable
-                    const transaction = yield this.props.adapter.transaction();
+                    const transaction = yield this.adapter.transaction();
                     try {
                         // activate
-                        yield this.props.adapter.setActiveClaimsSchema({ key: schema.key, version: schema.version }, transaction);
+                        yield this.adapter.setActiveClaimsSchema({ key: schema.key, version: schema.version }, transaction);
                         // migrate in batches
                         const limit = 100;
                         let offset = 0;
                         while (true) {
-                            const identities = yield this.props.adapter.get({ offset, limit, where: scopeFilter });
+                            const identities = yield this.adapter.get({ offset, limit, where: scopeFilter });
                             if (identities.length === 0) {
                                 break;
                             }
                             yield Promise.all(identities.map((identity) => tslib_1.__awaiter(this, void 0, void 0, function* () {
                                 try {
-                                    yield this.props.adapter.onClaimsUpdated(identity, {}, transaction);
+                                    yield this.adapter.onClaimsUpdated(identity, {}, transaction);
                                 }
                                 catch (error) {
                                     this.logger.error("failed to update user claims", error);
@@ -202,12 +205,12 @@ class IdentityClaimsManager {
                                 }
                             })));
                             // notice current migration is alive
-                            if (this.props.adapter.touchMigrationLock) {
-                                yield this.props.adapter.touchMigrationLock(schema.key, offset + identities.length);
+                            if (this.adapter.touchMigrationLock) {
+                                yield this.adapter.touchMigrationLock(schema.key, offset + identities.length);
                             }
                             offset += limit;
                         }
-                        yield this.props.adapter.onClaimsSchemaUpdated();
+                        yield this.adapter.onClaimsSchemaUpdated();
                         yield transaction.commit();
                         return schema;
                     }
@@ -218,17 +221,17 @@ class IdentityClaimsManager {
                     }
                 }
                 // get current active schema
-                const activeSchema = yield this.props.adapter.getClaimsSchema({ key: schema.key, active: true });
+                const activeSchema = yield this.adapter.getClaimsSchema({ key: schema.key, active: true });
                 // if has exactly same schema
                 if (activeSchema && activeSchema.version === schema.version) {
                     this.logger.info(`skip identity claims schema migration for ${activeSchema.key}:${activeSchema.version.substr(0, 8)}`);
-                    yield this.props.adapter.onClaimsSchemaUpdated(); // for the case of distributed system
+                    yield this.adapter.onClaimsSchemaUpdated(); // for the case of distributed system
                     return activeSchema;
                 }
                 // get target schema
                 let parentSchema;
                 if (schema.parentVersion) { // from specific version
-                    parentSchema = yield this.props.adapter.getClaimsSchema({ key: schema.key, version: schema.parentVersion });
+                    parentSchema = yield this.adapter.getClaimsSchema({ key: schema.key, version: schema.parentVersion });
                     if (!parentSchema) {
                         throw new error_1.Errors.ValidationError([], { parentVersion: schema.parentVersion });
                     }
@@ -240,29 +243,29 @@ class IdentityClaimsManager {
                 // update user client claims
                 this.logger.info(`start identity claims migration: ${schema.key}:${schema.parentVersion ? schema.parentVersion.substr(0, 8) + " -> " : ""}${schema.version.substr(0, 8)}`);
                 // begin transaction
-                const transaction = yield this.props.adapter.transaction();
+                const transaction = yield this.adapter.transaction();
                 try {
                     // create new claims schema
-                    yield this.props.adapter.createClaimsSchema(schema, transaction);
-                    yield this.props.adapter.setActiveClaimsSchema({ key: schema.key, version: schema.version }, transaction);
+                    yield this.adapter.createClaimsSchema(schema, transaction);
+                    yield this.adapter.setActiveClaimsSchema({ key: schema.key, version: schema.version }, transaction);
                     // migrate in batches
                     const limit = 100;
                     let offset = 0;
                     while (true) {
-                        const identities = yield this.props.adapter.get({ offset, limit, where: scopeFilter });
-                        if (identities.length === 0) {
+                        const ids = yield this.adapter.get({ offset, limit, where: scopeFilter });
+                        if (ids.length === 0) {
                             break;
                         }
-                        yield Promise.all(identities.map((identity, index) => tslib_1.__awaiter(this, void 0, void 0, function* () {
+                        yield Promise.all(ids.map((id, index) => tslib_1.__awaiter(this, void 0, void 0, function* () {
                             // validate new claims and save
                             let oldClaim;
                             let newClaim;
                             let claims;
                             try {
                                 // create new value
-                                claims = yield identity.claims();
+                                claims = yield this.adapter.getClaims(id, { use: "userinfo", scope: [] });
                                 oldClaim = parentSchema
-                                    ? yield this.props.adapter.getVersionedClaims(identity, [{
+                                    ? yield this.adapter.getVersionedClaims(id, [{
                                             key: schema.key,
                                             schemaVersion: schema.parentVersion,
                                         }])
@@ -271,32 +274,32 @@ class IdentityClaimsManager {
                                 oldClaim = typeof oldClaim === "undefined" ? null : oldClaim;
                                 newClaim = migrateClaims(oldClaim, schema.seed, claims);
                                 newClaim = typeof newClaim === "undefined" ? null : newClaim;
-                                this.logger.info(`migrate user claims ${identity.id}:${schema.key}:${schema.version.substr(0, 8)}`, oldClaim, "->", newClaim);
+                                this.logger.info(`migrate user claims ${id}:${schema.key}:${schema.version.substr(0, 8)}`, oldClaim, "->", newClaim);
                                 // validate and store it
                                 validateClaims(newClaim);
-                                yield this.props.adapter.createOrUpdateVersionedClaims(identity, [{
+                                yield this.adapter.createOrUpdateVersionedClaims(id, [{
                                         key: schema.key,
                                         value: newClaim,
                                         schemaVersion: schema.version,
                                     }], transaction);
                                 if (JSON.stringify(oldClaim) !== JSON.stringify(newClaim)) {
-                                    yield this.props.adapter.onClaimsUpdated(identity, { [schema.key]: newClaim }, transaction);
+                                    yield this.adapter.onClaimsUpdated(id, { [schema.key]: newClaim }, transaction);
                                 }
                             }
                             catch (error) {
-                                const detail = { id: identity.id, oldClaim, newClaim, error, index: index + offset };
+                                const detail = { id, oldClaim, newClaim, error, index: index + offset };
                                 this.logger.error("failed to update user claims", detail);
                                 throw new error_1.Errors.ValidationError([], detail);
                             }
                         })));
                         // notice current migration is alive
-                        if (this.props.adapter.touchMigrationLock) {
-                            yield this.props.adapter.touchMigrationLock(schema.key, offset + identities.length);
+                        if (this.adapter.touchMigrationLock) {
+                            yield this.adapter.touchMigrationLock(schema.key, offset + ids.length);
                         }
                         offset += limit;
                     }
                     // commit transaction
-                    yield this.props.adapter.onClaimsSchemaUpdated();
+                    yield this.adapter.onClaimsSchemaUpdated();
                     yield transaction.commit();
                     this.logger.info(`identity claims migration finished: ${schema.key}:${schema.parentVersion ? schema.parentVersion.substr(0, 8) + " -> " : ""}${schema.version.substr(0, 8)}`);
                     return schema;
@@ -308,7 +311,7 @@ class IdentityClaimsManager {
                 }
             }
             finally {
-                yield this.props.adapter.releaseMigrationLock(payload.key);
+                yield this.adapter.releaseMigrationLock(payload.key);
             }
         });
     }

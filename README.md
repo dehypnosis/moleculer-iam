@@ -1,6 +1,6 @@
 # moleculer-iam
 
-Centeralized IAM module for moleculer. Including default OIDC provider for user profile and custom claims (for ABAC, also simple role system for RBAC available) management, custom claims are supported by scheme validation and versioned migration. Either can be composed with remote OIDC providers like G-Suite. Basic authentication and authorization features for OIDC/OAuth2 are supported. Can operate mutiple realms, including admin, user, service-account realms are set by default.
+Centralized IAM module for moleculer. Including default OIDC provider for user profile and custom claims (for ABAC, also simple role system for RBAC available) management, custom claims are supported by scheme validation and versioned migration. Either can be composed with remote OIDC providers like G-Suite. Basic authentication and authorization features for OIDC/OAuth2 are supported. Can operate mutiple realms, including admin, user, service-account realms are set by default.
 
 [![Build Status](https://travis-ci.org/qmit-pro/moleculer-iam.svg?branch=master)](https://travis-ci.org/qmit-pro/moleculer-iam)
 [![Coverage Status](https://coveralls.io/repos/github/qmit-pro/moleculer-iam/badge.svg?branch=master)](https://coveralls.io/github/qmit-pro/moleculer-iam?branch=master)
@@ -18,36 +18,46 @@ Centeralized IAM module for moleculer. Including default OIDC provider for user 
         - [x] token management
             - [x] login
             - [x] logout / change account
-            - [] session management
-        - [] account management
+        - [x] account management
             - [x] find email
             - [x] reset password
             - [x] phone verification
             - [x] email verification
-            - [] registration
-            - [] manage profile
-            - [] manage credentials
-            - [] removal
-- [] 0.2.x Alpha
+            - [x] registration
+- [x] 0.2.x Alpha
     - [x] Identity Provider
         - [x] Storage
-            - [x] In-Memory adapter (for testing)
-            - [] MySQL adapter
-        - [x] Basic scope: openid, profile, email, address, phone, offline_access
-        - [x] Custom scope extension
-            - [x] Declarative claims schema and migration support
-        - [] Federation
-            - [] OAuth
-                - [] Google
-                - [] Facebook
-                - [] KakaoTalk
+            - [x] In-Memory adapter (for testing and development)
+            - [x] RDBMS adapter (MySQL, PostgreSQL, ...)
+        - [x] OIDC scope and claims definition
+            - [x] Declarative claims schema
+            - [x] Robust migration support for versioned claims
+            - [x] Battery included OIDC scopes
+                - openid
+                - profile (name, picture)
+                - email (email, email_verified)
+                - phone (phone_number, phone_number_verified)
+                - gender
+                - birthdate
+        - [x] Dynamic scope grant without definition (eg. repo:read, calendar:create, whatever:dynamic:permissions)
+        - [x] Federation
+            - [x] OAuth
+                - [x] Google (OIDC)
+                - [x] Facebook
+                - [x] KakaoTalk
 - [] 0.3.x Beta
     - [] OAuth 2.0 and OpenID Connect Core 1.0 Provider
-       - [] Device flow
+        - [] (Refactor interaction codes)
+        - [] Device flow
     - [] Identity Provider
         - [] 2FA
     - [] Web client application components
-        - device management
+        - [] manage profile
+        - [] manage session
+        - [] manage credentials
+        - [] manage devices
+        - [] manage connected services
+        - [] remove account
 - [] 1.0.x First Stable Release
     - [] Rate limiter
     - [] IP filter

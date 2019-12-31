@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
 const _ = tslib_1.__importStar(require("lodash"));
+const identity_1 = require("./identity");
 const error_1 = require("./error");
 const adapter_1 = require("./adapter");
 const claims_1 = require("./claims");
@@ -90,7 +91,7 @@ class IdentityProvider {
                     throw new error_1.Errors.ValidationError(result);
                 }
             }
-            return this.adapter.find(args);
+            return this.adapter.find(args).then(id => id ? new identity_1.Identity({ id, provider: this }) : undefined);
         });
     }
     findOrFail(args) {
@@ -128,7 +129,8 @@ class IdentityProvider {
                     args.where.metadata = {};
                 args.where.metadata.softDeleted = false;
             }
-            return this.adapter.get(args);
+            return this.adapter.get(args)
+                .then(ids => ids.map(id => new identity_1.Identity({ id, provider: this })));
         });
     }
     /* create account */
@@ -142,7 +144,8 @@ class IdentityProvider {
             }
             // push mandatory scopes
             args.scope = [...new Set([...args.scope, ...this.claims.mandatoryScopes])];
-            return this.adapter.create(args);
+            return this.adapter.create(args)
+                .then(id => new identity_1.Identity({ id, provider: this }));
         });
     }
     validate(args) {

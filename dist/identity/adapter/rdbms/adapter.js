@@ -8,7 +8,6 @@ const dataloader_1 = tslib_1.__importDefault(require("dataloader"));
 const moment_1 = tslib_1.__importDefault(require("moment"));
 const rdbms_1 = require("../../../helper/rdbms");
 const adapter_1 = require("../adapter");
-const identity_1 = require("../../identity");
 const model_1 = require("./model");
 /* Postgres, MySQL, MariaDB, SQLite and Microsoft SQL Server supported */
 // tslint:disable-next-line:class-name
@@ -19,14 +18,14 @@ class IDP_RDBMS_Adapter extends adapter_1.IDPAdapter {
         this.displayName = "RDBMS";
         this.getVersionedClaimsLoader = new dataloader_1.default((entries) => tslib_1.__awaiter(this, void 0, void 0, function* () {
             const where = {
-                id: entries.map(entry => entry.identity.id),
+                id: entries.map(entry => entry.id),
                 key: [...new Set(entries.reduce((keys, entry) => keys.concat(entry.claims.map(c => c.key)), []))],
             };
             const foundClaimsList = new Array(entries.length).fill(null).map(() => ({}));
             const raws = yield this.IdentityClaims.findAll({ where });
             for (const raw of raws) {
                 const claim = raw.get({ plain: true });
-                const entryIndex = entries.findIndex(e => e.identity.id === claim.id);
+                const entryIndex = entries.findIndex(e => e.id === claim.id);
                 const entry = entries[entryIndex];
                 const foundClaims = foundClaimsList[entryIndex];
                 const specificVersion = entry.claims.find(c => c.key === claim.key).schemaVersion;
@@ -79,15 +78,7 @@ class IDP_RDBMS_Adapter extends adapter_1.IDPAdapter {
     find(args) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             return this.IdentityCache.findOne({ where: args, attributes: ["id"] })
-                .then(raw => {
-                if (!raw) {
-                    return;
-                }
-                return new identity_1.Identity({
-                    id: raw.get("id"),
-                    adapter: this,
-                });
-            });
+                .then(raw => raw ? raw.get("id") : undefined);
         });
     }
     // args will be like { claims:{}, metadata:{}, ... }
@@ -101,16 +92,11 @@ class IDP_RDBMS_Adapter extends adapter_1.IDPAdapter {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             args.attributes = ["id"];
             return this.IdentityCache.findAll(args)
-                .then(raws => raws.map(raw => {
-                return new identity_1.Identity({
-                    id: raw.get("id"),
-                    adapter: this,
-                });
-            }));
+                .then(raws => raws.map(raw => raw.get("id")));
         });
     }
     /* delete */
-    delete(identity, transaction) {
+    delete(id, transaction) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             let isolated = false;
             if (!transaction) {
@@ -118,7 +104,7 @@ class IDP_RDBMS_Adapter extends adapter_1.IDPAdapter {
                 isolated = true;
             }
             try {
-                const where = { id: identity.id };
+                const where = { id };
                 let count = yield this.IdentityMetadata.destroy({ where, transaction });
                 count += yield this.IdentityClaims.destroy({ where, transaction });
                 count += yield this.IdentityClaimsCache.destroy({ where, transaction });
@@ -140,10 +126,10 @@ class IDP_RDBMS_Adapter extends adapter_1.IDPAdapter {
     get IdentityMetadata() {
         return this.manager.getModel("IdentityMetadata");
     }
-    createOrUpdateMetadata(identity, metadata, transaction) {
+    createOrUpdateMetadata(id, metadata, transaction) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             const [model, created] = yield this.IdentityMetadata.findOrCreate({
-                where: { id: identity.id },
+                where: { id },
                 defaults: { data: metadata },
                 transaction,
             });
@@ -156,9 +142,9 @@ class IDP_RDBMS_Adapter extends adapter_1.IDPAdapter {
             }
         });
     }
-    getMetadata(identity) {
+    getMetadata(id) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            return this.IdentityMetadata.findOne({ where: { id: identity.id } })
+            return this.IdentityMetadata.findOne({ where: { id } })
                 .then(raw => raw ? raw.get("data") : undefined);
         });
     }
@@ -166,48 +152,30 @@ class IDP_RDBMS_Adapter extends adapter_1.IDPAdapter {
     get IdentityClaims() {
         return this.manager.getModel("IdentityClaims");
     }
-    createOrUpdateVersionedClaims(identity, claims) {
+    createOrUpdateVersionedClaims(id, claims) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            yield this.IdentityClaims.bulkCreate(claims.map(({ key, value, schemaVersion }) => ({ id: identity.id, key, schemaVersion, value })), {
+            yield this.IdentityClaims.bulkCreate(claims.map(({ key, value, schemaVersion }) => ({ id, key, schemaVersion, value })), {
                 fields: ["id", "key", "schemaVersion", "value"],
                 updateOnDuplicate: ["value"],
             });
         });
     }
-    getVersionedClaims(identity, claims) {
+    getVersionedClaims(id, claims) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            return this.getVersionedClaimsLoader.load({ identity, claims });
-            // const where: WhereAttributeHash = {
-            //   id: identity.id,
-            //   key: claims.map(c => c.key),
-            // };
-            //
-            // const foundClaims: Partial<OIDCAccountClaims> = {};
-            // await this.IdentityClaims.findAll({where})
-            //   .then(raws => {
-            //     raws.forEach(raw => {
-            //       const claim = raw.get({plain: true}) as { key: string, value: string, schemaVersion: string };
-            //       const specificVersion = claims.find(c => c.key === claim.key)!.schemaVersion;
-            //       if (typeof specificVersion === "undefined" || specificVersion === claim.schemaVersion) {
-            //         foundClaims[claim.key] = claim.value;
-            //       }
-            //     });
-            //   });
-            //
-            // return foundClaims;
+            return this.getVersionedClaimsLoader.load({ id, claims });
         });
     }
     /* cache */
     get IdentityClaimsCache() {
         return this.manager.getModel("IdentityClaimsCache");
     }
-    onClaimsUpdated(identity, updatedClaims, transaction) {
+    onClaimsUpdated(id, updatedClaims, transaction) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            const claims = yield this.IdentityClaimsCache.findOne({ where: { id: identity.id } }).then(raw => raw ? raw.get("data") : {});
+            const claims = yield this.IdentityClaimsCache.findOne({ where: { id } }).then(raw => raw ? raw.get("data") : {});
             const mergedClaims = _.defaultsDeep(updatedClaims, claims);
             // this.logger.info("sync identity claims cache:", mergedClaims);
             yield this.IdentityClaimsCache.upsert({
-                id: identity.id,
+                id,
                 data: mergedClaims,
             }, {
                 transaction,
@@ -218,7 +186,7 @@ class IDP_RDBMS_Adapter extends adapter_1.IDPAdapter {
     get IdentityCredentials() {
         return this.manager.getModel("IdentityCredentials");
     }
-    createOrUpdateCredentials(identity, credentials, transaction) {
+    createOrUpdateCredentials(id, credentials, transaction) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             const hashedCredentials = {};
             // hash credentials
@@ -226,13 +194,13 @@ class IDP_RDBMS_Adapter extends adapter_1.IDPAdapter {
                 hashedCredentials.password = yield bcrypt_1.default.hash(credentials.password, 10);
             }
             const [model, created] = yield this.IdentityCredentials.findOrCreate({
-                where: { id: identity.id },
+                where: { id },
                 defaults: hashedCredentials,
                 transaction,
             });
             if (!created) {
                 // not changed
-                if (yield this.assertCredentials(identity, credentials)) {
+                if (yield this.assertCredentials(id, credentials)) {
                     return false;
                 }
                 yield model.update(hashedCredentials, { transaction });
@@ -240,9 +208,9 @@ class IDP_RDBMS_Adapter extends adapter_1.IDPAdapter {
             return true;
         });
     }
-    assertCredentials(identity, credentials) {
+    assertCredentials(id, credentials) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            const model = yield this.IdentityCredentials.findOne({ where: { id: identity.id } });
+            const model = yield this.IdentityCredentials.findOne({ where: { id } });
             if (!model) {
                 return false;
             }

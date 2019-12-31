@@ -1,6 +1,8 @@
 import { IdentityProvider } from "../provider";
 import { doCommonAdapterTest } from "./adapter.spec.common";
 
+const isTravis = !!process.env.TRAVIS;
+
 const idp = new IdentityProvider({
   logger: console,
 }, {
@@ -8,10 +10,10 @@ const idp = new IdentityProvider({
     type: "RDBMS",
     options: {
       dialect: "mysql",
-      host: "mysql-dev.internal.qmit.pro",
+      host: isTravis ? "127.0.0.1" : "mysql-dev.internal.qmit.pro",
       database: "iam",
-      username: "iam",
-      password: "iam",
+      username: isTravis ? "travis" : "iam",
+      password: isTravis ? undefined : "iam",
       sqlLogLevel: "none",
     },
   },
