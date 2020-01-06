@@ -57,6 +57,7 @@ export const LoginInteractionEnterPassword: React.FunctionComponent<{ oidc: OIDC
       error={errors.global}
     >
       <form onSubmit={(e) => { e.preventDefault(); handleLogin(); }}>
+        <input type="text" value={user.email} style={{display: "none"}} />
         <TextField
           label="Password"
           type="password"

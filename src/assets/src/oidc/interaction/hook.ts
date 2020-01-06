@@ -14,7 +14,7 @@ export function useWithLoading() {
       console.error(error);
       setErrors({global: error.toString()});
     } finally {
-      setLoading(false);
+      setTimeout(() => setLoading(false), 500);
     }
   }, [loading]);
 

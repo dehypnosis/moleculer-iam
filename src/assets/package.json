@@ -1,6 +1,6 @@
 {
-  "name": "moleculer-iam-client",
-  "version": "0.1.24",
+  "name": "moleculer-iam-client-react",
+  "version": "0.1.25",
   "license": "MIT",
   "main": "lib/assets/src/oidc/client/index.js",
   "scripts": {

@@ -2,8 +2,6 @@
 
 import { IAMServiceSchema, OIDCAccountClaims } from "../../";
 import { ServiceBroker } from "moleculer";
-import request from "request-promise-native";
-import { Errors } from "../../identity/error";
 
 // create moleculer service (optional)
 const broker = new ServiceBroker({
