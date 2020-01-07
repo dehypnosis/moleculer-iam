@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import { OIDCInteraction, OIDCInteractionData } from "./oidc/interaction";
 import { ContextualMenuItemType, Spinner, SpinnerSize, Stack, Text, } from "./styles";
@@ -12,10 +12,10 @@ export const App: React.FunctionComponent = () => {
   }
 
   const context = useUserContextFactory({
-    authority: location.origin === "http://localhost:8181" ? "http://localhost:8080" : location.origin,
-    client_id: location.origin === "http://localhost:8181" ? "http://localhost:8080" : location.origin,
+    authority: location.origin === "http://localhost:9191" ? "http://localhost:9090" : location.origin,
+    client_id: (location.origin === "http://localhost:9191" ? "http://localhost:9090" : location.origin).replace("https://", "").replace("http://", "").replace(":", "-"),
   }, {
-    automaticSignIn: !(location.pathname.startsWith("/help/") || location.pathname === "/help") ? "login" : undefined,
+    automaticSignIn: !(location.pathname.startsWith("/help/") || location.pathname === "/help"),
   });
 
   return (
@@ -39,7 +39,7 @@ export const App: React.FunctionComponent = () => {
                       iconProps: {
                         iconName: "UserSync",
                       },
-                      onClick: () => { signIn({prompt: "login", change_account: true}); },
+                      onClick: () => { signIn({change_account: true}); },
                     },
                     {
                       key: "setting",

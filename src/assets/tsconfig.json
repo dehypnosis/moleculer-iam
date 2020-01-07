@@ -9,8 +9,8 @@
     "strict": true,
     "moduleResolution": "node",
     "esModuleInterop": true,
-    "typeRoots": ["node_modules/@types", "node_modules/just-stack-react/node_modules/@types"],
+    "typeRoots": ["node_modules/@types"],
     "lib": ["dom"]
   },
-  "include": ["src", "typings/*.d.ts"]
+  "include": ["src", "typings.d.ts"]
 }

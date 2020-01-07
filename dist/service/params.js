@@ -90,7 +90,7 @@ const clientCreateParams = exports.IAMServiceActionParams["client.create"] = {
             "client_credentials",
             "urn:ietf:params:oauth:grant-type:device_code",
         ],
-        default: ["implicit", "authorization_code"],
+        default: ["implicit", "authorization_code", "refresh_token"],
     },
     response_types: {
         type: "array",

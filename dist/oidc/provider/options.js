@@ -36,7 +36,6 @@ exports.defaultOIDCProviderOptions = {
         /* turn off development feature which composes dummy interactions */
         devInteractions: ({ enabled: false }),
     },
-    /* tokens TTL in seconds */
     responseTypes: [
         "code",
         "id_token", "id_token token",
@@ -57,6 +56,10 @@ exports.defaultOIDCProviderOptions = {
         "S256",
         "plain",
     ],
+    clientDefaults: {
+        grant_types: ["implicit", "authorization_code", "refresh_token"],
+        response_types: ["code", "id_token", "id_token token", "code id_token", "code token", "code id_token token", "none"],
+    },
     /* extra params for /auth?change_account=true&blabla to not auto-fill signed in session account */
     extraParams: ["change_account"],
     /* additional discovery properties */

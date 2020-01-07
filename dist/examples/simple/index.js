@@ -28,7 +28,7 @@ const serviceSchema = __1.IAMServiceSchema({
         },
     },
     oidc: {
-        issuer: "http://localhost:8080",
+        issuer: "http://localhost:9090",
         devMode: true,
         adapter: {
             // type: "Memory",
@@ -72,7 +72,7 @@ const serviceSchema = __1.IAMServiceSchema({
     server: {
         http: {
             hostname: "localhost",
-            port: 8080,
+            port: 9090,
         },
     },
 });

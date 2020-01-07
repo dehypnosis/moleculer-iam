@@ -57,9 +57,11 @@ export const LoginInteractionEnterPassword: React.FunctionComponent<{ oidc: OIDC
       error={errors.global}
     >
       <form onSubmit={(e) => { e.preventDefault(); handleLogin(); }}>
-        <input type="text" value={user.email} style={{display: "none"}} />
+        <input type="text" name="username" value={user.email} style={{display: "none"}} readOnly />
         <TextField
           label="Password"
+          autoComplete="password"
+          name="password"
           type="password"
           inputMode="text"
           placeholder="Enter your password"

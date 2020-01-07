@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const iam_1 = require("./iam");
+jest.setTimeout(1000 * 30);
 describe("Test 'IAM'", () => {
     afterAll(() => iam_1.broker.stop());
     describe("Simple working test", () => {

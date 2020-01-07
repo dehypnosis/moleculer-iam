@@ -102,10 +102,14 @@ export const LoginInteraction: React.FunctionComponent<{ oidc: OIDCInteractionDa
       <form onSubmit={(e) => { e.preventDefault(); handleNext(); }}>
         <TextField
           label="Email"
+          name="username"
           type="text"
           inputMode="email"
-          placeholder="Enter your email"
+          autoComplete="username"
+          autoCapitalize="off"
+          autoCorrect="off"
           autoFocus
+          placeholder="Enter your email"
           tabIndex={1}
           value={email}
           errorMessage={errors.email}

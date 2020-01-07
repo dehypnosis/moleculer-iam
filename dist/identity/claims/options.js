@@ -68,6 +68,15 @@ exports.defaultIdentityClaimsManagerOptions = {
                 pattern: /^\d{4}\-(0?[1-9]|1[012])\-(0?[1-9]|[12][0-9]|3[01])$/,
             },
         },
+        {
+            scope: "impersonation",
+            key: "impersonator",
+            description: "an account which is able to pretend other accounts (dangerous feature)",
+            validation: {
+                type: "boolean",
+                default: false,
+            },
+        },
     ],
     mandatoryScopes: [
         "openid",

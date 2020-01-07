@@ -11,7 +11,7 @@ module.exports = webpackMerge(
     devServer: {
       host: "localhost",
       disableHostCheck: true,
-      port: 8181,
+      port: 9191,
       writeToDisk: true,
       hot: true,
       contentBase: common.output.path,

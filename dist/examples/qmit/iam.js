@@ -35,7 +35,7 @@ exports.broker.createService(__1.IAMServiceSchema(_.defaultsDeep({
     server: {
         http: {
             hostname: "0.0.0.0",
-            port: 8080,
+            port: 9090,
         },
     },
 }, config_1.config.iam)));
