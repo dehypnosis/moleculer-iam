@@ -289,9 +289,9 @@ export class OIDCProvider {
         return client.metadata();
       },
 
-      async remove(id: string) {
+      async delete(id: string) {
         await methods.findOrFail(id);
-        provider.logger.info(`remove client ${kleur.cyan(id)}`);
+        provider.logger.info(`delete client ${kleur.cyan(id)}`);
         originalMethods.clientRemove(id);
       },
 

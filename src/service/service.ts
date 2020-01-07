@@ -80,13 +80,13 @@ export function IAMServiceSchema(opts: IAMServiceSchemaOptions): ServiceSchema {
           }
         },
       },
-      "client.remove": {
+      "client.delete": {
         params: {
           client_id: "string",
         },
         async handler(ctx) {
           try {
-            await oidc.client.remove((ctx.params as any).client_id);
+            await oidc.client.delete((ctx.params as any).client_id);
             await this.clearCache("client.**");
             return true;
           } catch (error) {
@@ -147,6 +147,31 @@ export function IAMServiceSchema(opts: IAMServiceSchemaOptions): ServiceSchema {
           }
         },
       },
+
+      // /* Token Management */
+      // "token.getCode": {},
+      // "token.getAccessToken": {},
+      // "token.getRefreshToken": {},
+      // "token.revokeCode": {},
+      // "token.revokeAccessToken": {},
+      // "token.revokeRefreshToken": {},
+      // "token.revokeAll": {},
+      //
+      // /* Identity Management */
+      // "identity.get": {},
+      // "identity.count": {},
+      // "identity.find": {},
+      // "identity.create": {},
+      // "identity.validate": {},
+      // "identity.update": {},
+      // "identity.delete": {},
+      // "identity.restore": {},
+      // "identity.refresh": {},
+      //
+      // /* Identity Claims Schema Management */
+      // "identity.getSchemata": {},
+      // "identity.defineSchema": {},
+      // "identity.findSchema": {},
     },
 
     methods: {
