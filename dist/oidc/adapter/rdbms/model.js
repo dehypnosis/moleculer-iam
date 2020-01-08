@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
 const model_1 = require("../model");
 function getEntryData(entry) {
-    return Object.assign(Object.assign({}, entry.data), (entry.consumedAt ? { consumed: true } : undefined));
+    return Object.assign(Object.assign({}, entry.data), (typeof entry.consumedAt !== "undefined" ? { consumed: !!entry.consumedAt } : undefined));
 }
 // tslint:disable-next-line:class-name
 class OIDC_RDBMS_Model extends model_1.OIDCModel {
@@ -15,11 +15,6 @@ class OIDC_RDBMS_Model extends model_1.OIDCModel {
     consume(id) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             yield this.model.update({ consumedAt: new Date() }, { where: { id } });
-        });
-    }
-    count(...args) {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            return this.model.count();
         });
     }
     destroy(id) {
@@ -54,16 +49,37 @@ class OIDC_RDBMS_Model extends model_1.OIDCModel {
             return getEntryData(found);
         });
     }
-    get(opts) {
+    get(args = {}) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            if (!opts)
-                opts = {};
-            if (typeof opts.offset === "undefined")
-                opts.offset = 0;
-            if (typeof opts.limit === "undefined")
-                opts.limit = 10;
-            const founds = yield this.model.findAll(opts);
+            if (typeof args.offset === "undefined")
+                args.offset = 0;
+            if (typeof args.limit === "undefined")
+                args.limit = 10;
+            if (args && args.where) {
+                args = Object.assign(Object.assign({}, args), { where: { data: args.where } });
+            }
+            const founds = yield this.model.findAll(args);
             return founds.map(getEntryData);
+        });
+    }
+    delete(args = {}) {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            if (typeof args.offset === "undefined")
+                args.offset = 0;
+            if (typeof args.limit === "undefined")
+                args.limit = 10;
+            if (args && args.where) {
+                args = Object.assign(Object.assign({}, args), { where: { data: args.where } });
+            }
+            return this.model.destroy(args);
+        });
+    }
+    count(args) {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            if (args) {
+                args = { where: { data: args } };
+            }
+            return this.model.count(args);
         });
     }
     revokeByGrantId(grantId) {

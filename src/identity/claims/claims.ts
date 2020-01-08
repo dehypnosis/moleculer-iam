@@ -140,6 +140,14 @@ export class IdentityClaimsManager {
     return this.adapter.getClaimsSchemata({scope: [], active: true});
   }
 
+  public async getClaimsSchemata(args: { scope: string[], key?: string, version?: string, active?: boolean }) {
+    return this.adapter.getClaimsSchemata(args);
+  }
+
+  public async getClaimsSchema(args: { key: string, version?: string, active?: boolean }) {
+    return this.adapter.getClaimsSchema(args);
+  }
+
   public async forceReloadClaims(where: WhereAttributeHash) {
     this.logger.info(`force reload identity claims: onClaimsUpdated()`, where);
     let transaction: Transaction;

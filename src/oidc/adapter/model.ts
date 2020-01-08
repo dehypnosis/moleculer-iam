@@ -1,5 +1,4 @@
-import * as kleur from "kleur";
-import { FindOptions } from "../../helper/rdbms";
+import { FindOptions, WhereAttributeHash } from "../../helper/rdbms";
 import { OIDCModelPayload, OIDCModelAdapter, OIDCModelName, OIDCModelNames, OIDCGrantModelNames } from "../provider";
 import { Logger } from "../../logger";
 
@@ -45,9 +44,9 @@ export abstract class OIDCModel<M extends OIDCModelPayload = OIDCModelPayload> i
    * @param {any} opts RDBMS adapter find options cannot be supported for memoryStore or other adapters
    *
    */
-  public abstract async get(opts?: FindOptions): Promise<M[]>;
+  public abstract async get(args?: FindOptions): Promise<M[]>;
 
-  public abstract async count(...args: any[]): Promise<number>;
+  public abstract async count(args?: WhereAttributeHash): Promise<number>;
 
   /**
    *
@@ -236,6 +235,9 @@ export abstract class OIDCModel<M extends OIDCModelPayload = OIDCModelPayload> i
    *
    */
   public abstract async destroy(id: string): Promise<void>;
+
+  /* bulk destroy */
+  public abstract async delete(args?: FindOptions): Promise<number>;
 
   /**
    *

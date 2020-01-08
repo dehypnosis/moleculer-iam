@@ -17,22 +17,22 @@ exports.validator = new fastest_validator_1.default({
 phoneNumber: {
   type: "phone",
   types: ["mobile", "fixed-line-or-mobile"], // default
-  country: "KR" // default
+  country: "KR", // default
+  format: "international", // default
 }
 */
 exports.validator.add("phone", ({ schema, messages }, field, context) => {
-    // ctx.request.body.phoneNumber = ctx.request.body.phoneNumber ? ctx.request.body.phoneNumber.replace(/[^0-9+]/g, " ").split(" ").filter((s: string) => !!s).join("") : "";
-    // ctx.request.body.phoneNumber = phoneNumberObj!.getNumber("international");
-    context.PhoneNumber = awesome_phonenumber_1.default;
+    context.PhoneNumber = awesome_phonenumber_1.default; // PhoneNumber is 3rd party library
     context.types = schema.types || ["mobile", "fixed-line-or-mobile"];
     context.country = schema.country || "KR";
+    context.format = schema.format || "international";
     return {
         source: `
       if (typeof value === "string") {
-        const sanitizedValue = value.replace(/[^0-9+]/g, " ").split(" ").filter((s) => !!s).join("")
-        const phoneNumberObj = new context.PhoneNumber(value, context.country); // TODO: i18n; country code from context
-        if (phoneNumberObj.isPossible() && context.types.includes(phoneNumberObj.getType())) {
-          return phoneNumberObj.getNumber("international");
+        const number = value.replace(/[^0-9+]/g, " ").split(" ").filter((s) => !!s).join("")
+        const phoneNumber = new context.PhoneNumber(number, context.country);
+        if (phoneNumber.isPossible() && context.types.includes(phoneNumber.getType())) {
+          return phoneNumber.getNumber(context.format);
         }
       }
       ${exports.validator.makeError({ type: "invalidPhoneNumber", actual: "value", messages })}

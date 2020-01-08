@@ -1,27 +1,90 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const tslib_1 = require("tslib");
 const moleculer_1 = require("moleculer");
 const service_1 = require("./service");
-describe("Test IAMService", () => {
-    const broker = new moleculer_1.ServiceBroker();
-    const serviceSchema = service_1.IAMServiceSchema({
-        idp: {},
-        oidc: { issuer: "http://localhost:8888" },
-        server: {
-            http: {
-                hostname: "localhost",
-                port: 8888,
+const oidc_1 = require("../oidc");
+const rdbms_1 = require("../helper/rdbms");
+const env = (name, fallback) => {
+    const value = process.env[name];
+    return typeof value === "undefined" ? fallback : value;
+};
+const broker = new moleculer_1.ServiceBroker({ logLevel: "error" });
+broker.createService(service_1.IAMServiceSchema({
+    idp: {},
+    oidc: {
+        issuer: "http://localhost:8888",
+        adapter: {
+            type: "RDBMS",
+            options: {
+                dialect: env("TEST_RDBMS_DIALECT", "mysql"),
+                host: env("TEST_RDBMS_HOST", "mysql-dev.internal.qmit.pro"),
+                database: env("TEST_RDBMS_DATABASE", "iam"),
+                username: env("TEST_RDBMS_USERNAME", "iam"),
+                password: env("TEST_RDBMS_PASSWORD", "iam"),
+                sqlLogLevel: env("TEST_RDBMS_LOG_LEVEL", "none"),
             },
         },
+    },
+    server: {
+        http: {
+            hostname: "localhost",
+            port: 8888,
+        },
+    },
+}));
+beforeAll(() => broker.start());
+afterAll(() => broker.stop());
+describe("iam.client.*", () => {
+    it("iam.client.get", () => {
+        return expect(broker.call("iam.client.get")).resolves.toEqual(expect.objectContaining({
+            entries: expect.arrayContaining([expect.objectContaining({ application_type: "web" })]),
+            total: expect.any(Number),
+        }));
     });
-    const service = broker.createService(serviceSchema);
-    beforeAll(() => broker.start());
-    afterAll(() => broker.stop());
-    it("service should be created", () => {
-        expect(service).toBeDefined();
+    it("iam.client.count", () => {
+        return expect(broker.call("iam.client.count")).resolves.toBeGreaterThan(0);
     });
-    it("service should throw for iam.client.create without detailed params", () => {
-        return expect(broker.call("iam.client.create", { client_id: "test" })).rejects.toThrow();
+    it("iam.client.create/find/update/delete", () => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
+        const params = { client_id: "test-service-spec", client_name: "Test service spec", redirect_uris: ["https://test-service-spec.dummy.site.com/callback"] };
+        yield expect(broker.call("iam.client.create", params)).resolves.not.toThrow();
+        yield expect(broker.call("iam.client.find", { client_id: params.client_id })).resolves.toEqual(expect.objectContaining(params));
+        yield expect(broker.call("iam.client.update", { client_id: params.client_id, client_name: "updated" })).resolves.toEqual(expect.objectContaining(Object.assign(Object.assign({}, params), { client_name: "updated" })));
+        yield expect(broker.call("iam.client.delete", { client_id: params.client_id })).resolves.not.toThrow();
+        yield expect(broker.call("iam.client.find", { client_id: params.client_id })).rejects.toThrow();
+    }));
+});
+describe("iam.model.*", () => {
+    for (const kind of oidc_1.OIDCProvider.volatileModelNames) {
+        it(`iam.model.get/count/delete for ${kind}`, () => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
+            const where = { exp: { [rdbms_1.Op.gte]: Math.floor(new Date().getTime() / 1000) } };
+            const entries = yield broker.call("iam.model.get", { kind, where });
+            if (entries.total > 0) {
+                expect(entries).toEqual(expect.objectContaining({
+                    entries: expect.arrayContaining([expect.objectContaining({ jti: expect.any(String), kind })]),
+                    total: expect.any(Number),
+                }));
+                yield expect(broker.call("iam.model.count", { kind, where })).resolves.toBeGreaterThan(0);
+                yield expect(broker.call("iam.model.delete", { kind, where })).resolves.toBeGreaterThan(0);
+            }
+            else {
+                expect(entries).toEqual(expect.objectContaining({
+                    entries: expect.arrayContaining([]),
+                    total: 0,
+                }));
+                yield expect(broker.call("iam.model.count", { kind, where })).resolves.toBe(0);
+                yield expect(broker.call("iam.model.delete", { kind, where })).resolves.toBe(0);
+            }
+        }));
+    }
+});
+describe("iam.schema.*", () => {
+    it("iam.schema.get", () => {
+        return expect(broker.call("iam.schema.get")).resolves.toEqual(expect.objectContaining({
+            entries: expect.arrayContaining([expect.objectContaining({ application_type: "web" })]),
+            total: expect.any(Number),
+        }));
     });
+    // TODO: ...
 });
 //# sourceMappingURL=service.spec.js.map

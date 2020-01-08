@@ -1,10 +1,10 @@
-import { ModelClass, FindOptions } from "../../../helper/rdbms";
+import { ModelClass, FindOptions, WhereAttributeHash } from "../../../helper/rdbms";
 import { OIDCModel, OIDCModelPayload, OIDCModelProps } from "../model";
 
 function getEntryData(entry: any): any {
   return {
     ...entry.data,
-    ...(entry.consumedAt ? {consumed: true} : undefined),
+    ...(typeof entry.consumedAt !== "undefined" ? {consumed: !!entry.consumedAt} : undefined),
   };
 }
 
@@ -16,10 +16,6 @@ export class OIDC_RDBMS_Model<M extends OIDCModelPayload = OIDCModelPayload> ext
 
   public async consume(id: string): Promise<void> {
     await this.model.update({consumedAt: new Date()}, {where: {id}});
-  }
-
-  public async count(...args: any[]): Promise<number> {
-    return this.model.count();
   }
 
   public async destroy(id: string): Promise<void> {
@@ -50,12 +46,30 @@ export class OIDC_RDBMS_Model<M extends OIDCModelPayload = OIDCModelPayload> ext
     return getEntryData(found);
   }
 
-  public async get(opts?: FindOptions): Promise<M[]> {
-    if (!opts) opts = {};
-    if (typeof opts.offset === "undefined") opts.offset = 0;
-    if (typeof opts.limit === "undefined") opts.limit = 10;
-    const founds = await this.model.findAll(opts);
+  public async get(args: FindOptions = {}): Promise<M[]> {
+    if (typeof args.offset === "undefined") args.offset = 0;
+    if (typeof args.limit === "undefined") args.limit = 10;
+    if (args && args.where) {
+      args = { ...args, where: {data: args.where}};
+    }
+    const founds = await this.model.findAll(args);
     return founds.map(getEntryData);
+  }
+
+  public async delete(args: FindOptions = {}): Promise<number> {
+    if (typeof args.offset === "undefined") args.offset = 0;
+    if (typeof args.limit === "undefined") args.limit = 10;
+    if (args && args.where) {
+      args = { ...args, where: {data: args.where}};
+    }
+    return this.model.destroy(args);
+  }
+
+  public async count(args?: WhereAttributeHash): Promise<number> {
+    if (args) {
+      args = { where: { data: args } };
+    }
+    return this.model.count(args);
   }
 
   public async revokeByGrantId(grantId: string): Promise<void> {

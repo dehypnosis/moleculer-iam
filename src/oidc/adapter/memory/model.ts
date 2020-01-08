@@ -14,6 +14,12 @@ export class OIDCMemoryModel<M extends OIDCModelPayload = OIDCModelPayload> exte
     this.storage.get(id).consumed = Math.floor(Date.now() / 1000);
   }
 
+  public async delete(): Promise<number> {
+    const size = this.storage.itemCount;
+    this.storage.reset();
+    return size;
+  }
+
   public async destroy(id: string): Promise<void> {
     this.storage.del(id);
   }
@@ -22,20 +28,20 @@ export class OIDCMemoryModel<M extends OIDCModelPayload = OIDCModelPayload> exte
     return this.storage.get(id);
   }
 
-  public async get(opts?: { offset?: number, limit?: number }): Promise<M[]> {
-    if (!opts) {
-      opts = {};
+  public async get(args?: { offset?: number, limit?: number }): Promise<M[]> {
+    if (!args) {
+      args = {};
     }
-    if (typeof opts.offset === "undefined") {
-      opts.offset = 0;
+    if (typeof args.offset === "undefined") {
+      args.offset = 0;
     }
-    if (typeof opts.limit === "undefined") {
-      opts.limit = 10;
+    if (typeof args.limit === "undefined") {
+      args.limit = 10;
     }
-    return this.storage.values().slice(opts.offset, opts.limit);
+    return this.storage.values().slice(args.offset, args.limit);
   }
 
-  public async count(): Promise<number> {
+  public async count(args?: any): Promise<number> {
     return this.storage.length;
   }
 

@@ -56,7 +56,7 @@ function IAMServiceSchema(opts) {
                 handler(ctx) {
                     return tslib_1.__awaiter(this, void 0, void 0, function* () {
                         try {
-                            const client = yield oidc.client.create(ctx.params);
+                            const client = yield oidc.createClient(ctx.params);
                             yield this.clearCache("client.**");
                             return client;
                         }
@@ -71,7 +71,7 @@ function IAMServiceSchema(opts) {
                 handler(ctx) {
                     return tslib_1.__awaiter(this, void 0, void 0, function* () {
                         try {
-                            const client = yield oidc.client.update(ctx.params);
+                            const client = yield oidc.updateClient(ctx.params);
                             yield this.clearCache("client.**");
                             return client;
                         }
@@ -88,7 +88,7 @@ function IAMServiceSchema(opts) {
                 handler(ctx) {
                     return tslib_1.__awaiter(this, void 0, void 0, function* () {
                         try {
-                            yield oidc.client.delete(ctx.params.client_id);
+                            yield oidc.deleteClient(ctx.params.client_id);
                             yield this.clearCache("client.**");
                             return true;
                         }
@@ -108,7 +108,7 @@ function IAMServiceSchema(opts) {
                 handler(ctx) {
                     return tslib_1.__awaiter(this, void 0, void 0, function* () {
                         try {
-                            return yield oidc.client.findOrFail(ctx.params.client_id);
+                            return yield oidc.findClientOrFail(ctx.params.client_id);
                         }
                         catch (error) {
                             throw this.transformOIDCError(error);
@@ -121,6 +121,10 @@ function IAMServiceSchema(opts) {
                     ttl: 3600,
                 },
                 params: {
+                    where: {
+                        type: "any",
+                        optional: true,
+                    },
                     offset: {
                         type: "number",
                         positive: true,
@@ -135,10 +139,10 @@ function IAMServiceSchema(opts) {
                 handler(ctx) {
                     return tslib_1.__awaiter(this, void 0, void 0, function* () {
                         try {
-                            const { offset, limit } = ctx.params;
+                            const { offset, limit, where } = ctx.params;
                             const [total, entries] = yield Promise.all([
-                                oidc.client.count(),
-                                oidc.client.get({ offset, limit }),
+                                oidc.countClients(where),
+                                oidc.getClients(ctx.params),
                             ]);
                             return { offset, limit, total, entries };
                         }
@@ -149,14 +153,186 @@ function IAMServiceSchema(opts) {
                 },
             },
             "client.count": {
+                cache: {
+                    ttl: 3600,
+                },
+                params: {
+                    where: {
+                        type: "any",
+                        optional: true,
+                    },
+                },
                 handler(ctx) {
                     return tslib_1.__awaiter(this, void 0, void 0, function* () {
                         try {
-                            return yield oidc.client.count();
+                            return yield oidc.countClients(ctx.params && ctx.params.where);
                         }
                         catch (error) {
                             throw this.transformOIDCError(error);
                         }
+                    });
+                },
+            },
+            /* "Session", "AccessToken", "AuthorizationCode", "RefreshToken", "DeviceCode", "InitialAccessToken", "RegistrationAccessToken", "Interaction", "ReplayDetection", "PushedAuthorizationRequest" Management */
+            "model.get": {
+                cache: {
+                    ttl: 30,
+                },
+                params: {
+                    kind: {
+                        type: "enum",
+                        values: oidc_1.OIDCProvider.volatileModelNames,
+                    },
+                    where: {
+                        type: "any",
+                        optional: true,
+                    },
+                    offset: {
+                        type: "number",
+                        positive: true,
+                        default: 0,
+                    },
+                    limit: {
+                        type: "number",
+                        positive: true,
+                        default: 10,
+                    },
+                },
+                handler(ctx) {
+                    return tslib_1.__awaiter(this, void 0, void 0, function* () {
+                        const _a = ctx.params, { offset, limit, kind, where } = _a, args = tslib_1.__rest(_a, ["offset", "limit", "kind", "where"]);
+                        const [total, entries] = yield Promise.all([
+                            oidc.countModels(kind, where),
+                            oidc.getModels(kind, Object.assign({ offset, limit, where }, args)),
+                        ]);
+                        return { offset, limit, total, entries };
+                    });
+                },
+            },
+            "model.count": {
+                cache: {
+                    ttl: 30,
+                },
+                params: {
+                    kind: {
+                        type: "enum",
+                        values: oidc_1.OIDCProvider.volatileModelNames,
+                    },
+                    where: {
+                        type: "any",
+                        optional: true,
+                    },
+                },
+                handler(ctx) {
+                    return tslib_1.__awaiter(this, void 0, void 0, function* () {
+                        const { kind, where } = ctx.params;
+                        return oidc.countModels(kind, where);
+                    });
+                },
+            },
+            "model.delete": {
+                params: {
+                    kind: {
+                        type: "enum",
+                        values: oidc_1.OIDCProvider.volatileModelNames,
+                    },
+                    where: {
+                        type: "any",
+                        optional: false,
+                    },
+                    offset: {
+                        type: "number",
+                        positive: true,
+                        default: 0,
+                    },
+                    limit: {
+                        type: "number",
+                        positive: true,
+                        default: 10,
+                    },
+                },
+                handler(ctx) {
+                    return tslib_1.__awaiter(this, void 0, void 0, function* () {
+                        const _a = ctx.params, { kind } = _a, args = tslib_1.__rest(_a, ["kind"]);
+                        return oidc.deleteModels(kind, args);
+                    });
+                },
+            },
+            // /* Identity Management */
+            // "identity.validate": {},
+            // "identity.create": {},
+            // "identity.update": {},
+            // "identity.delete": {},
+            // "identity.restore": {},
+            // "identity.find": {},
+            // "identity.get": {},
+            // "identity.count": {},
+            // "identity.refresh": {},
+            //
+            // /* Identity Claims Schema Management */
+            "schema.get": {
+                params: {
+                    scope: {
+                        type: "array",
+                        items: {
+                            type: "string",
+                            trim: true,
+                            empty: false,
+                        },
+                        default: [],
+                    },
+                    key: {
+                        type: "string",
+                        empty: false,
+                        trim: true,
+                        optional: true,
+                    },
+                    version: {
+                        type: "string",
+                        empty: false,
+                        trim: true,
+                        optional: true,
+                    },
+                    active: {
+                        type: "boolean",
+                        optional: true,
+                    },
+                },
+                handler(ctx) {
+                    return tslib_1.__awaiter(this, void 0, void 0, function* () {
+                        return idp.claims.getClaimsSchemata(ctx.params);
+                    });
+                },
+            },
+            "schema.find": {
+                params: {
+                    key: {
+                        type: "string",
+                        empty: false,
+                        trim: true,
+                    },
+                    version: {
+                        type: "string",
+                        empty: false,
+                        trim: true,
+                        optional: true,
+                    },
+                    active: {
+                        type: "boolean",
+                        optional: true,
+                    },
+                },
+                handler(ctx) {
+                    return tslib_1.__awaiter(this, void 0, void 0, function* () {
+                        return idp.claims.getClaimsSchema(ctx.params);
+                    });
+                },
+            },
+            "schema.define": {
+                params: params_1.IAMServiceActionParams["schema.define"],
+                handler(ctx) {
+                    return tslib_1.__awaiter(this, void 0, void 0, function* () {
+                        return idp.claims.defineClaimsSchema(ctx.params);
                     });
                 },
             },

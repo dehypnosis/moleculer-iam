@@ -1,5 +1,6 @@
 import * as _ from "lodash";
 import { ActionParams } from "moleculer";
+import { IdentityClaimsSchemaPayloadValidationSchema } from "../identity/claims";
 
 export const IAMServiceActionParams: { [actionName: string]: ActionParams } = {};
 
@@ -178,3 +179,5 @@ for (const [param, schema] of Object.entries(clientCreateParams)) {
 
   clientUpdateParams[param] = result;
 }
+
+IAMServiceActionParams["schema.define"] = IdentityClaimsSchemaPayloadValidationSchema as ActionParams;

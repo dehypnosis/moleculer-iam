@@ -124,8 +124,11 @@ class OIDCProvider {
     get idp() {
         return this.props.idp;
     }
+    get originalHiddenProps() {
+        return weak_cache_1.default(this.original);
+    }
     get config() {
-        return weak_cache_1.default(this.original).configuration();
+        return this.originalHiddenProps.configuration();
     }
     get defaultRoutes() {
         return Object.assign({ discovery: "/.well-known/openid-configuration" }, this.config.routes);
@@ -148,12 +151,12 @@ class OIDCProvider {
             yield this.adapter.start();
             // assert app client
             try {
-                yield this.client.create(this.clientAppClientOptions);
+                yield this.createClient(this.clientAppClientOptions);
             }
             catch (err) {
                 if (err.error === "invalid_client") {
                     try {
-                        yield this.client.update(this.clientAppClientOptions);
+                        yield this.updateClient(this.clientAppClientOptions);
                     }
                     catch (err) {
                         this.logger.error(err);
@@ -185,84 +188,86 @@ class OIDCProvider {
             this.logger.info(`oidc provider has been stopped`);
         });
     }
-    /* bind management methods */
-    get client() {
-        if (!this.clientMethods) {
-            this.clientMethods = this.createClientMethods();
-        }
-        return this.clientMethods;
+    /* client management */
+    get Client() {
+        return this.adapter.getModel("Client");
     }
-    createClientMethods() {
-        const provider = this;
-        const originalMethods = weak_cache_1.default(provider.original);
-        const model = this.adapter.getModel("Client");
-        const methods = {
-            find(id) {
-                return tslib_1.__awaiter(this, void 0, void 0, function* () {
-                    return model.find(id);
-                });
-            },
-            findOrFail(id) {
-                return tslib_1.__awaiter(this, void 0, void 0, function* () {
-                    const client = yield this.find(id);
-                    if (!client) {
-                        throw new types_1.errors.InvalidClient("client_not_found");
-                    }
-                    return client;
-                });
-            },
-            create(metadata) {
-                return tslib_1.__awaiter(this, void 0, void 0, function* () {
-                    if (metadata.client_id && (yield methods.find(metadata.client_id))) {
-                        throw new types_1.errors.InvalidClient("client_id_duplicated");
-                    }
-                    provider.logger.info(`create client ${kleur.cyan(metadata.client_id)}:`, metadata);
-                    const client = yield originalMethods.clientAdd(Object.assign(Object.assign({}, metadata), { client_secret: OIDCProvider.generateClientSecret() }), { store: true });
-                    return client.metadata();
-                });
-            },
-            update(metadata) {
-                return tslib_1.__awaiter(this, void 0, void 0, function* () {
-                    const old = yield methods.find(metadata.client_id);
-                    // update client_secret
-                    if (metadata.reset_client_secret === true) {
-                        metadata = Object.assign(Object.assign({}, metadata), { client_secret: OIDCProvider.generateClientSecret() });
-                        delete metadata.reset_client_secret;
-                    }
-                    provider.logger.info(`update client ${kleur.cyan(metadata.client_id || "<unknown>")}:`, require("util").inspect(metadata));
-                    const client = yield originalMethods.clientAdd(Object.assign(Object.assign({}, old), metadata), { store: true });
-                    return client.metadata();
-                });
-            },
-            delete(id) {
-                return tslib_1.__awaiter(this, void 0, void 0, function* () {
-                    yield methods.findOrFail(id);
-                    provider.logger.info(`delete client ${kleur.cyan(id)}`);
-                    originalMethods.clientRemove(id);
-                });
-            },
-            get(opts) {
-                return tslib_1.__awaiter(this, void 0, void 0, function* () {
-                    return yield model.get(opts);
-                });
-            },
-            count() {
-                return tslib_1.__awaiter(this, void 0, void 0, function* () {
-                    return model.count();
-                });
-            },
-        };
-        return methods;
+    findClient(id) {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            return this.Client.find(id);
+        });
+    }
+    findClientOrFail(id) {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            const client = yield this.findClient(id);
+            if (!client) {
+                throw new types_1.errors.InvalidClient("client_not_found");
+            }
+            return client;
+        });
+    }
+    createClient(metadata) {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            if (metadata.client_id && (yield this.findClient(metadata.client_id))) {
+                throw new types_1.errors.InvalidClient("client_id_duplicated");
+            }
+            this.logger.info(`create client ${kleur.cyan(metadata.client_id)}:`, metadata);
+            const client = yield this.originalHiddenProps.clientAdd(Object.assign(Object.assign({}, metadata), { client_secret: OIDCProvider.generateClientSecret() }), { store: true });
+            return client.metadata();
+        });
+    }
+    updateClient(metadata) {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            const old = yield this.findClient(metadata.client_id);
+            // update client_secret
+            if (metadata.reset_client_secret === true) {
+                metadata = Object.assign(Object.assign({}, metadata), { client_secret: OIDCProvider.generateClientSecret() });
+                delete metadata.reset_client_secret;
+            }
+            this.logger.info(`update client ${kleur.cyan(metadata.client_id || "<unknown>")}:`, require("util").inspect(metadata));
+            const client = yield this.originalHiddenProps.clientAdd(Object.assign(Object.assign({}, old), metadata), { store: true });
+            return client.metadata();
+        });
+    }
+    deleteClient(id) {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            yield this.findClientOrFail(id);
+            this.logger.info(`delete client ${kleur.cyan(id)}`);
+            this.originalHiddenProps.clientRemove(id);
+        });
+    }
+    getClients(args) {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            return this.Client.get(args);
+        });
+    }
+    countClients(args) {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            return this.Client.count(args);
+        });
     }
     static generateClientSecret() {
         return uuid_1.default().replace(/\-/g, "") + uuid_1.default().replace(/\-/g, "");
     }
-    // public updateScopes(scope: string, scopeClaimsSchema: ValidationSchema) {
-    //   const scopes = new Set(this.config.scopes);
-    //   const claimNamesForScopes = _.cloneDeep(this.config.claims);
-    //
-    //   // TODO: this.idp.updateCustomClaimsSchema
-    // }
+    countModels(kind, args) {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            const model = this.adapter.getModel(kind);
+            return model.count(args);
+        });
+    }
+    getModels(kind, args) {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            const model = this.adapter.getModel(kind);
+            return model.get(args);
+        });
+    }
+    deleteModels(kind, args) {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            const model = this.adapter.getModel(kind);
+            return model.delete(args);
+        });
+    }
+    /* dynamic claims and schema management */
     syncSupportedClaimsAndScopes() {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             // set available scopes and claims
@@ -305,4 +310,17 @@ class OIDCProvider {
     }
 }
 exports.OIDCProvider = OIDCProvider;
+/* "Session"|"AuthorizationCode"|"DeviceCode"|"AccessToken"|"RefreshToken"|"RegistrationAccessToken" management */
+OIDCProvider.volatileModelNames = [
+    "Session",
+    "AccessToken",
+    "AuthorizationCode",
+    "RefreshToken",
+    "DeviceCode",
+    "InitialAccessToken",
+    "RegistrationAccessToken",
+    "Interaction",
+    "ReplayDetection",
+    "PushedAuthorizationRequest",
+];
 //# sourceMappingURL=provider.js.map

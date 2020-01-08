@@ -3,11 +3,11 @@ import * as _ from "lodash";
 import mount from "koa-mount";
 import compose from "koa-compose";
 import uuid from "uuid";
-import { FindOptions } from "../../helper/rdbms";
+import { FindOptions, WhereAttributeHash } from "../../helper/rdbms";
 import { IdentityProvider } from "../../identity";
 import { Logger } from "../../logger";
 import { ClientApplicationRenderer, InteractionFactory, InternalInteractionConfigurationFactory } from "../interaction";
-import { Client, ClientMetadata, errors, Provider as OriginalProvider, Configuration as OriginalProviderConfiguration } from "./types";
+import { Client, ClientMetadata, errors, Provider as OriginalProvider, Configuration as OriginalProviderConfiguration, OIDCModelName, VolatileOIDCModelName } from "./types";
 import { OIDCAdapter, OIDCAdapterConstructors } from "../adapter";
 import { defaultOIDCProviderOptions, OIDCProviderOptions } from "./options";
 import { applyDebugOptions } from "./debug";
@@ -122,7 +122,7 @@ export class OIDCProvider {
 
     /* prepare client app oidc client options */
     this.clientAppClientOptions = _.defaultsDeep(clientAppOption.client || {}, {
-      client_id: issuer.replace("https://","").replace("http://","").replace(":","-"),
+      client_id: issuer.replace("https://", "").replace("http://", "").replace(":", "-"),
       client_name: "Account Manager",
       client_uri: issuer,
       application_type: "web" as "web",
@@ -152,8 +152,12 @@ export class OIDCProvider {
     return this.props.idp;
   }
 
+  private get originalHiddenProps() {
+    return getProviderHiddenProps(this.original);
+  }
+
   public get config(): OriginalProviderConfiguration {
-    return getProviderHiddenProps(this.original).configuration();
+    return this.originalHiddenProps.configuration();
   }
 
   public get defaultRoutes(): Readonly<{ [key: string]: string | undefined }> {
@@ -188,11 +192,11 @@ export class OIDCProvider {
 
     // assert app client
     try {
-      await this.client.create(this.clientAppClientOptions);
+      await this.createClient(this.clientAppClientOptions);
     } catch (err) {
       if (err.error === "invalid_client") {
         try {
-          await this.client.update(this.clientAppClientOptions);
+          await this.updateClient(this.clientAppClientOptions);
         } catch (err) {
           this.logger.error(err);
         }
@@ -228,96 +232,104 @@ export class OIDCProvider {
     this.logger.info(`oidc provider has been stopped`);
   }
 
-  /* bind management methods */
-  public get client(): ReturnType<OIDCProvider["createClientMethods"]> {
-    if (!this.clientMethods) {
-      this.clientMethods = this.createClientMethods();
-    }
-    return this.clientMethods;
+  /* client management */
+  private get Client() {
+    return this.adapter.getModel<ClientMetadata>("Client");
   }
 
-  private clientMethods?: ReturnType<OIDCProvider["createClientMethods"]>;
+  public async findClient(id: string) {
+    return this.Client.find(id);
+  }
 
-  private createClientMethods() {
-    const provider = this;
-    const originalMethods = getProviderHiddenProps(provider.original);
-    const model = this.adapter.getModel<ClientMetadata>("Client");
-    const methods = {
-      async find(id: string) {
-        return model.find(id);
-      },
+  public async findClientOrFail(id: string) {
+    const client = await this.findClient(id);
+    if (!client) {
+      throw new errors.InvalidClient("client_not_found");
+    }
+    return client;
+  }
 
-      async findOrFail(id: string) {
-        const client = await this.find(id);
-        if (!client) {
-          throw new errors.InvalidClient("client_not_found");
-        }
-        return client;
-      },
+  public async createClient(metadata: Omit<ClientMetadata, "client_secret">) {
+    if (metadata.client_id && await this.findClient(metadata.client_id)) {
+      throw new errors.InvalidClient("client_id_duplicated");
+    }
+    this.logger.info(`create client ${kleur.cyan(metadata.client_id)}:`, metadata);
 
-      async create(metadata: Omit<ClientMetadata, "client_secret">) {
-        if (metadata.client_id && await methods.find(metadata.client_id)) {
-          throw new errors.InvalidClient("client_id_duplicated");
-        }
-        provider.logger.info(`create client ${kleur.cyan(metadata.client_id)}:`, metadata);
+    const client = await this.originalHiddenProps.clientAdd({
+      ...metadata,
+      client_secret: OIDCProvider.generateClientSecret(),
+    }, {store: true}) as Client;
 
-        const client = await originalMethods.clientAdd({
-          ...metadata,
-          client_secret: OIDCProvider.generateClientSecret(),
-        }, {store: true}) as Client;
+    return client.metadata();
+  }
 
-        return client.metadata();
-      },
+  public async updateClient(metadata: Omit<ClientMetadata, "client_secret"> & { reset_client_secret?: boolean }) {
+    const old = await this.findClient(metadata.client_id);
 
-      async update(metadata: Omit<ClientMetadata, "client_secret"> & { reset_client_secret?: boolean }) {
-        const old = await methods.find(metadata.client_id);
+    // update client_secret
+    if (metadata.reset_client_secret === true) {
+      metadata = {
+        ...metadata,
+        client_secret: OIDCProvider.generateClientSecret(),
+      };
+      delete metadata.reset_client_secret;
+    }
 
-        // update client_secret
-        if (metadata.reset_client_secret === true) {
-          metadata = {
-            ...metadata,
-            client_secret: OIDCProvider.generateClientSecret(),
-          };
-          delete metadata.reset_client_secret;
-        }
+    this.logger.info(`update client ${kleur.cyan(metadata.client_id || "<unknown>")}:`, require("util").inspect(metadata));
+    const client = await this.originalHiddenProps.clientAdd({
+      ...old,
+      ...metadata,
+    }, {store: true}) as Client;
+    return client.metadata();
+  }
 
-        provider.logger.info(`update client ${kleur.cyan(metadata.client_id || "<unknown>")}:`, require("util").inspect(metadata));
-        const client = await originalMethods.clientAdd({
-          ...old,
-          ...metadata,
-        }, {store: true}) as Client;
-        return client.metadata();
-      },
+  public async deleteClient(id: string) {
+    await this.findClientOrFail(id);
+    this.logger.info(`delete client ${kleur.cyan(id)}`);
+    this.originalHiddenProps.clientRemove(id);
+  }
 
-      async delete(id: string) {
-        await methods.findOrFail(id);
-        provider.logger.info(`delete client ${kleur.cyan(id)}`);
-        originalMethods.clientRemove(id);
-      },
+  public async getClients(args?: FindOptions) {
+    return this.Client.get(args);
+  }
 
-      async get(opts?: FindOptions) {
-        return await model.get(opts);
-      },
-
-      async count() {
-        return model.count();
-      },
-    };
-
-    return methods;
+  public async countClients(args?: WhereAttributeHash) {
+    return this.Client.count(args);
   }
 
   private static generateClientSecret(): string {
     return uuid().replace(/\-/g, "") + uuid().replace(/\-/g, "");
   }
 
-  // public updateScopes(scope: string, scopeClaimsSchema: ValidationSchema) {
-  //   const scopes = new Set(this.config.scopes);
-  //   const claimNamesForScopes = _.cloneDeep(this.config.claims);
-  //
-  //   // TODO: this.idp.updateCustomClaimsSchema
-  // }
+  /* "Session"|"AuthorizationCode"|"DeviceCode"|"AccessToken"|"RefreshToken"|"RegistrationAccessToken" management */
+  public static readonly volatileModelNames: ReadonlyArray<VolatileOIDCModelName> = [
+    "Session",
+    "AccessToken",
+    "AuthorizationCode",
+    "RefreshToken",
+    "DeviceCode",
+    "InitialAccessToken",
+    "RegistrationAccessToken",
+    "Interaction",
+    "ReplayDetection",
+    "PushedAuthorizationRequest",
+  ];
+  public async countModels(kind: VolatileOIDCModelName, args?: WhereAttributeHash) {
+    const model = this.adapter.getModel<any>(kind);
+    return model.count(args);
+  }
 
+  public async getModels(kind: OIDCModelName, args?: FindOptions) {
+    const model = this.adapter.getModel<any>(kind);
+    return model.get(args);
+  }
+
+  public async deleteModels(kind: OIDCModelName, args?: FindOptions) {
+    const model = this.adapter.getModel<any>(kind);
+    return model.delete(args);
+  }
+
+  /* dynamic claims and schema management */
   public async syncSupportedClaimsAndScopes(): Promise<void> {
     // set available scopes and claims
     const claimsSchemata = await this.idp.claims.getActiveClaimsSchemata();

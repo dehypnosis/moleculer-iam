@@ -16,6 +16,13 @@ class OIDCMemoryModel extends model_1.OIDCModel {
             this.storage.get(id).consumed = Math.floor(Date.now() / 1000);
         });
     }
+    delete() {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            const size = this.storage.itemCount;
+            this.storage.reset();
+            return size;
+        });
+    }
     destroy(id) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             this.storage.del(id);
@@ -26,21 +33,21 @@ class OIDCMemoryModel extends model_1.OIDCModel {
             return this.storage.get(id);
         });
     }
-    get(opts) {
+    get(args) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            if (!opts) {
-                opts = {};
+            if (!args) {
+                args = {};
             }
-            if (typeof opts.offset === "undefined") {
-                opts.offset = 0;
+            if (typeof args.offset === "undefined") {
+                args.offset = 0;
             }
-            if (typeof opts.limit === "undefined") {
-                opts.limit = 10;
+            if (typeof args.limit === "undefined") {
+                args.limit = 10;
             }
-            return this.storage.values().slice(opts.offset, opts.limit);
+            return this.storage.values().slice(args.offset, args.limit);
         });
     }
-    count() {
+    count(args) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             return this.storage.length;
         });

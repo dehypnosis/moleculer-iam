@@ -108,6 +108,16 @@ class IdentityClaimsManager {
             return this.adapter.getClaimsSchemata({ scope: [], active: true });
         });
     }
+    getClaimsSchemata(args) {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            return this.adapter.getClaimsSchemata(args);
+        });
+    }
+    getClaimsSchema(args) {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            return this.adapter.getClaimsSchema(args);
+        });
+    }
     forceReloadClaims(where) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             this.logger.info(`force reload identity claims: onClaimsUpdated()`, where);

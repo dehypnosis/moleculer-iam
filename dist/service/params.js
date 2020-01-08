@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
 const _ = tslib_1.__importStar(require("lodash"));
+const claims_1 = require("../identity/claims");
 exports.IAMServiceActionParams = {};
 // ref: "oidc-provider".AnyClientMetadata
 // ref: https://openid.net/specs/openid-connect-registration-1_0.html#ClientMetadata
@@ -173,4 +174,5 @@ for (const [param, schema] of Object.entries(clientCreateParams)) {
     }
     clientUpdateParams[param] = result;
 }
+exports.IAMServiceActionParams["schema.define"] = claims_1.IdentityClaimsSchemaPayloadValidationSchema;
 //# sourceMappingURL=params.js.map

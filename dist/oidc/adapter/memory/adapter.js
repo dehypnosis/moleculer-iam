@@ -9,14 +9,14 @@ class OIDC_MemoryAdapter extends adapter_1.OIDCAdapter {
     constructor(props, options) {
         super(props);
         this.props = props;
+        this.options = options;
         this.displayName = "Memory";
-        this.storage = new lru_cache_1.default(options);
     }
     createModel(name) {
         return new model_1.OIDCMemoryModel({
             name,
             logger: this.logger,
-        }, this.storage);
+        }, new lru_cache_1.default(this.options));
     }
 }
 exports.OIDC_MemoryAdapter = OIDC_MemoryAdapter;

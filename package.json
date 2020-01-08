@@ -1,7 +1,7 @@
 {
   "name": "moleculer-iam",
-  "version": "0.1.10",
-  "description": "Centralized IAM module for moleculer. Including default OIDC provider for user profile and custom claims (for ABAC, also simple role system for RBAC available) management, custom claims are supported by scheme validation and versioned migration. Either can be composed with remote OIDC providers like G-Suite. Basic authentication and authorization features for OIDC/OAuth2 are supported. Can operate mutiple realms, including admin, user, service-account realms are set by default.",
+  "version": "0.1.11",
+  "description": "Centralized IAM module for moleculer.\nIncluding a certified OIDC provider and an Identity provider for user profile, credentials, and custom claims management.\nCustom claims could be defined/updated by declarative schema which contains claims validation and migration strategy.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [

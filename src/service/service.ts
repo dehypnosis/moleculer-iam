@@ -5,7 +5,7 @@
  */
 
 import { Errors, ServiceSchema } from "moleculer";
-import { IdentityProvider, IdentityProviderOptions } from "../identity";
+import { IdentityProvider, IdentityProviderOptions, IdentityClaimsSchemaPayload } from "../identity";
 import { OIDCProvider, errors as OIDCErrors, OIDCProviderOptions } from "../oidc";
 import { IAMServer, IAMServerOptions } from "../server";
 import { IAMServiceActionParams } from "./params";
@@ -60,7 +60,7 @@ export function IAMServiceSchema(opts: IAMServiceSchemaOptions): ServiceSchema {
         params: IAMServiceActionParams["client.create"],
         async handler(ctx) {
           try {
-            const client = await oidc.client.create(ctx.params as any);
+            const client = await oidc.createClient(ctx.params as any);
             await this.clearCache("client.**");
             return client;
           } catch (error) {
@@ -72,7 +72,7 @@ export function IAMServiceSchema(opts: IAMServiceSchemaOptions): ServiceSchema {
         params: IAMServiceActionParams["client.update"],
         async handler(ctx) {
           try {
-            const client = await oidc.client.update(ctx.params as any);
+            const client = await oidc.updateClient(ctx.params as any);
             await this.clearCache("client.**");
             return client;
           } catch (error) {
@@ -86,7 +86,7 @@ export function IAMServiceSchema(opts: IAMServiceSchemaOptions): ServiceSchema {
         },
         async handler(ctx) {
           try {
-            await oidc.client.delete((ctx.params as any).client_id);
+            await oidc.deleteClient((ctx.params as any).client_id);
             await this.clearCache("client.**");
             return true;
           } catch (error) {
@@ -103,7 +103,7 @@ export function IAMServiceSchema(opts: IAMServiceSchemaOptions): ServiceSchema {
         },
         async handler(ctx) {
           try {
-            return await oidc.client.findOrFail((ctx.params as any).client_id);
+            return await oidc.findClientOrFail((ctx.params as any).client_id);
           } catch (error) {
             throw this.transformOIDCError(error);
           }
@@ -114,6 +114,10 @@ export function IAMServiceSchema(opts: IAMServiceSchemaOptions): ServiceSchema {
           ttl: 3600,
         },
         params: {
+          where: {
+            type: "any",
+            optional: true,
+          },
           offset: {
             type: "number",
             positive: true,
@@ -127,10 +131,10 @@ export function IAMServiceSchema(opts: IAMServiceSchemaOptions): ServiceSchema {
         },
         async handler(ctx) {
           try {
-            const {offset, limit} = ctx.params! as any;
+            const {offset, limit, where} = ctx.params! as any;
             const [total, entries] = await Promise.all([
-              oidc.client.count(),
-              oidc.client.get({offset, limit}),
+              oidc.countClients(where),
+              oidc.getClients(ctx.params),
             ]);
             return {offset, limit, total, entries};
           } catch (error) {
@@ -139,39 +143,176 @@ export function IAMServiceSchema(opts: IAMServiceSchemaOptions): ServiceSchema {
         },
       },
       "client.count": {
+        cache: {
+          ttl: 3600,
+        },
+        params: {
+          where: {
+            type: "any",
+            optional: true,
+          },
+        },
         async handler(ctx) {
           try {
-            return await oidc.client.count();
+            return await oidc.countClients(ctx.params && (ctx.params as any).where);
           } catch (error) {
             throw this.transformOIDCError(error);
           }
         },
       },
 
-      // /* Token Management */
-      // "token.getCode": {},
-      // "token.getAccessToken": {},
-      // "token.getRefreshToken": {},
-      // "token.revokeCode": {},
-      // "token.revokeAccessToken": {},
-      // "token.revokeRefreshToken": {},
-      // "token.revokeAll": {},
-      //
+      /* "Session", "AccessToken", "AuthorizationCode", "RefreshToken", "DeviceCode", "InitialAccessToken", "RegistrationAccessToken", "Interaction", "ReplayDetection", "PushedAuthorizationRequest" Management */
+      "model.get": {
+        cache: {
+          ttl: 30,
+        },
+        params: {
+          kind: {
+            type: "enum",
+            values: OIDCProvider.volatileModelNames,
+          },
+          where: {
+            type: "any",
+            optional: true,
+          },
+          offset: {
+            type: "number",
+            positive: true,
+            default: 0,
+          },
+          limit: {
+            type: "number",
+            positive: true,
+            default: 10,
+          },
+        },
+        async handler(ctx) {
+          const {offset, limit, kind, where, ...args} = ctx.params! as any;
+          const [total, entries] = await Promise.all([
+            oidc.countModels(kind, where),
+            oidc.getModels(kind, { offset, limit, where, ...args}),
+          ]);
+          return {offset, limit, total, entries};
+        },
+      },
+      "model.count": {
+        cache: {
+          ttl: 30,
+        },
+        params: {
+          kind: {
+            type: "enum",
+            values: OIDCProvider.volatileModelNames,
+          },
+          where: {
+            type: "any",
+            optional: true,
+          },
+        },
+        async handler(ctx) {
+          const {kind, where} = ctx.params! as any;
+          return oidc.countModels(kind, where);
+        },
+      },
+      "model.delete": {
+        params: {
+          kind: {
+            type: "enum",
+            values: OIDCProvider.volatileModelNames,
+          },
+          where: {
+            type: "any",
+            optional: false,
+          },
+          offset: {
+            type: "number",
+            positive: true,
+            default: 0,
+          },
+          limit: {
+            type: "number",
+            positive: true,
+            default: 10,
+          },
+        },
+        async handler(ctx) {
+          const {kind, ...args} = ctx.params! as any;
+          return oidc.deleteModels(kind, args);
+        },
+      },
+
       // /* Identity Management */
-      // "identity.get": {},
-      // "identity.count": {},
-      // "identity.find": {},
-      // "identity.create": {},
       // "identity.validate": {},
+      // "identity.create": {},
       // "identity.update": {},
       // "identity.delete": {},
       // "identity.restore": {},
+      // "identity.find": {},
+      // "identity.get": {},
+      // "identity.count": {},
       // "identity.refresh": {},
       //
       // /* Identity Claims Schema Management */
-      // "identity.getSchemata": {},
-      // "identity.defineSchema": {},
-      // "identity.findSchema": {},
+      "schema.get": {
+        params: {
+          scope: {
+            type: "array",
+            items: {
+              type: "string",
+              trim: true,
+              empty: false,
+            },
+            default: [],
+          },
+          key: {
+            type: "string",
+            empty: false,
+            trim: true,
+            optional: true,
+          },
+          version: {
+            type: "string",
+            empty: false,
+            trim: true,
+            optional: true,
+          },
+          active: {
+            type: "boolean",
+            optional: true,
+          },
+        },
+        async handler(ctx) {
+          return idp.claims.getClaimsSchemata(ctx.params as any);
+        },
+      },
+      "schema.find": {
+        params: {
+          key: {
+            type: "string",
+            empty: false,
+            trim: true,
+          },
+          version: {
+            type: "string",
+            empty: false,
+            trim: true,
+            optional: true,
+          },
+          active: {
+            type: "boolean",
+            optional: true,
+          },
+        },
+        async handler(ctx) {
+          return idp.claims.getClaimsSchema(ctx.params as any);
+        },
+      },
+      "schema.define": {
+        params: IAMServiceActionParams["schema.define"],
+        async handler(ctx) {
+          return idp.claims.defineClaimsSchema(ctx.params as IdentityClaimsSchemaPayload);
+        },
+      },
     },
 
     methods: {

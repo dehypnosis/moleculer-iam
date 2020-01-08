@@ -1,5 +1,5 @@
 import "oidc-provider";
-import { AnyObject, InteractionResults, OIDCModelName } from "oidc-provider";
+import { AnyObject, ClaimsWithRejects, ClientAuthorizationState, InteractionResults, OIDCModelName } from "oidc-provider";
 import * as jose from "jose";
 
 export { AdapterConstructor as OIDCModelAdapterConstructor, AdapterPayload as OIDCModelPayload, Adapter as OIDCModelAdapter, errors as OIDCErrors } from "oidc-provider";
@@ -7,6 +7,8 @@ export { AdapterConstructor as OIDCModelAdapterConstructor, AdapterPayload as OI
 declare module "oidc-provider" {
   export type OIDCModelName = "Session" | "AccessToken" | "AuthorizationCode" | "RefreshToken" | "DeviceCode" | "ClientCredentials" | "Client" |
     "InitialAccessToken" | "RegistrationAccessToken" | "Interaction" | "ReplayDetection" | "PushedAuthorizationRequest";
+
+  export type VolatileOIDCModelName = Exclude<OIDCModelName, "Client" | "ClientCredentials">;
 
   export type Interaction = {
     iat: number;
@@ -34,16 +36,6 @@ declare module "oidc-provider" {
   };
 
   export type Client = {
-    responseTypeAllowed(type: ResponseType): boolean;
-    grantTypeAllowed(type: string): boolean;
-    redirectUriAllowed(redirectUri: string): boolean;
-    checkSessionOriginAllowed(origin: string): boolean;
-    webMessageUriAllowed(webMessageUri: string): boolean;
-    requestUriAllowed(requestUri: string): boolean;
-    postLogoutRedirectUriAllowed(postLogoutRedirectUri: string): boolean;
-    backchannelLogout?(sub: string, sid: string): Promise<void>;
-    includeSid(): boolean;
-    metadata(): ClientMetadata;
     clientId: string;
     keystore: any;
     grantTypes?: string[];
@@ -107,10 +99,124 @@ declare module "oidc-provider" {
     [key: string]: any;
   };
 
-  // extend models adapter
-  interface Adapter {
-    get(...args: any[]): Promise<AdapterPayload[]>;
-  }
+  export type Session = {
+    iat: number;
+    exp: number;
+    uid: string;
+    jti: string;
+
+    account?: string;
+    acr?: string;
+    amr?: string[];
+    loginTs?: number;
+    transient?: boolean;
+    state?: AnyObject;
+    authorizations?: {
+      [clientId: string]: ClientAuthorizationState;
+    };
+  };
+
+  export type AuthorizationCode = {
+    iat: number;
+    exp: number;
+    uid: string;
+    jti: string;
+
+    redirectUri?: string;
+    codeChallenge?: string;
+    codeChallengeMethod?: string;
+    accountId?: string;
+    acr?: string;
+    amr?: string[];
+    authTime?: number;
+    claims?: ClaimsWithRejects;
+    nonce?: string;
+    resource?: string;
+    scope?: string;
+    sid?: string;
+    sessionUid?: string;
+    expiresWithSession?: boolean;
+    "x5t#S256"?: string;
+    jkt?: string;
+    grantId?: string;
+    gty?: string;
+  };
+
+  export type AccessToken = {
+    iat: number;
+    exp: number;
+    uid: string;
+    jti: string;
+
+    accountId: string;
+    aud?: string[];
+    claims?: ClaimsWithRejects;
+    extra?: AnyObject;
+    grantId: string;
+    scope?: string;
+    gty: string;
+    sid?: string;
+    sessionUid?: string;
+    expiresWithSession?: boolean;
+    tokenType: string;
+    "x5t#S256"?: string;
+    jkt?: string;
+  };
+
+  export type RefreshToken = {
+    iat: number;
+    exp: number;
+    uid: string;
+    jti: string;
+
+    rotations?: number;
+    accountId: string;
+    acr?: string;
+    amr?: string[];
+    authTime?: number;
+    claims?: ClaimsWithRejects;
+    nonce?: string;
+    resource?: string;
+    scope?: string;
+    sid?: string;
+    sessionUid?: string;
+    expiresWithSession?: boolean;
+    "x5t#S256"?: string;
+    jkt?: string;
+    grantId?: string;
+    gty?: string;
+    consumed?: any;
+  };
+
+  export type DeviceCode = {
+    iat: number;
+    exp: number;
+    uid: string;
+    jti: string;
+
+    error?: string;
+    errorDescription?: string;
+    params?: AnyObject;
+    userCode: string;
+    inFlight?: boolean;
+    deviceInfo?: AnyObject;
+    codeChallenge?: string;
+    codeChallengeMethod?: string;
+    accountId?: string;
+    acr?: string;
+    amr?: string[];
+    authTime?: number;
+    claims?: ClaimsWithRejects;
+    nonce?: string;
+    resource?: string;
+    scope?: string;
+    sid?: string;
+    sessionUid?: string;
+    expiresWithSession?: boolean;
+    grantId: string;
+    gty: string;
+    consumed?: any;
+  };
 }
 
 export * from "oidc-provider";
