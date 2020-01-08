@@ -109,6 +109,9 @@ class OIDCProvider {
             post_logout_redirect_uris: [issuer],
             frontchannel_logout_uri: `${issuer}`,
             frontchannel_logout_session_required: true,
+            grant_types: ["implicit", "authorization_code", "refresh_token"],
+            response_types: ["code", "id_token", "id_token token", "code id_token", "code token", "code id_token token", "none"],
+            token_endpoint_auth_method: "none",
             /* custom props */
             skip_consent: true,
         });
@@ -231,10 +234,10 @@ class OIDCProvider {
                     return client.metadata();
                 });
             },
-            remove(id) {
+            delete(id) {
                 return tslib_1.__awaiter(this, void 0, void 0, function* () {
                     yield methods.findOrFail(id);
-                    provider.logger.info(`remove client ${kleur.cyan(id)}`);
+                    provider.logger.info(`delete client ${kleur.cyan(id)}`);
                     originalMethods.clientRemove(id);
                 });
             },

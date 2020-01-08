@@ -1,7 +1,10 @@
 import { IdentityProvider } from "../provider";
 import { doCommonAdapterTest } from "./adapter.spec.common";
 
-const isTravis = !!process.env.TRAVIS;
+const env = (name: string, fallback: any) => {
+  const value = process.env[name];
+  return typeof value === "undefined" ? fallback : value;
+};
 
 const idp = new IdentityProvider({
   logger: console,
@@ -9,12 +12,12 @@ const idp = new IdentityProvider({
   adapter: {
     type: "RDBMS",
     options: {
-      dialect: "mysql",
-      host: isTravis ? "127.0.0.1" : "mysql-dev.internal.qmit.pro",
-      database: "iam",
-      username: isTravis ? "travis" : "iam",
-      password: isTravis ? undefined : "iam",
-      sqlLogLevel: "none",
+      dialect: env("TEST_RDBMS_DIALECT", "mysql"),
+      host: env("TEST_RDBMS_HOST", "mysql-dev.internal.qmit.pro"),
+      database: env("TEST_RDBMS_DATABASE", "iam"),
+      username: env("TEST_RDBMS_USERNAME", "iam"),
+      password: env("TEST_RDBMS_PASSWORD", "iam"),
+      sqlLogLevel: env("TEST_RDBMS_LOG_LEVEL", "none"),
     },
   },
 });

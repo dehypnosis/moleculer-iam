@@ -2,19 +2,22 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const provider_1 = require("../provider");
 const adapter_spec_common_1 = require("./adapter.spec.common");
-const isTravis = !!process.env.TRAVIS;
+const env = (name, fallback) => {
+    const value = process.env[name];
+    return typeof value === "undefined" ? fallback : value;
+};
 const idp = new provider_1.IdentityProvider({
     logger: console,
 }, {
     adapter: {
         type: "RDBMS",
         options: {
-            dialect: "mysql",
-            host: isTravis ? "127.0.0.1" : "mysql-dev.internal.qmit.pro",
-            database: "iam",
-            username: isTravis ? "travis" : "iam",
-            password: isTravis ? undefined : "iam",
-            sqlLogLevel: "none",
+            dialect: env("TEST_RDBMS_DIALECT", "mysql"),
+            host: env("TEST_RDBMS_HOST", "mysql-dev.internal.qmit.pro"),
+            database: env("TEST_RDBMS_DATABASE", "iam"),
+            username: env("TEST_RDBMS_USERNAME", "iam"),
+            password: env("TEST_RDBMS_PASSWORD", "iam"),
+            sqlLogLevel: env("TEST_RDBMS_LOG_LEVEL", "none"),
         },
     },
 });

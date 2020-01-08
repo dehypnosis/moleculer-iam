@@ -81,14 +81,14 @@ function IAMServiceSchema(opts) {
                     });
                 },
             },
-            "client.remove": {
+            "client.delete": {
                 params: {
                     client_id: "string",
                 },
                 handler(ctx) {
                     return tslib_1.__awaiter(this, void 0, void 0, function* () {
                         try {
-                            yield oidc.client.remove(ctx.params.client_id);
+                            yield oidc.client.delete(ctx.params.client_id);
                             yield this.clearCache("client.**");
                             return true;
                         }

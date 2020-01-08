@@ -52,8 +52,8 @@ const clientCreateParams = exports.IAMServiceActionParams["client.create"] = {
     },
     token_endpoint_auth_method: {
         type: "enum",
-        values: ["client_secret_post", "client_secret_basic", "client_secret_jwt", "private_key_jwt"],
-        default: "client_secret_basic",
+        values: ["client_secret_post", "client_secret_basic", "client_secret_jwt", "private_key_jwt", "none"],
+        default: "none",
     },
     application_type: {
         type: "enum",

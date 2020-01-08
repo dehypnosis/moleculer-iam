@@ -59,6 +59,7 @@ exports.defaultOIDCProviderOptions = {
     clientDefaults: {
         grant_types: ["implicit", "authorization_code", "refresh_token"],
         response_types: ["code", "id_token", "id_token token", "code id_token", "code token", "code id_token token", "none"],
+        token_endpoint_auth_method: "none",
     },
     /* extra params for /auth?change_account=true&blabla to not auto-fill signed in session account */
     extraParams: ["change_account"],
