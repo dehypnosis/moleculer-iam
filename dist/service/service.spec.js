@@ -51,7 +51,7 @@ describe("iam.client.*", () => {
         yield expect(broker.call("iam.client.find", { client_id: params.client_id })).resolves.toEqual(expect.objectContaining(params));
         yield expect(broker.call("iam.client.update", { client_id: params.client_id, client_name: "updated" })).resolves.toEqual(expect.objectContaining(Object.assign(Object.assign({}, params), { client_name: "updated" })));
         yield expect(broker.call("iam.client.delete", { client_id: params.client_id })).resolves.not.toThrow();
-        yield expect(broker.call("iam.client.find", { client_id: params.client_id })).rejects.toThrow();
+        yield expect(broker.call("iam.client.find", { client_id: params.client_id })).resolves.toBeFalsy();
     }));
 });
 describe("iam.model.*", () => {
@@ -79,12 +79,50 @@ describe("iam.model.*", () => {
     }
 });
 describe("iam.schema.*", () => {
-    it("iam.schema.get", () => {
-        return expect(broker.call("iam.schema.get")).resolves.toEqual(expect.objectContaining({
-            entries: expect.arrayContaining([expect.objectContaining({ application_type: "web" })]),
-            total: expect.any(Number),
+    it("iam.schema.get/find", () => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
+        yield expect(broker.call("iam.schema.get")).resolves.toEqual(expect.arrayContaining([
+            expect.objectContaining({
+                scope: expect.any(String),
+                key: expect.any(String),
+                active: expect.any(Boolean),
+                validation: expect.anything(),
+                migration: expect.any(String),
+                version: expect.any(String),
+            }),
+        ]));
+        yield expect(broker.call("iam.schema.get", { scope: ["profile"], active: true })).resolves.toEqual(expect.arrayContaining([
+            expect.objectContaining({
+                scope: "profile",
+                key: expect.any(String),
+                active: true,
+                validation: expect.anything(),
+                migration: expect.any(String),
+                version: expect.any(String),
+            }),
+        ]));
+        yield expect(broker.call("iam.schema.find", { key: "email", active: true })).resolves.toEqual(expect.objectContaining({
+            scope: "email",
+            key: "email",
+            active: true,
+            validation: expect.anything(),
+            migration: expect.any(String),
+            version: expect.any(String),
         }));
-    });
-    // TODO: ...
+    }));
+    it("iam.schema.define", () => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
+        yield expect(broker.call("iam.schema.define", { key: "test-will-throw" })).rejects.toThrow(expect.objectContaining({ code: 422 }));
+        yield expect(broker.call("iam.schema.define", {
+            key: "useless_claim",
+            scope: "_test",
+            validation: "string",
+        })).resolves.toEqual(expect.objectContaining({
+            key: "useless_claim",
+            scope: "_test",
+            validation: "string",
+            active: true,
+            version: expect.any(String),
+            migration: expect.any(String),
+        }));
+    }));
 });
 //# sourceMappingURL=service.spec.js.map

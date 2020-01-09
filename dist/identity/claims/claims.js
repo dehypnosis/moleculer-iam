@@ -62,7 +62,7 @@ class IdentityClaimsManager {
             });
         }
         // normalize migration codes
-        const { code, error } = terser_1.default.minify(`(${payload.migration})(oldClaim, seedClaim, claims);`, { ecma: 6, compress: false, mangle: false, output: { beautify: true, indent_level: 2 } });
+        const { code, error } = terser_1.default.minify(`(${payload.migration})(oldClaim, claims);`, { ecma: 6, compress: false, mangle: false, output: { beautify: true, indent_level: 2 } });
         if (error) {
             throw error;
         }
@@ -91,9 +91,10 @@ class IdentityClaimsManager {
                 displayErrors: true,
                 timeout: 100,
             });
-            // uncomment to read function codes on jest cov_ errors: console.log(`(${schema.migration!})(oldClaim, seedClaim, claims)`);
-            return (oldClaim, seedClaim, claims) => {
-                return script.runInNewContext({ oldClaim, seedClaim: _.cloneDeep(seedClaim), claims });
+            // uncomment to read function codes on jest cov_ errors
+            // console.log(`(${schema.migration!})(oldClaim, claims)`);
+            return (oldClaim, claims) => {
+                return script.runInNewContext({ oldClaim, claims });
             };
         }
         catch (error) {
@@ -282,7 +283,7 @@ class IdentityClaimsManager {
                                         .then(result => result[schema.key])
                                     : undefined;
                                 oldClaim = typeof oldClaim === "undefined" ? null : oldClaim;
-                                newClaim = migrateClaims(oldClaim, schema.seed, claims);
+                                newClaim = migrateClaims(oldClaim, claims);
                                 newClaim = typeof newClaim === "undefined" ? null : newClaim;
                                 this.logger.info(`migrate user claims ${id}:${schema.key}:${schema.version.substr(0, 8)}`, oldClaim, "->", newClaim);
                                 // validate and store it

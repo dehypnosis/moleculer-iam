@@ -90,6 +90,7 @@ function IAMServiceSchema(opts) {
                         try {
                             yield oidc.deleteClient(ctx.params.client_id);
                             yield this.clearCache("client.**");
+                            yield this.broker.broadcast("iam.client.deleted", ctx.params); // 'oidc-provider' has a hard coded LRU cache internally... using pub/sub to clear distributed nodes' cache
                             return true;
                         }
                         catch (error) {
@@ -107,12 +108,7 @@ function IAMServiceSchema(opts) {
                 },
                 handler(ctx) {
                     return tslib_1.__awaiter(this, void 0, void 0, function* () {
-                        try {
-                            return yield oidc.findClientOrFail(ctx.params.client_id);
-                        }
-                        catch (error) {
-                            throw this.transformOIDCError(error);
-                        }
+                        return oidc.findClient(ctx.params.client_id);
                     });
                 },
             },
@@ -258,18 +254,7 @@ function IAMServiceSchema(opts) {
                     });
                 },
             },
-            // /* Identity Management */
-            // "identity.validate": {},
-            // "identity.create": {},
-            // "identity.update": {},
-            // "identity.delete": {},
-            // "identity.restore": {},
-            // "identity.find": {},
-            // "identity.get": {},
-            // "identity.count": {},
-            // "identity.refresh": {},
-            //
-            // /* Identity Claims Schema Management */
+            /* Identity Claims Schema Management */
             "schema.get": {
                 params: {
                     scope: {
@@ -335,6 +320,19 @@ function IAMServiceSchema(opts) {
                         return idp.claims.defineClaimsSchema(ctx.params);
                     });
                 },
+            },
+        },
+        events: {
+            "iam.client.deleted"(ctx) {
+                return tslib_1.__awaiter(this, void 0, void 0, function* () {
+                    try {
+                        // to clear internal memory cache
+                        yield oidc.deleteClient(ctx.params.client_id);
+                    }
+                    catch (err) {
+                        // ...NOTHING
+                    }
+                });
             },
         },
         methods: {

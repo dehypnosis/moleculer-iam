@@ -33,23 +33,22 @@ export interface IdentityClaimsSchemaPayload {
     Merged value with merge migration will be validated with given schema.
     For the batched migration, single failure will rollback all the batched migrations process.
 
-    eg. accept seed value from new version if old claim is undefined.
-    migration: `(oldClaim, seedClaim, claims) => {
-      return typeof oldClaim === "undefined" || oldClaim === null ? seedClaim : oldClaim;
+    eg. remain old value.
+    migration: `(oldClaim, claims) => {
+      return typeof oldClaim === "undefined" ? null : oldClaim;
     }`,
 
-    eg2. merge object properties while old claim take precedence over new default claim.
-    migration: `(oldClaim, seedClaim, claims) => {
-      return { ...seedClaim, ...oldClaim };
+    eg2. extend old object with a new property.
+    migration: `(oldClaim, claims) => {
+      return { ...oldClaim, newProperty: "blabla" + claims.email };
     }`
 
-    eg3. use other claims in migration.
-    migration: `(oldClaim, seedClaim, claims) => {
-      return claims.otherValue;
+    eg3. extend old array with a new item.
+    migration: `(oldClaim, claims) => {
+      return (oldClaim || []).concat("whatever-item", claims.birthdate);
     }`
    */
   migration?: string;
-  seed?: any;
 
   /*
     Optional version string denote that migrate old user claims from specific version.
@@ -62,18 +61,8 @@ export interface IdentityClaimsSchemaPayload {
 }
 
 /* istanbul ignore next */
-const defaultMigration = (oldClaim: any, seedClaim: any, claims: OIDCAccountClaims) => {
-  return typeof oldClaim === "undefined" || oldClaim === null
-    ? seedClaim
-    : (
-      typeof oldClaim === "object"
-        ? (
-          Array.isArray(oldClaim) && Array.isArray(seedClaim)
-            ? Array.from(new Set([...seedClaim, ...oldClaim]))
-            : {...seedClaim, ...oldClaim}
-        )
-        : oldClaim
-    );
+const defaultMigration = (oldClaim: any, claims: OIDCAccountClaims) => {
+  return typeof oldClaim === "undefined" ? null : oldClaim;
 };
 
 export const IdentityClaimsSchemaPayloadValidationSchema: ValidationSchema = {
@@ -120,43 +109,23 @@ export const IdentityClaimsSchemaPayloadValidationSchema: ValidationSchema = {
       Merged value with merge strategy will be validated with given schema.
       For the batched migration, single failure will rollback all the batched migrations process.
 
-      eg. accept default value from new version if old value is undefined.
-      migration: \`(oldClaim, seedClaim, claims) => {
-        return typeof oldClaim === "undefined" || oldClaim === null ? seedClaim : oldClaim;
+      eg. remain old value. (default)
+      migration: \`(oldClaim, claims) => {
+        return typeof oldClaim === "undefined" ? null : oldClaim;
       }\`,
 
-      eg2. merge object properties while old value take precedence over new default value.
-      migration: \`(oldClaim, seedClaim, claims) => {
-        return { ...seedClaim, ...oldClaim };
+      eg2. extend old object with a new property.
+      migration: \`(oldClaim, claims) => {
+        return { ...oldClaim, emailLength: claims.email.length };
       }\`
 
-      eg3. use other claims in migration.
-      migration: \`(oldClaim, seedClaim, claims) => {
-        return claims.otherValue;
+      eg3. extend old array with a new item.
+      migration: \`(oldClaim, claims) => {
+        return (oldClaim || []).concat(["2020-01-03", claims.birthdate]);
       }\`
-
-      eg4. default migration function.
-      migration: \`(oldClaim, seedClaim, claims) => {
-        return typeof oldClaim === "undefined" || oldClaim === null
-          ? seedClaim
-          : (
-            typeof oldClaim === "object"
-              ? (
-                Array.isArray(oldClaim) && Array.isArray(seedClaim)
-                  ? Array.from(new Set([...seedClaim, ...oldClaim]))
-                  : { ...seedClaim, ...oldClaim }
-              )
-              : oldClaim
-          );
-      };\`
     `,
     default: defaultMigration.toString(),
     trim: true,
-  },
-  seed: {
-    type: "any",
-    description: `Default claim value for migration.`,
-    optional: true,
   },
   parentVersion: {
     type: "string",

@@ -11,7 +11,6 @@ export async function defineAdapterModels(manager: RDBMSManager) {
     description: {type: TEXT, allowNull: true},
     validation: {type: JSON},
     migration: {type: TEXT},
-    seed: {type: JSON, allowNull: true},
     active: {type: BOOLEAN, defaultValue: false},
     createdAt: {type: DATE},
   }, {

@@ -141,9 +141,8 @@ function doCommonAdapterTest(idp) {
                 key: "testnote",
                 validation: {
                     type: "string",
-                    optional: false,
+                    default: "testnote-default-value",
                 },
-                seed: "testnote-default-value",
             })).resolves.not.toThrow();
             yield expect(identity.claims("userinfo", "profile")).resolves.toEqual(expect.objectContaining({ testnote: "testnote-default-value" }));
         }));
@@ -153,8 +152,8 @@ function doCommonAdapterTest(idp) {
                 key: "testscore",
                 validation: {
                     type: "number",
+                    default: 0,
                 },
-                seed: 0,
             })).resolves.not.toThrow();
             yield expect(idp.claims.defineClaimsSchema({
                 scope: "profile",
@@ -162,9 +161,8 @@ function doCommonAdapterTest(idp) {
                 validation: {
                     type: "number",
                     positive: true,
-                    default: 100,
+                    default: 1,
                 },
-                seed: 1,
                 migration: ( /* istanbul ignore next */(old, def, claims) => {
                     console.log(claims);
                     return claims.email && claims.email.length || 0;
@@ -175,7 +173,7 @@ function doCommonAdapterTest(idp) {
     });
     describe("Complex claims definition and remove claims by scopes", () => {
         it("can create object claims and migrate and revert", () => tslib_1.__awaiter(this, void 0, void 0, function* () {
-            const seed = {
+            const testcomplex = {
                 number: 1234,
                 string: "test",
                 strings: ["1", "2", "3", "4"],
@@ -196,15 +194,15 @@ function doCommonAdapterTest(idp) {
                             empty: false,
                         },
                     },
+                    default: testcomplex,
                 },
-                seed,
             }).then(schema => {
                 initialSchema = schema;
                 return schema;
             })).resolves.not.toThrow();
-            yield expect(identity.updateClaims({ testcomplex: seed }, "testcomplex")).resolves.not.toThrow();
+            yield expect(identity.updateClaims({ testcomplex }, "testcomplex")).resolves.not.toThrow();
             yield expect(identity.claims("userinfo", "testcomplex")).resolves.toEqual(expect.objectContaining({
-                testcomplex: seed,
+                testcomplex,
             }));
             yield expect(identity.metadata()).resolves.toEqual(expect.objectContaining({
                 scope: expect.objectContaining({
@@ -212,7 +210,7 @@ function doCommonAdapterTest(idp) {
                 }),
             }));
             // now change strings as numbers
-            const seed2 = {
+            const testcomplex2 = {
                 number: 5678,
                 string: "test2",
                 numbers: [5, 6, 7, 8],
@@ -232,17 +230,17 @@ function doCommonAdapterTest(idp) {
                             empty: false,
                         },
                     },
+                    default: testcomplex2,
                 },
-                seed: seed2,
-                migration: `(old, seed, claims) => {
+                migration: `(old, claims) => {
         return old ? {
           ...old,
           numbers: old.strings.map(s => parseInt(s)),
-        } : seed;
+        } : ${JSON.stringify(testcomplex2)};
       }`,
             })).resolves.not.toThrow();
             yield expect(identity.claims("userinfo", "testcomplex")).resolves.toEqual(expect.objectContaining({
-                testcomplex: Object.assign(Object.assign({}, seed), { numbers: [1, 2, 3, 4] }),
+                testcomplex: Object.assign(Object.assign({}, testcomplex2), { numbers: [1, 2, 3, 4] }),
             }));
             // revert to old version
             yield expect(idp.claims.defineClaimsSchema({
@@ -260,17 +258,17 @@ function doCommonAdapterTest(idp) {
                             empty: false,
                         },
                     },
+                    default: testcomplex,
                 },
-                seed,
                 parentVersion: initialSchema.version,
                 migration: `
-        (old, seed, claims) => {
-          return old ? old : seed;
+        (old, claims) => {
+          return old ? old : ${JSON.stringify(testcomplex)};
         }
       `,
             })).resolves.not.toThrow();
             yield expect(identity.claims("userinfo", "testcomplex")).resolves.toEqual(expect.objectContaining({
-                testcomplex: seed,
+                testcomplex,
             }));
             // delete claims by scope
             yield expect(identity.deleteClaims("testcomplex")).resolves.not.toThrow();

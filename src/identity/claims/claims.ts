@@ -84,7 +84,7 @@ export class IdentityClaimsManager {
     }
 
     // normalize migration codes
-    const {code, error} = Terser.minify(`(${payload.migration!})(oldClaim, seedClaim, claims);`, {ecma: 6, compress: false, mangle: false, output: {beautify: true, indent_level: 2}});
+    const {code, error} = Terser.minify(`(${payload.migration!})(oldClaim, claims);`, {ecma: 6, compress: false, mangle: false, output: {beautify: true, indent_level: 2}});
     if (error) {
       throw error;
     }
@@ -105,12 +105,10 @@ export class IdentityClaimsManager {
       $$strict: true,
     });
 
-    return (claims: any): void => {
-      const result = validate({[schema.key]: claims});
+    return (claims: {[claimKey: string]: any}): void => {
+      const result = validate(claims);
       if (result !== true) {
-        throw new Errors.ValidationError(result, {
-          [schema.key]: claims,
-        });
+        throw new Errors.ValidationError(result, claims);
       }
     };
   }
@@ -122,10 +120,12 @@ export class IdentityClaimsManager {
         displayErrors: true,
         timeout: 100,
       });
-      // uncomment to read function codes on jest cov_ errors: console.log(`(${schema.migration!})(oldClaim, seedClaim, claims)`);
 
-      return (oldClaim: any, seedClaim: any, claims: any): any => {
-        return script.runInNewContext({oldClaim, seedClaim: _.cloneDeep(seedClaim), claims});
+      // uncomment to read function codes on jest cov_ errors
+      // console.log(`(${schema.migration!})(oldClaim, claims)`);
+
+      return (oldClaim: any, claims: any): any => {
+        return script.runInNewContext({oldClaim, claims});
       };
     } catch (error) {
       throw new Errors.ValidationError([], {migration: schema.migration, error});
@@ -322,12 +322,15 @@ export class IdentityClaimsManager {
                 : undefined;
               oldClaim = typeof oldClaim === "undefined" ? null : oldClaim;
 
-              newClaim = migrateClaims(oldClaim, schema.seed, claims);
+              newClaim = migrateClaims(oldClaim, claims);
               newClaim = typeof newClaim === "undefined" ? null : newClaim;
-              this.logger.info(`migrate user claims ${id}:${schema.key}:${schema.version.substr(0, 8)}`, oldClaim, "->", newClaim);
 
-              // validate and store it
-              validateClaims(newClaim);
+              // validate and re-assign (may) sanitized value
+              const newClaims = {[schema.key]: newClaim};
+              validateClaims(newClaims);
+              newClaim = newClaims[schema.key];
+
+              this.logger.info(`migrate user claims ${id}:${schema.key}:${schema.version.substr(0, 8)}`, oldClaim, "->", newClaim);
 
               await this.adapter.createOrUpdateVersionedClaims(id, [{
                 key: schema.key,

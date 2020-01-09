@@ -50,6 +50,21 @@ export function IAMServiceSchema(opts: IAMServiceSchemaOptions): ServiceSchema {
 
     name: "iam",
     settings: {},
+
+    hooks: {
+      // transform OIDC provider error
+      error: {
+        "*"(ctx: any, err: any) {
+          if (err.status <= 400 && err.status < 500) {
+            throw new Errors.MoleculerClientError(err.error_description!, err.statusCode, err.error);
+          } else if (err.status >= 500) {
+            throw new Errors.MoleculerServerError(err.error_description!, err.statusCode, err.error);
+          }
+          throw err;
+        },
+      },
+    },
+
     actions: {
       /* Client Management */
       "client.create": {
@@ -59,25 +74,17 @@ export function IAMServiceSchema(opts: IAMServiceSchemaOptions): ServiceSchema {
         `,
         params: IAMServiceActionParams["client.create"],
         async handler(ctx) {
-          try {
-            const client = await oidc.createClient(ctx.params as any);
-            await this.clearCache("client.**");
-            return client;
-          } catch (error) {
-            throw this.transformOIDCError(error);
-          }
+          const client = await oidc.createClient(ctx.params as any);
+          await this.clearCache("client.**");
+          return client;
         },
       },
       "client.update": {
         params: IAMServiceActionParams["client.update"],
         async handler(ctx) {
-          try {
-            const client = await oidc.updateClient(ctx.params as any);
-            await this.clearCache("client.**");
-            return client;
-          } catch (error) {
-            throw this.transformOIDCError(error);
-          }
+          const client = await oidc.updateClient(ctx.params as any);
+          await this.clearCache("client.**");
+          return client;
         },
       },
       "client.delete": {
@@ -85,13 +92,10 @@ export function IAMServiceSchema(opts: IAMServiceSchemaOptions): ServiceSchema {
           client_id: "string",
         },
         async handler(ctx) {
-          try {
-            await oidc.deleteClient((ctx.params as any).client_id);
-            await this.clearCache("client.**");
-            return true;
-          } catch (error) {
-            throw this.transformOIDCError(error);
-          }
+          await oidc.deleteClient((ctx.params as any).client_id);
+          await this.clearCache("client.**");
+          await this.broker.broadcast("iam.client.deleted", ctx.params); // 'oidc-provider' has a hard coded LRU cache internally... using pub/sub to clear distributed nodes' cache
+          return true;
         },
       },
       "client.find": {
@@ -102,11 +106,7 @@ export function IAMServiceSchema(opts: IAMServiceSchemaOptions): ServiceSchema {
           client_id: "string",
         },
         async handler(ctx) {
-          try {
-            return await oidc.findClientOrFail((ctx.params as any).client_id);
-          } catch (error) {
-            throw this.transformOIDCError(error);
-          }
+          return oidc.findClient((ctx.params as any).client_id);
         },
       },
       "client.get": {
@@ -130,16 +130,12 @@ export function IAMServiceSchema(opts: IAMServiceSchemaOptions): ServiceSchema {
           },
         },
         async handler(ctx) {
-          try {
-            const {offset, limit, where} = ctx.params! as any;
-            const [total, entries] = await Promise.all([
-              oidc.countClients(where),
-              oidc.getClients(ctx.params),
-            ]);
-            return {offset, limit, total, entries};
-          } catch (error) {
-            throw this.transformOIDCError(error);
-          }
+          const {offset, limit, where} = ctx.params! as any;
+          const [total, entries] = await Promise.all([
+            oidc.countClients(where),
+            oidc.getClients(ctx.params),
+          ]);
+          return {offset, limit, total, entries};
         },
       },
       "client.count": {
@@ -153,11 +149,7 @@ export function IAMServiceSchema(opts: IAMServiceSchemaOptions): ServiceSchema {
           },
         },
         async handler(ctx) {
-          try {
-            return await oidc.countClients(ctx.params && (ctx.params as any).where);
-          } catch (error) {
-            throw this.transformOIDCError(error);
-          }
+          return oidc.countClients(ctx.params && (ctx.params as any).where);
         },
       },
 
@@ -241,18 +233,7 @@ export function IAMServiceSchema(opts: IAMServiceSchemaOptions): ServiceSchema {
         },
       },
 
-      // /* Identity Management */
-      // "identity.validate": {},
-      // "identity.create": {},
-      // "identity.update": {},
-      // "identity.delete": {},
-      // "identity.restore": {},
-      // "identity.find": {},
-      // "identity.get": {},
-      // "identity.count": {},
-      // "identity.refresh": {},
-      //
-      // /* Identity Claims Schema Management */
+      /* Identity Claims Schema Management */
       "schema.get": {
         params: {
           scope: {
@@ -313,17 +294,31 @@ export function IAMServiceSchema(opts: IAMServiceSchemaOptions): ServiceSchema {
           return idp.claims.defineClaimsSchema(ctx.params as IdentityClaimsSchemaPayload);
         },
       },
+
+      /* Identity Management */
+      // "identity.validate": {},
+      // "identity.create": {},
+      // "identity.update": {},
+      // "identity.delete": {},
+      // "identity.restore": {},
+      // "identity.find": {},
+      // "identity.get": {},
+      // "identity.count": {},
+      // "identity.refresh": {},
+    },
+
+    events: {
+      async "iam.client.deleted"(ctx) {
+        try {
+          // to clear internal memory cache
+          await oidc.deleteClient(ctx.params.client_id);
+        } catch (err) {
+          // ...NOTHING
+        }
+      },
     },
 
     methods: {
-      transformOIDCError(err: OIDCErrors.OIDCProviderError): Errors.MoleculerError {
-        if (err.status <= 400 && err.status < 500) {
-          return new Errors.MoleculerClientError(err.error_description!, err.statusCode, err.error);
-        } else if (err.status >= 500) {
-          return new Errors.MoleculerServerError(err.error_description!, err.statusCode, err.error);
-        }
-        return err as any;
-      },
       async clearCache(...keys: string[]) {
         if (this.broker.cacher) {
           if (keys.length === 0) {

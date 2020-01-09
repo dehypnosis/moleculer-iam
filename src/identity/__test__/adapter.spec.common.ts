@@ -166,9 +166,8 @@ export function doCommonAdapterTest(idp: IdentityProvider) {
         key: "testnote",
         validation: {
           type: "string",
-          optional: false,
+          default: "testnote-default-value",
         },
-        seed: "testnote-default-value",
       })).resolves.not.toThrow();
       await expect(identity.claims("userinfo", "profile")).resolves.toEqual(expect.objectContaining({testnote: "testnote-default-value"}));
     });
@@ -179,8 +178,8 @@ export function doCommonAdapterTest(idp: IdentityProvider) {
         key: "testscore",
         validation: {
           type: "number",
+          default: 0,
         },
-        seed: 0,
       })).resolves.not.toThrow();
 
       await expect(idp.claims.defineClaimsSchema({
@@ -189,10 +188,9 @@ export function doCommonAdapterTest(idp: IdentityProvider) {
         validation: {
           type: "number",
           positive: true,
-          default: 100, // default for create/update
+          default: 1,
         },
-        seed: 1, // default for migration
-        migration: (/* istanbul ignore next */ (old: any, def: any, claims: OIDCAccountClaims) => {
+        migration: (/* istanbul ignore next */ (old: any, claims: OIDCAccountClaims) => {
           console.log(claims);
           return claims.email && claims.email.length || 0;
         }).toString(),
@@ -204,7 +202,7 @@ export function doCommonAdapterTest(idp: IdentityProvider) {
 
   describe("Complex claims definition and remove claims by scopes", () => {
     it("can create object claims and migrate and revert", async () => {
-      const seed = {
+      const testcomplex = {
         number: 1234,
         string: "test",
         strings: ["1", "2", "3", "4"],
@@ -225,17 +223,17 @@ export function doCommonAdapterTest(idp: IdentityProvider) {
               empty: false,
             },
           },
+          default: testcomplex,
         },
-        seed,
       }).then(schema => {
         initialSchema = schema;
         return schema;
       })).resolves.not.toThrow();
 
-      await expect(identity.updateClaims({testcomplex: seed}, "testcomplex")).resolves.not.toThrow();
+      await expect(identity.updateClaims({testcomplex}, "testcomplex")).resolves.not.toThrow();
 
       await expect(identity.claims("userinfo", "testcomplex")).resolves.toEqual(expect.objectContaining({
-        testcomplex: seed,
+        testcomplex,
       }));
       await expect(identity.metadata()).resolves.toEqual(expect.objectContaining({
         scope: expect.objectContaining({
@@ -244,11 +242,6 @@ export function doCommonAdapterTest(idp: IdentityProvider) {
       }));
 
       // now change strings as numbers
-      const seed2 = {
-        number: 5678,
-        string: "test2",
-        numbers: [5, 6, 7, 8],
-      };
       await expect(idp.claims.defineClaimsSchema({
         scope: "testcomplex",
         key: "testcomplex",
@@ -265,18 +258,18 @@ export function doCommonAdapterTest(idp: IdentityProvider) {
             },
           },
         },
-        seed: seed2,
-        migration: `(old, seed, claims) => {
-        return old ? {
-          ...old,
-          numbers: old.strings.map(s => parseInt(s)),
-        } : seed;
+        migration: `(old, claims) => {
+        const obj = old || ${JSON.stringify(testcomplex)};
+        return {
+          ...obj,
+          numbers: obj.strings.map(s => parseInt(s)),
+        };
       }`,
       })).resolves.not.toThrow();
 
       await expect(identity.claims("userinfo", "testcomplex")).resolves.toEqual(expect.objectContaining({
         testcomplex: {
-          ...seed,
+          ...testcomplex,
           numbers: [1, 2, 3, 4],
         },
       }));
@@ -297,18 +290,16 @@ export function doCommonAdapterTest(idp: IdentityProvider) {
               empty: false,
             },
           },
+          default: testcomplex,
         },
-        seed,
         parentVersion: initialSchema!.version,
-        migration: `
-        (old, seed, claims) => {
-          return old ? old : seed;
-        }
-      `,
+        migration: `(old, claims) => {
+          return old || ${JSON.stringify(testcomplex)};
+        }`,
       })).resolves.not.toThrow();
 
       await expect(identity.claims("userinfo", "testcomplex")).resolves.toEqual(expect.objectContaining({
-        testcomplex: seed,
+        testcomplex,
       }));
 
       // delete claims by scope

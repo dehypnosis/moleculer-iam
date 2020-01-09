@@ -1,14 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 /* istanbul ignore next */
-const defaultMigration = (oldClaim, seedClaim, claims) => {
-    return typeof oldClaim === "undefined" || oldClaim === null
-        ? seedClaim
-        : (typeof oldClaim === "object"
-            ? (Array.isArray(oldClaim) && Array.isArray(seedClaim)
-                ? Array.from(new Set([...seedClaim, ...oldClaim]))
-                : Object.assign(Object.assign({}, seedClaim), oldClaim))
-            : oldClaim);
+const defaultMigration = (oldClaim, claims) => {
+    return typeof oldClaim === "undefined" ? null : oldClaim;
 };
 exports.IdentityClaimsSchemaPayloadValidationSchema = {
     scope: {
@@ -54,43 +48,23 @@ exports.IdentityClaimsSchemaPayloadValidationSchema = {
       Merged value with merge strategy will be validated with given schema.
       For the batched migration, single failure will rollback all the batched migrations process.
 
-      eg. accept default value from new version if old value is undefined.
-      migration: \`(oldClaim, seedClaim, claims) => {
-        return typeof oldClaim === "undefined" || oldClaim === null ? seedClaim : oldClaim;
+      eg. remain old value. (default)
+      migration: \`(oldClaim, claims) => {
+        return typeof oldClaim === "undefined" ? null : oldClaim;
       }\`,
 
-      eg2. merge object properties while old value take precedence over new default value.
-      migration: \`(oldClaim, seedClaim, claims) => {
-        return { ...seedClaim, ...oldClaim };
+      eg2. extend old object with a new property.
+      migration: \`(oldClaim, claims) => {
+        return { ...oldClaim, emailLength: claims.email.length };
       }\`
 
-      eg3. use other claims in migration.
-      migration: \`(oldClaim, seedClaim, claims) => {
-        return claims.otherValue;
+      eg3. extend old array with a new item.
+      migration: \`(oldClaim, claims) => {
+        return (oldClaim || []).concat(["2020-01-03", claims.birthdate]);
       }\`
-
-      eg4. default migration function.
-      migration: \`(oldClaim, seedClaim, claims) => {
-        return typeof oldClaim === "undefined" || oldClaim === null
-          ? seedClaim
-          : (
-            typeof oldClaim === "object"
-              ? (
-                Array.isArray(oldClaim) && Array.isArray(seedClaim)
-                  ? Array.from(new Set([...seedClaim, ...oldClaim]))
-                  : { ...seedClaim, ...oldClaim }
-              )
-              : oldClaim
-          );
-      };\`
     `,
         default: defaultMigration.toString(),
         trim: true,
-    },
-    seed: {
-        type: "any",
-        description: `Default claim value for migration.`,
-        optional: true,
     },
     parentVersion: {
         type: "string",
