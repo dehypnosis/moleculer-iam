@@ -2,9 +2,9 @@
 
 import { IdentityProvider } from "../provider";
 import { Identity } from "../identity";
-import uuid from "uuid";
 import { OIDCAccountClaims } from "../../oidc";
 import { IdentityClaimsSchema } from "../claims";
+import uuid from "uuid";
 
 export function doCommonAdapterTest(idp: IdentityProvider) {
   const testEmail = `${uuid.v4()}@tEsT.com`;
@@ -13,16 +13,16 @@ export function doCommonAdapterTest(idp: IdentityProvider) {
   let identity: Identity;
   beforeAll(async () => {
     await idp.start();
-    await idp.claims.forceDeleteClaimsSchemata(...testSchemaKeys).catch(err => {});
+    await idp.claims.forceDeleteClaimsSchemata(...testSchemaKeys).catch(err => { });
 
     try {
       identity = await idp.create({
         metadata: {federation: {}, softDeleted: false},
         scope: ["openid", "profile", "email", "phone"],
-        claims: {sub: uuid(), email: testEmail, name: "Tester", phone_number: "010-4477-1234"},
+        claims: {email: testEmail, name: "Tester", phone_number: "010-4477-1234"},
         credentials: {password: "12341234"},
       });
-      // console.log(await identity.claims(), await identity.metadata());
+      // console.log(await identity.json());
     } catch (error) {
       console.error(error);
     }
@@ -33,24 +33,12 @@ export function doCommonAdapterTest(idp: IdentityProvider) {
       expect(identity).toBeDefined();
     });
 
-    it("identity cannot be created without sub (openid scope)", async () => {
+    it("identity should not be created with duplicate sub", async () => {
       await expect(idp.create({
         metadata: {},
         scope: ["openid", "profile", "email", "phone"],
         claims: {sub: identity.id, email: testEmail, name: "Tester", phone_number: "010-4477-1234"},
         credentials: {password: "12341234"},
-      })).rejects.toThrow();
-    });
-
-    it("identity cannot be created with same sub", async () => {
-      await expect(idp.create({
-        metadata: {federation: {}, softDeleted: false},
-        // @ts-ignore
-        claims: {
-          name: "what",
-        },
-        scope: ["profile"],
-        credentials: {},
       })).rejects.toThrow();
     });
 
@@ -82,10 +70,16 @@ export function doCommonAdapterTest(idp: IdentityProvider) {
           email_verified: true,
           phone_number_verified: true,
         }));
+    });
+
+    it("identity could not update immutable claims", async () => {
+      await expect(identity.updateClaims({
+        sub: "abcdefg",
+      }, "openid")).rejects.toThrow();
 
       await expect(identity.updateClaims({
-        sub: "abcdefg", // should not update sub claims after being created once
-      })).rejects.toThrow();
+        email: `updating-${testEmail}`,
+      }, "email")).rejects.toThrow();
     });
 
     it("identity could assert and update own credentials", async () => {
@@ -131,6 +125,32 @@ export function doCommonAdapterTest(idp: IdentityProvider) {
       )
         .resolves.toEqual(expect.arrayContaining([expect.objectContaining({sub: identity.id})]));
       await expect(idp.count()).resolves.toBeGreaterThan(0);
+    });
+
+    it("can fetch claims and metadata at once", async () => {
+      const claims = await identity.claims("userinfo", "profile");
+      const metadata = await identity.metadata();
+      await expect(identity.json("profile")).resolves.toEqual(expect.objectContaining({
+        id: identity.id,
+        claims,
+        metadata,
+      }));
+
+      await expect(identity.update("profile", {
+        name: "whatever",
+      }, {
+        blabla: true,
+      }, {
+        password: "12345678",
+      })).resolves.not.toThrow();
+
+      await expect(identity.json()).resolves.toEqual(expect.objectContaining({
+        id: identity.id,
+        claims: expect.objectContaining({name: "whatever"}),
+        metadata: expect.objectContaining({blabla: true}),
+      }));
+
+      await expect(identity.assertCredentials({password: "12345678"})).resolves.toBeTruthy();
     });
   });
 
@@ -191,8 +211,7 @@ export function doCommonAdapterTest(idp: IdentityProvider) {
           default: 1,
         },
         migration: (/* istanbul ignore next */ (old: any, claims: OIDCAccountClaims) => {
-          console.log(claims);
-          return claims.email && claims.email.length || 0;
+          return claims.email && claims.email.length || 1;
         }).toString(),
       })).resolves.not.toThrow();
 
@@ -320,7 +339,7 @@ export function doCommonAdapterTest(idp: IdentityProvider) {
       const removal = await idp.create({
         metadata: {federation: {}, softDeleted: false},
         scope: [], // mandatory scopes will put "openid", "profile", "email", ...
-        claims: {sub: uuid().substr(0, 16), name: "Test", email: "aa" + testEmail, testnote: "xasdasd"},
+        claims: {name: "Test", email: "aa" + testEmail, testnote: "xasdasd"},
         credentials: {password: "12341234"},
       });
       await expect(removal.delete(true)).resolves.not.toThrow();

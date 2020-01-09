@@ -26,6 +26,8 @@ exports.defaultIdentityClaimsManagerOptions = {
                 type: "email",
                 normalize: true,
             },
+            unique: true,
+            immutable: true,
         },
         {
             scope: "email",
@@ -42,6 +44,8 @@ exports.defaultIdentityClaimsManagerOptions = {
                 type: "phone",
                 country: "KR",
             },
+            unique: true,
+            immutable: true,
         },
         {
             scope: "phone",
@@ -76,6 +80,7 @@ exports.defaultIdentityClaimsManagerOptions = {
                 type: "boolean",
                 default: false,
             },
+            immutable: true,
         },
     ],
     mandatoryScopes: [

@@ -19,7 +19,7 @@ export type IDP_RDBMS_AdapterOptions = RDBMSManagerOptions & { claimsMigrationLo
 export class IDP_RDBMS_Adapter extends IDPAdapter {
   private readonly manager: RDBMSManager;
   public readonly displayName = "RDBMS";
-  private claimsMigrationLockTimeoutSeconds: number;
+  private readonly claimsMigrationLockTimeoutSeconds: number;
 
   constructor(protected readonly props: IDPAdapterProps, options?: IDP_RDBMS_AdapterOptions) {
     super(props);
@@ -175,9 +175,9 @@ export class IDP_RDBMS_Adapter extends IDPAdapter {
   }
 
   public async onClaimsUpdated(id: string, updatedClaims: Partial<OIDCAccountClaims>, transaction?: Transaction): Promise<void> {
-    const claims: Partial<OIDCAccountClaims> = await this.getClaims(id, {scope: []});
+    const claims: Partial<OIDCAccountClaims> = await this.getClaims(id, []);
     const mergedClaims = _.defaultsDeep(updatedClaims, claims);
-    // this.logger.info("sync identity claims cache:", updatedClaims);
+    // this.logger.debug("sync identity claims cache:", updatedClaims);
     await this.IdentityClaimsCache.upsert({
       id,
       data: mergedClaims,

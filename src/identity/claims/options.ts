@@ -26,6 +26,8 @@ export const defaultIdentityClaimsManagerOptions: IdentityClaimsManagerOptions =
         type: "email",
         normalize: true,
       },
+      unique: true,
+      immutable: true,
     },
     {
       scope: "email",
@@ -42,6 +44,8 @@ export const defaultIdentityClaimsManagerOptions: IdentityClaimsManagerOptions =
         type: "phone",
         country: "KR",  // TODO: locale from context...
       },
+      unique: true,
+      immutable: true,
     },
     {
       scope: "phone",
@@ -76,6 +80,7 @@ export const defaultIdentityClaimsManagerOptions: IdentityClaimsManagerOptions =
         type: "boolean",
         default: false,
       },
+      immutable: true,
     },
   ],
   mandatoryScopes: [

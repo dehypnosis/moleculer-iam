@@ -171,9 +171,9 @@ class IDP_RDBMS_Adapter extends adapter_1.IDPAdapter {
     }
     onClaimsUpdated(id, updatedClaims, transaction) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            const claims = yield this.getClaims(id, { scope: [] });
+            const claims = yield this.getClaims(id, []);
             const mergedClaims = _.defaultsDeep(updatedClaims, claims);
-            // this.logger.info("sync identity claims cache:", updatedClaims);
+            // this.logger.debug("sync identity claims cache:", updatedClaims);
             yield this.IdentityClaimsCache.upsert({
                 id,
                 data: mergedClaims,

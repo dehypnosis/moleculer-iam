@@ -25,6 +25,10 @@ export interface IdentityClaimsSchemaPayload {
   */
   validation: ValidationRule;
 
+  unique?: boolean; // false by default
+
+  immutable?: boolean; // false by default
+
   /*
     A string denotes a JavaScript function which will be used to migrate old claims to new schema.
     When a schema is defined newly or updated, batched migration will be performed for whole users.
@@ -91,6 +95,18 @@ export const IdentityClaimsSchemaPayloadValidationSchema: ValidationSchema = {
     description: "Optional description.",
     trim: true,
     optional: true,
+  },
+  unique: {
+    type: "boolean",
+    description: "denote defined claim should be unique among all the identities.",
+    optional: true,
+    default: false,
+  },
+  immutable: {
+    type: "boolean",
+    description: "denote defined claim should not be updated after set once.",
+    optional: true,
+    default: false,
   },
   validation: {
     type: "any",

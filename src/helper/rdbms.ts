@@ -2,11 +2,14 @@ import * as kleur from "kleur";
 import * as _ from "lodash";
 import readline from "readline";
 import Umzug, { DownToOptions, UpDownMigrationsOptions, UpToOptions } from "umzug";
-import { Sequelize, Options, Model, ModelAttributes, ModelOptions, STRING } from "sequelize";
+import { Sequelize, Options, Model, ModelAttributes, ModelOptions, STRING, Op } from "sequelize";
 import { Logger, LogLevel } from "../logger";
 
-// ref: https://sequelize.org/v5/manual/
+// ignore deprecation warning for string operator alias
+// tslint:disable-next-line:no-var-requires
+require("sequelize/lib/utils/deprecations").noStringOperators = () => {};
 
+// ref: https://sequelize.org/v5/manual/
 export * from "sequelize";
 
 export type RDBMSManagerProps = {
@@ -32,6 +35,42 @@ export class RDBMSManager {
   private readonly logger: Logger;
   private readonly models = new Map<string, ModelClass>();
   private readonly rl = readline.createInterface(process.stdin, process.stdout);
+  public static readonly operatorsAliases = {
+    $eq: Op.eq,
+    $ne: Op.ne,
+    $gte: Op.gte,
+    $gt: Op.gt,
+    $lte: Op.lte,
+    $lt: Op.lt,
+    $not: Op.not,
+    $in: Op.in,
+    $notIn: Op.notIn,
+    $is: Op.is,
+    $like: Op.like,
+    $notLike: Op.notLike,
+    $iLike: Op.iLike,
+    $notILike: Op.notILike,
+    $regexp: Op.regexp,
+    $notRegexp: Op.notRegexp,
+    $iRegexp: Op.iRegexp,
+    $notIRegexp: Op.notIRegexp,
+    $between: Op.between,
+    $notBetween: Op.notBetween,
+    $overlap: Op.overlap,
+    $contains: Op.contains,
+    $contained: Op.contained,
+    $adjacent: Op.adjacent,
+    $strictLeft: Op.strictLeft,
+    $strictRight: Op.strictRight,
+    $noExtendRight: Op.noExtendRight,
+    $noExtendLeft: Op.noExtendLeft,
+    $and: Op.and,
+    $or: Op.or,
+    $any: Op.any,
+    $all: Op.all,
+    $values: Op.values,
+    $col: Op.col,
+  };
 
   constructor(private readonly props: RDBMSManagerProps, private readonly opts: RDBMSManagerOptions = {}) {
     this.logger = props.logger || console;
@@ -44,6 +83,7 @@ export class RDBMSManager {
       logQueryParameters: true,
       benchmark: true,
       migrationLockTimeoutSeconds: 10,
+      operatorsAliases: RDBMSManager.operatorsAliases,
     };
     _.defaultsDeep(opts, defaults);
 

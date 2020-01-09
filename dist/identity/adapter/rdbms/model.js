@@ -12,8 +12,9 @@ function defineAdapterModels(manager) {
             parentVersion: { type: STRING, allowNull: true },
             description: { type: TEXT, allowNull: true },
             validation: { type: JSON },
+            immutable: { type: BOOLEAN, defaultValue: false },
+            unique: { type: BOOLEAN, defaultValue: false },
             migration: { type: TEXT },
-            seed: { type: JSON, allowNull: true },
             active: { type: BOOLEAN, defaultValue: false },
             createdAt: { type: DATE },
         }, {

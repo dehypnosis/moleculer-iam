@@ -2,11 +2,12 @@ import * as _ from "lodash";
 import kleur from "kleur";
 import { Logger } from "../../logger";
 import { FindOptions, WhereAttributeHash } from "../../helper/rdbms";
-import { OIDCAccountClaims, OIDCAccountClaimsFilter, OIDCAccountCredentials } from "../../oidc";
+import { OIDCAccountClaims, OIDCAccountCredentials } from "../../oidc";
 import { defaultIdentityMetadata, IdentityMetadata } from "../metadata";
 import { IdentityClaimsSchema } from "../claims";
 import { ValidationSchema, ValidationError, validator } from "../../validator";
 import { Errors } from "../error";
+import uuid from "uuid";
 
 export type IDPAdapterProps = {
   logger?: Logger,
@@ -46,33 +47,52 @@ export abstract class IDPAdapter {
   // args will be like { where: { claims:{}, metadata:{}, ...}, offset: 0, limit: 100, ... }
   public abstract async get(args: FindOptions): Promise<string[]>;
 
-  public async validate(args: { scope: string[], claims: Partial<OIDCAccountClaims>, credentials?: Partial<OIDCAccountCredentials> }): Promise<void> {
-    const {validateClaims} = await this.getCachedActiveClaimsSchemata(args.scope);
+  public async validate(args: { id?: string, scope: string[], claims: Partial<OIDCAccountClaims>, credentials?: Partial<OIDCAccountCredentials> }): Promise<void> {
+    const {validateClaims, validateClaimsImmutability, validateClaimsUniqueness} = await this.getCachedActiveClaimsSchemata(args.scope);
+    const mergedResult: ValidationError[] = [];
 
-    const claimsResult = validateClaims(args.claims);
-    if (claimsResult !== true) {
-      throw new Errors.ValidationError(claimsResult);
+    // validate claims
+    let result = validateClaims(args.claims);
+    if (result !== true) {
+      mergedResult.push(...result);
     }
 
-    if (args.credentials) {
-      await this.validateCredentials(args.credentials);
+    // validate immutable
+    if (args.id) {
+      result = await validateClaimsImmutability(args.id, args.claims);
+      if (result !== true) {
+        mergedResult.push(...result);
+      }
+    }
+
+    // validate uniqueness
+    result = await validateClaimsUniqueness(args.id, args.claims);
+    if (result !== true) {
+      mergedResult.push(...result);
+    }
+
+    // validate credentials
+    if (args.credentials && Object.keys(args.credentials).length > 0) {
+      result = this.testCredentials(args.credentials);
+      if (result !== true) {
+        mergedResult.push(...result);
+      }
+    }
+
+    if (mergedResult.length > 0) {
+      throw new Errors.ValidationError(mergedResult);
     }
   }
 
   public async create(args: { metadata: Partial<IdentityMetadata>, scope: string[], claims: OIDCAccountClaims, credentials: Partial<OIDCAccountCredentials> }, transaction?: Transaction): Promise<string> {
-    const {metadata, claims, credentials} = args;
-    if (await this.find({id: claims.sub})) {
-      throw new Errors.IdentityAlreadyExistsError();
+    const {metadata, claims, credentials, scope = []} = args || {};
+
+    if (claims && !claims.sub) {
+      claims.sub = uuid.v4();
     }
 
-    // check openid scope sub field is defined
-    if (!claims.sub || !args.scope.includes("openid")) {
-      throw new Errors.ValidationError([{
-        type: "required",
-        field: "sub",
-        message: "The 'sub' field is required.",
-        actual: claims.sub,
-      }]);
+    if (scope && scope.length !== 0 && !scope.includes("openid")) {
+      scope.push("openid");
     }
 
     // save metadata, claims, credentials
@@ -84,16 +104,15 @@ export abstract class IDPAdapter {
     const id = claims.sub;
     try {
       await this.createOrUpdateMetadata(id, _.defaultsDeep(metadata, defaultIdentityMetadata), transaction);
-      await this.createOrUpdateClaims(id, claims, {scope: args.scope}, transaction);
-      await this.createOrUpdateCredentials(id, credentials, transaction);
+      await this.createOrUpdateClaimsWithValidation(id, claims, scope, true, transaction);
+      await this.createOrUpdateCredentialsWithValidation(id, credentials, transaction);
       if (isolated) {
         await transaction.commit();
       }
     } catch (err) {
       if (isolated) {
-        await transaction!.rollback();
+        await transaction.rollback();
       }
-      await this.delete(id, isolated ? undefined : transaction);
       throw err;
     }
 
@@ -102,10 +121,10 @@ export abstract class IDPAdapter {
 
   public abstract async delete(id: string, transaction?: Transaction): Promise<boolean>;
 
-  /* fetch and create claims entities (versioned, immutable) */
-  public async getClaims(id: string, filter: Omit<OIDCAccountClaimsFilter, "use">): Promise<OIDCAccountClaims> {
+  /* fetch and create claims entities (versioned) */
+  public async getClaims(id: string, scope: string[]): Promise<OIDCAccountClaims> {
     // get active claims
-    const {claimsSchemata} = await this.getCachedActiveClaimsSchemata(filter.scope);
+    const {claimsSchemata} = await this.getCachedActiveClaimsSchemata(scope);
     const claims = await this.getVersionedClaims(
       id,
       claimsSchemata.map(schema => ({
@@ -125,39 +144,93 @@ export abstract class IDPAdapter {
 
   protected readonly getCachedActiveClaimsSchemata = _.memoize(
     async (scope: string[]) => {
+      // get schemata
       const claimsSchemata = await this.getClaimsSchemata({scope, active: true});
       const activeClaimsVersions = claimsSchemata.reduce((obj, schema) => {
         obj[schema.key] = schema.version;
         return obj;
       }, {} as { [key: string]: string });
 
+      // get unique claims schemata
+      const uniqueClaimsSchemata = claimsSchemata.filter(s => s.unique);
+      const uniqueClaimsSchemataKeys = uniqueClaimsSchemata.map(s => s.key);
+      const validateClaimsUniqueness = async (id: string | void, object: { [key: string]: any }): Promise<true | ValidationError[]> => {
+        if (uniqueClaimsSchemata.length === 0) return true;
+
+        const errors: ValidationError[] = [];
+        for (const key of uniqueClaimsSchemataKeys) {
+          const value = object[key];
+          const holderId = await this.find({claims: {[key]: value}});
+          if (holderId && id !== holderId) {
+            errors.push({
+              type: "duplicate",
+              field: key,
+              message: `The '${key}' field value is already used by other account.`,
+              actual: value,
+            });
+          }
+        }
+        return errors.length > 0 ? errors : true;
+      };
+
+      // get immutable claims schemata
+      const immutableClaimsSchemata = claimsSchemata.filter(s => s.immutable);
+      const immutableClaimsSchemataScope = immutableClaimsSchemata.map(s => s.scope);
+      const immutableClaimsSchemataKeys = immutableClaimsSchemata.map(s => s.key);
+      const validateClaimsImmutability = async (id: string, object: { [key: string]: any }): Promise<true | ValidationError[]> => {
+        if (immutableClaimsSchemata.length === 0) return true;
+
+        const errors: ValidationError[] = [];
+        const oldClaims = await this.getClaims(id, immutableClaimsSchemataScope);
+        for (const key of immutableClaimsSchemataKeys) {
+          const oldValue = oldClaims[key];
+          const newValue = object[key];
+          if (typeof newValue !== "undefined" && typeof oldValue !== "undefined" && oldValue !== null && oldValue !== newValue) {
+            errors.push({
+              type: "immutable",
+              field: key,
+              message: `The '${key}' field value cannot be updated.`,
+              actual: newValue,
+              expected: oldValue,
+            });
+          }
+        }
+        return errors.length > 0 ? errors : true;
+      };
+
       // prepare to validate and merge old claims
       const claimsValidationSchema = claimsSchemata.reduce((obj, claimsSchema) => {
         obj[claimsSchema.key] = claimsSchema.validation;
         return obj;
       }, {
-        // $$strict: true,
+        $$strict: true,
       } as ValidationSchema);
+      const validateClaims = validator.compile(claimsValidationSchema);
 
       return {
-        claimsSchemata,
         activeClaimsVersions,
-        validateClaims: validator.compile(claimsValidationSchema),
+        claimsSchemata,
+        validateClaims,
+        uniqueClaimsSchemata,
+        validateClaimsUniqueness,
+        immutableClaimsSchemata,
+        validateClaimsImmutability,
       };
     },
     (...args: any[]) => JSON.stringify(args),
   );
 
-  public async createOrUpdateClaims(id: string, claims: Partial<OIDCAccountClaims>, filter: Omit<OIDCAccountClaimsFilter, "use">, transaction?: Transaction): Promise<void> {
-    // load old claims and active claims schemata
-    const oldClaims = await this.getClaims(id, filter);
-    const {activeClaimsVersions, validateClaims} = await this.getCachedActiveClaimsSchemata(filter.scope);
+  public async createOrUpdateClaimsWithValidation(id: string, claims: Partial<OIDCAccountClaims>, scope: string[], creating: boolean, transaction?: Transaction): Promise<void> {
+    const {activeClaimsVersions, claimsSchemata} = await this.getCachedActiveClaimsSchemata(scope);
 
     // merge old claims and validate merged one
+    const oldClaims = await this.getClaims(id, scope);
     const mergedClaims: Partial<OIDCAccountClaims> = _.defaultsDeep(claims, oldClaims);
-    const result = validateClaims(mergedClaims);
-    if (result !== true) {
-      throw new Errors.ValidationError(result, {claims, mergedClaims});
+    try {
+      await this.validate({id: creating ? undefined : id, scope, claims: mergedClaims});
+    } catch (err) {
+      err.error_detail = {claims, mergedClaims, scope};
+      throw err;
     }
 
     let isolated = false;
@@ -184,8 +257,8 @@ export abstract class IDPAdapter {
 
       // set metadata scope
       await this.createOrUpdateMetadata(id, {
-        scope: filter.scope.reduce((obj, s) => {
-          obj[s] = true;
+        scope: claimsSchemata.reduce((obj, s) => {
+          obj[s.scope] = true;
           return obj;
         }, {} as { [k: string]: boolean }),
       }, transaction);
@@ -291,7 +364,7 @@ export abstract class IDPAdapter {
   /* identity credentials */
   public abstract async assertCredentials(id: string, credentials: Partial<OIDCAccountCredentials>): Promise<boolean>;
 
-  public abstract async createOrUpdateCredentials(id: string, credentials: Partial<OIDCAccountCredentials>, transaction?: Transaction): Promise<boolean>;
+  protected abstract async createOrUpdateCredentials(id: string, credentials: Partial<OIDCAccountCredentials>, transaction?: Transaction): Promise<boolean>;
 
   private readonly testCredentials = validator.compile({
     password: {
@@ -306,6 +379,35 @@ export abstract class IDPAdapter {
       optional: true,
     },
   });
+
+  public async createOrUpdateCredentialsWithValidation(id: string, credentials: Partial<OIDCAccountCredentials>, transaction?: Transaction): Promise<boolean> {
+    let isolated = false;
+    if (!transaction) {
+      transaction = transaction = await this.transaction();
+      isolated = true;
+    }
+    try {
+      await this.validateCredentials(credentials);
+
+      const updated = await this.createOrUpdateCredentials(id, credentials, transaction);
+      await this.createOrUpdateMetadata(id, {
+        credentials: Object.keys(credentials).reduce((obj, credType) => {
+          obj[credType] = true;
+          return obj;
+        }, {} as { [k: string]: boolean }),
+      }, transaction);
+
+      if (isolated) {
+        await transaction.commit();
+      }
+      return updated;
+    } catch (err) {
+      if (isolated) {
+        await transaction.rollback();
+      }
+      throw err;
+    }
+  }
 
   public async validateCredentials(credentials: Partial<OIDCAccountCredentials>): Promise<void> {
     const result = this.testCredentials(credentials);

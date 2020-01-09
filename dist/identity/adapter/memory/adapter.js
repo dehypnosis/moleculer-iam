@@ -53,32 +53,36 @@ class IDP_MemoryAdapter extends adapter_1.IDPAdapter {
                 }
             }
             if (foundId) {
-                // filter by metadata just straight forward for test
-                if (args.metadata) {
-                    const identityMetadata = yield this.getMetadata(foundId);
-                    if (!identityMetadata || !_.isMatch(identityMetadata, args.metadata)) {
-                        return;
-                    }
+                // filter by metadata for the common test
+                if (args.metadata && !(yield this.filerMetadata([foundId], args.metadata)).includes(foundId)) {
+                    return;
                 }
                 return foundId;
             }
         });
     }
-    // only support offset, limit
+    // filter by metadata poorly for the common test
+    filerMetadata(ids, condition) {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            if (Object.keys(condition).length === 0)
+                return ids;
+            const filteredIds = [];
+            for (const id of ids) {
+                const metadata = yield this.getMetadata(id);
+                if (metadata && _.isMatch(metadata, condition)) {
+                    filteredIds.push(id);
+                }
+            }
+            return filteredIds;
+        });
+    }
+    // only support offset, limit, metadata
     get(args) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             let ids = [...this.identityMetadataMap.keys()];
-            // filter by metadata just straight forward for test
+            // filter by metadata for the common test
             if (args.where && args.where.metadata) {
-                const filteredIds = [];
-                // filter by metadata just straight forward for test
-                for (const id of ids) {
-                    const identityMetadata = yield this.getMetadata(id);
-                    if (identityMetadata && _.isMatch(identityMetadata, args.where.metadata)) {
-                        filteredIds.push(id);
-                    }
-                }
-                ids = filteredIds;
+                ids = yield this.filerMetadata(ids, args.where.metadata);
             }
             return ids
                 .slice(args.offset || 0, typeof args.limit === "undefined" ? ids.length : args.limit);

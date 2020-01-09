@@ -31,6 +31,18 @@ exports.IdentityClaimsSchemaPayloadValidationSchema = {
         trim: true,
         optional: true,
     },
+    unique: {
+        type: "boolean",
+        description: "denote defined claim should be unique among all the identities.",
+        optional: true,
+        default: false,
+    },
+    immutable: {
+        type: "boolean",
+        description: "denote defined claim should not be updated after set once.",
+        optional: true,
+        default: false,
+    },
     validation: {
         type: "any",
         description: `

@@ -19,6 +19,8 @@ exports.broker.createService(__1.IAMServiceSchema(_.defaultsDeep({
                 "openid",
                 "profile",
                 "email",
+                // "phone",
+                "impersonation",
             ],
         },
     },

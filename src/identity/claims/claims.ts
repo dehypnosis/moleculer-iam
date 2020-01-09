@@ -50,6 +50,8 @@ export class IdentityClaimsManager {
         key: "sub",
         description: "account id",
         validation: "string",
+        immutable: true,
+        unique: true,
       },
       ...this.options.baseClaims!,
     ];
@@ -105,7 +107,7 @@ export class IdentityClaimsManager {
       $$strict: true,
     });
 
-    return (claims: {[claimKey: string]: any}): void => {
+    return (claims: { [claimKey: string]: any }): void => {
       const result = validate(claims);
       if (result !== true) {
         throw new Errors.ValidationError(result, claims);
@@ -136,45 +138,68 @@ export class IdentityClaimsManager {
     return [...new Set(this.options.mandatoryScopes!.concat(["openid"]))];
   }
 
+  public async onClaimsSchemaUpdated() {
+    return this.adapter.onClaimsSchemaUpdated();
+  }
+
   public async getActiveClaimsSchemata() {
     return this.adapter.getClaimsSchemata({scope: [], active: true});
   }
 
-  public async getClaimsSchemata(args: { scope: string[], key?: string, version?: string, active?: boolean }) {
-    return this.adapter.getClaimsSchemata(args);
+  public async getClaimsSchemata(args: { scope: string | string[], key?: string, version?: string, active?: boolean }) {
+    if (typeof args.scope === "string") {
+      args = {...args, scope: args.scope.split(" ").filter(s => !!s)};
+    } else if (typeof args.scope === "undefined") {
+      args = {...args, scope: []};
+    }
+    return this.adapter.getClaimsSchemata(args as any);
   }
 
   public async getClaimsSchema(args: { key: string, version?: string, active?: boolean }) {
     return this.adapter.getClaimsSchema(args);
   }
 
-  public async forceReloadClaims(where: WhereAttributeHash) {
-    this.logger.info(`force reload identity claims: onClaimsUpdated()`, where);
+  public async forceReloadClaims(args: { where?: WhereAttributeHash, ids?: string[] }) {
+    this.logger.info(`force reload identity claims: onClaimsUpdated()`, args);
     let transaction: Transaction;
     try {
       transaction = await this.adapter.transaction();
 
-      // migrate in batches
-      const limit = 100;
-      let offset = 0;
-      while (true) {
-        const identities = await this.adapter.get({where, offset, limit});
-        if (identities.length === 0) {
-          break;
+      // search and reload
+      if (args.where) {
+        // migrate in batches
+        const limit = 100;
+        let offset = 0;
+        while (true) {
+          const ids = await this.adapter.get({where: args.where, offset, limit});
+          if (ids.length === 0) {
+            break;
+          }
+          await Promise.all(ids.map(async id => {
+            try {
+              await this.adapter.onClaimsUpdated(id, {}, transaction);
+            } catch (error) {
+              this.logger.error("failed to reload user claims", id, error);
+              throw error;
+            }
+          }));
+          offset += limit;
         }
-        await Promise.all(identities.map(async identity => {
+      }
+
+      // reload directly
+      if (args.ids && args.ids.length > 0) {
+        await Promise.all(args.ids.map(async id => {
           try {
-            await this.adapter.onClaimsUpdated(identity, {}, transaction);
+            await this.adapter.onClaimsUpdated(id, {}, transaction);
           } catch (error) {
-            this.logger.error("failed to reload user claims", error);
+            this.logger.error("failed to reload user claims", id, error);
             throw error;
           }
         }));
-        offset += limit;
       }
 
       await transaction.commit();
-      await this.adapter.onClaimsSchemaUpdated();
 
     } catch (error) {
       this.logger.error(`force reload identity claims failed`, error);
@@ -312,7 +337,7 @@ export class IdentityClaimsManager {
             let claims: OIDCAccountClaims;
             try {
               // create new value
-              claims = await this.adapter.getClaims(id, {scope: []});
+              claims = await this.adapter.getClaims(id, []);
               oldClaim = parentSchema
                 ? await this.adapter.getVersionedClaims(id, [{
                   key: schema.key,
@@ -327,7 +352,7 @@ export class IdentityClaimsManager {
 
               // validate and re-assign (may) sanitized value
               const newClaims = {[schema.key]: newClaim};
-              validateClaims(newClaims);
+              validateClaims(newClaims); // in migration, schema.unique property is ignored
               newClaim = newClaims[schema.key];
 
               this.logger.info(`migrate user claims ${id}:${schema.key}:${schema.version.substr(0, 8)}`, oldClaim, "->", newClaim);

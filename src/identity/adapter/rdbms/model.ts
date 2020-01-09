@@ -10,6 +10,8 @@ export async function defineAdapterModels(manager: RDBMSManager) {
     parentVersion: {type: STRING, allowNull: true},
     description: {type: TEXT, allowNull: true},
     validation: {type: JSON},
+    immutable: {type: BOOLEAN, defaultValue: false},
+    unique: {type: BOOLEAN, defaultValue: false},
     migration: {type: TEXT},
     active: {type: BOOLEAN, defaultValue: false},
     createdAt: {type: DATE},

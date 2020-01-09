@@ -90,33 +90,47 @@ export class IdentityProvider {
   /* fetch account */
   // args will be like { claims:{}, metadata:{}, ...}
   public readonly validateEmailOrPhoneNumber = validator.compile({
-    email: {
-      type: "email",
-      normalize: true,
-      optional: true,
-    },
-    phone_number: {
-      type: "phone",
-      optional: true,
-    },
-  }) as (args: {email?: string, phone_number?: string}) => ValidationError[] | true;
+    email: [
+      {
+        type: "email",
+        normalize: true,
+        optional: true,
+      },
+      {
+        type: "object",
+        optional: true,
+      },
+    ],
+    phone_number: [
+      {
+        type: "phone",
+        optional: true,
+      },
+      {
+        type: "object",
+        optional: true,
+      },
+    ],
+  }) as (args: { email?: string, phone_number?: string }) => ValidationError[] | true;
 
   public async find(args: WhereAttributeHash): Promise<Identity | void> {
+    const where: any = args;
+
     // set softDeleted=false
-    if (!(args as any).metadata || typeof (args as any).metadata === "undefined") {
-      if (!(args as any).metadata) (args as any).metadata = {};
-      (args as any).metadata.softDeleted = false;
+    if (!where.metadata || typeof where.metadata === "undefined" || Object.keys(where.metadata).length === 0) {
+      if (!where.metadata) where.metadata = {};
+      where.metadata.softDeleted = false;
     }
 
     // validate args to normalize email and phone number
-    if ((args as any).claims) {
-      const result = this.validateEmailOrPhoneNumber((args as any).claims);
+    if (where.claims) {
+      const result = this.validateEmailOrPhoneNumber(where.claims);
       if (result !== true) {
         throw new Errors.ValidationError(result);
       }
     }
 
-    return this.adapter.find(args).then(id => id ? new Identity({ id, provider: this }) : undefined);
+    return this.adapter.find(where).then(id => id ? new Identity({id, provider: this}) : undefined);
   }
 
   public async findOrFail(args: WhereAttributeHash): Promise<Identity> {
@@ -129,47 +143,77 @@ export class IdentityProvider {
 
   // args will be like { claims:{}, metadata:{}, ...}
   public async count(args?: WhereAttributeHash): Promise<number> {
+    const where: any = args || {};
+
     // set softDeleted=false
-    if (!args || !(args as any).metadata || typeof (args as any).metadata === "undefined") {
-      if (!args) args = {};
-      if (!(args as any).metadata) (args as any).metadata = {};
-      (args as any).metadata.softDeleted = false;
+    if (!where.metadata || typeof where.metadata === "undefined" || Object.keys(where.metadata).length === 0) {
+      if (!where.metadata) where.metadata = {};
+      where.metadata.softDeleted = false;
     }
-    return this.adapter.count(args);
+
+    // validate args to normalize email and phone number
+    if (where.claims) {
+      const result = this.validateEmailOrPhoneNumber(where.claims);
+      if (result !== true) {
+        throw new Errors.ValidationError(result);
+      }
+    }
+
+    return this.adapter.count(where);
   }
 
   // args will be like { where: { claims:{}, metadata:{}, ...}, offset: 0, limit: 100, ... }
   public async get(args?: FindOptions): Promise<Identity[]> {
     args = {offset: 0, limit: 10, ...args};
 
-    // set softDeleted=false
-    if (!args.where || !(args.where as any).metadata || typeof (args.where as any).metadata === "undefined") {
-      if (!args.where) args.where = {};
-      if (!(args.where as any).metadata) (args.where as any).metadata = {};
-      (args.where as any).metadata.softDeleted = false;
+    if (typeof args.where === "object" && args.where !== null) {
+      const where: any = args.where;
+
+      // set softDeleted=false
+      if (!where.metadata || typeof where.metadata === "undefined" || Object.keys(where.metadata).length === 0) {
+        if (!where.metadata) where.metadata = {};
+        where.metadata.softDeleted = false;
+      }
+
+      // validate args to normalize email and phone number
+      if (where.claims) {
+        const result = this.validateEmailOrPhoneNumber(where.claims);
+        if (result !== true) {
+          throw new Errors.ValidationError(result);
+        }
+      }
     }
+
     return this.adapter.get(args)
-      .then(ids => ids.map(id => new Identity({ id, provider: this })));
+      .then(ids => ids.map(id => new Identity({id, provider: this})));
   }
 
   /* create account */
   public async create(args: { metadata: Partial<IdentityMetadata>, scope: string[] | string, claims: Partial<OIDCAccountClaims>, credentials: Partial<OIDCAccountCredentials> }): Promise<Identity> {
-    if (args.claims && !args.claims.sub) {
-      args.claims.sub = uuid.v4();
-    }
     if (typeof args.scope === "string") {
-      args.scope = args.scope.split(" ").map(s => s.trim()).filter(s => !!s);
+      args = {...args, scope: args.scope.split(" ").filter(s => !!s)};
+    } else if (typeof args.scope === "undefined") {
+      args = {...args, scope: []};
     }
+
     // push mandatory scopes
     args.scope = [...new Set([...args.scope, ...this.claims.mandatoryScopes])];
+
     return this.adapter.create(args as any)
-      .then(id => new Identity({ id, provider: this }));
+      .then(id => new Identity({id, provider: this}));
   }
 
-  public async validate(args: { scope: string[] | string, claims: Partial<OIDCAccountClaims>, credentials?: Partial<OIDCAccountCredentials> }): Promise<void> {
+  public async validate(args: { id?: string, scope: string[] | string, claims: Partial<OIDCAccountClaims>, credentials?: Partial<OIDCAccountCredentials> }): Promise<void> {
     if (typeof args.scope === "string") {
-      args.scope = args.scope.split(" ").map(s => s.trim()).filter(s => !!s);
+      args = {...args, scope: args.scope.split(" ").filter(s => !!s)};
+    } else if (typeof args.scope === "undefined") {
+      args = {...args, scope: []};
     }
+
     return this.adapter.validate(args as any);
+  }
+
+  public async validateCredentials(credentials: Partial<OIDCAccountCredentials>): Promise<void> {
+    return this.adapter.validateCredentials(credentials);
   }
 }

@@ -13,10 +13,10 @@ function doCommonAdapterTest(idp) {
             identity = yield idp.create({
                 metadata: { federation: {}, softDeleted: false },
                 scope: ["openid", "profile", "email", "phone"],
-                claims: { sub: uuid_1.default(), email: testEmail, name: "Tester", phone_number: "010-4477-1234" },
+                claims: { email: testEmail, name: "Tester", phone_number: "010-4477-1234" },
                 credentials: { password: "12341234" },
             });
-            // console.log(await identity.claims(), await identity.metadata());
+            // console.log(await identity.json());
         }
         catch (error) {
             console.error(error);
@@ -26,23 +26,12 @@ function doCommonAdapterTest(idp) {
         it("identity should be created well with valid payload", () => {
             expect(identity).toBeDefined();
         });
-        it("identity cannot be created without sub (openid scope)", () => tslib_1.__awaiter(this, void 0, void 0, function* () {
+        it("identity should not be created with duplicate sub", () => tslib_1.__awaiter(this, void 0, void 0, function* () {
             yield expect(idp.create({
                 metadata: {},
                 scope: ["openid", "profile", "email", "phone"],
                 claims: { sub: identity.id, email: testEmail, name: "Tester", phone_number: "010-4477-1234" },
                 credentials: { password: "12341234" },
-            })).rejects.toThrow();
-        }));
-        it("identity cannot be created with same sub", () => tslib_1.__awaiter(this, void 0, void 0, function* () {
-            yield expect(idp.create({
-                metadata: { federation: {}, softDeleted: false },
-                // @ts-ignore
-                claims: {
-                    name: "what",
-                },
-                scope: ["profile"],
-                credentials: {},
             })).rejects.toThrow();
         }));
         it("identity should have metadata", () => tslib_1.__awaiter(this, void 0, void 0, function* () {
@@ -70,9 +59,14 @@ function doCommonAdapterTest(idp) {
                 email_verified: true,
                 phone_number_verified: true,
             }));
+        }));
+        it("identity could not update immutable claims", () => tslib_1.__awaiter(this, void 0, void 0, function* () {
             yield expect(identity.updateClaims({
                 sub: "abcdefg",
-            })).rejects.toThrow();
+            }, "openid")).rejects.toThrow();
+            yield expect(identity.updateClaims({
+                email: `updating-${testEmail}`,
+            }, "email")).rejects.toThrow();
         }));
         it("identity could assert and update own credentials", () => tslib_1.__awaiter(this, void 0, void 0, function* () {
             yield expect(identity.assertCredentials({ password: "12341234" })).resolves.toBeTruthy();
@@ -111,6 +105,28 @@ function doCommonAdapterTest(idp) {
                 .then(identities => Promise.all(identities.map(idn => idn.claims()))))
                 .resolves.toEqual(expect.arrayContaining([expect.objectContaining({ sub: identity.id })]));
             yield expect(idp.count()).resolves.toBeGreaterThan(0);
+        }));
+        it("can fetch claims and metadata at once", () => tslib_1.__awaiter(this, void 0, void 0, function* () {
+            const claims = yield identity.claims("userinfo", "profile");
+            const metadata = yield identity.metadata();
+            yield expect(identity.json("profile")).resolves.toEqual(expect.objectContaining({
+                id: identity.id,
+                claims,
+                metadata,
+            }));
+            yield expect(identity.update("profile", {
+                name: "whatever",
+            }, {
+                blabla: true,
+            }, {
+                password: "12345678",
+            })).resolves.not.toThrow();
+            yield expect(identity.json()).resolves.toEqual(expect.objectContaining({
+                id: identity.id,
+                claims: expect.objectContaining({ name: "whatever" }),
+                metadata: expect.objectContaining({ blabla: true }),
+            }));
+            yield expect(identity.assertCredentials({ password: "12345678" })).resolves.toBeTruthy();
         }));
     });
     describe("Dynamic scope and claims migration", () => {
@@ -163,9 +179,8 @@ function doCommonAdapterTest(idp) {
                     positive: true,
                     default: 1,
                 },
-                migration: ( /* istanbul ignore next */(old, def, claims) => {
-                    console.log(claims);
-                    return claims.email && claims.email.length || 0;
+                migration: ( /* istanbul ignore next */(old, claims) => {
+                    return claims.email && claims.email.length || 1;
                 }).toString(),
             })).resolves.not.toThrow();
             yield expect(identity.claims("userinfo", "profile")).resolves.toEqual(expect.objectContaining({ testscore: testEmail.length }));
@@ -210,11 +225,6 @@ function doCommonAdapterTest(idp) {
                 }),
             }));
             // now change strings as numbers
-            const testcomplex2 = {
-                number: 5678,
-                string: "test2",
-                numbers: [5, 6, 7, 8],
-            };
             yield expect(idp.claims.defineClaimsSchema({
                 scope: "testcomplex",
                 key: "testcomplex",
@@ -230,17 +240,17 @@ function doCommonAdapterTest(idp) {
                             empty: false,
                         },
                     },
-                    default: testcomplex2,
                 },
                 migration: `(old, claims) => {
-        return old ? {
-          ...old,
-          numbers: old.strings.map(s => parseInt(s)),
-        } : ${JSON.stringify(testcomplex2)};
+        const obj = old || ${JSON.stringify(testcomplex)};
+        return {
+          ...obj,
+          numbers: obj.strings.map(s => parseInt(s)),
+        };
       }`,
             })).resolves.not.toThrow();
             yield expect(identity.claims("userinfo", "testcomplex")).resolves.toEqual(expect.objectContaining({
-                testcomplex: Object.assign(Object.assign({}, testcomplex2), { numbers: [1, 2, 3, 4] }),
+                testcomplex: Object.assign(Object.assign({}, testcomplex), { numbers: [1, 2, 3, 4] }),
             }));
             // revert to old version
             yield expect(idp.claims.defineClaimsSchema({
@@ -261,11 +271,9 @@ function doCommonAdapterTest(idp) {
                     default: testcomplex,
                 },
                 parentVersion: initialSchema.version,
-                migration: `
-        (old, claims) => {
-          return old ? old : ${JSON.stringify(testcomplex)};
-        }
-      `,
+                migration: `(old, claims) => {
+          return old || ${JSON.stringify(testcomplex)};
+        }`,
             })).resolves.not.toThrow();
             yield expect(identity.claims("userinfo", "testcomplex")).resolves.toEqual(expect.objectContaining({
                 testcomplex,
@@ -287,7 +295,7 @@ function doCommonAdapterTest(idp) {
             const removal = yield idp.create({
                 metadata: { federation: {}, softDeleted: false },
                 scope: [],
-                claims: { sub: uuid_1.default().substr(0, 16), name: "Test", email: "aa" + testEmail, testnote: "xasdasd" },
+                claims: { name: "Test", email: "aa" + testEmail, testnote: "xasdasd" },
                 credentials: { password: "12341234" },
             });
             yield expect(removal.delete(true)).resolves.not.toThrow();

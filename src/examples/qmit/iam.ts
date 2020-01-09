@@ -21,6 +21,7 @@ broker.createService(
           "profile",
           "email",
           // "phone",
+          "impersonation",
         ],
       },
     },

@@ -237,11 +237,10 @@ class InteractionFactory {
         router.post("/verify_phone_number", parseContext, (ctx) => tslib_1.__awaiter(this, void 0, void 0, function* () {
             const { client, interaction } = ctx.locals;
             // 'registered' means verifying already registered phone number
-            const { registered = false } = ctx.request.body;
+            const _a = ctx.request.body, { registered = false, callback } = _a, claims = tslib_1.__rest(_a, ["registered", "callback"]);
+            idp.validateEmailOrPhoneNumber(claims); // normalize phone number
             // 1. assert user with the phone number
-            yield idp.validate({ scope: "phone", claims: ctx.request.body });
-            const { callback, phone_number } = ctx.request.body;
-            const user = yield idp.find({ claims: { phone_number: phone_number || "" } });
+            const user = yield idp.find({ claims: { phone_number: claims.phone_number || "" } });
             if (registered && !user) {
                 ctx.throw(400, "Not a registered phone number.");
             }
@@ -251,7 +250,7 @@ class InteractionFactory {
             // 3. check too much resend
             if (interaction && interaction.result && interaction.result.verifyPhoneNumber) {
                 const old = interaction.result.verifyPhoneNumber;
-                if (old.phoneNumber === phone_number && old.expiresAt && moment_1.default().isBefore(old.expiresAt)) {
+                if (old.phoneNumber === claims.phone_number && old.expiresAt && moment_1.default().isBefore(old.expiresAt)) {
                     ctx.throw(400, "Cannot resend a message before previous one expires.");
                 }
             }
@@ -262,7 +261,7 @@ class InteractionFactory {
             // 5. extend TTL and store the code
             yield interaction.save(moment_1.default().isAfter((interaction.exp / 1000) + 60 * 10, "s") ? interaction.exp + 60 * 10 : undefined);
             yield provider.interactionResult(ctx.req, ctx.res, Object.assign(Object.assign({}, interaction.result), { verifyPhoneNumber: {
-                    phoneNumber: phone_number,
+                    phoneNumber: claims.phone_number,
                     callback,
                     code,
                     expiresAt,
@@ -287,7 +286,7 @@ class InteractionFactory {
                             data: Object.assign({}, ctx.request.body),
                         },
                     },
-                    data: Object.assign({ phoneNumber: phone_number, timeoutSeconds: phoneNumberVerificationTimeoutSeconds }, (this.opts.devModeEnabled ? { debug: { code } } : {})),
+                    data: Object.assign({ phoneNumber: claims.phone_number, timeoutSeconds: phoneNumberVerificationTimeoutSeconds }, (this.opts.devModeEnabled ? { debug: { code } } : {})),
                 },
             });
         }));
@@ -399,7 +398,7 @@ class InteractionFactory {
                 interaction: {
                     name: "verify_email",
                     action: {
-                        resend: {
+                        send: {
                             url: url(`/verify_email`),
                             method: "POST",
                             data: ctx.request.body,

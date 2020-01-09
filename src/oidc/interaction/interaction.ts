@@ -319,13 +319,12 @@ export class InteractionFactory {
       const {client, interaction} = ctx.locals as InteractionRequestContext;
 
       // 'registered' means verifying already registered phone number
-      const {registered = false} = ctx.request.body;
+      const {registered = false, callback, ...claims} = ctx.request.body;
+
+      idp.validateEmailOrPhoneNumber(claims); // normalize phone number
 
       // 1. assert user with the phone number
-      await idp.validate({scope: "phone", claims: ctx.request.body});
-
-      const {callback, phone_number} = ctx.request.body;
-      const user = await idp.find({claims: {phone_number: phone_number || ""}});
+      const user = await idp.find({claims: {phone_number: claims.phone_number || ""}});
       if (registered && !user) {
         ctx.throw(400, "Not a registered phone number.");
       } else if (!registered && user) {
@@ -336,7 +335,7 @@ export class InteractionFactory {
       if (interaction && interaction.result && interaction.result.verifyPhoneNumber) {
         const old = interaction.result.verifyPhoneNumber;
 
-        if (old.phoneNumber === phone_number && old.expiresAt && moment().isBefore(old.expiresAt)) {
+        if (old.phoneNumber === claims.phone_number && old.expiresAt && moment().isBefore(old.expiresAt)) {
           ctx.throw(400, "Cannot resend a message before previous one expires.");
         }
       }
@@ -352,7 +351,7 @@ export class InteractionFactory {
       await provider.interactionResult(ctx.req, ctx.res, {
         ...interaction.result,
         verifyPhoneNumber: {
-          phoneNumber: phone_number,
+          phoneNumber: claims.phone_number,
           callback,
           code,
           expiresAt,
@@ -382,7 +381,7 @@ export class InteractionFactory {
             },
           },
           data: {
-            phoneNumber: phone_number,
+            phoneNumber: claims.phone_number,
             timeoutSeconds: phoneNumberVerificationTimeoutSeconds,
             ...(this.opts.devModeEnabled ? {debug: {code}} : {}),
           },
@@ -538,7 +537,7 @@ export class InteractionFactory {
         interaction: {
           name: "verify_email",
           action: {
-            resend: {
+            send: {
               url: url(`/verify_email`),
               method: "POST",
               data: ctx.request.body,

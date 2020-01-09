@@ -48,33 +48,36 @@ export class IDP_MemoryAdapter extends IDPAdapter {
     }
 
     if (foundId) {
-      // filter by metadata just straight forward for test
-      if (args.metadata) {
-        const identityMetadata = await this.getMetadata(foundId);
-        if (!identityMetadata || !_.isMatch(identityMetadata, args.metadata as any)) {
-          return;
-        }
+      // filter by metadata for the common test
+      if (args.metadata && !(await this.filerMetadata([foundId], args.metadata)).includes(foundId)) {
+        return;
       }
-
       return foundId;
     }
   }
 
-  // only support offset, limit
+  // filter by metadata poorly for the common test
+  private async filerMetadata(ids: string[], condition: any): Promise<string[]> {
+    if (Object.keys(condition).length === 0) return ids;
+
+    const filteredIds: string[] = [];
+
+    for (const id of ids) {
+      const metadata = await this.getMetadata(id);
+      if (metadata &&  _.isMatch(metadata, condition)) {
+        filteredIds.push(id);
+      }
+    }
+    return filteredIds;
+  }
+
+  // only support offset, limit, metadata
   public async get(args: FindOptions): Promise<string[]> {
     let ids = [...this.identityMetadataMap.keys()];
 
-    // filter by metadata just straight forward for test
+    // filter by metadata for the common test
     if (args.where && (args.where as any).metadata) {
-      const filteredIds: string[] = [];
-      // filter by metadata just straight forward for test
-      for (const id of ids) {
-        const identityMetadata = await this.getMetadata(id);
-        if (identityMetadata &&  _.isMatch(identityMetadata, (args.where as any).metadata)) {
-          filteredIds.push(id);
-        }
-      }
-      ids = filteredIds;
+      ids = await this.filerMetadata(ids, (args.where as any).metadata);
     }
 
     return ids

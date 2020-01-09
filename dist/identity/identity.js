@@ -28,30 +28,21 @@ class Identity {
      */
     claims(use = "userinfo", scope = "", claims, rejected) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            return this.adapter.getClaims(this.id, {
-                scope: typeof scope === "string" ? scope.split(" ").filter(s => !!s) : scope,
-                claims,
-                rejected,
-            });
+            return this.adapter.getClaims(this.id, typeof scope === "string" ? scope.split(" ").filter(s => !!s) : scope);
         });
     }
     updateClaims(claims, scope = "", transaction) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            const scopeWithoutOpenID = (typeof scope === "string" ? scope.split(" ").filter(s => !!s) : scope).filter(s => s !== "openid");
-            yield this.adapter.createOrUpdateClaims(this.id, claims, {
-                scope: scopeWithoutOpenID,
-            }, transaction);
+            yield this.adapter.createOrUpdateClaimsWithValidation(this.id, claims, typeof scope === "string" ? scope.split(" ").filter(s => !!s) : scope, false, transaction);
         });
-    }
-    get mandatoryScopes() {
-        return this.props.provider.claims.mandatoryScopes;
     }
     deleteClaims(scope = "", transaction) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             // check mandatory scopes
             const scopes = (typeof scope === "string" ? scope.split(" ").filter(s => !!s) : scope);
-            if (scopes.some(s => this.mandatoryScopes.includes(s))) {
-                throw new error_1.Errors.BadRequestError(`cannot delete mandatory scopes: ${this.mandatoryScopes}`);
+            const mandatoryScopes = this.props.provider.claims.mandatoryScopes;
+            if (scopes.some(s => mandatoryScopes.includes(s))) {
+                throw new error_1.Errors.BadRequestError(`cannot delete mandatory scopes: ${mandatoryScopes}`);
             }
             yield this.adapter.deleteClaims(this.id, scopes, transaction);
         });
@@ -71,11 +62,6 @@ class Identity {
         });
     }
     /* credentials */
-    validateCredentials(credentials) {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            return this.adapter.validateCredentials(credentials);
-        });
-    }
     assertCredentials(credentials) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             return this.adapter.assertCredentials(this.id, credentials);
@@ -83,8 +69,57 @@ class Identity {
     }
     updateCredentials(credentials, transaction) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            yield this.adapter.validateCredentials(credentials);
-            return this.adapter.createOrUpdateCredentials(this.id, credentials, transaction);
+            return this.adapter.createOrUpdateCredentialsWithValidation(this.id, credentials, transaction);
+        });
+    }
+    /* update all */
+    update(scope = "", claims, metadata, credentials, transaction) {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            // validate claims and credentials
+            if (typeof scope === "string") {
+                scope = scope.split(" ").filter(s => !!s);
+            }
+            else {
+                scope = [];
+            }
+            // save metadata, claims, credentials
+            let isolated = false;
+            if (!transaction) {
+                transaction = transaction = yield this.adapter.transaction();
+                isolated = true;
+            }
+            try {
+                if (typeof claims === "object" && claims !== null && Object.keys(claims).length > 0) {
+                    yield this.updateClaims(claims, scope, transaction);
+                }
+                if (typeof credentials === "object" && credentials !== null && Object.keys(credentials).length > 0) {
+                    yield this.updateCredentials(credentials, transaction);
+                }
+                if (typeof metadata === "object" && metadata !== null && Object.keys(metadata).length > 0) {
+                    yield this.updateMetadata(metadata, transaction);
+                }
+                if (isolated) {
+                    yield transaction.commit();
+                }
+            }
+            catch (err) {
+                if (isolated) {
+                    yield transaction.rollback();
+                }
+                throw err;
+            }
+            return;
+        });
+    }
+    /* fetch all */
+    json(scope = "") {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            const [claims, metadata] = yield Promise.all([this.claims(undefined, scope), this.metadata()]);
+            return {
+                id: this.id,
+                claims,
+                metadata,
+            };
         });
     }
     /* delete identity */

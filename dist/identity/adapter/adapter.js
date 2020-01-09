@@ -6,26 +6,78 @@ const kleur_1 = tslib_1.__importDefault(require("kleur"));
 const metadata_1 = require("../metadata");
 const validator_1 = require("../../validator");
 const error_1 = require("../error");
+const uuid_1 = tslib_1.__importDefault(require("uuid"));
 class IDPAdapter {
     constructor(props, options) {
         this.props = props;
         this.getCachedActiveClaimsSchemata = _.memoize((scope) => tslib_1.__awaiter(this, void 0, void 0, function* () {
+            // get schemata
             const claimsSchemata = yield this.getClaimsSchemata({ scope, active: true });
             const activeClaimsVersions = claimsSchemata.reduce((obj, schema) => {
                 obj[schema.key] = schema.version;
                 return obj;
             }, {});
+            // get unique claims schemata
+            const uniqueClaimsSchemata = claimsSchemata.filter(s => s.unique);
+            const uniqueClaimsSchemataKeys = uniqueClaimsSchemata.map(s => s.key);
+            const validateClaimsUniqueness = (id, object) => tslib_1.__awaiter(this, void 0, void 0, function* () {
+                if (uniqueClaimsSchemata.length === 0)
+                    return true;
+                const errors = [];
+                for (const key of uniqueClaimsSchemataKeys) {
+                    const value = object[key];
+                    const holderId = yield this.find({ claims: { [key]: value } });
+                    if (holderId && id !== holderId) {
+                        errors.push({
+                            type: "duplicate",
+                            field: key,
+                            message: `The '${key}' field value is already used by other account.`,
+                            actual: value,
+                        });
+                    }
+                }
+                return errors.length > 0 ? errors : true;
+            });
+            // get immutable claims schemata
+            const immutableClaimsSchemata = claimsSchemata.filter(s => s.immutable);
+            const immutableClaimsSchemataScope = immutableClaimsSchemata.map(s => s.scope);
+            const immutableClaimsSchemataKeys = immutableClaimsSchemata.map(s => s.key);
+            const validateClaimsImmutability = (id, object) => tslib_1.__awaiter(this, void 0, void 0, function* () {
+                if (immutableClaimsSchemata.length === 0)
+                    return true;
+                const errors = [];
+                const oldClaims = yield this.getClaims(id, immutableClaimsSchemataScope);
+                for (const key of immutableClaimsSchemataKeys) {
+                    const oldValue = oldClaims[key];
+                    const newValue = object[key];
+                    if (typeof newValue !== "undefined" && typeof oldValue !== "undefined" && oldValue !== null && oldValue !== newValue) {
+                        errors.push({
+                            type: "immutable",
+                            field: key,
+                            message: `The '${key}' field value cannot be updated.`,
+                            actual: newValue,
+                            expected: oldValue,
+                        });
+                    }
+                }
+                return errors.length > 0 ? errors : true;
+            });
             // prepare to validate and merge old claims
             const claimsValidationSchema = claimsSchemata.reduce((obj, claimsSchema) => {
                 obj[claimsSchema.key] = claimsSchema.validation;
                 return obj;
             }, {
-            // $$strict: true,
+                $$strict: true,
             });
+            const validateClaims = validator_1.validator.compile(claimsValidationSchema);
             return {
-                claimsSchemata,
                 activeClaimsVersions,
-                validateClaims: validator_1.validator.compile(claimsValidationSchema),
+                claimsSchemata,
+                validateClaims,
+                uniqueClaimsSchemata,
+                validateClaimsUniqueness,
+                immutableClaimsSchemata,
+                validateClaimsImmutability,
             };
         }), (...args) => JSON.stringify(args));
         this.testCredentials = validator_1.validator.compile({
@@ -56,30 +108,45 @@ class IDPAdapter {
     }
     validate(args) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            const { validateClaims } = yield this.getCachedActiveClaimsSchemata(args.scope);
-            const claimsResult = validateClaims(args.claims);
-            if (claimsResult !== true) {
-                throw new error_1.Errors.ValidationError(claimsResult);
+            const { validateClaims, validateClaimsImmutability, validateClaimsUniqueness } = yield this.getCachedActiveClaimsSchemata(args.scope);
+            const mergedResult = [];
+            // validate claims
+            let result = validateClaims(args.claims);
+            if (result !== true) {
+                mergedResult.push(...result);
             }
-            if (args.credentials) {
-                yield this.validateCredentials(args.credentials);
+            // validate immutable
+            if (args.id) {
+                result = yield validateClaimsImmutability(args.id, args.claims);
+                if (result !== true) {
+                    mergedResult.push(...result);
+                }
+            }
+            // validate uniqueness
+            result = yield validateClaimsUniqueness(args.id, args.claims);
+            if (result !== true) {
+                mergedResult.push(...result);
+            }
+            // validate credentials
+            if (args.credentials && Object.keys(args.credentials).length > 0) {
+                result = this.testCredentials(args.credentials);
+                if (result !== true) {
+                    mergedResult.push(...result);
+                }
+            }
+            if (mergedResult.length > 0) {
+                throw new error_1.Errors.ValidationError(mergedResult);
             }
         });
     }
     create(args, transaction) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            const { metadata, claims, credentials } = args;
-            if (yield this.find({ id: claims.sub })) {
-                throw new error_1.Errors.IdentityAlreadyExistsError();
+            const { metadata, claims, credentials, scope = [] } = args || {};
+            if (claims && !claims.sub) {
+                claims.sub = uuid_1.default.v4();
             }
-            // check openid scope sub field is defined
-            if (!claims.sub || !args.scope.includes("openid")) {
-                throw new error_1.Errors.ValidationError([{
-                        type: "required",
-                        field: "sub",
-                        message: "The 'sub' field is required.",
-                        actual: claims.sub,
-                    }]);
+            if (scope && scope.length !== 0 && !scope.includes("openid")) {
+                scope.push("openid");
             }
             // save metadata, claims, credentials
             let isolated = false;
@@ -90,8 +157,8 @@ class IDPAdapter {
             const id = claims.sub;
             try {
                 yield this.createOrUpdateMetadata(id, _.defaultsDeep(metadata, metadata_1.defaultIdentityMetadata), transaction);
-                yield this.createOrUpdateClaims(id, claims, { scope: args.scope }, transaction);
-                yield this.createOrUpdateCredentials(id, credentials, transaction);
+                yield this.createOrUpdateClaimsWithValidation(id, claims, scope, true, transaction);
+                yield this.createOrUpdateCredentialsWithValidation(id, credentials, transaction);
                 if (isolated) {
                     yield transaction.commit();
                 }
@@ -100,17 +167,16 @@ class IDPAdapter {
                 if (isolated) {
                     yield transaction.rollback();
                 }
-                yield this.delete(id, isolated ? undefined : transaction);
                 throw err;
             }
             return id;
         });
     }
-    /* fetch and create claims entities (versioned, immutable) */
-    getClaims(id, filter) {
+    /* fetch and create claims entities (versioned) */
+    getClaims(id, scope) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             // get active claims
-            const { claimsSchemata } = yield this.getCachedActiveClaimsSchemata(filter.scope);
+            const { claimsSchemata } = yield this.getCachedActiveClaimsSchemata(scope);
             const claims = yield this.getVersionedClaims(id, claimsSchemata.map(schema => ({
                 key: schema.key,
                 schemaVersion: schema.version,
@@ -123,16 +189,18 @@ class IDPAdapter {
             return claims;
         });
     }
-    createOrUpdateClaims(id, claims, filter, transaction) {
+    createOrUpdateClaimsWithValidation(id, claims, scope, creating, transaction) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            // load old claims and active claims schemata
-            const oldClaims = yield this.getClaims(id, filter);
-            const { activeClaimsVersions, validateClaims } = yield this.getCachedActiveClaimsSchemata(filter.scope);
+            const { activeClaimsVersions, claimsSchemata } = yield this.getCachedActiveClaimsSchemata(scope);
             // merge old claims and validate merged one
+            const oldClaims = yield this.getClaims(id, scope);
             const mergedClaims = _.defaultsDeep(claims, oldClaims);
-            const result = validateClaims(mergedClaims);
-            if (result !== true) {
-                throw new error_1.Errors.ValidationError(result, { claims, mergedClaims });
+            try {
+                yield this.validate({ id: creating ? undefined : id, scope, claims: mergedClaims });
+            }
+            catch (err) {
+                err.error_detail = { claims, mergedClaims, scope };
+                throw err;
             }
             let isolated = false;
             if (!transaction) {
@@ -151,8 +219,8 @@ class IDPAdapter {
                 })), transaction);
                 // set metadata scope
                 yield this.createOrUpdateMetadata(id, {
-                    scope: filter.scope.reduce((obj, s) => {
-                        obj[s] = true;
+                    scope: claimsSchemata.reduce((obj, s) => {
+                        obj[s.scope] = true;
                         return obj;
                     }, {}),
                 }, transaction);
@@ -216,6 +284,35 @@ class IDPAdapter {
     onClaimsSchemaUpdated() {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             this.getCachedActiveClaimsSchemata.cache.clear();
+        });
+    }
+    createOrUpdateCredentialsWithValidation(id, credentials, transaction) {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            let isolated = false;
+            if (!transaction) {
+                transaction = transaction = yield this.transaction();
+                isolated = true;
+            }
+            try {
+                yield this.validateCredentials(credentials);
+                const updated = yield this.createOrUpdateCredentials(id, credentials, transaction);
+                yield this.createOrUpdateMetadata(id, {
+                    credentials: Object.keys(credentials).reduce((obj, credType) => {
+                        obj[credType] = true;
+                        return obj;
+                    }, {}),
+                }, transaction);
+                if (isolated) {
+                    yield transaction.commit();
+                }
+                return updated;
+            }
+            catch (err) {
+                if (isolated) {
+                    yield transaction.rollback();
+                }
+                throw err;
+            }
         });
     }
     validateCredentials(credentials) {
