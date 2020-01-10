@@ -9,6 +9,7 @@ const koa_1 = tslib_1.__importDefault(require("koa"));
 const koa_helmet_1 = tslib_1.__importDefault(require("koa-helmet"));
 const koa_json_1 = tslib_1.__importDefault(require("koa-json"));
 const logging_1 = require("./logging");
+const koa_compose_1 = tslib_1.__importDefault(require("koa-compose"));
 /*
   Mount OIDC Provider routes and static client application
  */
@@ -29,8 +30,19 @@ class IAMServer {
             pretty: true,
             spaces: 2,
         }));
-        // mount router
-        app.use(props.oidc.router);
+        // mount optional app and oidc provider router
+        if (options.app) {
+            options.app(props.oidc)
+                .then(appRoutes => {
+                app.use(koa_compose_1.default([appRoutes, props.oidc.routes]));
+            }, err => {
+                this.logger.error("failed to initialize server application:", err);
+                app.use(props.oidc.routes);
+            });
+        }
+        else {
+            app.use(props.oidc.routes);
+        }
     }
     start() {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {

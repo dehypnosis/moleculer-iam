@@ -4,7 +4,6 @@ const tslib_1 = require("tslib");
 const kleur = tslib_1.__importStar(require("kleur"));
 const _ = tslib_1.__importStar(require("lodash"));
 const koa_mount_1 = tslib_1.__importDefault(require("koa-mount"));
-const koa_compose_1 = tslib_1.__importDefault(require("koa-compose"));
 const uuid_1 = tslib_1.__importDefault(require("uuid"));
 const interaction_1 = require("../interaction");
 const types_1 = require("./types");
@@ -21,29 +20,19 @@ class OIDCProvider {
         const idp = props.idp;
         const logger = this.logger = props.logger || console;
         const _a = _.defaultsDeep(options || {}, options_1.defaultOIDCProviderOptions), { issuer, trustProxy, adapter, app, devMode } = _a, providerConfig = tslib_1.__rest(_a, ["issuer", "trustProxy", "adapter", "app", "devMode"]);
-        const devModeEnabled = devMode || issuer.startsWith("http://");
+        const devModeEnabled = this.devModeEnabled = !!(devMode || issuer.startsWith("http://"));
         /* create provider adapter */
         const adapterKey = Object.keys(adapter_1.OIDCAdapterConstructors).find(k => k.toLowerCase() === options.adapter.type.toLowerCase())
             || Object.keys(adapter_1.OIDCAdapterConstructors)[0];
         this.adapter = new adapter_1.OIDCAdapterConstructors[adapterKey]({
             logger,
         }, options.adapter.options);
-        /* create provider interactions factory and client app renderer */
-        const clientAppOption = app || {};
-        if (devModeEnabled) {
-            logger.info("disable assets cache for debugging purpose");
-            clientAppOption.assetsCacheMaxAge = 0;
-        }
-        const clientApp = this.clientApp = new interaction_1.ClientApplicationRenderer({
-            logger,
-        }, clientAppOption);
+        /* create provider interactions */
         const internalInteractionConfigFactory = new interaction_1.InternalInteractionConfigurationFactory({
-            app: clientApp,
             logger,
             idp,
         });
         const interactionFactory = new interaction_1.InteractionFactory({
-            app: clientApp,
             logger,
             idp,
         }, { federation: options.federation, devModeEnabled });
@@ -96,33 +85,12 @@ class OIDCProvider {
                 "disable-implicit-force-https": true,
             });
         }
-        /* prepare client app oidc client options */
-        this.clientAppClientOptions = _.defaultsDeep(clientAppOption.client || {}, {
-            client_id: issuer.replace("https://", "").replace("http://", "").replace(":", "-"),
-            client_name: "Account Manager",
-            client_uri: issuer,
-            application_type: "web",
-            policy_uri: `${issuer}/help/policy`,
-            tos_uri: `${issuer}/help/tos`,
-            logo_uri: undefined,
-            redirect_uris: [...new Set([issuer].concat(devModeEnabled ? ["http://localhost:9191", "http://localhost:9090", "http://localhost:8080", "http://localhost:3000"] : []))],
-            post_logout_redirect_uris: [issuer],
-            frontchannel_logout_uri: `${issuer}`,
-            frontchannel_logout_session_required: true,
-            grant_types: ["implicit", "authorization_code", "refresh_token"],
-            response_types: ["code", "id_token", "id_token token", "code id_token", "code token", "code id_token token", "none"],
-            token_endpoint_auth_method: "none",
-            /* custom props */
-            skip_consent: true,
-        });
-        /* create router */
-        this.router = koa_compose_1.default([
-            koa_mount_1.default(this.original.app),
-            this.clientApp.router,
-        ]);
     }
     get idp() {
         return this.props.idp;
+    }
+    get routes() {
+        return koa_mount_1.default(this.original.app);
     }
     get originalHiddenProps() {
         return weak_cache_1.default(this.original);
@@ -131,7 +99,7 @@ class OIDCProvider {
         return this.originalHiddenProps.configuration();
     }
     get defaultRoutes() {
-        return Object.assign({ discovery: "/.well-known/openid-configuration" }, this.config.routes);
+        return Object.assign({ discovery: "/.well-known/openid-configuration", interaction: "/interaction" }, this.config.routes);
     }
     get discoveryPath() {
         return `/.well-known/openid-configuration`;
@@ -149,23 +117,6 @@ class OIDCProvider {
             yield this.syncSupportedClaimsAndScopes();
             // start adapter
             yield this.adapter.start();
-            // assert app client
-            try {
-                yield this.createClient(this.clientAppClientOptions);
-            }
-            catch (err) {
-                if (err.error === "invalid_client") {
-                    try {
-                        yield this.updateClient(this.clientAppClientOptions);
-                    }
-                    catch (err) {
-                        this.logger.error(err);
-                    }
-                }
-                else {
-                    this.logger.error(err);
-                }
-            }
             this.working = true;
             this.logger.info(`oidc provider has been started`);
             this.logger.info(`available oidc endpoints:\n${[...Object.entries(this.defaultRoutes)]

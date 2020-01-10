@@ -3,6 +3,7 @@ import { ServiceBroker } from "moleculer";
 import { createBrokerOptions } from "moleculer-qmit";
 import { IAMServiceSchema, IAMServiceSchemaOptions } from "../../";
 import { config } from "./config";
+import { app } from "./app";
 
 export const {isDebug, isDev} = config;
 
@@ -26,9 +27,6 @@ broker.createService(
       },
     },
     oidc: {
-      app: {
-        isValidPath: path => path === "/" || path === "/help" || path.startsWith("/help/"),
-      },
       devMode: isDev,
       issuer: isDev ? "https://account.dev.qmit.pro" : "https://account.qmit.pro",
       op_policy_uri: isDev ? "https://account.dev.qmit.pro/help/policy" : "https://account.qmit.pro/help/policy",
@@ -36,6 +34,7 @@ broker.createService(
       service_documentation: isDev ? "https://account.dev.qmit.pro/help" : "https://account.qmit.pro/help",
     },
     server: {
+      app,
       http: {
         hostname: "0.0.0.0",
         port: 9090,

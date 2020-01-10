@@ -1,7 +1,7 @@
 import crypto from "crypto";
 import { Configuration } from "./types";
 import { OIDCAdapterConstructorOptions } from "../adapter";
-import { InteractionConfigurationKeys, InternalInteractionDeviceFlowConfigurationKeys, ClientApplicationRendererOptions, IdentityFederationManagerOptions } from "../interaction";
+import { InteractionConfigurationKeys, InternalInteractionDeviceFlowConfigurationKeys, IdentityFederationManagerOptions } from "../interaction";
 
 export type OIDCProviderOptions = Omit<Configuration, "adapter"|"claims"|"scopes"|"dynamicScopes"> & {
   issuer: string,
@@ -16,7 +16,6 @@ export type OIDCProviderOptions = Omit<Configuration, "adapter"|"claims"|"scopes
   },
 }
   & { [key in InteractionConfigurationKeys]?: never; }
-  & { app?: ClientApplicationRendererOptions }
   & { federation?: IdentityFederationManagerOptions }
   & { devMode?: boolean };
 
@@ -36,6 +35,22 @@ export const defaultOIDCProviderOptions: OIDCProviderOptions = {
       path: "/",
       maxAge: 1000 * 60 * 60 * 24 * 28,
     },
+  },
+
+  /* routes */
+  routes: {
+    jwks: "/oidc/jwks",
+    authorization: "/oidc/auth",
+    pushed_authorization_request: "/oidc/request",
+    check_session: "/oidc/session/check",
+    end_session: "/oidc/session/end",
+    code_verification: "/oidc/device",
+    device_authorization: "/oidc/device/auth",
+    token: "/oidc/token",
+    introspection: "/oidc/token/introspect",
+    revocation: "/oidc/token/revoke",
+    userinfo: "/oidc/userinfo",
+    registration: "/oidc/client/register",
   },
 
   /* ref: https://github.com/panva/node-oidc-provider/blob/master/docs/README.md */

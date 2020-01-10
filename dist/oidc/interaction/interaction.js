@@ -43,9 +43,18 @@ class InteractionFactory {
         function url(path) {
             return `${provider.issuer}/interaction${path}`;
         }
-        const { idp, app, logger } = this.props;
+        const { idp, logger } = this.props;
         const router = this.router;
-        const render = app.render.bind(app);
+        const parseContext = (ctx, next) => tslib_1.__awaiter(this, void 0, void 0, function* () {
+            // fetch interaction details
+            const interaction = yield provider.interactionDetails(ctx.req, ctx.res);
+            // fetch identity and client
+            const user = interaction.session && interaction.session.accountId ? (yield idp.findOrFail({ id: interaction.session.accountId })) : undefined;
+            const client = interaction.params.client_id ? (yield provider.Client.find(interaction.params.client_id)) : undefined;
+            const locals = { interaction, user, client };
+            ctx.locals = locals;
+            return next();
+        });
         // common action endpoints
         const actions = {
             abort: {
@@ -60,49 +69,167 @@ class InteractionFactory {
                 yield next();
             }
             catch (err) {
-                let error;
-                if (err instanceof error_1.Errors.ValidationError) {
-                    error = {
-                        name: err.error,
-                        message: err.error_description,
-                        status: 422,
-                        detail: err.fields.reduce((fields, e) => {
-                            const { field, message } = e;
-                            if (!fields[field]) {
-                                fields[field] = [];
-                            }
-                            fields[field].push(message);
-                            return fields;
-                        }, {}),
-                    };
-                }
-                else if (err instanceof error_1.Errors.IdentityProviderError) {
-                    error = {
-                        name: err.error,
-                        message: err.error_description,
-                        status: err.status || err.statusCode,
-                        detail: err.error_detail,
-                    };
+                // delegate error handling
+                logger.error(err);
+                ctx.type = "json";
+                if (err.expose) {
+                    const { error, status, statusCode, error_description, name, expose } = err, otherProps = tslib_1.__rest(err, ["error", "status", "statusCode", "error_description", "name", "expose"]);
+                    ctx.status = status || statusCode || 500;
+                    if (isNaN(ctx.status))
+                        ctx.status = 500;
+                    ctx.body = Object.assign({ error,
+                        error_description }, otherProps);
                 }
                 else {
-                    error = err;
-                    logger.error(error);
+                    const { status, statusCode, code, status_code } = err;
+                    ctx.status = status || statusCode || code || status_code || 500;
+                    if (isNaN(ctx.status))
+                        ctx.status = 500;
+                    ctx.body = err;
                 }
-                // delegate error handling
-                return render(ctx, { error });
             }
         }));
-        const parseContext = (ctx, next) => tslib_1.__awaiter(this, void 0, void 0, function* () {
-            // fetch interaction details
-            const interaction = yield provider.interactionDetails(ctx.req, ctx.res);
-            // fetch identity and client
-            const user = interaction.session && interaction.session.accountId ? (yield idp.findOrFail({ id: interaction.session.accountId })) : undefined;
-            const client = interaction.params.client_id ? (yield provider.Client.find(interaction.params.client_id)) : undefined;
-            const locals = { interaction, user, client };
-            ctx.locals = locals;
-            return next();
+        router.get("/", ctx => {
+            ctx.type = "json";
+            ctx.body = {
+                interaction: {
+                    abort: {
+                        url: url(`/abort`),
+                        method: "POST",
+                    },
+                    check_login_email: {
+                        url: url(`/check_login_email`),
+                        method: "POST",
+                        data: {
+                            email: "",
+                        },
+                    },
+                    login: {
+                        url: url(`/login`),
+                        method: "GET",
+                        data: {
+                            change_account: true,
+                        },
+                    },
+                    login_end: {
+                        url: url(`/login_end`),
+                        method: "POST",
+                        data: {
+                            email: "",
+                            password: "",
+                        },
+                    },
+                    consent: {
+                        url: url(`/consent`),
+                        method: "GET",
+                    },
+                    consent_end: {
+                        url: url(`/consent_end`),
+                        method: "POST",
+                        data: {
+                            rejected_scopes: [],
+                            rejected_claims: [],
+                        },
+                    },
+                    federate: {
+                        url: url(`/federate`),
+                        method: "POST",
+                        urlencoded: true,
+                        data: {
+                            provider: "",
+                        },
+                    },
+                    verify_email: {
+                        url: url(`/verify_email`),
+                        method: "POST",
+                        data: {
+                            email: "",
+                            callback: "none",
+                        },
+                    },
+                    verify_email_end: {
+                        url: url(`/verify_email_end`),
+                        method: "POST",
+                        data: {
+                            email: "",
+                            code: "",
+                        },
+                    },
+                    reset_password: {
+                        url: url(`/verify_email`),
+                        method: "POST",
+                        data: {
+                            email: "",
+                            callback: "reset_password",
+                        },
+                    },
+                    verify_phone_number: {
+                        url: url(`/verify_phone_number`),
+                        method: "POST",
+                        data: {
+                            phone_number: "",
+                            callback: "none",
+                        },
+                    },
+                    verify_phone_number_send_code: {
+                        url: url(`/verify_phone_number_send_code`),
+                        method: "POST",
+                        data: {
+                            phone_number: "",
+                        },
+                    },
+                    verify_phone_number_end: {
+                        url: url(`/verify_phone_number_end`),
+                        method: "POST",
+                        data: {
+                            phone_number: "",
+                            code: "",
+                        },
+                    },
+                    find_email: {
+                        url: url(`/verify_phone_number`),
+                        method: "POST",
+                        data: {
+                            phone_number: "",
+                            callback: "find_email",
+                        },
+                    },
+                    validate: {
+                        url: url(`/validate`),
+                        method: "POST",
+                        data: {
+                            scope: "profile email phone birthdate gender",
+                            claims: {
+                                name: "",
+                                email: "",
+                                password: "",
+                                password_confirmation: "",
+                                phone_number: "",
+                                birthdate: "",
+                                gender: "",
+                            },
+                        },
+                    },
+                    register: {
+                        url: url(`/register`),
+                        method: "POST",
+                        data: {
+                            scope: "profile email phone birthdate gender",
+                            claims: {
+                                name: "",
+                                email: "",
+                                password: "",
+                                password_confirmation: "",
+                                phone_number: "",
+                                birthdate: "",
+                                gender: "",
+                            },
+                        },
+                    },
+                },
+            };
         });
-        // 1. abort interactions
+        // abort any interaction
         router.post("/abort", parseContext, (ctx) => tslib_1.__awaiter(this, void 0, void 0, function* () {
             const redirect = yield provider.interactionResult(ctx.req, ctx.res, {
                 error: "access_denied",
@@ -110,11 +237,9 @@ class InteractionFactory {
             }, {
                 mergeWithLastSubmission: false,
             });
-            return render(ctx, {
-                redirect,
-            });
+            ctx.body = { redirect };
         }));
-        // 2. handle login
+        // prepare login
         router.get("/login", parseContext, (ctx) => tslib_1.__awaiter(this, void 0, void 0, function* () {
             const { user, client, interaction } = ctx.locals;
             // already signed in
@@ -130,97 +255,40 @@ class InteractionFactory {
                 });
                 // overwrite session
                 yield provider.setProviderSession(ctx.req, ctx.res, login);
-                return render(ctx, { redirect });
+                ctx.type = "json";
+                ctx.body = { redirect };
+                return;
             }
-            return render(ctx, {
-                interaction: {
-                    name: "login",
-                    action: Object.assign({ submit: {
-                            url: url(`/login`),
-                            method: "POST",
-                            data: {
-                                email: interaction.params.login_hint || "",
-                            },
-                        }, resetPassword: {
-                            url: url(`/verify_email`),
-                            method: "POST",
-                            data: {
-                                email: interaction.params.login_hint || "",
-                                callback: "reset_password",
-                            },
-                        }, federate: {
-                            url: url(`/federate`),
-                            method: "POST",
-                            data: {
-                                provider: "",
-                            },
-                            urlencoded: true,
-                        }, findEmail: {
-                            url: url(`/verify_phone_number`),
-                            method: "POST",
-                            data: {
-                                phone_number: "",
-                                callback: "login",
-                                registered: true,
-                            },
-                        }, register: {
-                            url: url(`/register`),
-                            method: "POST",
-                            data: {
-                                name: "",
-                                email: "",
-                                password: "",
-                                password_confirmation: "",
-                            },
-                        } }, actions),
-                    data: {
-                        user: user && !changeAccount ? yield util_1.getPublicUserProps(user) : undefined,
-                        client: client ? yield util_1.getPublicClientProps(client) : undefined,
-                        federationProviders: federation.availableProviders,
-                    },
+            ctx.body = {
+                interaction: "login",
+                data: {
+                    user: user && !changeAccount ? yield util_1.getPublicUserProps(user) : null,
+                    client: client ? yield util_1.getPublicClientProps(client) : null,
+                    federationProviders: federation.availableProviders,
                 },
-            });
+            };
         }));
-        // 2.1. handle login submit
-        router.post("/login", parseContext, (ctx) => tslib_1.__awaiter(this, void 0, void 0, function* () {
+        // check login email exists
+        router.post("/check_login_email", (ctx) => tslib_1.__awaiter(this, void 0, void 0, function* () {
+            const { email } = ctx.request.body;
+            const user = yield idp.findOrFail({ claims: { email: email || "" } });
+            return ctx.body = {
+                interaction: "check_login_email",
+                data: {
+                    user: yield util_1.getPublicUserProps(user),
+                },
+            };
+        }));
+        // handle login
+        router.post("/login_end", parseContext, (ctx) => tslib_1.__awaiter(this, void 0, void 0, function* () {
             const { client, interaction } = ctx.locals;
             const { email, password } = ctx.request.body;
-            // 1. user enter email only
-            if (typeof password === "undefined") {
-                // 2. fetch identity
-                // tslint:disable-next-line:no-shadowed-variable
-                const user = yield idp.findOrFail({ claims: { email: email || "" } });
-                return render(ctx, {
-                    interaction: {
-                        name: "login",
-                        action: Object.assign({ submit: {
-                                url: url(`/login`),
-                                method: "POST",
-                                data: {
-                                    email,
-                                    password: "",
-                                },
-                            }, resetPassword: {
-                                url: url(`/verify_email`),
-                                method: "POST",
-                                data: {
-                                    email,
-                                    callback: "reset_password",
-                                },
-                            } }, actions),
-                        data: {
-                            user: user ? yield util_1.getPublicUserProps(user) : undefined,
-                            client: client ? yield util_1.getPublicClientProps(client) : undefined,
-                        },
-                    },
-                });
-            }
-            // 4. check account and password
+            // check account and password
             const user = yield idp.findOrFail({ claims: { email: email || "" } });
             if (!(yield user.assertCredentials({ password: password || "" }))) {
                 throw new error_1.Errors.InvalidCredentialsError();
             }
-            // 6. finish interaction and give redirection uri
+            // finish interaction and give redirection uri
             const login = {
                 account: user.id,
                 remember: true,
@@ -228,9 +296,88 @@ class InteractionFactory {
             const redirect = yield provider.interactionResult(ctx.req, ctx.res, Object.assign(Object.assign({}, interaction.result), { login }), {
                 mergeWithLastSubmission: true,
             });
-            // overwrite session for consent -> change account -> login
+            // overwrite session
             yield provider.setProviderSession(ctx.req, ctx.res, login);
-            return render(ctx, { redirect });
+            return ctx.body = {
+                interaction: "login_end",
+                redirect,
+            };
+        }));
+        // handle federation
+        const federation = new federation_1.IdentityFederationManager({
+            logger,
+            idp,
+            callbackURL: providerName => url(`/federate/${providerName}`),
+        }, this.opts.federation);
+        router.post("/federate", parseContext, (ctx, next) => tslib_1.__awaiter(this, void 0, void 0, function* () {
+            const { user, client, interaction } = ctx.locals;
+            ctx.assert(interaction.prompt.name === "login" || interaction.prompt.name === "consent", "Invalid Request.");
+            yield federation.request(ctx.request.body.provider, ctx, next);
+        }));
+        // handle ferderation callback
+        router.get("/federate/:provider", parseContext, (ctx, next) => tslib_1.__awaiter(this, void 0, void 0, function* () {
+            const { user, client, interaction } = ctx.locals;
+            ctx.assert(interaction.prompt.name === "login" || interaction.prompt.name === "consent", "Invalid Request.");
+            const federatedUser = yield federation.callback(ctx.params.provider, ctx, next);
+            if (!federatedUser) {
+                throw new error_1.Errors.IdentityNotExistsError();
+            }
+            const login = {
+                account: federatedUser.id,
+                remember: true,
+            };
+            // make user signed in
+            const redirect = yield provider.interactionResult(ctx.req, ctx.res, Object.assign(Object.assign({}, interaction.result), { login }));
+            // overwrite session
+            yield provider.setProviderSession(ctx.req, ctx.res, login);
+            return ctx.body = { redirect };
+        }));
+        // prepare consent
+        router.get("/consent", parseContext, (ctx) => tslib_1.__awaiter(this, void 0, void 0, function* () {
+            const { user, client, interaction } = ctx.locals;
+            ctx.assert(interaction.prompt.name === "consent", "Invalid Request.");
+            // skip consent if client has such property
+            if (client && client.skip_consent) {
+                const redirect = yield provider.interactionResult(ctx.req, ctx.res, Object.assign(Object.assign({}, interaction.result), { consent: {
+                        rejectedScopes: [],
+                        rejectedClaims: [],
+                        replace: true,
+                    } }), {
+                    mergeWithLastSubmission: true,
+                });
+                return ctx.body = {
+                    interaction: "consent_end",
+                    redirect,
+                };
+            }
+            // or render consent form
+            return ctx.body = {
+                interaction: "consent",
+                data: {
+                    user: user ? yield util_1.getPublicUserProps(user) : undefined,
+                    client: client ? yield util_1.getPublicClientProps(client) : undefined,
+                    // consent data (scopes, claims)
+                    consent: interaction.prompt.details,
+                },
+            };
+        }));
+        // handle consent
+        router.post("/consent_end", parseContext, (ctx) => tslib_1.__awaiter(this, void 0, void 0, function* () {
+            const { user, client, interaction } = ctx.locals;
+            ctx.assert(interaction.prompt.name === "consent", "Invalid request.");
+            const { rejected_scopes = [], rejected_claims = [] } = ctx.request.body;
+            // finish consent interaction and give redirection uri
+            const redirect = yield provider.interactionResult(ctx.req, ctx.res, Object.assign(Object.assign({}, interaction.result), { consent: {
+                    rejectedScopes: rejected_scopes,
+                    rejectedClaims: rejected_claims,
+                    replace: true,
+                } }), {
+                mergeWithLastSubmission: true,
+            });
+            return ctx.body = {
+                name: "consent_end",
+                redirect,
+            };
         }));
         // 2.3. handle verify phone number submit
         const phoneNumberVerificationTimeoutSeconds = 180;
@@ -269,7 +416,7 @@ class InteractionFactory {
                 mergeWithLastSubmission: true,
             });
             // 5. render with submit, resend endpoint
-            return render(ctx, {
+            return ctx.body = {
                 interaction: {
                     name: "verify_phone_number",
                     action: {
@@ -288,7 +435,7 @@ class InteractionFactory {
                     },
                     data: Object.assign({ phoneNumber: claims.phone_number, timeoutSeconds: phoneNumberVerificationTimeoutSeconds }, (this.opts.devModeEnabled ? { debug: { code } } : {})),
                 },
-            });
+            };
         }));
         // 2.4. handle verify_phone_number code submit
         router.post("/verify_phone_number_callback", parseContext, (ctx) => tslib_1.__awaiter(this, void 0, void 0, function* () {
@@ -324,7 +471,7 @@ class InteractionFactory {
                     });
                     // overwrite session
                     yield provider.setProviderSession(ctx.req, ctx.res, login);
-                    return render(ctx, { redirect });
+                    return ctx.body = { redirect };
                 case "register":
                     ctx.assert(interaction.result.register && interaction.result.register.claims && interaction.result.register.claims.phone_number);
                     const { claims } = interaction.result.register;
@@ -333,7 +480,7 @@ class InteractionFactory {
                         mergeWithLastSubmission: true,
                     });
                     // to complete register
-                    return render(ctx, {
+                    return ctx.body = {
                         interaction: {
                             name: "register",
                             action: {
@@ -350,7 +497,7 @@ class InteractionFactory {
                                 name: claims.name,
                             },
                         },
-                    });
+                    };
                 default:
                     ctx.throw(`Unimplemented verify_phone_number_callback: ${callback}`);
             }
@@ -394,7 +541,7 @@ class InteractionFactory {
                 mergeWithLastSubmission: true,
             });
             // 5. render with submit, resend endpoint
-            return render(ctx, {
+            return ctx.body = {
                 interaction: {
                     name: "verify_email",
                     action: {
@@ -406,7 +553,7 @@ class InteractionFactory {
                     },
                     data: Object.assign({ email, timeoutSeconds: emailVerificationTimeoutSeconds }, (this.opts.devModeEnabled ? { debug: { payload } } : {})),
                 },
-            });
+            };
         }));
         // 2.5. handle verify_email_callback link
         router.get("/verify_email_callback/:interaction_uid", (ctx) => tslib_1.__awaiter(this, void 0, void 0, function* () {
@@ -428,7 +575,7 @@ class InteractionFactory {
                         email,
                     };
                     yield interaction.save();
-                    return render(ctx, {
+                    return ctx.body = {
                         interaction: {
                             name: "reset_password",
                             action: {
@@ -444,7 +591,7 @@ class InteractionFactory {
                                 user: yield util_1.getPublicUserProps(user),
                             },
                         },
-                    });
+                    };
                 default:
                     ctx.throw(`Unimplemented verify_email_callback: ${callback}`);
             }
@@ -466,7 +613,7 @@ class InteractionFactory {
             interaction.result.verifyEmail = null;
             yield interaction.save();
             // 5. return to initial redirection
-            return render(ctx, {
+            return ctx.body = {
                 interaction: {
                     name: "reset_password_end",
                     action: {},
@@ -474,7 +621,7 @@ class InteractionFactory {
                         user: yield util_1.getPublicUserProps(user),
                     },
                 },
-            });
+            };
         }));
         // 2.7. handle register submit
         router.post("/register", parseContext, (ctx) => tslib_1.__awaiter(this, void 0, void 0, function* () {
@@ -505,7 +652,7 @@ class InteractionFactory {
                     } }), {
                     mergeWithLastSubmission: true,
                 });
-                return render(ctx, {
+                return ctx.body = {
                     interaction: {
                         name: "register",
                         action: {
@@ -521,7 +668,7 @@ class InteractionFactory {
                         },
                         data: Object.assign({}, claims),
                     },
-                });
+                };
             }
             ctx.assert(interaction.result.register);
             // 3. enter phone_number, birthdate, gender
@@ -556,7 +703,7 @@ class InteractionFactory {
             // 3.3. let verify phone number or submit
             const shouldVerifyPhoneNumber = claims.phone_number && claims.phone_number_verified !== true;
             if (shouldVerifyPhoneNumber) {
-                return render(ctx, {
+                return ctx.body = {
                     interaction: {
                         name: "verify_phone_number",
                         action: {
@@ -574,7 +721,7 @@ class InteractionFactory {
                             phoneNumber: claims.phone_number,
                         },
                     },
-                });
+                };
             }
             // 4. finish registration
             let redirect;
@@ -598,7 +745,7 @@ class InteractionFactory {
                 yield provider.setProviderSession(ctx.req, ctx.res, login);
                 // TODO: 5. send email which includes (email verification link) with adaptor props
             }
-            return render(ctx, {
+            return ctx.body = {
                 redirect,
                 interaction: {
                     name: "register",
@@ -616,104 +763,7 @@ class InteractionFactory {
                         name: claims.name,
                     },
                 },
-            });
-        }));
-        // 2.8. handle federation
-        const federation = new federation_1.IdentityFederationManager({
-            logger,
-            idp,
-            callbackURL: providerName => url(`/federate/${providerName}`),
-        }, this.opts.federation);
-        router.post("/federate", parseContext, (ctx, next) => tslib_1.__awaiter(this, void 0, void 0, function* () {
-            const { user, client, interaction } = ctx.locals;
-            ctx.assert(interaction.prompt.name === "login" || interaction.prompt.name === "consent", "Invalid Request.");
-            yield federation.request(ctx.request.body.provider, ctx, next);
-        }));
-        router.get("/federate/:provider", parseContext, (ctx, next) => tslib_1.__awaiter(this, void 0, void 0, function* () {
-            const { user, client, interaction } = ctx.locals;
-            ctx.assert(interaction.prompt.name === "login" || interaction.prompt.name === "consent", "Invalid Request.");
-            const federatedUser = yield federation.callback(ctx.params.provider, ctx, next);
-            if (!federatedUser) {
-                throw new error_1.Errors.IdentityNotExistsError();
-            }
-            const login = {
-                account: federatedUser.id,
-                remember: true,
             };
-            // make user signed in
-            const redirect = yield provider.interactionResult(ctx.req, ctx.res, Object.assign(Object.assign({}, interaction.result), { login }));
-            // overwrite session
-            yield provider.setProviderSession(ctx.req, ctx.res, login);
-            yield render(ctx, { redirect });
-        }));
-        // 3. handle consent
-        router.get("/consent", parseContext, (ctx) => tslib_1.__awaiter(this, void 0, void 0, function* () {
-            const { user, client, interaction } = ctx.locals;
-            ctx.assert(interaction.prompt.name === "consent", "Invalid Request.");
-            // 1. skip consent if client has such property
-            if (client && client.skip_consent) {
-                const redirect = yield provider.interactionResult(ctx.req, ctx.res, Object.assign(Object.assign({}, interaction.result), { 
-                    // consent was given by the user to the client for this session
-                    consent: {
-                        rejectedScopes: [],
-                        rejectedClaims: [],
-                        replace: true,
-                    } }), {
-                    mergeWithLastSubmission: true,
-                });
-                return render(ctx, { redirect });
-            }
-            // 2. or render consent form
-            const data = {
-                user: user ? yield util_1.getPublicUserProps(user) : undefined,
-                client: client ? yield util_1.getPublicClientProps(client) : undefined,
-            };
-            return render(ctx, {
-                interaction: {
-                    name: "consent",
-                    action: Object.assign({ submit: {
-                            url: url(`/consent`),
-                            method: "POST",
-                            data: {
-                                rejectedScopes: [],
-                                rejectedClaims: [],
-                                replace: true,
-                            },
-                        }, changeAccount: {
-                            url: url(`/login`),
-                            method: "GET",
-                            data: {
-                                change_account: true,
-                            },
-                            urlencoded: true,
-                        } }, actions),
-                    data: Object.assign(Object.assign({}, data), { 
-                        // consent data (scopes, claims)
-                        consent: interaction.prompt.details }),
-                },
-            });
-        }));
-        router.post("/consent", parseContext, (ctx) => tslib_1.__awaiter(this, void 0, void 0, function* () {
-            const { user, client, interaction } = ctx.locals;
-            ctx.assert(interaction.prompt.name === "consent", "Invalid request.");
-            // 1. validate body
-            // validate(ctx, {
-            //   rejectedScopes: {
-            //     type: "array",
-            //     items: "string",
-            //   },
-            //   rejectedClaims: {
-            //     type: "array",
-            //     items: "string",
-            //   },
-            // });
-            // 2. finish interaction and give redirection uri
-            const redirect = yield provider.interactionResult(ctx.req, ctx.res, Object.assign(Object.assign({}, interaction.result), { 
-                // consent was given by the user to the client for this session
-                consent: ctx.request.body }), {
-                mergeWithLastSubmission: true,
-            });
-            return render(ctx, { redirect });
         }));
         return router.routes();
     }

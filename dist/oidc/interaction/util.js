@@ -22,7 +22,6 @@ function getPublicUserProps(id) {
             return null;
         const { email, picture, name } = yield id.claims("userinfo", "profile email");
         return {
-            id: id.id,
             email,
             name: name || "unknown",
             picture: picture || null,

@@ -1,13 +1,11 @@
 import { Logger } from "../../logger";
 import { Configuration, KoaContextWithOIDC } from "../provider";
-import { ClientApplicationProps, ClientApplicationRenderer } from "./app";
 import { RouterContext } from "koa-router";
-import { Identity, IdentityProvider } from "../../identity";
+import { IdentityProvider } from "../../identity";
 import { getPublicClientProps, getPublicUserProps } from "./util";
 
 export type InternalInteractionConfigurationFactoryProps = {
   idp: IdentityProvider;
-  app: ClientApplicationRenderer;
   logger: Logger;
 };
 
@@ -28,8 +26,8 @@ export class InternalInteractionConfigurationFactory {
 
   public configuration(): InternalInteractionConfiguration {
     const idp = this.props.idp;
-    const render = this.render.bind(this);
     const logger = this.props.logger;
+    const render = this.render.bind(this);
 
     async function getContext(ctx: KoaContextWithOIDC) {
       const oidc = ctx.oidc as typeof ctx.state.oidc;
@@ -44,20 +42,16 @@ export class InternalInteractionConfigurationFactory {
     return {
       /* error */
       async renderError(ctx, out, error) {
-        await render(ctx, {
-          error,
-        });
+        logger.error(error);
+        ctx.type = "json";
+        ctx.body = out;
       },
 
       /* logout */
       // signed out without post_logout_redirect_uri params
       async postLogoutSuccessSource(ctx) {
-        const oidc = ctx.oidc as typeof ctx.state.oidc;
-        await render(ctx, {
-          interaction: {
-            name: "logout_end",
-          },
-        });
+        ctx.type = "json";
+        ctx.body = null;
       },
 
       // sign out
@@ -67,21 +61,19 @@ export class InternalInteractionConfigurationFactory {
         ctx.assert(user);
 
         await render(ctx, {
-          interaction: {
-            name: "logout",
-            action: {
-              submit: {
-                url: ctx.oidc.urlFor("end_session_confirm"),
-                method: "POST",
-                data: {
-                  logout: true,
-                },
-                urlencoded: true,
+          interaction: "logout",
+          data: {
+            user: user ? await getPublicUserProps(user) : undefined,
+            client: client ? await getPublicClientProps(client) : undefined,
+          },
+          action: {
+            submit: {
+              url: ctx.oidc.urlFor("end_session_confirm"),
+              method: "POST",
+              data: {
+                logout: true,
               },
-            },
-            data: {
-              user: user ? await getPublicUserProps(user) : undefined,
-              client: client ? await getPublicClientProps(client) : undefined,
+              urlencoded: true,
             },
           },
         });
@@ -98,22 +90,20 @@ export class InternalInteractionConfigurationFactory {
 
             const oidc = ctx.oidc as typeof ctx.state.oidc;
 
-            await render(ctx, {
+            await render(ctx, error || {
               error,
-              interaction: {
-                name: "device_flow_code_verification",
-                action: {
-                  submit: {
-                    url: (oidc as any).urlFor("code_verification"),
-                    method: "POST",
-                    data: {
-                      user_code: oidc.params!.user_code || "",
-                    },
+              interaction: "device_code_verification",
+              data: {
+                user: user ? await getPublicUserProps(user) : undefined,
+                client: client ? await getPublicClientProps(client) : undefined,
+              },
+              action: {
+                submit: {
+                  url: (oidc as any).urlFor("code_verification"),
+                  method: "POST",
+                  data: {
+                    user_code: oidc.params!.user_code || "",
                   },
-                },
-                data: {
-                  user: user ? await getPublicUserProps(user) : undefined,
-                  client: client ? await getPublicClientProps(client) : undefined,
                 },
               },
             });
@@ -128,31 +118,29 @@ export class InternalInteractionConfigurationFactory {
             const oidc = ctx.oidc as typeof ctx.state.oidc;
 
             await render(ctx, {
-              interaction: {
-                name: "device_flow_confirm",
-                action: {
-                  submit: {
-                    url: (oidc as any).urlFor("code_verification"),
-                    method: "POST",
-                    data: {
-                      user_code: userCode,
-                      confirm: true,
-                    },
-                  },
-                  abort: {
-                    url: (oidc as any).urlFor("code_verification"),
-                    method: "POST",
-                    data: {
-                      user_code: userCode,
-                      abort: true,
-                    },
+              interaction: "device_code_verification_end",
+              action: {
+                submit: {
+                  url: (oidc as any).urlFor("code_verification"),
+                  method: "POST",
+                  data: {
+                    user_code: userCode,
+                    confirm: true,
                   },
                 },
-                data: {
-                  user: user ? await getPublicUserProps(user) : undefined,
-                  client: client ? await getPublicClientProps(client) : undefined,
-                  deviceInfo,
+                abort: {
+                  url: (oidc as any).urlFor("code_verification"),
+                  method: "POST",
+                  data: {
+                    user_code: userCode,
+                    abort: true,
+                  },
                 },
+              },
+              data: {
+                user: user ? await getPublicUserProps(user) : undefined,
+                client: client ? await getPublicClientProps(client) : undefined,
+                deviceInfo,
               },
             });
           },
@@ -163,13 +151,11 @@ export class InternalInteractionConfigurationFactory {
             ctx.assert(user && client);
 
             await render(ctx, {
-              interaction: {
-                name: "device_flow_end",
-                // TODO: add details for to determine confirmed or non-confirmed
-                data: {
-                  user: user ? await getPublicUserProps(user) : undefined,
-                  client: client ? await getPublicClientProps(client) : undefined,
-                },
+              interaction: "device_code_verification_complete",
+              // TODO: add details for to determine confirmed or non-confirmed
+              data: {
+                user: user ? await getPublicUserProps(user) : undefined,
+                client: client ? await getPublicClientProps(client) : undefined,
               },
             });
           },
@@ -178,33 +164,22 @@ export class InternalInteractionConfigurationFactory {
     };
   }
 
-  private render(ctx: KoaContextWithOIDC | RouterContext, props: Omit<ClientApplicationProps, "error"> & { error?: any }) {
-    ctx = ctx as KoaContextWithOIDC;
-    const oidc = (ctx.oidc || {}) as typeof ctx.state.oidc;
-
-    // const context: ClientApplicationContext = {
-    //   account_id: session && session.account || null,
-    //   client: getPublicClientProps(client),
-    //   prompt: {
-    //     name: route,
-    //     details: {},
-    //     reasons: [],
-    //   },
-    //   params: _.mapValues(params || {}, value => typeof value === "undefined" ? null : value),
-    // };
-
+  private render(ctx: KoaContextWithOIDC | RouterContext, props: any) {
     // fill XSRF token
-    if (props.interaction && props.interaction.action) {
+    if (props && props.action) {
+      ctx = ctx as KoaContextWithOIDC;
+      const oidc = (ctx.oidc || {}) as typeof ctx.state.oidc;
       const xsrf = oidc.session && oidc.session.state && oidc.session.state.secret || undefined;
       if (xsrf) {
         // tslint:disable-next-line:forin
-        for (const k in props.interaction.action) {
-          const action = props.interaction.action[k];
-          action.data.xsrf = xsrf;
+        for (const k in props.action) {
+          const action = props.action[k];
+          (action.data = action.data || {}).xsrf = xsrf;
         }
       }
     }
 
-    return this.props.app.render(ctx, props);
+    ctx.type = "json";
+    ctx.body = props;
   }
 }

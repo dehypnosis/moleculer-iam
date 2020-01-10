@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const __1 = require("../../");
 const moleculer_1 = require("moleculer");
+const app_1 = require("./app");
 // create moleculer service (optional)
 const broker = new moleculer_1.ServiceBroker({
     transporter: {
@@ -15,32 +16,14 @@ const broker = new moleculer_1.ServiceBroker({
 const serviceSchema = __1.IAMServiceSchema({
     idp: {
         adapter: {
-            // type: "Memory",
-            type: "RDBMS",
-            options: {
-                dialect: "mysql",
-                host: "mysql-dev.internal.qmit.pro",
-                database: "iam",
-                username: "iam",
-                password: "iam",
-                sqlLogLevel: "debug",
-            },
+            type: "Memory",
         },
     },
     oidc: {
         issuer: "http://localhost:9090",
         devMode: true,
         adapter: {
-            // type: "Memory",
-            type: "RDBMS",
-            options: {
-                dialect: "mysql",
-                host: "mysql-dev.internal.qmit.pro",
-                database: "iam",
-                username: "iam",
-                password: "iam",
-                sqlLogLevel: "debug",
-            },
+            type: "Memory",
         },
         // required and should be shared between processes in production
         cookies: {
@@ -70,6 +53,7 @@ const serviceSchema = __1.IAMServiceSchema({
         },
     },
     server: {
+        app: app_1.app,
         http: {
             hostname: "localhost",
             port: 9090,

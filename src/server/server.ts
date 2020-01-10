@@ -9,6 +9,7 @@ import prettyJSON from "koa-json";
 import { Logger } from "../logger";
 import { OIDCProvider } from "../oidc";
 import { logging, LoggingOptions } from "./logging";
+import compose from "koa-compose";
 
 export type IAMServerProps = {
   oidc: OIDCProvider,
@@ -18,6 +19,7 @@ export type IAMServerProps = {
 export type IAMServerOptions = {
   security?: IHelmetConfiguration,
   logging?: LoggingOptions,
+  app?: (oidc: OIDCProvider) => Promise<compose.Middleware<any>>,
 
   // server configuration
   http?: {
@@ -63,8 +65,18 @@ export class IAMServer {
       spaces: 2,
     }));
 
-    // mount router
-    app.use(props.oidc.router);
+    // mount optional app and oidc provider router
+    if (options.app) {
+      options.app(props.oidc)
+        .then(appRoutes => {
+          app.use(compose([appRoutes, props.oidc.routes]));
+        }, err => {
+          this.logger.error("failed to initialize server application:", err);
+          app.use(props.oidc.routes);
+        });
+    } else {
+      app.use(props.oidc.routes);
+    }
   }
 
   /* lifecycle */

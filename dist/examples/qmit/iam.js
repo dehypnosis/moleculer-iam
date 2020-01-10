@@ -6,6 +6,7 @@ const moleculer_1 = require("moleculer");
 const moleculer_qmit_1 = require("moleculer-qmit");
 const __1 = require("../../");
 const config_1 = require("./config");
+const app_1 = require("./app");
 exports.isDebug = config_1.config.isDebug, exports.isDev = config_1.config.isDev;
 // create service broker
 exports.broker = new moleculer_1.ServiceBroker(moleculer_qmit_1.createBrokerOptions({
@@ -25,9 +26,6 @@ exports.broker.createService(__1.IAMServiceSchema(_.defaultsDeep({
         },
     },
     oidc: {
-        app: {
-            isValidPath: path => path === "/" || path === "/help" || path.startsWith("/help/"),
-        },
         devMode: exports.isDev,
         issuer: exports.isDev ? "https://account.dev.qmit.pro" : "https://account.qmit.pro",
         op_policy_uri: exports.isDev ? "https://account.dev.qmit.pro/help/policy" : "https://account.qmit.pro/help/policy",
@@ -35,6 +33,7 @@ exports.broker.createService(__1.IAMServiceSchema(_.defaultsDeep({
         service_documentation: exports.isDev ? "https://account.dev.qmit.pro/help" : "https://account.qmit.pro/help",
     },
     server: {
+        app: app_1.app,
         http: {
             hostname: "0.0.0.0",
             port: 9090,

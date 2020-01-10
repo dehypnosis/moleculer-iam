@@ -4,8 +4,8 @@ const tslib_1 = require("tslib");
 const _ = tslib_1.__importStar(require("lodash"));
 const koa_passport_1 = require("koa-passport");
 const error_1 = require("../../identity/error");
-const federation_options_1 = require("./federation_options");
-tslib_1.__exportStar(require("./federation_options"), exports);
+const federation_presets_1 = require("./federation.presets");
+tslib_1.__exportStar(require("./federation.presets"), exports);
 class IdentityFederationManager {
     constructor(props, opts = {}) {
         this.props = props;
@@ -13,7 +13,7 @@ class IdentityFederationManager {
         this.callbacks = {};
         this.logger = props.logger || console;
         this.passport = new koa_passport_1.KoaPassport();
-        opts = _.defaultsDeep(opts, federation_options_1.defaultIdentityFederationManagerOptions);
+        opts = _.defaultsDeep(opts, federation_presets_1.defaultIdentityFederationManagerOptions);
         for (const [provider, options] of Object.entries(opts)) {
             if (!options || !options.clientID) {
                 continue;
@@ -23,7 +23,7 @@ class IdentityFederationManager {
             this.scopes[provider] = typeof scope === "string" ? scope.split(" ").map(s => s.trim()).filter(s => !!s) : scope;
             this.callbacks[provider] = callback;
             this.logger.info(`enable identity federation from ${provider} with ${this.scopes[provider].join(", ")} scopes: ${callbackURL}`);
-            this.passport.use(new (federation_options_1.Strategies[provider])(Object.assign(Object.assign({}, providerOpts), { callbackURL }), (accessToken, refreshToken, profile, done) => tslib_1.__awaiter(this, void 0, void 0, function* () {
+            this.passport.use(new (federation_presets_1.Strategies[provider])(Object.assign(Object.assign({}, providerOpts), { callbackURL }), (accessToken, refreshToken, profile, done) => tslib_1.__awaiter(this, void 0, void 0, function* () {
                 try {
                     done(null, { accessToken, profile });
                 }

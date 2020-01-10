@@ -5,9 +5,9 @@ import { KoaPassport } from "koa-passport";
 import { Identity, IdentityProvider } from "../../identity";
 import { Logger } from "../../logger";
 import { Errors } from "../../identity/error";
-import { defaultIdentityFederationManagerOptions, Strategies, FederationCallback, IdentityFederationManagerOptions } from "./federation_options";
+import { defaultIdentityFederationManagerOptions, Strategies, FederationCallback, IdentityFederationManagerOptions } from "./federation.presets";
 
-export * from "./federation_options";
+export * from "./federation.presets";
 
 export type IdentityFederationManagerProps = {
   idp: IdentityProvider,

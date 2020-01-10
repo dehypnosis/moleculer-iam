@@ -17,7 +17,6 @@ export async function getPublicUserProps(id: Identity) {
   if (!id) return null;
   const {email, picture, name} = await id.claims("userinfo", "profile email");
   return {
-    id: id.id,
     email,
     name: name || "unknown",
     picture: picture || null,

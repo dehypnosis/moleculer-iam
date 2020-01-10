@@ -27,6 +27,6 @@
     "src"
   ],
   "exclude": [
-    "src/assets"
+    "src/examples/qmit/assets"
   ]
 }

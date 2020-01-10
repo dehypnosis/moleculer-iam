@@ -1,12 +1,11 @@
 import * as kleur from "kleur";
 import * as _ from "lodash";
 import mount from "koa-mount";
-import compose from "koa-compose";
 import uuid from "uuid";
 import { FindOptions, WhereAttributeHash } from "../../helper/rdbms";
 import { IdentityProvider } from "../../identity";
 import { Logger } from "../../logger";
-import { ClientApplicationRenderer, InteractionFactory, InternalInteractionConfigurationFactory } from "../interaction";
+import { InteractionFactory, InternalInteractionConfigurationFactory } from "../interaction";
 import { Client, ClientMetadata, errors, Provider as OriginalProvider, Configuration as OriginalProviderConfiguration, OIDCModelName, VolatileOIDCModelName } from "./types";
 import { OIDCAdapter, OIDCAdapterConstructors } from "../adapter";
 import { defaultOIDCProviderOptions, OIDCProviderOptions } from "./options";
@@ -24,15 +23,13 @@ export class OIDCProvider {
   private readonly logger: Logger;
   private readonly adapter: OIDCAdapter;
   private readonly original: OriginalProvider;
-  private readonly clientApp: ClientApplicationRenderer;
-  private readonly clientAppClientOptions: Omit<ClientMetadata, "client_secret">;
-  public readonly router: compose.ComposedMiddleware<any>;
+  public readonly devModeEnabled: boolean;
 
   constructor(private readonly props: OIDCProviderProps, options: OIDCProviderOptions) {
     const idp = props.idp;
     const logger = this.logger = props.logger || console;
     const {issuer, trustProxy, adapter, app, devMode, ...providerConfig} = _.defaultsDeep(options || {}, defaultOIDCProviderOptions);
-    const devModeEnabled = devMode || issuer.startsWith("http://");
+    const devModeEnabled = this.devModeEnabled = !!(devMode || issuer.startsWith("http://"));
 
     /* create provider adapter */
     const adapterKey: keyof (typeof OIDCAdapterConstructors) = Object.keys(OIDCAdapterConstructors).find(k => k.toLowerCase() === options.adapter!.type.toLowerCase())
@@ -41,24 +38,13 @@ export class OIDCProvider {
       logger,
     }, options.adapter!.options);
 
-    /* create provider interactions factory and client app renderer */
-    const clientAppOption = app || {};
-    if (devModeEnabled) {
-      logger.info("disable assets cache for debugging purpose");
-      clientAppOption.assetsCacheMaxAge = 0;
-    }
-    const clientApp = this.clientApp = new ClientApplicationRenderer({
-      logger,
-    }, clientAppOption);
-
+    /* create provider interactions */
     const internalInteractionConfigFactory = new InternalInteractionConfigurationFactory({
-      app: clientApp,
       logger,
       idp,
     });
 
     const interactionFactory = new InteractionFactory({
-      app: clientApp,
       logger,
       idp,
     }, {federation: options.federation, devModeEnabled});
@@ -119,37 +105,14 @@ export class OIDCProvider {
         "disable-implicit-force-https": true,
       });
     }
-
-    /* prepare client app oidc client options */
-    this.clientAppClientOptions = _.defaultsDeep(clientAppOption.client || {}, {
-      client_id: issuer.replace("https://", "").replace("http://", "").replace(":", "-"),
-      client_name: "Account Manager",
-      client_uri: issuer,
-      application_type: "web" as "web",
-      policy_uri: `${issuer}/help/policy`,
-      tos_uri: `${issuer}/help/tos`,
-      logo_uri: undefined,
-      redirect_uris: [...new Set([issuer].concat(devModeEnabled ? ["http://localhost:9191", "http://localhost:9090", "http://localhost:8080", "http://localhost:3000"] : []))],
-      post_logout_redirect_uris: [issuer],
-      frontchannel_logout_uri: `${issuer}`,
-      frontchannel_logout_session_required: true,
-      grant_types: ["implicit", "authorization_code", "refresh_token"],
-      response_types: ["code", "id_token", "id_token token", "code id_token", "code token", "code id_token token", "none"],
-      token_endpoint_auth_method: "none",
-
-      /* custom props */
-      skip_consent: true,
-    });
-
-    /* create router */
-    this.router = compose([
-      mount(this.original.app as any),
-      this.clientApp.router,
-    ]) as any;
   }
 
   public get idp() {
     return this.props.idp;
+  }
+
+  public get routes() {
+    return mount(this.original.app as any);
   }
 
   private get originalHiddenProps() {
@@ -163,6 +126,7 @@ export class OIDCProvider {
   public get defaultRoutes(): Readonly<{ [key: string]: string | undefined }> {
     return {
       discovery: "/.well-known/openid-configuration",
+      interaction: "/interaction",
       ...this.config.routes,
     };
   }
@@ -189,21 +153,6 @@ export class OIDCProvider {
 
     // start adapter
     await this.adapter.start();
-
-    // assert app client
-    try {
-      await this.createClient(this.clientAppClientOptions);
-    } catch (err) {
-      if (err.error === "invalid_client") {
-        try {
-          await this.updateClient(this.clientAppClientOptions);
-        } catch (err) {
-          this.logger.error(err);
-        }
-      } else {
-        this.logger.error(err);
-      }
-    }
 
     this.working = true;
     this.logger.info(`oidc provider has been started`);
@@ -314,6 +263,7 @@ export class OIDCProvider {
     "ReplayDetection",
     "PushedAuthorizationRequest",
   ];
+
   public async countModels(kind: VolatileOIDCModelName, args?: WhereAttributeHash) {
     const model = this.adapter.getModel<any>(kind);
     return model.count(args);

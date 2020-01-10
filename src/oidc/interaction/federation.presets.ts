@@ -14,6 +14,8 @@ export type IdentityFederationManagerOptions = {
   kakao?: Partial<Omit<KakaoOptions, "callbackURL"> & { scope: string | string[], callback: FederationCallback }>,
   google?: Partial<Omit<GoogleOptions, "callbackURL"> & { scope: string | string[], callback: FederationCallback }>,
   facebook?: Partial<Omit<FacebookOptions, "callbackURL"> & { scope: string | string[], callback: FederationCallback }>,
+} & {
+  [key: string]: { scope: string | string[], callback: FederationCallback, [key: string]: any },
 };
 
 export const Strategies: { [provider: string]: new(opts: any, callback: any) => Strategy } = {
