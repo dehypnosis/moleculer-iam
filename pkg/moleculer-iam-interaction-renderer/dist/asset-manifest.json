@@ -1,0 +1,18 @@
+{
+  "files": {
+    "static/js/1.chunk.js": "/assets/interaction/static/js/1.chunk.js",
+    "static/js/1.chunk.js.map": "/assets/interaction/static/js/1.chunk.js.map",
+    "main.js": "/assets/interaction/static/js/main.chunk.js",
+    "main.js.map": "/assets/interaction/static/js/main.chunk.js.map",
+    "runtime-main.js": "/assets/interaction/static/js/bundle.js",
+    "runtime-main.js.map": "/assets/interaction/static/js/bundle.js.map",
+    "index.html": "/assets/interaction/index.html",
+    "static/media/logo.svg": "/assets/interaction/static/media/logo.060b0e6c.svg"
+  },
+  "entrypoints": [
+    "static/js/bundle.js",
+    "static/js/1.chunk.js",
+    "static/js/main.chunk.js",
+    "main.f8f93271b984cecbc904.hot-update.js"
+  ]
+}

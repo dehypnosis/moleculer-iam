@@ -1,8 +1,9 @@
 # moleculer-iam
 
 Centralized IAM module for moleculer.
-Including a certified OIDC provider and an Identity provider for user profile, credentials, and custom claims management.
+Including a certified OIDC provider and an Identity provider for user profile, credentials, and custom claims management feature.
 Custom claims could be defined/updated by declarative schema which contains claims validation and migration strategy.
+Also including default interaction React.js application for login/logout/registration and other OP interactions, and the account management React.js application.  
 
 [![Build Status](https://travis-ci.org/qmit-pro/moleculer-iam.svg?branch=master)](https://travis-ci.org/qmit-pro/moleculer-iam)
 [![Coverage Status](https://coveralls.io/repos/github/qmit-pro/moleculer-iam/badge.svg?branch=master)](https://coveralls.io/github/qmit-pro/moleculer-iam?branch=master)
@@ -11,11 +12,52 @@ Custom claims could be defined/updated by declarative schema which contains clai
 [![NPM version](https://img.shields.io/npm/v/moleculer-iam.svg)](https://www.npmjs.com/package/moleculer-iam)
 [![Moleculer](https://badgen.net/badge/Powered%20by/Moleculer/0e83cd)](https://moleculer.services)
 
+![Project Architecture Diagram](./docs/diagram.svg)
+
+# Usage
+## 1. Documents
+- [Features and details: ./docs](./docs)
+
+## 2. Examples
+- [MoleculerJs: ./src/examples](./examples)
+
+## 3. Quick Start
+```
+yarn add moleculer-iam
+```
+...
+
+
+# Development
+## 1. moleculer-iam
+### OIDC Provider + IDP + Moleculer service
+- `yarn workspace moleculer-iam dev [example=simple]` - Start development with [./examples](./examples) (nodemon with ts-node)
+- `yarn workspace moleculer-iam lint` - Run TSLint
+- `yarn workspace moleculer-iam build`- Transpile ts to js 
+- `yarn workspace moleculer-iam deps`- Update dependencies
+- `yarn workspace moleculer-iam test` - Run tests & generate coverage report
+- `yarn workspace moleculer-iam test --watch` - Watch and run tests
+
+## 2. moleculer-iam-app
+### React Application for OIDC interactions with browser
+- `yarn workspace moleculer-iam-app dev` - Start Server Application development (webpack)
+- `yarn workspace moleculer-iam-app lint` - Run TSLint
+- `yarn workspace moleculer-iam-app build`- Transpile ts/tsx to js 
+- `yarn workspace moleculer-iam-app deps`- Update dependencies
+- `yarn workspace moleculer-iam-app test` - Run tests & generate coverage report
+- `yarn workspace moleculer-iam-app test --watch` - Watch and run tests
+
+## 3. moleculer-iam-client
+### JS Client SDK for OIDC authnz + React hook and components
+- `yarn workspace moleculer-iam-client dev` - Start Client SDK development (webpack)
+// ...
+
+
 # Release Road-map
 - [x] 0.1.x Pre-alpha
     - [x] OAuth 2.0 and OpenID Connect Core 1.0 Provider
         - [x] hack `oidc-provider` module to be programmable
-    - [x] Web client application (React.js / responsive)
+    - [x] Interaction application (React.js)
         - [x] token management
             - [x] login
             - [x] logout / change account
@@ -64,31 +106,6 @@ Custom claims could be defined/updated by declarative schema which contains clai
     - [] IP filter
     - [] Documentation
     - [] `moleculer-api` integration example
-
-# Usage
-## 1. Documents
-- [Features and details: ./docs](./docs)
-
-## 2. Examples
-- [MoleculerJs: ./src/examples](./examples)
-
-## 3. Quick Start
-```
-npm install moleculer-iam --save
-```
-...
-
-# Development
-## 1. NPM Scripts
-- `npm run dev [example=moleculer]` - Start development (nodemon with ts-node)
-- `npm run dev-app` - Start Client Application development (webpack)
-- `npm run build`- Transpile ts and tsx to js for both server and client 
-- `npm run lint` - Run TSLint for both server and client
-- `npm run deps`- Update dependencies
-- `npm test` - Run tests & generate coverage report
-- `npm test -- --watch` - Watch and run tests
-- `npm test-app` - Run tests for client
-- `npm test-app -- --watch` - Watch and run tests for client
 
 
 # Contribution
