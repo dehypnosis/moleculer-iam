@@ -1,5 +1,5 @@
 import React from "react";
-import { Spinner, SpinnerSize, ISpinnerProps, Stack } from "../styles";
+import { ISpinnerProps, Spinner, SpinnerSize, Stack } from "../styles";
 
 export const LoadingScreen: React.FunctionComponent<ISpinnerProps> = ({
                                                                         size = SpinnerSize.large,

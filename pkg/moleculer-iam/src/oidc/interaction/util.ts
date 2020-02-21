@@ -6,10 +6,10 @@ export async function getPublicClientProps(client: Client) {
   return {
     id: client.clientId,
     name: client.clientName,
-    logo: client.logoUri || null,
-    tos: client.tosUri || null,
-    privacy: client.policyUri || null,
-    homepage: client.clientUri,
+    logo_uri: client.logoUri || null,
+    tos_uri: client.tosUri || null,
+    privacy_uri: client.policyUri || null,
+    client_uri: client.clientUri,
   };
 }
 

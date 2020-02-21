@@ -10,11 +10,12 @@ export const ErrorScreen: React.FunctionComponent = () => {
     <ScreenLayout
       title={error.error.split("_").map((w: string) => w[0].toUpperCase()+w.substr(1)).join(" ")}
       subtitle={error.error_description}
-      error={closed ? "Cannot close the window, you can close the browser manually." : undefined}
+      error={closed ? "Please close the window manually." : undefined}
       buttons={[
         {
           primary: false,
           text: "Close",
+          loading: closed,
           tabIndex: 1,
           onClick: close,
         },

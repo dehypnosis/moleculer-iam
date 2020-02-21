@@ -4,12 +4,12 @@ import { FontWeights, Image, Stack, Text, AnimationStyles, ButtonStyles, Default
 import logo from "../image/logo.svg";
 
 export const ScreenLayout: React.FunctionComponent<{
-  title: string | ReactElement,
+  title?: string | ReactElement,
   subtitle?: string | ReactElement,
-  buttons: {
+  buttons?: {
     text: string,
     autoFocus?: boolean,
-    onClick?: () => void,
+    onClick?: () => void|Promise<void>,
     primary?: boolean,
     loading?: boolean,
     tabIndex?: number,
@@ -17,8 +17,7 @@ export const ScreenLayout: React.FunctionComponent<{
   footer?: ReactElement,
   error?: string,
 }> = (props) => {
-  const {title, subtitle, children, buttons, error, footer} = props;
-
+  const {title = "TODO", subtitle = null, children = null, buttons = [], error = null, footer = null} = props;
   return (
     <ScrollView contentContainerStyle={{marginTop: "auto", marginBottom: "auto"}}>
         <Stack
@@ -41,19 +40,19 @@ export const ScreenLayout: React.FunctionComponent<{
               styles={{root: {fontWeight: FontWeights.regular}}}
               children={title}
             />
-            {subtitle ? <Text variant="large" children={subtitle}/> : null}
+            <Text variant="large" children={subtitle}/>
           </Stack>
 
-          {children ? <Stack tokens={{childrenGap: 15}} children={children} /> : null}
+          <Stack tokens={{childrenGap: 15}} children={children} />
 
-          {(buttons.length > 0 || footer) ? <Stack tokens={{childrenGap: 15}} verticalAlign="end">
+          <Stack tokens={{childrenGap: 15}} verticalAlign="end">
             { error ? <MessageBar messageBarType={MessageBarType.error} styles={{root: AnimationStyles.slideDownIn20}} children={error}/> : null }
             {buttons.map(({ primary, text, onClick, autoFocus, loading, tabIndex }, index) => {
               const Button = primary ? PrimaryButton : DefaultButton;
-              return <Button key={index} tabIndex={tabIndex} autoFocus={autoFocus} checked={loading === true} allowDisabledFocus text={text} styles={ButtonStyles.large} onClick={onClick} />;
+              return <Button key={index} tabIndex={tabIndex} autoFocus={autoFocus} checked={loading === true} allowDisabledFocus text={text} styles={ButtonStyles.large} onClick={loading ? undefined : onClick} />;
             })}
             {footer}
-          </Stack> : null}
+          </Stack>
         </Stack>
     </ScrollView>
   );

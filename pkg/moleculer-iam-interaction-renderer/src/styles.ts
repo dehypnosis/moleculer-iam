@@ -123,7 +123,6 @@ export const DatePickerStyles: {[key: string]: IStyleFunctionOrObject<IDatePicke
   },
 };
 
-// @ts-ignore
 export const LabelStyles: { [key: string]: ILabelStyles } = {
   fieldErrorMessage: {
     root: {

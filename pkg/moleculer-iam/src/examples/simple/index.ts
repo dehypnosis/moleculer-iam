@@ -74,6 +74,13 @@ const serviceSchema = IAMServiceSchema({
         */
       },
     },
+    discovery: {
+      ui_locales_supported: ["en-US", "ko-KR"],
+      claims_locales_supported: ["en-US", "ko-KR"],
+      op_tos_uri: "/help/tos",
+      op_policy_uri: "/help/policy",
+      service_documentation: "/help",
+    },
   },
   server: {
     app,

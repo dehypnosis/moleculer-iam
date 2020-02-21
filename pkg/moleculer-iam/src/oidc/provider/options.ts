@@ -3,12 +3,23 @@ import { Configuration } from "./types";
 import { OIDCAdapterConstructorOptions } from "../adapter";
 import { InteractionFactoryOptions } from "../interaction";
 
-export type OIDCProviderOptions = Omit<Configuration, "adapter"|"claims"|"scopes"|"findAccount"|"dynamicScopes"|"interactions"> & {
+export interface OIDCProviderDiscoveryMetadata {
+  display_values_supported?: string[],
+  claim_types_supported?: string[],
+  claims_locales_supported?: string[],
+  ui_locales_supported?: string[],
+  op_tos_uri?: string | null,
+  op_policy_uri?: string | null,
+  service_documentation?: string | null,
+}
+
+export type OIDCProviderOptions = Omit<Configuration, "adapter"|"claims"|"scopes"|"findAccount"|"dynamicScopes"|"interactions"|"discovery"> & {
   issuer: string,
   trustProxy?: boolean,
   devMode?: boolean;
   adapter?: OIDCAdapterConstructorOptions,
   interaction?: InteractionFactoryOptions;
+  discovery?: OIDCProviderDiscoveryMetadata;
 }
 
 export const defaultOIDCProviderOptions: OIDCProviderOptions = {
@@ -103,8 +114,8 @@ export const defaultOIDCProviderOptions: OIDCProviderOptions = {
     claims_locales_supported: ["en-US"],
     ui_locales_supported: ["en-US"],
     display_values_supported: ["page", "popup"],
-    op_policy_uri: null,
     op_tos_uri: null,
+    op_policy_uri: null,
     service_documentation: null,
   },
 };

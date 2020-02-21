@@ -2,6 +2,7 @@ import { KoaContextWithOIDC } from "oidc-provider";
 import { RouterContext } from "koa-router";
 import compose from "koa-compose";
 import { Logger } from "../../logger";
+import { OIDCProviderDiscoveryMetadata } from "../provider";
 
 export type InteractionRendererProps = {
   adaptor: InteractionRendererAdaptor;
@@ -26,6 +27,9 @@ export interface InteractionRenderProps {
     };
     data?: any;
   };
+
+  // global metadata
+  metadata?: OIDCProviderDiscoveryMetadata;
 
   // global error
   error?: {

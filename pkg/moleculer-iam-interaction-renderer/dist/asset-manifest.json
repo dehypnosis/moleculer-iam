@@ -1,18 +1,21 @@
 {
   "files": {
-    "static/js/1.chunk.js": "/assets/interaction/static/js/1.chunk.js",
-    "static/js/1.chunk.js.map": "/assets/interaction/static/js/1.chunk.js.map",
+    "static/js/0.chunk.js": "/assets/interaction/static/js/0.chunk.js",
+    "static/js/0.chunk.js.map": "/assets/interaction/static/js/0.chunk.js.map",
     "main.js": "/assets/interaction/static/js/main.chunk.js",
     "main.js.map": "/assets/interaction/static/js/main.chunk.js.map",
     "runtime-main.js": "/assets/interaction/static/js/bundle.js",
     "runtime-main.js.map": "/assets/interaction/static/js/bundle.js.map",
     "index.html": "/assets/interaction/index.html",
-    "static/media/logo.svg": "/assets/interaction/static/media/logo.060b0e6c.svg"
+    "static/media/logo.svg": "/assets/interaction/static/media/logo.060b0e6c.svg",
+    "static/media/screen_password.svg": "/assets/interaction/static/media/screen_password.8f6c6a92.svg",
+    "static/media/screen_sent.svg": "/assets/interaction/static/media/screen_sent.1ae0604c.svg",
+    "static/media/screen_verify.svg": "/assets/interaction/static/media/screen_verify.465fe378.svg"
   },
   "entrypoints": [
     "static/js/bundle.js",
-    "static/js/1.chunk.js",
+    "static/js/0.chunk.js",
     "static/js/main.chunk.js",
-    "main.f8f93271b984cecbc904.hot-update.js"
+    "main.17dc1133120784831ea4.hot-update.js"
   ]
 }

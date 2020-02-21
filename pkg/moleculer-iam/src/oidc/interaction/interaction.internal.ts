@@ -1,8 +1,11 @@
 import { Configuration, KoaContextWithOIDC } from "oidc-provider";
 import { Logger } from "../../logger";
 import { IdentityProvider } from "../../identity";
-import { getPublicClientProps, getPublicUserProps } from "./util";
+import { getPublicClientProps, getPublicUserProps } from "./util"; // TODO
 import { InteractionRenderer } from "./interaction.render";
+
+// @ts-ignore : need to hack oidc-provider private methods
+import getProviderHiddenProps from "oidc-provider/lib/helpers/weak_cache";
 
 export type InternalInteractionConfigurationFactoryProps = {
   idp: IdentityProvider;
@@ -114,6 +117,7 @@ export class InternalInteractionConfigurationFactory {
 
           // confirm user code
           // ref: https://github.com/panva/node-oidc-provider/blob/master/lib/helpers/defaults.js#L635
+          // tslint:disable-next-line:variable-name
           async userCodeConfirmSource(ctx, form, client, device, user_code) { // eslint-disable-line no-unused-vars
             const { user } = await getContext(ctx);
             ctx.assert(user && client);
@@ -170,10 +174,11 @@ export class InternalInteractionConfigurationFactory {
   }
 
   private render: InteractionRenderer["render"] = (ctx, props) => {
+    ctx = ctx as KoaContextWithOIDC;
+    const oidc = (ctx.oidc || {}) as typeof ctx.state.oidc;
+
     // fill XSRF token
     if (props && props.interaction) {
-      ctx = ctx as KoaContextWithOIDC;
-      const oidc = (ctx.oidc || {}) as typeof ctx.state.oidc;
       const xsrf = oidc.session && oidc.session.state && oidc.session.state.secret || undefined;
       if (xsrf) {
         // tslint:disable-next-line:forin
@@ -183,6 +188,10 @@ export class InternalInteractionConfigurationFactory {
         }
       }
     }
-    return this.props.renderer.render(ctx, props);
+
+    // get metadata
+    const metadata = oidc.provider && getProviderHiddenProps(oidc.provider).configuration().discovery || {};
+
+    return this.props.renderer.render(ctx, {metadata, ...props});
   }
 }

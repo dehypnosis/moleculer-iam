@@ -4,13 +4,16 @@ import noCache from "koajs-nocache";
 import moment from "moment";
 import { Identity, IdentityProvider } from "../../identity";
 import { Logger } from "../../logger";
-import { Client, Interaction, interactionPolicy, KoaContextWithOIDC, Provider } from "../provider";
+import { Client, Interaction, interactionPolicy, KoaContextWithOIDC, Provider, Configuration } from "../provider";
 import { getPublicClientProps, getPublicUserProps } from "./util";
 import { Errors } from "../../identity/error";
 import { IdentityFederationManager, IdentityFederationManagerOptions } from "./federation";
 import { InteractionRenderer, InteractionRendererAdaptor, loadDefaultInteractionRendererAdaptor } from "./interaction.render";
 import { InternalInteractionConfigurationFactory } from "./interaction.internal";
 import compose from "koa-compose";
+
+// @ts-ignore : need to hack oidc-provider private methods
+import getProviderHiddenProps from "oidc-provider/lib/helpers/weak_cache";
 
 /*
 * can add more user interactive features (prompts) into base policy which includes login, consent prompts
@@ -87,13 +90,7 @@ export class InteractionFactory {
 
   /* create interaction routes */
   public routes(provider: Provider) {
-
-    function url(path: string) {
-      return `${provider.issuer}/interaction${path}`;
-    }
-
     const { idp, logger } = this.props;
-    const router = this.router;
 
     const parseContext: IMiddleware = async (ctx: any, next) => {
       // fetch interaction details
@@ -108,42 +105,40 @@ export class InteractionFactory {
       return next();
     };
 
-    // common action endpoints
-    const actions = {
-      abort: {
-        url: url(`/abort`),
-        method: "POST",
-        data: {},
-      },
+    const render: InteractionRenderer["render"] = (ctx, props) => {
+      const metadata = getProviderHiddenProps(provider).configuration().discovery || {};
+      return this.renderer.render(ctx, {metadata, ...props});
     };
 
     // handle error
-    router.use(async (ctx: KoaContextWithOIDC, next) => {
-      try {
-        await next();
-      } catch (err) {
-        // delegate error handling
-        logger.error(err);
+    // router.use(async (ctx: KoaContextWithOIDC, next) => {
+    //   try {
+    //     await next();
+    //   } catch (err) {
+    //     // delegate error handling
+    //     logger.error(err);
+    //
+    //     ctx.type = "json";
+    //     if (err.expose) {
+    //       const { error, status, statusCode, error_description, name, expose, ...otherProps } = err;
+    //       ctx.status = status || statusCode || 500;
+    //       if (isNaN(ctx.status)) ctx.status = 500;
+    //       ctx.body = {
+    //         error,
+    //         error_description,
+    //         ...otherProps,
+    //       };
+    //     } else {
+    //       const { status, statusCode, code, status_code } = err;
+    //       ctx.status = status || statusCode || code || status_code || 500;
+    //       if (isNaN(ctx.status)) ctx.status = 500;
+    //       ctx.body = err;
+    //     }
+    //   }
+    // });
 
-        ctx.type = "json";
-
-        if (err.expose) {
-          const { error, status, statusCode, error_description, name, expose, ...otherProps } = err;
-          ctx.status = status || statusCode || 500;
-          if (isNaN(ctx.status)) ctx.status = 500;
-          ctx.body = {
-            error,
-            error_description,
-            ...otherProps,
-          };
-        } else {
-          const { status, statusCode, code, status_code } = err;
-          ctx.status = status || statusCode || code || status_code || 500;
-          if (isNaN(ctx.status)) ctx.status = 500;
-          ctx.body = err;
-        }
-      }
-    });
+    const router = this.router;
+    const url = (path: string) => `${provider.issuer}/interaction${path}`;
 
     router.get("/", ctx => {
       ctx.type = "json";
@@ -298,11 +293,11 @@ export class InteractionFactory {
     });
 
     // prepare login
-    router.get("/login", parseContext, async ctx => {
+    router.get("/login/:any*", parseContext, async ctx => {
       const { user, client, interaction } = ctx.locals as InteractionRequestContext;
 
       // already signed in
-      const changeAccount = ctx.request.query.change_account || (interaction.params.change_account === true || interaction.params.change_account === "true" || interaction.params.change_account === 1);
+      const changeAccount = ctx.request.query.change_account || (interaction.params.change_account && interaction.params.change_account !== "false");
       const autoLogin = !changeAccount && user && interaction.prompt.name !== "login";
       if (autoLogin) {
         const login = {
@@ -320,19 +315,19 @@ export class InteractionFactory {
         // overwrite session
         await provider.setProviderSession(ctx.req, ctx.res, login);
 
-        ctx.type = "json";
-        ctx.body = { redirect };
-        return;
+        return render(ctx, { redirect });
       }
 
-      ctx.body = {
-        interaction: "login",
-        data: {
-          user: user && !changeAccount ? await getPublicUserProps(user!) : null,
-          client: client ? await getPublicClientProps(client) : null,
-          federationProviders: federation.availableProviders,
+      return render(ctx, {
+        interaction: {
+          name: "login",
+          data: {
+            user: user ? await getPublicUserProps(user!) : null,
+            client: client ? await getPublicClientProps(client) : null,
+            federationProviders: federation.availableProviders,
+          },
         },
-      };
+      });
     });
 
     // check login email exists
@@ -973,6 +968,16 @@ export class InteractionFactory {
           },
         },
       };
+    });
+
+    // for custom url
+    router.get("/:custom*", ctx => {
+      return render(ctx, {
+        interaction: {
+          name: ctx.params.custom.split("/").join(".").toLowerCase(),
+          data: {},
+        },
+      });
     });
 
     return compose([

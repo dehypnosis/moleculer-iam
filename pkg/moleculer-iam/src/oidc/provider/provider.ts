@@ -120,7 +120,7 @@ export class OIDCProvider {
   public get defaultRoutes(): Readonly<{ [key: string]: string | undefined }> {
     return {
       discovery: "/.well-known/openid-configuration",
-      interaction: "/interaction",
+      interaction: "/interaction/:name",
       ...this.config.routes,
     };
   }
