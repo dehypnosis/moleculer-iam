@@ -50,13 +50,13 @@ export const RegisterDetailScreen: React.FunctionComponent = () => {
           text: "Continue",
           onClick: handlePayloadSubmit,
           loading,
-          tabIndex: 3,
+          tabIndex: 64,
         },
         {
           text: "Cancel",
           onClick: handleCancel,
           loading,
-          tabIndex: 4,
+          tabIndex: 65,
         },
       ]}
       error={errors.global}
@@ -73,7 +73,7 @@ export const RegisterDetailScreen: React.FunctionComponent = () => {
             inputMode="tel"
             placeholder="Enter your mobile phone number"
             autoFocus
-            tabIndex={1}
+            tabIndex={61}
             value={payload.phone_number}
             errorMessage={errors.phone_number}
             onChange={(e, v) => setPayload(p => ({...p, phone_number: v!}))}
@@ -84,7 +84,7 @@ export const RegisterDetailScreen: React.FunctionComponent = () => {
           <DatePicker
             label="Birthdate"
             placeholder="Select your birthdate"
-            tabIndex={2}
+            tabIndex={62}
             allowTextInput
             value={payload.birthdate ? moment(payload.birthdate, "YYYY-MM-DD").toDate() : undefined}
             onSelectDate={(date) => date && setPayload(p => ({...p, birthdate: moment(date).format("YYYY-MM-DD")}))}
@@ -107,6 +107,7 @@ export const RegisterDetailScreen: React.FunctionComponent = () => {
             selectedKey={payload.gender || undefined}
             onChange={(e, v) => v && setPayload(p => ({...p, gender: v.key as any}))}
             placeholder="Select your gender"
+            tabIndex={63}
             options={[
               {key: "male", text: "Male"},
               {key: "female", text: "Female"},

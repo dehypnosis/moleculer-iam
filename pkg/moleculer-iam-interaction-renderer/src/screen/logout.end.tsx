@@ -1,29 +1,32 @@
 import React from "react";
 import { Text } from "../styles";
-import { useClose } from "../hook";
+import { useClose, useServerState } from "../hook";
 import { ScreenLayout } from "./layout";
 
 export const LogoutEndScreen: React.FunctionComponent = () => {
   // states
-  const {closed, close} = useClose(false);
+  const { closed, close } = useClose(false);
+  const { interaction } = useServerState();
+  const { user } = interaction.data;
 
   // render
   return (
     <ScreenLayout
       title={`Signed out`}
+      subtitle={user ? user.email : undefined}
       buttons={[
         {
           primary: false,
           text: "Close",
           onClick: close,
           loading: closed,
-          tabIndex: 1,
+          tabIndex: 21,
         },
       ]}
       error={closed ? "Please close the window manually." : undefined}
     >
       <Text>
-        All you sessions have been closed successfully.
+        {user ? "All your sessions are still alive." : "All your sessions have been destroyed."}
       </Text>
     </ScreenLayout>
   );

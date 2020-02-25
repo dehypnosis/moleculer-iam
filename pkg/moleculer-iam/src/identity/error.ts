@@ -4,6 +4,9 @@ import { ValidationError as ValidationErrorEntry } from "../validator";
 // tslint:disable:max-classes-per-file
 
 class IdentityProviderError extends OIDCErrors.OIDCProviderError {
+  constructor(status: number, message: string) {
+    super(status, message);
+  }
 }
 
 class IdentityAlreadyExistsError extends IdentityProviderError {

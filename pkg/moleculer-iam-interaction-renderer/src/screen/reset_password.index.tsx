@@ -38,13 +38,13 @@ export const ResetPasswordIndexScreen: React.FunctionComponent = () => {
           text: "Send",
           onClick: handleSend,
           loading,
-          tabIndex: 2,
+          tabIndex: 31,
         },
         {
           text: "Cancel",
           onClick: handleCancel,
           loading,
-          tabIndex: 3,
+          tabIndex: 32,
         },
       ]}
       error={errors.global}

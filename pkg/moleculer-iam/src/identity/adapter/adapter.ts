@@ -85,7 +85,7 @@ export abstract class IDPAdapter {
   }
 
   public async create(args: { metadata: Partial<IdentityMetadata>, scope: string[], claims: OIDCAccountClaims, credentials: Partial<OIDCAccountCredentials> }, transaction?: Transaction): Promise<string> {
-    const {metadata, claims, credentials, scope = []} = args || {};
+    const {metadata = {}, claims = {} as OIDCAccountClaims, credentials = {}, scope = []} = args || {};
 
     if (claims && !claims.sub) {
       claims.sub = uuid.v4();

@@ -44,39 +44,37 @@ class IAMServer {
             app.use(props.oidc.routes);
         }
     }
-    start() {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            if (this.working) {
-                return;
-            }
-            // start op
-            yield this.props.oidc.start();
-            // start servers
-            const config = this.options;
-            const handler = this.app.callback();
-            if (config.http2s) {
-                const _a = config.http2s, { hostname, port = 443 } = _a, opts = tslib_1.__rest(_a, ["hostname", "port"]);
-                this.http2s = http2.createSecureServer(opts, handler);
-                this.http2s.listen(port, hostname, undefined, this.listenCallback("http2", "https", hostname, port));
-            }
-            if (config.http2) {
-                const _b = config.http2, { hostname, port = 8080 } = _b, opts = tslib_1.__rest(_b, ["hostname", "port"]);
-                this.http2 = http2.createServer(opts, handler);
-                this.http2.listen(port, hostname, undefined, this.listenCallback("http2", "http", hostname, port));
-            }
-            if (config.https) {
-                const _c = config.https, { hostname, port = 443 } = _c, opts = tslib_1.__rest(_c, ["hostname", "port"]);
-                this.https = https.createServer(opts, handler);
-                this.https.listen(port, hostname, undefined, this.listenCallback("https", "https", hostname, port));
-            }
-            if (config.http || !this.https && !this.http2 && !this.http2s) {
-                const _d = config.http || { hostname: "localhost" }, { hostname, port = 8080 } = _d, opts = tslib_1.__rest(_d, ["hostname", "port"]);
-                this.http = http.createServer(opts, handler);
-                this.http.listen(port, hostname, undefined, this.listenCallback("http", "http", hostname, port));
-            }
-            this.working = true;
-            this.logger.info(`IAM server has been started`);
-        });
+    async start() {
+        if (this.working) {
+            return;
+        }
+        // start op
+        await this.props.oidc.start();
+        // start servers
+        const config = this.options;
+        const handler = this.app.callback();
+        if (config.http2s) {
+            const { hostname, port = 443, ...opts } = config.http2s;
+            this.http2s = http2.createSecureServer(opts, handler);
+            this.http2s.listen(port, hostname, undefined, this.listenCallback("http2", "https", hostname, port));
+        }
+        if (config.http2) {
+            const { hostname, port = 8080, ...opts } = config.http2;
+            this.http2 = http2.createServer(opts, handler);
+            this.http2.listen(port, hostname, undefined, this.listenCallback("http2", "http", hostname, port));
+        }
+        if (config.https) {
+            const { hostname, port = 443, ...opts } = config.https;
+            this.https = https.createServer(opts, handler);
+            this.https.listen(port, hostname, undefined, this.listenCallback("https", "https", hostname, port));
+        }
+        if (config.http || !this.https && !this.http2 && !this.http2s) {
+            const { hostname, port = 8080, ...opts } = config.http || { hostname: "localhost" };
+            this.http = http.createServer(opts, handler);
+            this.http.listen(port, hostname, undefined, this.listenCallback("http", "http", hostname, port));
+        }
+        this.working = true;
+        this.logger.info(`IAM server has been started`);
     }
     listenCallback(protocol, scheme, hostname, port) {
         const oidc = this.props.oidc;
@@ -86,28 +84,26 @@ class IAMServer {
             this.logger.info(`${kleur.blue(protocol.toUpperCase() + " server")} is listening:\n* OIDC discovery endpoint: ${discoveryURL}\n* OIDC issuer: ${issuerURL}`);
         };
     }
-    stop() {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            if (!this.working) {
-                return;
-            }
-            if (this.http) {
-                this.http.close(() => this.logger.info(`http server has been stopped`));
-            }
-            if (this.https) {
-                this.https.close(() => this.logger.info(`https server has been stopped`));
-            }
-            if (this.http2) {
-                this.http2.close(() => this.logger.info(`http2 server has been stopped`));
-            }
-            if (this.http2s) {
-                this.http2s.close(() => this.logger.info(`http2s server has been stopped`));
-            }
-            // stop op
-            yield this.props.oidc.stop();
-            this.working = false;
-            this.logger.info(`IAM server has been stopped`);
-        });
+    async stop() {
+        if (!this.working) {
+            return;
+        }
+        if (this.http) {
+            this.http.close(() => this.logger.info(`http server has been stopped`));
+        }
+        if (this.https) {
+            this.https.close(() => this.logger.info(`https server has been stopped`));
+        }
+        if (this.http2) {
+            this.http2.close(() => this.logger.info(`http2 server has been stopped`));
+        }
+        if (this.http2s) {
+            this.http2s.close(() => this.logger.info(`http2s server has been stopped`));
+        }
+        // stop op
+        await this.props.oidc.stop();
+        this.working = false;
+        this.logger.info(`IAM server has been stopped`);
     }
 }
 exports.IAMServer = IAMServer;

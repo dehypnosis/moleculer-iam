@@ -32,13 +32,13 @@ export const FindEmailIndexScreen: React.FunctionComponent = () => {
           text: "Continue",
           onClick: handleCheckPhoneNumber,
           loading,
-          tabIndex: 2,
+          tabIndex: 22,
         },
         {
           text: "Cancel",
           onClick: handleCancel,
           loading,
-          tabIndex: 3,
+          tabIndex: 23,
         },
       ]}
       error={errors.global}
@@ -52,7 +52,7 @@ export const FindEmailIndexScreen: React.FunctionComponent = () => {
         inputMode="tel"
         placeholder="Enter your mobile phone number"
         autoFocus
-        tabIndex={1}
+        tabIndex={21}
         value={phoneNumber}
         errorMessage={errors.phone_number}
         onChange={(e, v) => setPhoneNumber(v || "")}

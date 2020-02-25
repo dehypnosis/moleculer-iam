@@ -113,7 +113,7 @@ export class IdentityProvider {
     ],
   }) as (args: { email?: string, phone_number?: string }) => ValidationError[] | true;
 
-  public async find(args: WhereAttributeHash): Promise<Identity | void> {
+  public async find(args: WhereAttributeHash): Promise<Identity | undefined> {
     const where: any = args;
 
     // set softDeleted=false
@@ -126,7 +126,7 @@ export class IdentityProvider {
     if (where.claims) {
       const result = this.validateEmailOrPhoneNumber(where.claims);
       if (result !== true) {
-        throw new Errors.ValidationError(result);
+        throw new (Errors.ValidationError)(result);
       }
     }
 

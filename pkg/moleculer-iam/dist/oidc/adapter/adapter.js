@@ -37,15 +37,11 @@ class OIDCAdapter {
     /**
      * Lifecycle methods: do sort of DBMS schema migration and making connection
      */
-    start() {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            this.logger.info(`${kleur_1.default.blue(this.displayName)} oidc provider adapter has been started`);
-        });
+    async start() {
+        this.logger.info(`${kleur_1.default.blue(this.displayName)} oidc provider adapter has been started`);
     }
-    stop() {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            this.logger.info(`${kleur_1.default.blue(this.displayName)} oidc provider adapter has been stopped`);
-        });
+    async stop() {
+        this.logger.info(`${kleur_1.default.blue(this.displayName)} oidc provider adapter has been stopped`);
     }
 }
 exports.OIDCAdapter = OIDCAdapter;

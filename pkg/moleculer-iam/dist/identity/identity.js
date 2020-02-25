@@ -26,122 +26,98 @@ class Identity {
      * @param claims
      * @param rejected
      */
-    claims(use = "userinfo", scope = "", claims, rejected) {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            return this.adapter.getClaims(this.id, typeof scope === "string" ? scope.split(" ").filter(s => !!s) : scope);
-        });
+    async claims(use = "userinfo", scope = "", claims, rejected) {
+        return this.adapter.getClaims(this.id, typeof scope === "string" ? scope.split(" ").filter(s => !!s) : scope);
     }
-    updateClaims(claims, scope = "", transaction) {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            yield this.adapter.createOrUpdateClaimsWithValidation(this.id, claims, typeof scope === "string" ? scope.split(" ").filter(s => !!s) : scope, false, transaction);
-        });
+    async updateClaims(claims, scope = "", transaction) {
+        await this.adapter.createOrUpdateClaimsWithValidation(this.id, claims, typeof scope === "string" ? scope.split(" ").filter(s => !!s) : scope, false, transaction);
     }
-    deleteClaims(scope = "", transaction) {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            // check mandatory scopes
-            const scopes = (typeof scope === "string" ? scope.split(" ").filter(s => !!s) : scope);
-            const mandatoryScopes = this.props.provider.claims.mandatoryScopes;
-            if (scopes.some(s => mandatoryScopes.includes(s))) {
-                throw new error_1.Errors.BadRequestError(`cannot delete mandatory scopes: ${mandatoryScopes}`);
-            }
-            yield this.adapter.deleteClaims(this.id, scopes, transaction);
-        });
+    async deleteClaims(scope = "", transaction) {
+        // check mandatory scopes
+        const scopes = (typeof scope === "string" ? scope.split(" ").filter(s => !!s) : scope);
+        const mandatoryScopes = this.props.provider.claims.mandatoryScopes;
+        if (scopes.some(s => mandatoryScopes.includes(s))) {
+            throw new error_1.Errors.BadRequestError(`cannot delete mandatory scopes: ${mandatoryScopes}`);
+        }
+        await this.adapter.deleteClaims(this.id, scopes, transaction);
     }
     /* identity metadata (federation information, etc. not-versioned) */
-    metadata() {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            const metadata = yield this.adapter.getMetadata(this.id);
-            if (!metadata)
-                throw new error_1.Errors.UnexpectedError(`empty metadata: ${this.id}`);
-            return metadata;
-        });
+    async metadata() {
+        const metadata = await this.adapter.getMetadata(this.id);
+        if (!metadata)
+            throw new error_1.Errors.UnexpectedError(`empty metadata: ${this.id}`);
+        return metadata;
     }
-    updateMetadata(metadata, transaction) {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            yield this.adapter.createOrUpdateMetadata(this.id, _.defaultsDeep(metadata, metadata_1.defaultIdentityMetadata), transaction);
-        });
+    async updateMetadata(metadata, transaction) {
+        await this.adapter.createOrUpdateMetadata(this.id, _.defaultsDeep(metadata, metadata_1.defaultIdentityMetadata), transaction);
     }
     /* credentials */
-    assertCredentials(credentials) {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            return this.adapter.assertCredentials(this.id, credentials);
-        });
+    async assertCredentials(credentials) {
+        return this.adapter.assertCredentials(this.id, credentials);
     }
-    updateCredentials(credentials, transaction) {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            return this.adapter.createOrUpdateCredentialsWithValidation(this.id, credentials, transaction);
-        });
+    async updateCredentials(credentials, transaction) {
+        return this.adapter.createOrUpdateCredentialsWithValidation(this.id, credentials, transaction);
     }
     /* update all */
-    update(scope = "", claims, metadata, credentials, transaction) {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            // validate claims and credentials
-            if (typeof scope === "string") {
-                scope = scope.split(" ").filter(s => !!s);
+    async update(scope = "", claims, metadata, credentials, transaction) {
+        // validate claims and credentials
+        if (typeof scope === "string") {
+            scope = scope.split(" ").filter(s => !!s);
+        }
+        else {
+            scope = [];
+        }
+        // save metadata, claims, credentials
+        let isolated = false;
+        if (!transaction) {
+            transaction = transaction = await this.adapter.transaction();
+            isolated = true;
+        }
+        try {
+            if (typeof claims === "object" && claims !== null && Object.keys(claims).length > 0) {
+                await this.updateClaims(claims, scope, transaction);
             }
-            else {
-                scope = [];
+            if (typeof credentials === "object" && credentials !== null && Object.keys(credentials).length > 0) {
+                await this.updateCredentials(credentials, transaction);
             }
-            // save metadata, claims, credentials
-            let isolated = false;
-            if (!transaction) {
-                transaction = transaction = yield this.adapter.transaction();
-                isolated = true;
+            if (typeof metadata === "object" && metadata !== null && Object.keys(metadata).length > 0) {
+                await this.updateMetadata(metadata, transaction);
             }
-            try {
-                if (typeof claims === "object" && claims !== null && Object.keys(claims).length > 0) {
-                    yield this.updateClaims(claims, scope, transaction);
-                }
-                if (typeof credentials === "object" && credentials !== null && Object.keys(credentials).length > 0) {
-                    yield this.updateCredentials(credentials, transaction);
-                }
-                if (typeof metadata === "object" && metadata !== null && Object.keys(metadata).length > 0) {
-                    yield this.updateMetadata(metadata, transaction);
-                }
-                if (isolated) {
-                    yield transaction.commit();
-                }
+            if (isolated) {
+                await transaction.commit();
             }
-            catch (err) {
-                if (isolated) {
-                    yield transaction.rollback();
-                }
-                throw err;
+        }
+        catch (err) {
+            if (isolated) {
+                await transaction.rollback();
             }
-            return;
-        });
+            throw err;
+        }
+        return;
     }
     /* fetch all */
-    json(scope = "") {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            const [claims, metadata] = yield Promise.all([this.claims(undefined, scope), this.metadata()]);
-            return {
-                id: this.id,
-                claims,
-                metadata,
-            };
-        });
+    async json(scope = "") {
+        const [claims, metadata] = await Promise.all([this.claims(undefined, scope), this.metadata()]);
+        return {
+            id: this.id,
+            claims,
+            metadata,
+        };
     }
     /* delete identity */
-    delete(permanently = false, transaction) {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            if (permanently) {
-                yield this.adapter.delete(this.id, transaction);
-            }
-            else {
-                yield this.adapter.createOrUpdateMetadata(this.id, { softDeleted: true }, transaction);
-            }
-        });
+    async delete(permanently = false, transaction) {
+        if (permanently) {
+            await this.adapter.delete(this.id, transaction);
+        }
+        else {
+            await this.adapter.createOrUpdateMetadata(this.id, { softDeleted: true }, transaction);
+        }
     }
-    isSoftDeleted() {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            return this.metadata().then(meta => meta.softDeleted);
-        });
+    async isSoftDeleted() {
+        return this.metadata().then(meta => meta.softDeleted);
     }
-    restoreSoftDeleted(transaction) {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            yield this.adapter.createOrUpdateMetadata(this.id, { softDeleted: false }, transaction);
-        });
+    async restoreSoftDeleted(transaction) {
+        await this.adapter.createOrUpdateMetadata(this.id, { softDeleted: false }, transaction);
     }
 }
 exports.Identity = Identity;

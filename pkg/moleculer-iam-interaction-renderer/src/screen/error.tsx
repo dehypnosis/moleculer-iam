@@ -4,7 +4,7 @@ import { useServerState, useClose } from "../hook";
 
 export const ErrorScreen: React.FunctionComponent = () => {
   const state = useServerState();
-  const error = state.error || { error: "unexpected_error", error_description: "unrecognized state received from server" };
+  const error = state.error || { error: "unexpected_server_error", error_description: "unrecognized state received from server" };
   const {closed, close} = useClose();
   return (
     <ScreenLayout
@@ -21,6 +21,17 @@ export const ErrorScreen: React.FunctionComponent = () => {
         },
       ]}
     />
+  );
+};
+
+export const ClientErrorScreen: React.FunctionComponent<{ error: any, info: any }> = (props) => {
+  return (
+    <ScreenLayout
+      title={"Unexpected Client Error"}
+      subtitle={props.error.name}
+    >
+      <pre style={{fontSize: "0.8em", color: "gray", wordBreak: "break-all", whiteSpace: "pre-wrap"}}>{props.error.message}</pre>
+    </ScreenLayout>
   );
 };
 

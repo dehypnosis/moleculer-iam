@@ -3,6 +3,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const provider_1 = require("../oidc/provider");
 // tslint:disable:max-classes-per-file
 class IdentityProviderError extends provider_1.OIDCErrors.OIDCProviderError {
+    constructor(status, message) {
+        super(status, message);
+    }
 }
 class IdentityAlreadyExistsError extends IdentityProviderError {
     constructor() {

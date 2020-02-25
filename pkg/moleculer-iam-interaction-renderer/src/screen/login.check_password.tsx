@@ -1,32 +1,35 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ScreenLayout } from "./layout";
 import { Link, TextField, TextFieldStyles } from "../styles";
-import { useWithLoading } from "../hook";
+import { useGlobalState, useServerState, useWithLoading } from "../hook";
 import { useNavigation, useRoute } from "@react-navigation/native";
 
-export const LoginCredentialsScreen: React.FunctionComponent = () => {
+export const LoginCheckPasswordScreen: React.FunctionComponent = () => {
   const nav = useNavigation();
-  const { email = "", name = "" } = (useRoute() as any).params || {};
+  const { globalState } = useGlobalState();
+  const { email = "unknown", name = "unknown" } = globalState.user || {};
   const { loading, errors, setErrors, withLoading } = useWithLoading();
   const [password, setPassword] = useState("");
 
+  const { request } = useServerState();
   const handleCheckLoginPassword = withLoading(async () => {
-    // TODO
-  }, [password]);
+    return request("login.check_password", { email, password })
+      .catch((err: any) => setErrors(err));
+  }, [email, password]);
 
   const handleResetPassword = withLoading(() => nav.navigate("reset_password", {
     screen: "reset_password.index",
     params: {
       email,
     }
-  }), [nav, email]);
+  }), [email]);
 
   const handleCancel = withLoading(() => nav.navigate("login", {
-      screen: "login.index",
-      params: {
-        email,
-      },
-    }), [nav, email]);
+    screen: "login.index",
+    params: {
+      email,
+    },
+  }), [email]);
 
   // render
   return (
@@ -39,12 +42,12 @@ export const LoginCredentialsScreen: React.FunctionComponent = () => {
           text: "Sign in",
           onClick: handleCheckLoginPassword,
           loading,
-          tabIndex: 2,
+          tabIndex: 22,
         },
         {
           text: "Cancel",
           onClick: handleCancel,
-          tabIndex: 3,
+          tabIndex: 23,
         },
       ]}
       error={errors.global}
@@ -59,7 +62,7 @@ export const LoginCredentialsScreen: React.FunctionComponent = () => {
           inputMode="text"
           placeholder="Enter your password"
           autoFocus
-          tabIndex={1}
+          tabIndex={21}
           value={password}
           errorMessage={errors.password}
           onChange={(e, v) => setPassword(v || "")}
@@ -67,7 +70,7 @@ export const LoginCredentialsScreen: React.FunctionComponent = () => {
           styles={TextFieldStyles.bold}
         />
       </form>
-      <Link tabIndex={4} onClick={handleResetPassword} variant="small" style={{marginTop: "10px"}}>Forgot password?</Link>
+      <Link tabIndex={24} onClick={handleResetPassword} variant="small" style={{marginTop: "10px"}}>Forgot password?</Link>
     </ScreenLayout>
   );
 };

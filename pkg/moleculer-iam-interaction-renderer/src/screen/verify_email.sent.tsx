@@ -40,7 +40,7 @@ export const VerifyEmailSentScreen: React.FunctionComponent = () => {
           text: "Done",
           onClick: handleDone,
           loading,
-          tabIndex: 2,
+          tabIndex: 21,
         },
       ]}
       error={errors.global}

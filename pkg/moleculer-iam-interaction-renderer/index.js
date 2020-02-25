@@ -24,8 +24,15 @@ function render(props, dev) {
   if (dev) {
     views = loadViews();
   }
+  let state;
+  try {
+    state = JSON.stringify(props);
+  } catch (error) {
+    console.error("failed to stringify server state", props, error);
+    state = JSON.stringify({ error: { error: error.name, error_description: error.message }});
+  }
   return props
-    ? views.header + `<script>window.__SERVER_STATE__=${JSON.stringify(props)};</script>` + views.footer
+    ? views.header + `<script>window.__SERVER_STATE__=${state};</script>` + views.footer
     : views.html;
 }
 

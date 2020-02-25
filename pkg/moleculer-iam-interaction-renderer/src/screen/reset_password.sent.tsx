@@ -30,7 +30,7 @@ export const ResetPasswordSentScreen: React.FunctionComponent = () => {
           text: "Done",
           onClick: handleDone,
           loading,
-          tabIndex: 1,
+          tabIndex: 41,
         },
       ]}
       error={errors.global}

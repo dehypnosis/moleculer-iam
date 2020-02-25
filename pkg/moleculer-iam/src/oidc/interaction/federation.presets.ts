@@ -29,7 +29,7 @@ export const defaultIdentityFederationManagerOptions: IdentityFederationManagerO
     clientID: "",
     clientSecret: "",
     scope: "profile account_email", // not a oidc provider, phone is not supported
-    callback: async (args) => {
+    callback: async (args: any) => {
       const {accessToken, idp, profile} = args;
       const upsertScopes = [...idp.claims.mandatoryScopes];
       const kakao = {id: profile.id};
@@ -88,7 +88,7 @@ export const defaultIdentityFederationManagerOptions: IdentityFederationManagerO
     scope: "public_profile email", // not a oidc provider, phone is not supported (seems only for the whatsapp platform apps)
     profileFields: ["id", "name", "displayName", "photos", "email"],
     enableProof: true,
-    callback: async (args) => {
+    callback: async (args: any) => {
       const {accessToken, idp, profile} = args;
       const upsertScopes = [...idp.claims.mandatoryScopes];
       const facebook = {id: profile.id};
@@ -144,7 +144,7 @@ export const defaultIdentityFederationManagerOptions: IdentityFederationManagerO
     // approval_prompt: "auto",
     prompt: "select_account",
     scope: "openid profile email", // add https://www.googleapis.com/auth/user.phonenumbers.read to get phone number with user confirmation
-    callback: async (args) => {
+    callback: async (args: any) => {
       const {accessToken, idp, profile} = args;
       const upsertScopes = [...idp.claims.mandatoryScopes];
       const claims: OIDCAccountClaims = (profile as any)._json;
@@ -182,7 +182,7 @@ export const defaultIdentityFederationManagerOptions: IdentityFederationManagerO
         }
 
         // if phone scope is requested
-        if (args.scope.some(s => s.includes("phone"))) {
+        if (args.scope.some((s: string[]) => s.includes("phone"))) {
           const oldClaims = await identity.claims("userinfo", "phone");
           if (oldClaims.phone_number) {
             // already have phone claims

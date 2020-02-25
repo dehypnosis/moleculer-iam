@@ -34,6 +34,18 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.App = void 0;
 
+var _extends2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/extends */ "../../node_modules/@babel/runtime/helpers/esm/extends.js"));
+
+var _classCallCheck2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/classCallCheck */ "../../node_modules/@babel/runtime/helpers/esm/classCallCheck.js"));
+
+var _createClass2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/createClass */ "../../node_modules/@babel/runtime/helpers/esm/createClass.js"));
+
+var _possibleConstructorReturn2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/possibleConstructorReturn */ "../../node_modules/@babel/runtime/helpers/esm/possibleConstructorReturn.js"));
+
+var _getPrototypeOf3 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/getPrototypeOf */ "../../node_modules/@babel/runtime/helpers/esm/getPrototypeOf.js"));
+
+var _inherits2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/inherits */ "../../node_modules/@babel/runtime/helpers/esm/inherits.js"));
+
 var _regenerator = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/regenerator */ "../../node_modules/@babel/runtime/regenerator/index.js"));
 
 var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/slicedToArray */ "../../node_modules/@babel/runtime/helpers/esm/slicedToArray.js"));
@@ -46,9 +58,11 @@ var _navigator = __webpack_require__(/*! ./navigator */ "./src/navigator.tsx");
 
 var _hook = __webpack_require__(/*! ./hook */ "./src/hook.ts");
 
+var _error = __webpack_require__(/*! ./screen/error */ "./src/screen/error.tsx");
+
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-interaction-renderer/src/app.tsx";
 
-var App = function App() {
+var InnerApp = function InnerApp() {
   var ref = (0, _react.useRef)();
   var serverState = (0, _hook.useServerState)();
 
@@ -62,10 +76,11 @@ var App = function App() {
         var route = state.routes[0];
 
         if (serverState.error) {
+          route.name = "error";
           console.error("serverState.error", serverState);
         }
 
-        if (serverState.interaction && !route.name.startsWith(serverState.interaction.name)) {
+        if (serverState.interaction && route.name !== serverState.interaction.name) {
           console.warn("serverState.interaction differs from matched route", serverState.interaction, route);
         }
       }
@@ -80,7 +95,7 @@ var App = function App() {
       loading = _useState2[0],
       setLoading = _useState2[1];
 
-  var _useState3 = (0, _react.useState)(),
+  var _useState3 = (0, _react.useState)({}),
       _useState4 = (0, _slicedToArray2.default)(_useState3, 2),
       initialState = _useState4[0],
       setInitialState = _useState4[1];
@@ -131,19 +146,76 @@ var App = function App() {
     ref: ref,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 51
+      lineNumber: 52
     },
     __self: this
   }, _react.default.createElement(_navigator.Navigator, {
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 55
+      lineNumber: 56
     },
     __self: this
   }));
 };
 
+var App = function (_React$Component) {
+  (0, _inherits2.default)(App, _React$Component);
+
+  function App() {
+    var _getPrototypeOf2;
+
+    var _this;
+
+    (0, _classCallCheck2.default)(this, App);
+
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    _this = (0, _possibleConstructorReturn2.default)(this, (_getPrototypeOf2 = (0, _getPrototypeOf3.default)(App)).call.apply(_getPrototypeOf2, [this].concat(args)));
+    _this.state = {
+      error: null,
+      info: null
+    };
+    return _this;
+  }
+
+  (0, _createClass2.default)(App, [{
+    key: "componentDidCatch",
+    value: function componentDidCatch(error, info) {
+      this.setState({
+        error: error,
+        info: info
+      });
+      console.error(error, info);
+    }
+  }, {
+    key: "render",
+    value: function render() {
+      if (this.state.error) {
+        return _react.default.createElement(_error.ClientErrorScreen, (0, _extends2.default)({}, this.state, {
+          __source: {
+            fileName: _jsxFileName,
+            lineNumber: 72
+          },
+          __self: this
+        }));
+      }
+
+      return _react.default.createElement(InnerApp, {
+        __source: {
+          fileName: _jsxFileName,
+          lineNumber: 75
+        },
+        __self: this
+      });
+    }
+  }]);
+  return App;
+}(_react.default.Component);
+
 exports.App = App;
+;
 
 /***/ }),
 
@@ -162,6 +234,11 @@ Object.defineProperty(exports, "__esModule", {
 exports.useWithLoading = useWithLoading;
 exports.useServerState = useServerState;
 exports.useClose = useClose;
+exports.useGlobalState = void 0;
+
+var _extends2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/extends */ "../../node_modules/@babel/runtime/helpers/esm/extends.js"));
+
+var _objectSpread2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/objectSpread2 */ "../../node_modules/@babel/runtime/helpers/esm/objectSpread2.js"));
 
 var _toConsumableArray2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/toConsumableArray */ "../../node_modules/@babel/runtime/helpers/esm/toConsumableArray.js"));
 
@@ -267,8 +344,138 @@ var __EMPTY_SERVER_STATE__ = {
 };
 
 function useServerState() {
-  return window.__SERVER_STATE__ || __EMPTY_SERVER_STATE__;
+  var state = window.__SERVER_STATE__ || __EMPTY_SERVER_STATE__;
+
+  state.request = function _callee2(name) {
+    var userPayload,
+        actions,
+        action,
+        url,
+        _action$urlencoded,
+        urlencoded,
+        method,
+        payload,
+        mergedPayload,
+        form,
+        k,
+        input,
+        err,
+        _args2 = arguments;
+
+    return _regenerator.default.async(function _callee2$(_context2) {
+      while (1) {
+        switch (_context2.prev = _context2.next) {
+          case 0:
+            userPayload = _args2.length > 1 && _args2[1] !== undefined ? _args2[1] : {};
+            actions = state.interaction && state.interaction.actions;
+            action = actions && actions[name];
+
+            if (!action) {
+              _context2.next = 18;
+              break;
+            }
+
+            url = action.url, _action$urlencoded = action.urlencoded, urlencoded = _action$urlencoded === void 0 ? false : _action$urlencoded, method = action.method, payload = action.payload;
+            mergedPayload = (0, _objectSpread2.default)({}, payload, {}, userPayload);
+
+            if (!urlencoded) {
+              _context2.next = 15;
+              break;
+            }
+
+            form = document.createElement("form");
+            form.action = url;
+            form.method = method;
+            form.style.display = "none";
+
+            for (k in mergedPayload) {
+              input = document.createElement("input");
+              input.type = "hidden";
+              input.name = k;
+              input.value = mergedPayload[k];
+              form.appendChild(input);
+            }
+
+            document.body.appendChild(form);
+            form.submit();
+            return _context2.abrupt("return", new Promise(function () {}));
+
+          case 15:
+            return _context2.abrupt("return", fetch(action.url, {
+              headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json;charset=UTF-8"
+              },
+              credentials: "same-origin",
+              method: method,
+              body: method !== "GET" ? JSON.stringify(mergedPayload) : undefined
+            }).then(function (res) {
+              return res.json().then(function (data) {
+                if (data.error) {
+                  if (res.status === 422 && data.fields) {
+                    var err = data.fields.reduce(function (err, item) {
+                      err[item.field] = err[item.field] || item.message;
+                      return err;
+                    }, {});
+                    console.error(err, state);
+                    throw err;
+                  } else {
+                    var _err = {
+                      global: typeof data === "object" ? data.error_description || data.error || JSON.stringify(data) : data.toString()
+                    };
+                    console.error(_err, state);
+                    throw _err;
+                  }
+                } else if (data.redirect) {
+                  window.location.assign(data.redirect);
+                  return new Promise(function () {});
+                } else {
+                  return data;
+                }
+              });
+            }, function (err) {
+              console.error(err, state);
+              throw err;
+            }));
+
+          case 18:
+            err = {
+              global: "Cannot call unsupported action."
+            };
+            console.error(err, state);
+            throw err;
+
+          case 21:
+          case "end":
+            return _context2.stop();
+        }
+      }
+    });
+  };
+
+  return state;
 }
+
+var clientState = {};
+
+var setClientState = function setClientState(reducer) {
+  if (typeof reducer === "function") {
+    (0, _extends2.default)(clientState, reducer(clientState));
+  } else {
+    (0, _extends2.default)(clientState, reducer);
+  }
+};
+
+var globalStateContext = (0, _react.createContext)({
+  globalState: clientState,
+  setGlobalState: setClientState
+});
+
+var useGlobalState = function useGlobalState() {
+  return (0, _react.useContext)(globalStateContext);
+};
+
+exports.useGlobalState = useGlobalState;
 
 function useClose() {
   var tryGoBack = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
@@ -399,7 +606,7 @@ var _error = __webpack_require__(/*! ./screen/error */ "./src/screen/error.tsx")
 
 var _login = __webpack_require__(/*! ./screen/login.index */ "./src/screen/login.index.tsx");
 
-var _login2 = __webpack_require__(/*! ./screen/login.credentials */ "./src/screen/login.credentials.tsx");
+var _login2 = __webpack_require__(/*! ./screen/login.check_password */ "./src/screen/login.check_password.tsx");
 
 var _consent = __webpack_require__(/*! ./screen/consent */ "./src/screen/consent.tsx");
 
@@ -439,14 +646,13 @@ var _verify_email3 = __webpack_require__(/*! ./screen/verify_email.end */ "./src
 
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-interaction-renderer/src/navigator.tsx";
 var routeConfig = {
-  "consent": "interaction/consent",
   "login": {
     screens: {
-      "login.credentials": "interaction/login/credentials",
-      "login.index": "interaction/login",
-      "login.consent": "interaction/consent"
+      "login.check_password": "interaction/login/check_password",
+      "login.index": "interaction/login"
     }
   },
+  "consent": "interaction/consent",
   "logout": {
     screens: {
       "logout.end": "oidc/session/end/success",
@@ -505,7 +711,7 @@ var LoginStackScreen = function LoginStackScreen() {
     screenOptions: screenOptions,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 108
+      lineNumber: 107
     },
     __self: this
   }, _react.default.createElement(LoginStack.Screen, {
@@ -513,15 +719,15 @@ var LoginStackScreen = function LoginStackScreen() {
     component: _login.LoginIndexScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 111
+      lineNumber: 110
     },
     __self: this
   }), _react.default.createElement(LoginStack.Screen, {
-    name: "login.credentials",
-    component: _login2.LoginCredentialsScreen,
+    name: "login.check_password",
+    component: _login2.LoginCheckPasswordScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 115
+      lineNumber: 114
     },
     __self: this
   }));
@@ -534,7 +740,7 @@ var LogoutStackScreen = function LogoutStackScreen() {
     screenOptions: screenOptions,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 124
+      lineNumber: 123
     },
     __self: this
   }, _react.default.createElement(LogoutStack.Screen, {
@@ -542,7 +748,7 @@ var LogoutStackScreen = function LogoutStackScreen() {
     component: _logout.LogoutIndexScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 127
+      lineNumber: 126
     },
     __self: this
   }), _react.default.createElement(LogoutStack.Screen, {
@@ -550,7 +756,7 @@ var LogoutStackScreen = function LogoutStackScreen() {
     component: _logout2.LogoutEndScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 131
+      lineNumber: 130
     },
     __self: this
   }));
@@ -563,7 +769,7 @@ var FindEmailStackScreen = function FindEmailStackScreen() {
     screenOptions: screenOptions,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 140
+      lineNumber: 139
     },
     __self: this
   }, _react.default.createElement(FindEmailStack.Screen, {
@@ -571,7 +777,7 @@ var FindEmailStackScreen = function FindEmailStackScreen() {
     component: _find_email.FindEmailIndexScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 143
+      lineNumber: 142
     },
     __self: this
   }), _react.default.createElement(FindEmailStack.Screen, {
@@ -579,7 +785,7 @@ var FindEmailStackScreen = function FindEmailStackScreen() {
     component: _find_email2.FindEmailSentScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 147
+      lineNumber: 146
     },
     __self: this
   }));
@@ -592,7 +798,7 @@ var ResetPasswordStackScreen = function ResetPasswordStackScreen() {
     screenOptions: screenOptions,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 156
+      lineNumber: 155
     },
     __self: this
   }, _react.default.createElement(ResetPasswordStack.Screen, {
@@ -600,7 +806,7 @@ var ResetPasswordStackScreen = function ResetPasswordStackScreen() {
     component: _reset_password.ResetPasswordIndexScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 159
+      lineNumber: 158
     },
     __self: this
   }), _react.default.createElement(ResetPasswordStack.Screen, {
@@ -608,7 +814,7 @@ var ResetPasswordStackScreen = function ResetPasswordStackScreen() {
     component: _reset_password2.ResetPasswordSentScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 163
+      lineNumber: 162
     },
     __self: this
   }), _react.default.createElement(ResetPasswordStack.Screen, {
@@ -616,7 +822,7 @@ var ResetPasswordStackScreen = function ResetPasswordStackScreen() {
     component: _reset_password3.ResetPasswordSetScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 167
+      lineNumber: 166
     },
     __self: this
   }), _react.default.createElement(ResetPasswordStack.Screen, {
@@ -624,7 +830,7 @@ var ResetPasswordStackScreen = function ResetPasswordStackScreen() {
     component: _reset_password4.ResetPasswordEndScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 171
+      lineNumber: 170
     },
     __self: this
   }));
@@ -637,7 +843,7 @@ var RegisterStackScreen = function RegisterStackScreen() {
     screenOptions: screenOptions,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 180
+      lineNumber: 179
     },
     __self: this
   }, _react.default.createElement(RegisterStack.Screen, {
@@ -645,7 +851,7 @@ var RegisterStackScreen = function RegisterStackScreen() {
     component: _register.RegisterIndexScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 183
+      lineNumber: 182
     },
     __self: this
   }), _react.default.createElement(RegisterStack.Screen, {
@@ -653,7 +859,7 @@ var RegisterStackScreen = function RegisterStackScreen() {
     component: _register2.RegisterDetailScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 187
+      lineNumber: 186
     },
     __self: this
   }), _react.default.createElement(RegisterStack.Screen, {
@@ -661,7 +867,7 @@ var RegisterStackScreen = function RegisterStackScreen() {
     component: _register3.RegisterEndScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 191
+      lineNumber: 190
     },
     __self: this
   }));
@@ -674,7 +880,7 @@ var VerifyPhoneStackScreen = function VerifyPhoneStackScreen() {
     screenOptions: screenOptions,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 200
+      lineNumber: 199
     },
     __self: this
   }, _react.default.createElement(VerifyPhoneStack.Screen, {
@@ -682,7 +888,7 @@ var VerifyPhoneStackScreen = function VerifyPhoneStackScreen() {
     component: _verify_phone.VerifyPhoneIndexScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 203
+      lineNumber: 202
     },
     __self: this
   }), _react.default.createElement(VerifyPhoneStack.Screen, {
@@ -690,7 +896,7 @@ var VerifyPhoneStackScreen = function VerifyPhoneStackScreen() {
     component: _verify_phone2.VerifyPhoneSentScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 207
+      lineNumber: 206
     },
     __self: this
   }), _react.default.createElement(VerifyPhoneStack.Screen, {
@@ -698,7 +904,7 @@ var VerifyPhoneStackScreen = function VerifyPhoneStackScreen() {
     component: _verify_phone3.VerifyPhoneEndScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 211
+      lineNumber: 210
     },
     __self: this
   }));
@@ -711,7 +917,7 @@ var VerifyEmailStackScreen = function VerifyEmailStackScreen() {
     screenOptions: screenOptions,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 220
+      lineNumber: 219
     },
     __self: this
   }, _react.default.createElement(VerifyEmailStack.Screen, {
@@ -719,7 +925,7 @@ var VerifyEmailStackScreen = function VerifyEmailStackScreen() {
     component: _verify_email.VerifyEmailIndexScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 223
+      lineNumber: 222
     },
     __self: this
   }), _react.default.createElement(VerifyEmailStack.Screen, {
@@ -727,7 +933,7 @@ var VerifyEmailStackScreen = function VerifyEmailStackScreen() {
     component: _verify_email2.VerifyEmailSentScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 227
+      lineNumber: 226
     },
     __self: this
   }), _react.default.createElement(VerifyEmailStack.Screen, {
@@ -735,7 +941,7 @@ var VerifyEmailStackScreen = function VerifyEmailStackScreen() {
     component: _verify_email3.VerifyEmailEndScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 231
+      lineNumber: 230
     },
     __self: this
   }));
@@ -746,7 +952,7 @@ var Navigator = function Navigator() {
     screenOptions: screenOptions,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 240
+      lineNumber: 239
     },
     __self: this
   }, _react.default.createElement(RootStack.Screen, {
@@ -754,7 +960,7 @@ var Navigator = function Navigator() {
     component: _error.ErrorScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 243
+      lineNumber: 242
     },
     __self: this
   }), _react.default.createElement(RootStack.Screen, {
@@ -762,7 +968,7 @@ var Navigator = function Navigator() {
     component: _consent.ConsentScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 247
+      lineNumber: 246
     },
     __self: this
   }), _react.default.createElement(RootStack.Screen, {
@@ -770,7 +976,7 @@ var Navigator = function Navigator() {
     component: LoginStackScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 251
+      lineNumber: 250
     },
     __self: this
   }), _react.default.createElement(RootStack.Screen, {
@@ -778,7 +984,7 @@ var Navigator = function Navigator() {
     component: FindEmailStackScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 255
+      lineNumber: 254
     },
     __self: this
   }), _react.default.createElement(RootStack.Screen, {
@@ -786,7 +992,7 @@ var Navigator = function Navigator() {
     component: ResetPasswordStackScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 259
+      lineNumber: 258
     },
     __self: this
   }), _react.default.createElement(RootStack.Screen, {
@@ -794,7 +1000,7 @@ var Navigator = function Navigator() {
     component: RegisterStackScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 263
+      lineNumber: 262
     },
     __self: this
   }), _react.default.createElement(RootStack.Screen, {
@@ -802,7 +1008,7 @@ var Navigator = function Navigator() {
     component: LogoutStackScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 267
+      lineNumber: 266
     },
     __self: this
   }), _react.default.createElement(RootStack.Screen, {
@@ -810,7 +1016,7 @@ var Navigator = function Navigator() {
     component: VerifyPhoneStackScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 271
+      lineNumber: 270
     },
     __self: this
   }), _react.default.createElement(RootStack.Screen, {
@@ -818,7 +1024,7 @@ var Navigator = function Navigator() {
     component: VerifyEmailStackScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 275
+      lineNumber: 274
     },
     __self: this
   }));
@@ -842,8 +1048,6 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.ConsentScreen = void 0;
 
-var _regenerator = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/regenerator */ "../../node_modules/@babel/runtime/regenerator/index.js"));
-
 var _react = _interopRequireDefault(__webpack_require__(/*! react */ "../../node_modules/react/index.js"));
 
 var _styles = __webpack_require__(/*! ../styles */ "./src/styles.ts");
@@ -864,54 +1068,37 @@ var ConsentScreen = function ConsentScreen() {
       setErrors = _useWithLoading.setErrors;
 
   var nav = (0, _native.useNavigation)();
-  var handleAccept = withLoading(function _callee() {
-    return _regenerator.default.async(function _callee$(_context) {
-      while (1) {
-        switch (_context.prev = _context.next) {
-          case 0:
-          case "end":
-            return _context.stop();
-        }
-      }
+
+  var _useServerState = (0, _hook.useServerState)(),
+      interaction = _useServerState.interaction,
+      request = _useServerState.request;
+
+  var handleAccept = withLoading(function () {
+    return request("consent.accept").catch(function (err) {
+      return setErrors(err);
     });
-  }, []);
+  });
   var handleChangeAccount = withLoading(function () {
     return nav.navigate("login", {
       screen: "login.index",
       params: {}
     });
-  }, [nav]);
-  var _client$consent$user = {
-    client: {
-      name: "test",
-      homepage_uri: "http://google.com",
-      policy_uri: "http://google.com",
-      tos_uri: "http://google.com"
-    },
-    consent: {
-      scopes: {
-        new: ["new1", "new2"],
-        accepted: "accepted1"
-      }
-    },
-    user: {
-      name: "Dong Wook",
-      email: "todo@todo.com",
-      picture_uri: "https://yt3.ggpht.com/a-/AAuE7mA79aIT8nkc3dm0_QdYZbZKEJBV69I1AqXZWlFKog=s88-c-k-c0xffffffff-no-rj-mo"
-    }
-  },
-      client = _client$consent$user.client,
-      consent = _client$consent$user.consent,
-      user = _client$consent$user.user;
+  });
+
+  var _ref = interaction.data || {},
+      user = _ref.user,
+      client = _ref.client,
+      consent = _ref.consent;
+
   return _react.default.createElement(_layout.ScreenLayout, {
     title: _react.default.createElement("span", {
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 46
+        lineNumber: 31
       },
       __self: this
     }, "Sign in to ", _react.default.createElement(_styles.Link, {
-      href: client.homepage_uri,
+      href: client.client_uri,
       target: "_blank",
       style: {
         color: _styles.ThemeStyles.palette.orange
@@ -919,7 +1106,7 @@ var ConsentScreen = function ConsentScreen() {
       variant: "xxLarge",
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 46
+        lineNumber: 31
       },
       __self: this
     }, client.name)),
@@ -939,15 +1126,15 @@ var ConsentScreen = function ConsentScreen() {
     footer: _react.default.createElement(_styles.Text, {
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 70
+        lineNumber: 55
       },
       __self: this
     }, "To continue, you need to offer ", consent.scopes.new.concat(consent.scopes.accepted).join(", "), " information. Before consent this application, you could review the ", _react.default.createElement(_styles.Link, {
-      href: client.homepage_uri,
+      href: client.client_uri,
       target: "_blank",
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 72
+        lineNumber: 57
       },
       __self: this
     }, client.name), "'s ", _react.default.createElement(_styles.Link, {
@@ -955,7 +1142,7 @@ var ConsentScreen = function ConsentScreen() {
       target: "_blank",
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 72
+        lineNumber: 57
       },
       __self: this
     }, "privacy policy"), " and ", _react.default.createElement(_styles.Link, {
@@ -963,14 +1150,14 @@ var ConsentScreen = function ConsentScreen() {
       target: "_blank",
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 72
+        lineNumber: 57
       },
       __self: this
     }, "terms of service"), "."),
     error: errors.global,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 45
+      lineNumber: 30
     },
     __self: this
   }, _react.default.createElement(_styles.Persona, {
@@ -980,7 +1167,7 @@ var ConsentScreen = function ConsentScreen() {
     imageUrl: user.picture_uri,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 78
+      lineNumber: 63
     },
     __self: this
   }));
@@ -1002,7 +1189,7 @@ var _interopRequireDefault = __webpack_require__(/*! /Users/dehypnosis/Synced/qm
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.ErrorScreen = void 0;
+exports.ClientErrorScreen = exports.ErrorScreen = void 0;
 
 var _react = _interopRequireDefault(__webpack_require__(/*! react */ "../../node_modules/react/index.js"));
 
@@ -1015,7 +1202,7 @@ var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-ia
 var ErrorScreen = function ErrorScreen() {
   var state = (0, _hook.useServerState)();
   var error = state.error || {
-    error: "unexpected_error",
+    error: "unexpected_server_error",
     error_description: "unrecognized state received from server"
   };
 
@@ -1045,6 +1232,32 @@ var ErrorScreen = function ErrorScreen() {
 };
 
 exports.ErrorScreen = ErrorScreen;
+
+var ClientErrorScreen = function ClientErrorScreen(props) {
+  return _react.default.createElement(_layout.ScreenLayout, {
+    title: "Unexpected Client Error",
+    subtitle: props.error.name,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 29
+    },
+    __self: this
+  }, _react.default.createElement("pre", {
+    style: {
+      fontSize: "0.8em",
+      color: "gray",
+      wordBreak: "break-all",
+      whiteSpace: "pre-wrap"
+    },
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 33
+    },
+    __self: this
+  }, props.error.message));
+};
+
+exports.ClientErrorScreen = ClientErrorScreen;
 
 /***/ }),
 
@@ -1114,12 +1327,12 @@ var FindEmailIndexScreen = function FindEmailIndexScreen() {
       text: "Continue",
       onClick: handleCheckPhoneNumber,
       loading: loading,
-      tabIndex: 2
+      tabIndex: 22
     }, {
       text: "Cancel",
       onClick: handleCancel,
       loading: loading,
-      tabIndex: 3
+      tabIndex: 23
     }],
     error: errors.global,
     __source: {
@@ -1139,7 +1352,7 @@ var FindEmailIndexScreen = function FindEmailIndexScreen() {
     inputMode: "tel",
     placeholder: "Enter your mobile phone number",
     autoFocus: true,
-    tabIndex: 1,
+    tabIndex: 21,
     value: phoneNumber,
     errorMessage: errors.phone_number,
     onChange: function onChange(e, v) {
@@ -1216,7 +1429,7 @@ var FindEmailSentScreen = function FindEmailSentScreen() {
       text: "Done",
       onClick: handleDone,
       loading: loading,
-      tabIndex: 1
+      tabIndex: 31
     }],
     error: errors.global,
     __source: {
@@ -1385,7 +1598,7 @@ var ScreenLayout = function ScreenLayout(props) {
     styles: {
       root: _styles.AnimationStyles.slideDownIn20
     },
-    children: error,
+    children: typeof error === "string" ? error : JSON.stringify(error || "Unknown Error."),
     __source: {
       fileName: _jsxFileName,
       lineNumber: 49
@@ -1421,10 +1634,10 @@ exports.ScreenLayout = ScreenLayout;
 
 /***/ }),
 
-/***/ "./src/screen/login.credentials.tsx":
-/*!******************************************!*\
-  !*** ./src/screen/login.credentials.tsx ***!
-  \******************************************/
+/***/ "./src/screen/login.check_password.tsx":
+/*!*********************************************!*\
+  !*** ./src/screen/login.check_password.tsx ***!
+  \*********************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -1435,7 +1648,7 @@ var _interopRequireWildcard = __webpack_require__(/*! /Users/dehypnosis/Synced/q
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.LoginCredentialsScreen = void 0;
+exports.LoginCheckPasswordScreen = void 0;
 
 var _regenerator = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/regenerator */ "../../node_modules/@babel/runtime/regenerator/index.js"));
 
@@ -1451,16 +1664,19 @@ var _hook = __webpack_require__(/*! ../hook */ "./src/hook.ts");
 
 var _native = __webpack_require__(/*! @react-navigation/native */ "../../node_modules/@react-navigation/native/lib/module/index.js");
 
-var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-interaction-renderer/src/screen/login.credentials.tsx";
+var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-interaction-renderer/src/screen/login.check_password.tsx";
 
-var LoginCredentialsScreen = function LoginCredentialsScreen() {
+var LoginCheckPasswordScreen = function LoginCheckPasswordScreen() {
   var nav = (0, _native.useNavigation)();
 
-  var _ref = (0, _native.useRoute)().params || {},
+  var _useGlobalState = (0, _hook.useGlobalState)(),
+      globalState = _useGlobalState.globalState;
+
+  var _ref = globalState.user || {},
       _ref$email = _ref.email,
-      email = _ref$email === void 0 ? "" : _ref$email,
+      email = _ref$email === void 0 ? "unknown" : _ref$email,
       _ref$name = _ref.name,
-      name = _ref$name === void 0 ? "" : _ref$name;
+      name = _ref$name === void 0 ? "unknown" : _ref$name;
 
   var _useWithLoading = (0, _hook.useWithLoading)(),
       loading = _useWithLoading.loading,
@@ -1473,17 +1689,28 @@ var LoginCredentialsScreen = function LoginCredentialsScreen() {
       password = _useState2[0],
       setPassword = _useState2[1];
 
+  var _useServerState = (0, _hook.useServerState)(),
+      request = _useServerState.request;
+
   var handleCheckLoginPassword = withLoading(function _callee() {
     return _regenerator.default.async(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
+            return _context.abrupt("return", request("login.check_password", {
+              email: email,
+              password: password
+            }).catch(function (err) {
+              return setErrors(err);
+            }));
+
+          case 1:
           case "end":
             return _context.stop();
         }
       }
     });
-  }, [password]);
+  }, [email, password]);
   var handleResetPassword = withLoading(function () {
     return nav.navigate("reset_password", {
       screen: "reset_password.index",
@@ -1491,7 +1718,7 @@ var LoginCredentialsScreen = function LoginCredentialsScreen() {
         email: email
       }
     });
-  }, [nav, email]);
+  }, [email]);
   var handleCancel = withLoading(function () {
     return nav.navigate("login", {
       screen: "login.index",
@@ -1499,7 +1726,7 @@ var LoginCredentialsScreen = function LoginCredentialsScreen() {
         email: email
       }
     });
-  }, [nav, email]);
+  }, [email]);
   return _react.default.createElement(_layout.ScreenLayout, {
     title: "Hi, " + name,
     subtitle: email,
@@ -1508,16 +1735,16 @@ var LoginCredentialsScreen = function LoginCredentialsScreen() {
       text: "Sign in",
       onClick: handleCheckLoginPassword,
       loading: loading,
-      tabIndex: 2
+      tabIndex: 22
     }, {
       text: "Cancel",
       onClick: handleCancel,
-      tabIndex: 3
+      tabIndex: 23
     }],
     error: errors.global,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 33
+      lineNumber: 36
     },
     __self: this
   }, _react.default.createElement("form", {
@@ -1527,7 +1754,7 @@ var LoginCredentialsScreen = function LoginCredentialsScreen() {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 52
+      lineNumber: 55
     },
     __self: this
   }, _react.default.createElement("input", {
@@ -1540,7 +1767,7 @@ var LoginCredentialsScreen = function LoginCredentialsScreen() {
     readOnly: true,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 53
+      lineNumber: 56
     },
     __self: this
   }), _react.default.createElement(_styles.TextField, {
@@ -1551,7 +1778,7 @@ var LoginCredentialsScreen = function LoginCredentialsScreen() {
     inputMode: "text",
     placeholder: "Enter your password",
     autoFocus: true,
-    tabIndex: 1,
+    tabIndex: 21,
     value: password,
     errorMessage: errors.password,
     onChange: function onChange(e, v) {
@@ -1563,11 +1790,11 @@ var LoginCredentialsScreen = function LoginCredentialsScreen() {
     styles: _styles.TextFieldStyles.bold,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 54
+      lineNumber: 57
     },
     __self: this
   })), _react.default.createElement(_styles.Link, {
-    tabIndex: 4,
+    tabIndex: 24,
     onClick: handleResetPassword,
     variant: "small",
     style: {
@@ -1575,13 +1802,13 @@ var LoginCredentialsScreen = function LoginCredentialsScreen() {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 70
+      lineNumber: 73
     },
     __self: this
   }, "Forgot password?"));
 };
 
-exports.LoginCredentialsScreen = LoginCredentialsScreen;
+exports.LoginCheckPasswordScreen = LoginCheckPasswordScreen;
 
 /***/ }),
 
@@ -1600,6 +1827,8 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.LoginIndexScreen = void 0;
+
+var _objectSpread2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/objectSpread2 */ "../../node_modules/@babel/runtime/helpers/esm/objectSpread2.js"));
 
 var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/slicedToArray */ "../../node_modules/@babel/runtime/helpers/esm/slicedToArray.js"));
 
@@ -1636,27 +1865,48 @@ var LoginIndexScreen = function LoginIndexScreen() {
       federationOptionsVisible = _useState4[0],
       setFederationOptionsVisible = _useState4[1];
 
+  var _useServerState = (0, _hook.useServerState)(),
+      request = _useServerState.request;
+
+  var _useGlobalState = (0, _hook.useGlobalState)(),
+      setGlobalState = _useGlobalState.setGlobalState;
+
   var handleCheckLoginEmail = withLoading(function () {
-    nav.navigate("login", {
-      screen: "login.credentials",
-      params: {
-        email: email || "todo@todo.com",
-        name: "Dong Wook"
-      }
+    return request("login.check_email", {
+      email: email
+    }).then(function (data) {
+      var user = data.user;
+      setGlobalState(function (s) {
+        return (0, _objectSpread2.default)({}, s, {
+          user: user
+        });
+      });
+      nav.navigate("login", {
+        screen: "login.check_password",
+        params: {
+          email: email
+        }
+      });
+    }).catch(function (err) {
+      return setErrors(err);
     });
-  }, [email, nav]);
+  }, [email]);
+  (0, _react.useEffect)(function () {
+    if (email) {
+      console.debug("automatically continue with", email);
+      handleCheckLoginEmail();
+    }
+  }, []);
   var handleFindEmail = withLoading(function () {
     return nav.navigate("find_email", {
-      screen: "find_email.index",
-      params: {}
+      screen: "find_email.index"
     });
-  }, [nav]);
+  });
   var handleSignUp = withLoading(function () {
     return nav.navigate("register", {
-      screen: "register.index",
-      params: {}
+      screen: "register.index"
     });
-  }, [nav]);
+  });
   var handleFederation = withLoading(function (provider) {
     alert(provider);
   });
@@ -1676,17 +1926,17 @@ var LoginIndexScreen = function LoginIndexScreen() {
       text: "Continue",
       onClick: handleCheckLoginEmail,
       loading: loading,
-      tabIndex: 2
+      tabIndex: 12
     }, {
       text: "Sign up",
       onClick: handleSignUp,
       loading: loading,
-      tabIndex: 3
+      tabIndex: 13
     }],
     footer: federationProviders.length > 0 ? _react.default.createElement(_react.default.Fragment, null, _react.default.createElement(_styles.Separator, {
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 66
+        lineNumber: 83
       },
       __self: this
     }, _react.default.createElement("span", {
@@ -1695,7 +1945,7 @@ var LoginIndexScreen = function LoginIndexScreen() {
       },
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 66
+        lineNumber: 83
       },
       __self: this
     }, "OR")), federationOptionsVisible ? _react.default.createElement(_styles.Stack, {
@@ -1704,7 +1954,7 @@ var LoginIndexScreen = function LoginIndexScreen() {
       },
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 68
+        lineNumber: 85
       },
       __self: this
     }, federationProviders.includes("kakao") ? _react.default.createElement(_styles.PrimaryButton, {
@@ -1721,7 +1971,7 @@ var LoginIndexScreen = function LoginIndexScreen() {
       },
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 70
+        lineNumber: 87
       },
       __self: this
     }) : null, federationProviders.includes("facebook") ? _react.default.createElement(_styles.PrimaryButton, {
@@ -1737,7 +1987,7 @@ var LoginIndexScreen = function LoginIndexScreen() {
       },
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 78
+        lineNumber: 95
       },
       __self: this
     }) : null, federationProviders.includes("google") ? _react.default.createElement(_styles.DefaultButton, {
@@ -1754,7 +2004,7 @@ var LoginIndexScreen = function LoginIndexScreen() {
       },
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 86
+        lineNumber: 103
       },
       __self: this
     }) : null) : _react.default.createElement(_styles.Link, {
@@ -1766,13 +2016,13 @@ var LoginIndexScreen = function LoginIndexScreen() {
       },
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 102
+        lineNumber: 119
       },
       __self: this
     }, "Find more login options?")) : undefined,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 44
+      lineNumber: 61
     },
     __self: this
   }, _react.default.createElement("form", {
@@ -1782,7 +2032,7 @@ var LoginIndexScreen = function LoginIndexScreen() {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 108
+      lineNumber: 125
     },
     __self: this
   }, _react.default.createElement(_styles.TextField, {
@@ -1795,7 +2045,7 @@ var LoginIndexScreen = function LoginIndexScreen() {
     autoCorrect: "off",
     autoFocus: true,
     placeholder: "Enter your email",
-    tabIndex: 1,
+    tabIndex: 11,
     value: email,
     errorMessage: errors.email,
     onChange: function onChange(e, v) {
@@ -1807,19 +2057,19 @@ var LoginIndexScreen = function LoginIndexScreen() {
     styles: _styles.TextFieldStyles.bold,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 109
+      lineNumber: 126
     },
     __self: this
   })), _react.default.createElement(_styles.Link, {
     onClick: handleFindEmail,
-    tabIndex: 5,
+    tabIndex: 14,
     variant: "small",
     style: {
       marginTop: "10px"
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 127
+      lineNumber: 144
     },
     __self: this
   }, "Forgot email?"));
@@ -1858,28 +2108,33 @@ var LogoutEndScreen = function LogoutEndScreen() {
       closed = _useClose.closed,
       close = _useClose.close;
 
+  var _useServerState = (0, _hook.useServerState)(),
+      interaction = _useServerState.interaction;
+
+  var user = interaction.data.user;
   return _react.default.createElement(_layout.ScreenLayout, {
     title: "Signed out",
+    subtitle: user ? user.email : undefined,
     buttons: [{
       primary: false,
       text: "Close",
       onClick: close,
       loading: closed,
-      tabIndex: 1
+      tabIndex: 21
     }],
     error: closed ? "Please close the window manually." : undefined,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 12
+      lineNumber: 14
     },
     __self: this
   }, _react.default.createElement(_styles.Text, {
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 25
+      lineNumber: 28
     },
     __self: this
-  }, "All you sessions have been closed successfully."));
+  }, user ? "All your sessions are still alive." : "All your sessions have been destroyed."));
 };
 
 exports.LogoutEndScreen = LogoutEndScreen;
@@ -1900,8 +2155,6 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.LogoutIndexScreen = void 0;
 
-var _regenerator = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/regenerator */ "../../node_modules/@babel/runtime/regenerator/index.js"));
-
 var _react = _interopRequireDefault(__webpack_require__(/*! react */ "../../node_modules/react/index.js"));
 
 var _styles = __webpack_require__(/*! ../styles */ "./src/styles.ts");
@@ -1909,8 +2162,6 @@ var _styles = __webpack_require__(/*! ../styles */ "./src/styles.ts");
 var _hook = __webpack_require__(/*! ../hook */ "./src/hook.ts");
 
 var _layout = __webpack_require__(/*! ./layout */ "./src/screen/layout.tsx");
-
-var _native = __webpack_require__(/*! @react-navigation/native */ "../../node_modules/@react-navigation/native/lib/module/index.js");
 
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-interaction-renderer/src/screen/logout.index.tsx";
 
@@ -1921,63 +2172,72 @@ var LogoutIndexScreen = function LogoutIndexScreen() {
       errors = _useWithLoading.errors,
       setErrors = _useWithLoading.setErrors;
 
-  var nav = (0, _native.useNavigation)();
-  var handleSignOutAll = withLoading(function _callee() {
-    return _regenerator.default.async(function _callee$(_context) {
-      while (1) {
-        switch (_context.prev = _context.next) {
-          case 0:
-            nav.navigate("logout", {
-              screen: "logout.end",
-              params: {}
-            });
+  var _useServerState = (0, _hook.useServerState)(),
+      request = _useServerState.request,
+      interaction = _useServerState.interaction;
 
-          case 1:
-          case "end":
-            return _context.stop();
-        }
-      }
+  var _interaction$data = interaction.data,
+      user = _interaction$data.user,
+      client = _interaction$data.client;
+  var handleSignOutAll = withLoading(function () {
+    return request("logout.confirm").catch(function (err) {
+      return setErrors(err);
     });
-  }, []);
-
-  var _useClose = (0, _hook.useClose)(false),
-      closed = _useClose.closed,
-      close = _useClose.close;
-
-  var _client = {
-    client: {
-      name: "test"
-    }
-  },
-      client = _client.client;
+  });
+  var handleJustRedirect = withLoading(function () {
+    return request("logout.redirect").catch(function (err) {
+      return setErrors(err);
+    });
+  });
   return _react.default.createElement(_layout.ScreenLayout, {
-    title: "Signed out",
-    subtitle: "Do you want to close all the other sessions?",
+    title: client ? "Signed out" : "Sign out",
+    subtitle: user.email,
     buttons: [{
       primary: true,
-      text: "Sign out all",
-      onClick: handleSignOutAll,
-      loading: loading
+      text: "Done",
+      onClick: handleJustRedirect,
+      loading: loading,
+      tabIndex: 1
     }, {
       primary: false,
-      text: "Close",
-      onClick: close,
-      loading: closed,
-      tabIndex: 1
+      text: "Sign out all",
+      onClick: handleSignOutAll,
+      loading: loading,
+      tabIndex: 2
     }],
-    error: errors.global || (closed ? "Please close the window manually." : undefined),
+    error: errors.global,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 25
+      lineNumber: 23
     },
     __self: this
   }, _react.default.createElement(_styles.Text, {
     __source: {
       fileName: _jsxFileName,
+      lineNumber: 44
+    },
+    __self: this
+  }, client ? _react.default.createElement("span", {
+    __source: {
+      fileName: _jsxFileName,
       lineNumber: 45
     },
     __self: this
-  }, "You has been signed out from ", client.name, "."));
+  }, "Signed out from ", _react.default.createElement(_styles.Link, {
+    href: client.client_uri,
+    target: "_blank",
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 45
+    },
+    __self: this
+  }, client.name), " successfully.", _react.default.createElement("br", {
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 45
+    },
+    __self: this
+  })) : null, "Do you want to destroy all the sessions?"));
 };
 
 exports.LogoutIndexScreen = LogoutIndexScreen;
@@ -2085,12 +2345,12 @@ var RegisterDetailScreen = function RegisterDetailScreen() {
       text: "Continue",
       onClick: handlePayloadSubmit,
       loading: loading,
-      tabIndex: 3
+      tabIndex: 64
     }, {
       text: "Cancel",
       onClick: handleCancel,
       loading: loading,
-      tabIndex: 4
+      tabIndex: 65
     }],
     error: errors.global,
     __source: {
@@ -2129,7 +2389,7 @@ var RegisterDetailScreen = function RegisterDetailScreen() {
     inputMode: "tel",
     placeholder: "Enter your mobile phone number",
     autoFocus: true,
-    tabIndex: 1,
+    tabIndex: 61,
     value: payload.phone_number,
     errorMessage: errors.phone_number,
     onChange: function onChange(e, v) {
@@ -2151,7 +2411,7 @@ var RegisterDetailScreen = function RegisterDetailScreen() {
   }), _react.default.createElement(_styles.DatePicker, {
     label: "Birthdate",
     placeholder: "Select your birthdate",
-    tabIndex: 2,
+    tabIndex: 62,
     allowTextInput: true,
     value: payload.birthdate ? (0, _moment.default)(payload.birthdate, "YYYY-MM-DD").toDate() : undefined,
     onSelectDate: function onSelectDate(date) {
@@ -2199,6 +2459,7 @@ var RegisterDetailScreen = function RegisterDetailScreen() {
       });
     },
     placeholder: "Select your gender",
+    tabIndex: 63,
     options: [{
       key: "male",
       text: "Male"
@@ -2292,7 +2553,15 @@ var RegisterEndScreen = function RegisterEndScreen() {
       lineNumber: 43
     },
     __self: this
-  }, "Congratulations! The account has been registered. This email account can be used to sign in to multiple services. So don't forget it please. \uD83D\uDE42"));
+  }, "Congratulations! The account has been registered. This email account can be used to sign in to multiple services. So don't forget it please. ", _react.default.createElement("span", {
+    role: "img",
+    "aria-label": "smile",
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 43
+    },
+    __self: this
+  }, "\uD83D\uDE42")));
 };
 
 exports.RegisterEndScreen = RegisterEndScreen;
@@ -2392,12 +2661,12 @@ var RegisterIndexScreen = function RegisterIndexScreen() {
       text: "Continue",
       onClick: handlePayloadSubmit,
       loading: loading,
-      tabIndex: 5
+      tabIndex: 55
     }, {
       text: "Cancel",
       onClick: handleCancel,
       loading: loading,
-      tabIndex: 6
+      tabIndex: 56
     }],
     error: errors.global,
     footer: _react.default.createElement(_react.default.Fragment, null, _react.default.createElement(_styles.Text, {
@@ -2453,7 +2722,7 @@ var RegisterIndexScreen = function RegisterIndexScreen() {
     inputMode: "text",
     placeholder: "Enter your name",
     autoFocus: true,
-    tabIndex: 1,
+    tabIndex: 51,
     value: payload.name,
     errorMessage: errors.name,
     onChange: function onChange(e, v) {
@@ -2478,7 +2747,7 @@ var RegisterIndexScreen = function RegisterIndexScreen() {
     inputMode: "email",
     placeholder: "Enter your email",
     autoComplete: "username",
-    tabIndex: 2,
+    tabIndex: 52,
     value: payload.email,
     errorMessage: errors.email,
     onChange: function onChange(e, v) {
@@ -2512,7 +2781,7 @@ var RegisterIndexScreen = function RegisterIndexScreen() {
         return setPasswordVisible(!passwordVisible);
       }
     },
-    tabIndex: 3,
+    tabIndex: 53,
     value: payload.password,
     errorMessage: errors.password,
     onChange: function onChange(e, v) {
@@ -2537,7 +2806,7 @@ var RegisterIndexScreen = function RegisterIndexScreen() {
     inputMode: "text",
     autoComplete: "password",
     placeholder: "Confirm your password",
-    tabIndex: 4,
+    tabIndex: 54,
     value: payload.password_confirmation,
     errorMessage: errors.password_confirmation,
     onChange: function onChange(e, v) {
@@ -2615,7 +2884,7 @@ var ResetPasswordEndScreen = function ResetPasswordEndScreen() {
       text: "Done",
       onClick: handleDone,
       loading: loading,
-      tabIndex: 1
+      tabIndex: 21
     }],
     error: errors.global,
     __source: {
@@ -2712,12 +2981,12 @@ var ResetPasswordIndexScreen = function ResetPasswordIndexScreen() {
       text: "Send",
       onClick: handleSend,
       loading: loading,
-      tabIndex: 2
+      tabIndex: 31
     }, {
       text: "Cancel",
       onClick: handleCancel,
       loading: loading,
-      tabIndex: 3
+      tabIndex: 32
     }],
     error: errors.global,
     __source: {
@@ -2811,7 +3080,7 @@ var ResetPasswordSentScreen = function ResetPasswordSentScreen() {
       text: "Done",
       onClick: handleDone,
       loading: loading,
-      tabIndex: 1
+      tabIndex: 41
     }],
     error: errors.global,
     __source: {
@@ -2915,7 +3184,7 @@ var ResetPasswordSetScreen = function ResetPasswordSetScreen() {
       text: "Continue",
       onClick: handlePayloadSubmit,
       loading: loading,
-      tabIndex: 3
+      tabIndex: 43
     }],
     error: errors.global,
     __source: {
@@ -2935,7 +3204,7 @@ var ResetPasswordSetScreen = function ResetPasswordSetScreen() {
     inputMode: "text",
     placeholder: "Enter new password",
     autoFocus: true,
-    tabIndex: 1,
+    tabIndex: 41,
     value: payload.password,
     errorMessage: errors.password,
     onChange: function onChange(e, v) {
@@ -2960,7 +3229,7 @@ var ResetPasswordSetScreen = function ResetPasswordSetScreen() {
     inputMode: "text",
     autoComplete: "password",
     placeholder: "Confirm your password",
-    tabIndex: 2,
+    tabIndex: 42,
     value: payload.password_confirmation,
     errorMessage: errors.password_confirmation,
     onChange: function onChange(e, v) {
@@ -3040,7 +3309,7 @@ var VerifyEmailEndScreen = function VerifyEmailEndScreen() {
       text: "Done",
       onClick: handleDone,
       loading: loading,
-      tabIndex: 1
+      tabIndex: 31
     }],
     error: errors.global,
     __source: {
@@ -3132,12 +3401,12 @@ var VerifyEmailIndexScreen = function VerifyEmailIndexScreen() {
       text: "Send",
       onClick: handleSend,
       loading: loading,
-      tabIndex: 2
+      tabIndex: 1
     }, {
       text: "Cancel",
       onClick: handleCancel,
       loading: loading,
-      tabIndex: 3
+      tabIndex: 2
     }],
     error: errors.global,
     __source: {
@@ -3238,7 +3507,7 @@ var VerifyEmailSentScreen = function VerifyEmailSentScreen() {
       text: "Done",
       onClick: handleDone,
       loading: loading,
-      tabIndex: 2
+      tabIndex: 21
     }],
     error: errors.global,
     __source: {
@@ -3311,7 +3580,7 @@ var VerifyPhoneEndScreen = function VerifyPhoneEndScreen() {
       text: "Done",
       onClick: handleDone,
       loading: loading,
-      tabIndex: 1
+      tabIndex: 31
     }],
     error: errors.global,
     __source: {
@@ -3401,12 +3670,12 @@ var VerifyPhoneIndexScreen = function VerifyPhoneIndexScreen() {
       text: "Send",
       onClick: handleSend,
       loading: loading,
-      tabIndex: 2
+      tabIndex: 1
     }, {
       text: "Cancel",
       onClick: handleCancel,
       loading: loading,
-      tabIndex: 3
+      tabIndex: 2
     }],
     error: errors.global,
     __source: {
@@ -3550,17 +3819,17 @@ var VerifyPhoneSentScreen = function VerifyPhoneSentScreen() {
       text: "Continue",
       onClick: handleVerify,
       loading: loading,
-      tabIndex: 2
+      tabIndex: 22
     }, {
       text: "Resend",
       onClick: handleResend,
       loading: loading,
-      tabIndex: 3
+      tabIndex: 23
     }, {
       text: "Cancel",
       onClick: handleCancel,
       loading: loading,
-      tabIndex: 4
+      tabIndex: 24
     }],
     error: errors.global,
     __source: {
@@ -3580,7 +3849,7 @@ var VerifyPhoneSentScreen = function VerifyPhoneSentScreen() {
     inputMode: "tel",
     placeholder: "Enter the verification code",
     autoFocus: true,
-    tabIndex: 1,
+    tabIndex: 21,
     value: code,
     errorMessage: errors.code,
     description: Math.floor(remainingSeconds / 60).toString().padStart(2, "0") + ":" + (remainingSeconds % 60).toString().padStart(2, "0"),

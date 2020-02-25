@@ -71,6 +71,13 @@ exports.defaultOIDCProviderOptions = {
         "S256",
         "plain",
     ],
+    client: {
+        client_id: 'default',
+        client_name: 'Account Manager',
+        // skip_consent: true,
+        subject_type: 'public',
+        application_type: 'web',
+    },
     clientDefaults: {
         grant_types: ["implicit", "authorization_code", "refresh_token"],
         response_types: ["code", "id_token", "id_token token", "code id_token", "code token", "code id_token token", "none"],
@@ -86,8 +93,8 @@ exports.defaultOIDCProviderOptions = {
         claims_locales_supported: ["en-US"],
         ui_locales_supported: ["en-US"],
         display_values_supported: ["page", "popup"],
-        op_policy_uri: null,
         op_tos_uri: null,
+        op_policy_uri: null,
         service_documentation: null,
     },
 };

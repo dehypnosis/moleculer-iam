@@ -7,7 +7,7 @@ import { ErrorScreen } from "./screen/error";
 
 // login
 import { LoginIndexScreen } from "./screen/login.index";
-import { LoginCredentialsScreen } from "./screen/login.credentials";
+import { LoginCheckPasswordScreen } from "./screen/login.check_password";
 
 // consent
 import { ConsentScreen } from "./screen/consent";
@@ -43,14 +43,13 @@ import { VerifyEmailEndScreen } from "./screen/verify_email.end";
 
 
 export const routeConfig: LinkingOptions["config"] = {
-  "consent": "interaction/consent",
   "login": {
     screens: {
-      "login.credentials": "interaction/login/credentials",
+      "login.check_password": "interaction/login/check_password",
       "login.index": "interaction/login",
-      "login.consent": "interaction/consent",
     },
   },
+  "consent": "interaction/consent",
   "logout": {
     screens: {
       "logout.end": "oidc/session/end/success",
@@ -113,8 +112,8 @@ const LoginStackScreen = () => (
       component={LoginIndexScreen}
     />
     <LoginStack.Screen
-      name={"login.credentials"}
-      component={LoginCredentialsScreen}
+      name={"login.check_password"}
+      component={LoginCheckPasswordScreen}
     />
   </LoginStack.Navigator>
 );

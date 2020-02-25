@@ -1,11 +1,11 @@
-import { KoaContextWithOIDC } from "oidc-provider";
 import { RouterContext } from "koa-router";
 import compose from "koa-compose";
 import { Logger } from "../../logger";
-import { OIDCProviderDiscoveryMetadata } from "../provider";
+import { KoaContextWithOIDC, OIDCProviderDiscoveryMetadata } from "../provider";
 
 export type InteractionRendererProps = {
-  adaptor: InteractionRendererAdaptor;
+  adaptor?: InteractionRendererAdaptor;
+  logger: Logger;
   devModeEnabled: boolean;
 }
 
@@ -49,22 +49,20 @@ export class InteractionRenderer {
   };
 
   constructor(private readonly props: InteractionRendererProps) {
+    if (!props.adaptor) props.adaptor = loadDefaultInteractionRendererAdaptor(props.logger);
   }
 
   public routes(): compose.Middleware<any>[] {
-    return this.props.adaptor.routes(this.props.devModeEnabled);
+    return this.props.adaptor!.routes(this.props.devModeEnabled);
   }
 
   public async render(ctx: KoaContextWithOIDC | RouterContext, props: InteractionRenderProps = {}): Promise<void> {
     const { JSON, HTML } = InteractionRenderer.contentTypes;
-    const error = props.error;
-    const status = error && (error.status || error.statusCode) || 200;
 
     // response for ajax
     if (ctx.accepts(JSON, HTML) === JSON) {
       ctx.type = JSON;
-      ctx.status = status;
-      ctx.body = props;
+      ctx.body = props.error || props; // response error only for xhr request
       return;
     }
 
@@ -77,8 +75,7 @@ export class InteractionRenderer {
 
     // response HTML
     ctx.type = HTML;
-    ctx.status = status;
-    ctx.body = await this.props.adaptor.render(props, this.props.devModeEnabled);
+    ctx.body = await this.props.adaptor!.render(props, this.props.devModeEnabled);
   }
 }
 
@@ -109,5 +106,3 @@ function loadDefaultInteractionRendererAdaptor(logger: Logger): InteractionRende
     };
   }
 }
-
-export { loadDefaultInteractionRendererAdaptor };

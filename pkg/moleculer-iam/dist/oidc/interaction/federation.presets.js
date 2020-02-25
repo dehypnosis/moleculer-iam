@@ -16,7 +16,7 @@ exports.defaultIdentityFederationManagerOptions = {
         clientID: "",
         clientSecret: "",
         scope: "profile account_email",
-        callback: (args) => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
+        callback: async (args) => {
             const { accessToken, idp, profile } = args;
             const upsertScopes = [...idp.claims.mandatoryScopes];
             const kakao = { id: profile.id };
@@ -36,10 +36,10 @@ exports.defaultIdentityFederationManagerOptions = {
                 delete claims.picture;
             }
             // 1. find existing account
-            let identity = yield idp.find({ metadata: { federation: { kakao } } });
+            let identity = await idp.find({ metadata: { federation: { kakao } } });
             // 2. connect the identity which has same email address
             if (!identity && claims.email) {
-                identity = yield idp.find({ claims: { email: claims.email } });
+                identity = await idp.find({ claims: { email: claims.email } });
                 // if (identity) {
                 //   const oldClaims = await identity.claims("userinfo", "email");
                 //   if (!oldClaims.email_verified) {
@@ -49,11 +49,11 @@ exports.defaultIdentityFederationManagerOptions = {
             }
             // 4. update or create
             if (identity) {
-                if (yield identity.isSoftDeleted()) {
+                if (await identity.isSoftDeleted()) {
                     throw new error_1.Errors.UnexpectedError("cannot federate a deleted account");
                 }
-                yield identity.updateMetadata({ federation: { kakao } });
-                yield identity.updateClaims(claims, upsertScopes);
+                await identity.updateMetadata({ federation: { kakao } });
+                await identity.updateClaims(claims, upsertScopes);
                 return identity;
             }
             else {
@@ -64,7 +64,7 @@ exports.defaultIdentityFederationManagerOptions = {
                     scope: upsertScopes,
                 });
             }
-        }),
+        },
     },
     facebook: {
         clientID: "",
@@ -72,7 +72,7 @@ exports.defaultIdentityFederationManagerOptions = {
         scope: "public_profile email",
         profileFields: ["id", "name", "displayName", "photos", "email"],
         enableProof: true,
-        callback: (args) => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
+        callback: async (args) => {
             const { accessToken, idp, profile } = args;
             const upsertScopes = [...idp.claims.mandatoryScopes];
             const facebook = { id: profile.id };
@@ -89,10 +89,10 @@ exports.defaultIdentityFederationManagerOptions = {
                 delete claims.picture;
             }
             // 1. find existing account
-            let identity = yield idp.find({ metadata: { federation: { facebook } } });
+            let identity = await idp.find({ metadata: { federation: { facebook } } });
             // 2. connect the identity which has same email address
             if (!identity && claims.email) {
-                identity = yield idp.find({ claims: { email: claims.email } });
+                identity = await idp.find({ claims: { email: claims.email } });
                 // if (identity) {
                 //   const oldClaims = await identity.claims("userinfo", "email");
                 //   if (!oldClaims.email_verified) {
@@ -102,11 +102,11 @@ exports.defaultIdentityFederationManagerOptions = {
             }
             // 3. update or create
             if (identity) {
-                if (yield identity.isSoftDeleted()) {
+                if (await identity.isSoftDeleted()) {
                     throw new error_1.Errors.UnexpectedError("cannot federate a deleted account");
                 }
-                yield identity.updateMetadata({ federation: { facebook } });
-                yield identity.updateClaims(claims, upsertScopes);
+                await identity.updateMetadata({ federation: { facebook } });
+                await identity.updateClaims(claims, upsertScopes);
                 return identity;
             }
             else {
@@ -117,7 +117,7 @@ exports.defaultIdentityFederationManagerOptions = {
                     scope: upsertScopes,
                 });
             }
-        }),
+        },
     },
     google: {
         clientID: "",
@@ -125,7 +125,7 @@ exports.defaultIdentityFederationManagerOptions = {
         // approval_prompt: "auto",
         prompt: "select_account",
         scope: "openid profile email",
-        callback: (args) => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
+        callback: async (args) => {
             const { accessToken, idp, profile } = args;
             const upsertScopes = [...idp.claims.mandatoryScopes];
             const claims = profile._json;
@@ -142,10 +142,10 @@ exports.defaultIdentityFederationManagerOptions = {
                 delete claims.picture;
             }
             // 1. find existing account
-            let identity = yield idp.find({ metadata: { federation: { google: { id: google.id } } } });
+            let identity = await idp.find({ metadata: { federation: { google: { id: google.id } } } });
             // 2. connect the identity which has same email address
             if (!identity && claims.email) {
-                identity = yield idp.find({ claims: { email: claims.email } });
+                identity = await idp.find({ claims: { email: claims.email } });
                 // if (identity) {
                 //   const oldClaims = await identity.claims("userinfo", "email");
                 //   if (!oldClaims.email_verified) {
@@ -155,12 +155,12 @@ exports.defaultIdentityFederationManagerOptions = {
             }
             // 3. if has complete identity
             if (identity) {
-                if (yield identity.isSoftDeleted()) {
+                if (await identity.isSoftDeleted()) {
                     throw new error_1.Errors.UnexpectedError("cannot federate a deleted account");
                 }
                 // if phone scope is requested
-                if (args.scope.some(s => s.includes("phone"))) {
-                    const oldClaims = yield identity.claims("userinfo", "phone");
+                if (args.scope.some((s) => s.includes("phone"))) {
+                    const oldClaims = await identity.claims("userinfo", "phone");
                     if (oldClaims.phone_number) {
                         // already have phone claims
                         return identity;
@@ -169,7 +169,7 @@ exports.defaultIdentityFederationManagerOptions = {
             }
             // 4. get phone number if existing claim is empty but having phone scope
             try {
-                const response = yield request_promise_native_1.default.get("https://people.googleapis.com/v1/people/me?personFields=phoneNumbers", {
+                const response = await request_promise_native_1.default.get("https://people.googleapis.com/v1/people/me?personFields=phoneNumbers", {
                     json: true,
                     auth: {
                         bearer: accessToken,
@@ -199,8 +199,8 @@ exports.defaultIdentityFederationManagerOptions = {
             }
             // 5. update or create
             if (identity) {
-                yield identity.updateMetadata({ federation: { google } });
-                yield identity.updateClaims(claims, upsertScopes);
+                await identity.updateMetadata({ federation: { google } });
+                await identity.updateClaims(claims, upsertScopes);
                 return identity;
             }
             else {
@@ -211,7 +211,7 @@ exports.defaultIdentityFederationManagerOptions = {
                     scope: upsertScopes,
                 });
             }
-        }),
+        },
     },
 };
 //# sourceMappingURL=federation.presets.js.map

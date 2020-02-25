@@ -66,19 +66,19 @@ export const VerifyPhoneSentScreen: React.FunctionComponent = () => {
           text: "Continue",
           onClick: handleVerify,
           loading,
-          tabIndex: 2,
+          tabIndex: 22,
         },
         {
           text: "Resend",
           onClick: handleResend,
           loading,
-          tabIndex: 3,
+          tabIndex: 23,
         },
         {
           text: "Cancel",
           onClick: handleCancel,
           loading,
-          tabIndex: 4,
+          tabIndex: 24,
         },
       ]}
       error={errors.global}
@@ -92,7 +92,7 @@ export const VerifyPhoneSentScreen: React.FunctionComponent = () => {
         inputMode="tel"
         placeholder="Enter the verification code"
         autoFocus
-        tabIndex={1}
+        tabIndex={21}
         value={code}
         errorMessage={errors.code}
         description={`${(Math.floor(remainingSeconds / 60)).toString().padStart(2, "0")}:${(remainingSeconds % 60).toString().padStart(2, "0")}`}

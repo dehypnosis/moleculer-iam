@@ -40,7 +40,7 @@ export const RegisterEndScreen: React.FunctionComponent = () => {
       ]}
       error={errors.global}
     >
-      <Text>Congratulations! The account has been registered. This email account can be used to sign in to multiple services. So don't forget it please. 🙂</Text>
+      <Text>Congratulations! The account has been registered. This email account can be used to sign in to multiple services. So don't forget it please. <span role="img" aria-label="smile">🙂</span></Text>
     </ScreenLayout>
   );
 };

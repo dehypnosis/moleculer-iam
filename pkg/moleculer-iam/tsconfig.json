@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "target": "esnext",
     "importHelpers": true,
     "esModuleInterop": true,
     "noImplicitAny": true,
@@ -12,15 +13,11 @@
     ],
     "sourceMap": true,
     "declaration": true,
-    "allowJs": true,
     "strict": true,
     "baseUrl": "./",
     "rootDir": "./src",
     "outDir": "./dist",
-    "target": "es6",
-    "lib": [
-      "es6"
-    ]
+    "downlevelIteration": true
   },
   "include": ["src"]
 }

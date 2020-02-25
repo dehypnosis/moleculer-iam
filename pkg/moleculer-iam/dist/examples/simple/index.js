@@ -16,14 +16,32 @@ const broker = new moleculer_1.ServiceBroker({
 const serviceSchema = __1.IAMServiceSchema({
     idp: {
         adapter: {
-            type: "Memory",
+            // type: "Memory",
+            type: "RDBMS",
+            options: {
+                dialect: "mysql",
+                host: "mysql-dev.internal.qmit.pro",
+                database: "iam",
+                username: "iam",
+                password: "iam",
+                sqlLogLevel: "debug",
+            },
         },
     },
     oidc: {
         issuer: "http://localhost:9090",
         devMode: true,
         adapter: {
-            type: "Memory",
+            // type: "Memory",
+            type: "RDBMS",
+            options: {
+                dialect: "mysql",
+                host: "mysql-dev.internal.qmit.pro",
+                database: "iam",
+                username: "iam",
+                password: "iam",
+                sqlLogLevel: "debug",
+            },
         },
         // required and should be shared between processes in production
         cookies: {
@@ -31,25 +49,31 @@ const serviceSchema = __1.IAMServiceSchema({
         },
         // required and should be shared between processes in production
         jwks: require("./jwks.json"),
-        features: {
-        // devInteractions: ({ enabled: true }) as never,
+        interaction: {
+            // federation
+            federation: {
+            /*
+            kakao: {
+              clientID: "XXX",
+              clientSecret: "YYY",
+            },
+            google: {
+              clientID: "XXX",
+              clientSecret: "YYY",
+            },
+            facebook: {
+              clientID: "XXX",
+              clientSecret: "YYY",
+            },
+            */
+            },
         },
-        // federation
-        federation: {
-        /*
-        kakao: {
-          clientID: "XXX",
-          clientSecret: "YYY",
-        },
-        google: {
-          clientID: "XXX",
-          clientSecret: "YYY",
-        },
-        facebook: {
-          clientID: "XXX",
-          clientSecret: "YYY",
-        },
-        */
+        discovery: {
+            ui_locales_supported: ["en-US", "ko-KR"],
+            claims_locales_supported: ["en-US", "ko-KR"],
+            op_tos_uri: "/help/tos",
+            op_policy_uri: "/help/policy",
+            service_documentation: "/help",
         },
     },
     server: {

@@ -22,27 +22,25 @@ class OIDC_RDBMS_Adapter extends adapter_1.OIDCAdapter {
         }, options);
     }
     /* define and migrate model schema */
-    start() {
-        const _super = Object.create(null, {
-            start: { get: () => super.start }
-        });
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            // await this.manager.rollback({ to: 0 }); // uncomment this line to develop migrations scripts
-            yield this.manager.migrate();
-            yield _super.start.call(this);
-        });
+    async start() {
+        // await this.manager.rollback({ to: 0 }); // uncomment this line to develop migrations scripts
+        await this.manager.migrate();
+        await super.start();
     }
-    stop() {
-        const _super = Object.create(null, {
-            stop: { get: () => super.stop }
-        });
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            yield this.manager.dispose();
-            yield _super.stop.call(this);
-        });
+    async stop() {
+        await this.manager.dispose();
+        await super.stop();
     }
     createModel(name) {
-        const model = this.manager.define(name, Object.assign(Object.assign(Object.assign(Object.assign({ id: { type: STRING, primaryKey: true } }, (model_1.OIDCGrantModelNames.includes(name) ? { grantId: { type: STRING } } : undefined)), (name === "DeviceCode" ? { userCode: { type: STRING } } : undefined)), (name === "Session" ? { uid: { type: STRING } } : undefined)), { data: { type: JSON }, expiresAt: { type: DATE }, consumedAt: { type: DATE } }), {
+        const model = this.manager.define(name, {
+            id: { type: STRING, primaryKey: true },
+            ...(model_1.OIDCGrantModelNames.includes(name) ? { grantId: { type: STRING } } : undefined),
+            ...(name === "DeviceCode" ? { userCode: { type: STRING } } : undefined),
+            ...(name === "Session" ? { uid: { type: STRING } } : undefined),
+            data: { type: JSON },
+            expiresAt: { type: DATE },
+            consumedAt: { type: DATE },
+        }, {
             freezeTableName: true,
             timestamps: true,
             paranoid: false,

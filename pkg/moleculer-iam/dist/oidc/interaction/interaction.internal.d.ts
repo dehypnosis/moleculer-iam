@@ -5,7 +5,7 @@ import { InteractionRenderer } from "./interaction.render";
 export declare type InternalInteractionConfigurationFactoryProps = {
     idp: IdentityProvider;
     logger: Logger;
-    render: InteractionRenderer;
+    renderer: InteractionRenderer;
 };
 export declare type InternalInteractionConfigurationKeys = "renderError" | "logoutSource" | "postLogoutSuccessSource";
 export declare type InternalInteractionDeviceFlowConfigurationKeys = "userCodeInputSource" | "userCodeConfirmSource" | "successSource";

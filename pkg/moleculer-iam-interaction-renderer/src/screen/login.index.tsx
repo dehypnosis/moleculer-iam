@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { ScreenLayout } from "./layout";
 import { PrimaryButton, DefaultButton, Link, TextField, TextFieldStyles, ButtonStyles, Separator, Stack, ThemeStyles } from "../styles";
-import { useWithLoading } from "../hook";
+import { useGlobalState, useServerState, useWithLoading } from "../hook";
 
 export const LoginIndexScreen: React.FunctionComponent = () => {
   const nav = useNavigation();
@@ -10,25 +10,42 @@ export const LoginIndexScreen: React.FunctionComponent = () => {
   const [email, setEmail] = useState(((useRoute() as any).params || {}).email || "");
   const federationProviders = ["google", "kakao", "facebook"];
   const [federationOptionsVisible, setFederationOptionsVisible] = useState(false);
+  const { request } = useServerState();
+  const { setGlobalState } = useGlobalState();
 
   const handleCheckLoginEmail = withLoading(() => {
-    // TODO: submit
-    nav.navigate("login", {
-      screen: "login.credentials",
-      params: {
-        email: email || "todo@todo.com",
-        name: "Dong Wook",
-      },
-    });
-  }, [email, nav]);
+    return request("login.check_email", { email })
+      .then((data: any) => {
+        const { user } = data;
+        setGlobalState((s: any) => ({...s, user}));
+        nav.navigate("login", {
+          screen: "login.check_password",
+          params: {
+            email,
+          },
+        });
+      })
+      .catch((err: any) => setErrors(err));
+  }, [email]);
+
+  useEffect(() => {
+      if (email) {
+        console.debug("automatically continue with", email);
+        handleCheckLoginEmail();
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  [],
+);
+
   const handleFindEmail = withLoading(() => nav.navigate("find_email", {
     screen: "find_email.index",
-    params: {},
-  }), [nav]);
+  }));
+
   const handleSignUp = withLoading(() => nav.navigate("register", {
     screen: "register.index",
-    params: {},
-  }), [nav]);
+  }));
+
   const handleFederation = withLoading((provider: string) => {
     // TODO: federate provider
     alert(provider);
@@ -51,13 +68,13 @@ export const LoginIndexScreen: React.FunctionComponent = () => {
           text: "Continue",
           onClick: handleCheckLoginEmail,
           loading,
-          tabIndex: 2,
+          tabIndex: 12,
         },
         {
           text: "Sign up",
           onClick: handleSignUp,
           loading,
-          tabIndex: 3,
+          tabIndex: 13,
         },
       ]}
       footer={
@@ -116,7 +133,7 @@ export const LoginIndexScreen: React.FunctionComponent = () => {
           autoCorrect="off"
           autoFocus
           placeholder="Enter your email"
-          tabIndex={1}
+          tabIndex={11}
           value={email}
           errorMessage={errors.email}
           onChange={(e, v) => setEmail(v || "")}
@@ -124,7 +141,7 @@ export const LoginIndexScreen: React.FunctionComponent = () => {
           styles={TextFieldStyles.bold}
         />
       </form>
-      <Link onClick={handleFindEmail} tabIndex={5} variant="small" style={{marginTop: "10px"}}>Forgot email?</Link>
+      <Link onClick={handleFindEmail} tabIndex={14} variant="small" style={{marginTop: "10px"}}>Forgot email?</Link>
     </ScreenLayout>
   );
 };

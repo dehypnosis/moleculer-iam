@@ -27,7 +27,7 @@ export declare class IdentityProvider {
         email?: string | undefined;
         phone_number?: string | undefined;
     }) => true | ValidationError[];
-    find(args: WhereAttributeHash): Promise<Identity | void>;
+    find(args: WhereAttributeHash): Promise<Identity | undefined>;
     findOrFail(args: WhereAttributeHash): Promise<Identity>;
     count(args?: WhereAttributeHash): Promise<number>;
     get(args?: FindOptions): Promise<Identity[]>;

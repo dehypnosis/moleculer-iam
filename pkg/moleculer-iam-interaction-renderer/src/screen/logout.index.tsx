@@ -1,49 +1,49 @@
 import React from "react";
-import { Text } from "../styles";
-import { useClose, useWithLoading } from "../hook";
+import { Text, Link } from "../styles";
+import { useClose, useServerState, useWithLoading } from "../hook";
 import { ScreenLayout } from "./layout";
-import { useNavigation } from "@react-navigation/native";
 
 export const LogoutIndexScreen: React.FunctionComponent = () => {
   // states
   const { loading, withLoading, errors, setErrors } = useWithLoading();
-  const nav = useNavigation();
-  const handleSignOutAll = withLoading(async () => {
-    // TODO..
-    nav.navigate("logout", {
-      screen: "logout.end",
-      params: {},
-    });
-  }, []);
-  const {closed, close} = useClose(false);
+  const { request, interaction } = useServerState();
+  const { user, client } = interaction.data;
 
-  // TODO
-  const { client } = { client: { name: "test" }};
+  const handleSignOutAll = withLoading(() => {
+    return request("logout.confirm")
+      .catch((err: any) => setErrors(err));
+  });
+  const handleJustRedirect = withLoading(() => {
+    return request("logout.redirect")
+      .catch((err: any) => setErrors(err));
+  });
 
   // render
   return (
     <ScreenLayout
-      title={`Signed out`}
-      subtitle={`Do you want to close all the other sessions?`}
+      title={client ? `Signed out` : `Sign out`}
+      subtitle={user.email}
       buttons={[
         {
           primary: true,
-          text: "Sign out all",
-          onClick: handleSignOutAll,
+          text: "Done",
+          onClick: handleJustRedirect,
           loading,
+          tabIndex: 1,
         },
         {
           primary: false,
-          text: "Close",
-          onClick: close,
-          loading: closed,
-          tabIndex: 1,
+          text: "Sign out all",
+          onClick: handleSignOutAll,
+          loading,
+          tabIndex: 2,
         },
       ]}
-      error={errors.global || (closed ? "Please close the window manually." : undefined)}
+      error={errors.global}
     >
       <Text>
-        You has been signed out from {client.name}.
+        {client ? (<span>Signed out from <Link href={client.client_uri} target={"_blank"}>{client.name}</Link> successfully.<br /></span>) : null }
+        Do you want to destroy all the sessions?
       </Text>
     </ScreenLayout>
   );

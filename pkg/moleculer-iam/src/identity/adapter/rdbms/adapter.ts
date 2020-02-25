@@ -25,15 +25,13 @@ export class IDP_RDBMS_Adapter extends IDPAdapter {
     super(props);
 
     // create manager
-    const {claimsMigrationLockTimeoutSeconds, ...opts} = options || {};
+    const {claimsMigrationLockTimeoutSeconds = 100, ...opts} = options || {};
+    this.claimsMigrationLockTimeoutSeconds = claimsMigrationLockTimeoutSeconds;
     this.manager = new RDBMSManager({
       logger: props.logger,
       migrationDirPath: path.join(__dirname, "./migrations"),
       migrationTableName: "idpMigrations",
     }, options);
-
-    // set options
-    this.claimsMigrationLockTimeoutSeconds = claimsMigrationLockTimeoutSeconds || 100;
   }
 
   /* define and migrate model schema */

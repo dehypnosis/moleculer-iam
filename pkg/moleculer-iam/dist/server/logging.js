@@ -18,14 +18,17 @@ koa_morgan_1.default.token("statusMessage", (req, res) => {
     return res.statusMessage || "-";
 });
 function logging(logger, opts) {
-    const _a = _.defaultsDeep(opts || {}, {
+    const { format, level, ...options } = _.defaultsDeep(opts || {}, {
         format: `:method :url HTTP/:http-version - :status :statusMessage :res[content-length] byte :response-time ms - ${kleur.dim(`":ip" ":referrer" ":user-agent"`)}`,
         level: "info",
-    }), { format, level } = _a, options = tslib_1.__rest(_a, ["format", "level"]);
+    });
     const write = (logger[level] || logger.info).bind(logger);
-    return koa_morgan_1.default(format, Object.assign(Object.assign({}, options), { stream: {
+    return koa_morgan_1.default(format, {
+        ...options,
+        stream: {
             write,
-        } }));
+        },
+    });
 }
 exports.logging = logging;
 //# sourceMappingURL=logging.js.map

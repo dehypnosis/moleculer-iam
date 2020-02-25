@@ -1,6 +1,6 @@
 import { Configuration, KoaContextWithOIDC } from "oidc-provider";
 import { Logger } from "../../logger";
-import { IdentityProvider } from "../../identity";
+import { Identity, IdentityProvider } from "../../identity";
 import { getPublicClientProps, getPublicUserProps } from "./util"; // TODO
 import { InteractionRenderer } from "./interaction.render";
 
@@ -46,14 +46,27 @@ export class InternalInteractionConfigurationFactory {
     return {
       async renderError(ctx, out, error) {
         logger.error(error);
-        render(ctx, { error: out });
+        return render(ctx, { error: out });
       },
 
       // signed out without post_logout_redirect_uri params
       async postLogoutSuccessSource(ctx) {
+
+        let user: Identity|undefined;
+        try {
+          const session = await ctx.oidc.provider.Session.get(ctx);
+          if (typeof session.account === "string") {
+            user = await idp.findOrFail({ id: session.account });
+          }
+        } catch {
+        }
+
         return render(ctx, {
           interaction: {
-            name: "logout_end",
+            name: "logout",
+            data: {
+              user: await getPublicUserProps(user),
+            },
           },
         });
       },
@@ -67,19 +80,26 @@ export class InternalInteractionConfigurationFactory {
         await render(ctx, {
           interaction: {
             name: "logout",
+            data: {
+              user: await getPublicUserProps(user),
+              client: await getPublicClientProps(client),
+            },
             actions: {
-              submit: {
+              // destroy sessions
+              "logout.confirm": {
                 url: ctx.oidc.urlFor("end_session_confirm"),
                 method: "POST",
                 payload: {
-                  logout: true,
+                  logout: "true",
                 },
                 urlencoded: true,
               },
-            },
-            data: {
-              user,
-              client,
+              // without session destroy
+              "logout.redirect": {
+                url: ctx.oidc.urlFor("end_session_confirm"),
+                method: "POST",
+                urlencoded: true,
+              },
             },
           },
         });
@@ -99,8 +119,8 @@ export class InternalInteractionConfigurationFactory {
               interaction: error ? undefined : {
                 name: "device_code_verification",
                 data: {
-                  user,
-                  client,
+                  user: await getPublicUserProps(user),
+                  client: await getPublicClientProps(client),
                 },
                 actions: {
                   submit: {
@@ -124,14 +144,19 @@ export class InternalInteractionConfigurationFactory {
 
             await render(ctx, {
               interaction: {
-                name: "device_code_verification_confirm",
+                name: "device_code_verification",
+                data: {
+                  user: await getPublicUserProps(user),
+                  client: await getPublicClientProps(client),
+                  device,
+                },
                 actions: {
-                  submit: {
+                  verify: {
                     url: ctx.oidc.urlFor("code_verification"),
                     method: "POST",
                     payload: {
                       user_code,
-                      confirm: true,
+                      confirm: "true",
                     },
                   },
                   abort: {
@@ -139,14 +164,9 @@ export class InternalInteractionConfigurationFactory {
                     method: "POST",
                     payload: {
                       user_code,
-                      abort: true,
+                      abort: "true",
                     },
                   },
-                },
-                data: {
-                  user,
-                  client,
-                  device,
                 },
               }
             });
@@ -159,11 +179,11 @@ export class InternalInteractionConfigurationFactory {
 
             await render(ctx, {
               interaction: {
-                name: "device_code_verification_end",
+                name: "device_code_verification",
                 // TODO: add details for to determine confirmed or non-confirmed
                 data: {
-                  user,
-                  client,
+                  user: await getPublicUserProps(user),
+                  client: await getPublicClientProps(client),
                 },
               },
             });
@@ -184,7 +204,8 @@ export class InternalInteractionConfigurationFactory {
         // tslint:disable-next-line:forin
         for (const k in props.interaction.actions) {
           const action = props.interaction.actions[k];
-          (action.payload = action.payload || {}).xsrf = xsrf;
+          action.payload = action.payload || {};
+          action.payload.xsrf = xsrf;
         }
       }
     }

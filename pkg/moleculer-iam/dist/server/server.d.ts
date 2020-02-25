@@ -15,6 +15,11 @@ export declare type IAMServerOptions = {
     security?: IHelmetConfiguration;
     logging?: LoggingOptions;
     app?: (oidc: OIDCProvider) => Promise<compose.Middleware<any>>;
+    assets?: {
+        path: string;
+        prefix: string;
+        maxAge?: number;
+    }[];
     http?: {
         hostname: string;
         port?: number;

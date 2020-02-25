@@ -61,64 +61,75 @@ class IdentityProvider {
             adapter: this.adapter,
         }, options.claims);
     }
-    start() {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            if (this.working) {
-                return;
-            }
-            // start adapter
-            yield this.adapter.start();
-            // start claims manager
-            yield this.claims.start();
-            this.logger.info("identity provider has been started");
-            this.working = true;
-        });
+    async start() {
+        if (this.working) {
+            return;
+        }
+        // start adapter
+        await this.adapter.start();
+        // start claims manager
+        await this.claims.start();
+        this.logger.info("identity provider has been started");
+        this.working = true;
     }
-    stop() {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            if (!this.working) {
-                return;
-            }
-            // stop claims manager
-            yield this.claims.stop();
-            // stop adapter
-            yield this.adapter.stop();
-            this.logger.info("identity provider has been stopped");
-            this.working = false;
-        });
+    async stop() {
+        if (!this.working) {
+            return;
+        }
+        // stop claims manager
+        await this.claims.stop();
+        // stop adapter
+        await this.adapter.stop();
+        this.logger.info("identity provider has been stopped");
+        this.working = false;
     }
-    find(args) {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            const where = args;
-            // set softDeleted=false
-            if (!where.metadata || typeof where.metadata === "undefined" || Object.keys(where.metadata).length === 0) {
-                if (!where.metadata)
-                    where.metadata = {};
-                where.metadata.softDeleted = false;
+    async find(args) {
+        const where = args;
+        // set softDeleted=false
+        if (!where.metadata || typeof where.metadata === "undefined" || Object.keys(where.metadata).length === 0) {
+            if (!where.metadata)
+                where.metadata = {};
+            where.metadata.softDeleted = false;
+        }
+        // validate args to normalize email and phone number
+        if (where.claims) {
+            const result = this.validateEmailOrPhoneNumber(where.claims);
+            if (result !== true) {
+                throw new (error_1.Errors.ValidationError)(result);
             }
-            // validate args to normalize email and phone number
-            if (where.claims) {
-                const result = this.validateEmailOrPhoneNumber(where.claims);
-                if (result !== true) {
-                    throw new error_1.Errors.ValidationError(result);
-                }
-            }
-            return this.adapter.find(where).then(id => id ? new identity_1.Identity({ id, provider: this }) : undefined);
-        });
+        }
+        return this.adapter.find(where).then(id => id ? new identity_1.Identity({ id, provider: this }) : undefined);
     }
-    findOrFail(args) {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            const identity = yield this.find(args);
-            if (!identity) {
-                throw new error_1.Errors.IdentityNotExistsError();
-            }
-            return identity;
-        });
+    async findOrFail(args) {
+        const identity = await this.find(args);
+        if (!identity) {
+            throw new error_1.Errors.IdentityNotExistsError();
+        }
+        return identity;
     }
     // args will be like { claims:{}, metadata:{}, ...}
-    count(args) {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            const where = args || {};
+    async count(args) {
+        const where = args || {};
+        // set softDeleted=false
+        if (!where.metadata || typeof where.metadata === "undefined" || Object.keys(where.metadata).length === 0) {
+            if (!where.metadata)
+                where.metadata = {};
+            where.metadata.softDeleted = false;
+        }
+        // validate args to normalize email and phone number
+        if (where.claims) {
+            const result = this.validateEmailOrPhoneNumber(where.claims);
+            if (result !== true) {
+                throw new error_1.Errors.ValidationError(result);
+            }
+        }
+        return this.adapter.count(where);
+    }
+    // args will be like { where: { claims:{}, metadata:{}, ...}, offset: 0, limit: 100, ... }
+    async get(args) {
+        args = { offset: 0, limit: 10, ...args };
+        if (typeof args.where === "object" && args.where !== null) {
+            const where = args.where;
             // set softDeleted=false
             if (!where.metadata || typeof where.metadata === "undefined" || Object.keys(where.metadata).length === 0) {
                 if (!where.metadata)
@@ -132,63 +143,34 @@ class IdentityProvider {
                     throw new error_1.Errors.ValidationError(result);
                 }
             }
-            return this.adapter.count(where);
-        });
-    }
-    // args will be like { where: { claims:{}, metadata:{}, ...}, offset: 0, limit: 100, ... }
-    get(args) {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            args = Object.assign({ offset: 0, limit: 10 }, args);
-            if (typeof args.where === "object" && args.where !== null) {
-                const where = args.where;
-                // set softDeleted=false
-                if (!where.metadata || typeof where.metadata === "undefined" || Object.keys(where.metadata).length === 0) {
-                    if (!where.metadata)
-                        where.metadata = {};
-                    where.metadata.softDeleted = false;
-                }
-                // validate args to normalize email and phone number
-                if (where.claims) {
-                    const result = this.validateEmailOrPhoneNumber(where.claims);
-                    if (result !== true) {
-                        throw new error_1.Errors.ValidationError(result);
-                    }
-                }
-            }
-            return this.adapter.get(args)
-                .then(ids => ids.map(id => new identity_1.Identity({ id, provider: this })));
-        });
+        }
+        return this.adapter.get(args)
+            .then(ids => ids.map(id => new identity_1.Identity({ id, provider: this })));
     }
     /* create account */
-    create(args) {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            if (typeof args.scope === "string") {
-                args = Object.assign(Object.assign({}, args), { scope: args.scope.split(" ").filter(s => !!s) });
-            }
-            else if (typeof args.scope === "undefined") {
-                args = Object.assign(Object.assign({}, args), { scope: [] });
-            }
-            // push mandatory scopes
-            args.scope = [...new Set([...args.scope, ...this.claims.mandatoryScopes])];
-            return this.adapter.create(args)
-                .then(id => new identity_1.Identity({ id, provider: this }));
-        });
+    async create(args) {
+        if (typeof args.scope === "string") {
+            args = { ...args, scope: args.scope.split(" ").filter(s => !!s) };
+        }
+        else if (typeof args.scope === "undefined") {
+            args = { ...args, scope: [] };
+        }
+        // push mandatory scopes
+        args.scope = [...new Set([...args.scope, ...this.claims.mandatoryScopes])];
+        return this.adapter.create(args)
+            .then(id => new identity_1.Identity({ id, provider: this }));
     }
-    validate(args) {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            if (typeof args.scope === "string") {
-                args = Object.assign(Object.assign({}, args), { scope: args.scope.split(" ").filter(s => !!s) });
-            }
-            else if (typeof args.scope === "undefined") {
-                args = Object.assign(Object.assign({}, args), { scope: [] });
-            }
-            return this.adapter.validate(args);
-        });
+    async validate(args) {
+        if (typeof args.scope === "string") {
+            args = { ...args, scope: args.scope.split(" ").filter(s => !!s) };
+        }
+        else if (typeof args.scope === "undefined") {
+            args = { ...args, scope: [] };
+        }
+        return this.adapter.validate(args);
     }
-    validateCredentials(credentials) {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            return this.adapter.validateCredentials(credentials);
-        });
+    async validateCredentials(credentials) {
+        return this.adapter.validateCredentials(credentials);
     }
 }
 exports.IdentityProvider = IdentityProvider;

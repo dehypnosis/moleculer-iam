@@ -5,7 +5,6 @@
  * MIT Licensed
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-const tslib_1 = require("tslib");
 const moleculer_1 = require("moleculer");
 const identity_1 = require("../identity");
 const oidc_1 = require("../oidc");
@@ -32,15 +31,11 @@ function IAMServiceSchema(opts) {
                 logger: this.broker.getLogger("server"),
             }, opts.server);
         },
-        started() {
-            return tslib_1.__awaiter(this, void 0, void 0, function* () {
-                yield server.start();
-            });
+        async started() {
+            await server.start();
         },
-        stopped() {
-            return tslib_1.__awaiter(this, void 0, void 0, function* () {
-                yield server.stop();
-            });
+        async stopped() {
+            await server.stop();
         },
         name: "iam",
         settings: {},
@@ -69,34 +64,28 @@ function IAMServiceSchema(opts) {
           ref: https://openid.net/specs/openid-connect-registration-1_0.html#ClientMetadata
         `,
                 params: params_1.IAMServiceActionParams["client.create"],
-                handler(ctx) {
-                    return tslib_1.__awaiter(this, void 0, void 0, function* () {
-                        const client = yield oidc.createClient(ctx.params);
-                        this.broker.broadcast("iam.client.updated");
-                        return client;
-                    });
+                async handler(ctx) {
+                    const client = await oidc.createClient(ctx.params);
+                    this.broker.broadcast("iam.client.updated");
+                    return client;
                 },
             },
             "client.update": {
                 params: params_1.IAMServiceActionParams["client.update"],
-                handler(ctx) {
-                    return tslib_1.__awaiter(this, void 0, void 0, function* () {
-                        const client = yield oidc.updateClient(ctx.params);
-                        this.broker.broadcast("iam.client.updated");
-                        return client;
-                    });
+                async handler(ctx) {
+                    const client = await oidc.updateClient(ctx.params);
+                    this.broker.broadcast("iam.client.updated");
+                    return client;
                 },
             },
             "client.delete": {
                 params: {
                     id: "string",
                 },
-                handler(ctx) {
-                    return tslib_1.__awaiter(this, void 0, void 0, function* () {
-                        yield oidc.deleteClient(ctx.params.id);
-                        this.broker.broadcast("iam.client.deleted", ctx.params); // 'oidc-provider' has a hard coded LRU cache internally... using pub/sub to clear distributed nodes' cache
-                        return true;
-                    });
+                async handler(ctx) {
+                    await oidc.deleteClient(ctx.params.id);
+                    this.broker.broadcast("iam.client.deleted", ctx.params); // 'oidc-provider' has a hard coded LRU cache internally... using pub/sub to clear distributed nodes' cache
+                    return true;
                 },
             },
             "client.find": {
@@ -106,10 +95,8 @@ function IAMServiceSchema(opts) {
                 params: {
                     id: "string",
                 },
-                handler(ctx) {
-                    return tslib_1.__awaiter(this, void 0, void 0, function* () {
-                        return oidc.findClient(ctx.params.id);
-                    });
+                async handler(ctx) {
+                    return oidc.findClient(ctx.params.id);
                 },
             },
             "client.get": {
@@ -132,15 +119,13 @@ function IAMServiceSchema(opts) {
                         default: 10,
                     },
                 },
-                handler(ctx) {
-                    return tslib_1.__awaiter(this, void 0, void 0, function* () {
-                        const { offset, limit, where } = ctx.params;
-                        const [total, entries] = yield Promise.all([
-                            oidc.countClients(where),
-                            oidc.getClients(ctx.params),
-                        ]);
-                        return { offset, limit, total, entries };
-                    });
+                async handler(ctx) {
+                    const { offset, limit, where } = ctx.params;
+                    const [total, entries] = await Promise.all([
+                        oidc.countClients(where),
+                        oidc.getClients(ctx.params),
+                    ]);
+                    return { offset, limit, total, entries };
                 },
             },
             "client.count": {
@@ -153,10 +138,8 @@ function IAMServiceSchema(opts) {
                         optional: true,
                     },
                 },
-                handler(ctx) {
-                    return tslib_1.__awaiter(this, void 0, void 0, function* () {
-                        return oidc.countClients(ctx.params && ctx.params.where);
-                    });
+                async handler(ctx) {
+                    return oidc.countClients(ctx.params && ctx.params.where);
                 },
             },
             /* "Session", "AccessToken", "AuthorizationCode", "RefreshToken", "DeviceCode", "InitialAccessToken", "RegistrationAccessToken", "Interaction", "ReplayDetection", "PushedAuthorizationRequest" Management */
@@ -184,15 +167,13 @@ function IAMServiceSchema(opts) {
                         default: 10,
                     },
                 },
-                handler(ctx) {
-                    return tslib_1.__awaiter(this, void 0, void 0, function* () {
-                        const _a = ctx.params, { offset, limit, kind, where } = _a, args = tslib_1.__rest(_a, ["offset", "limit", "kind", "where"]);
-                        const [total, entries] = yield Promise.all([
-                            oidc.countModels(kind, where),
-                            oidc.getModels(kind, Object.assign({ offset, limit, where }, args)),
-                        ]);
-                        return { offset, limit, total, entries };
-                    });
+                async handler(ctx) {
+                    const { offset, limit, kind, where, ...args } = ctx.params;
+                    const [total, entries] = await Promise.all([
+                        oidc.countModels(kind, where),
+                        oidc.getModels(kind, { offset, limit, where, ...args }),
+                    ]);
+                    return { offset, limit, total, entries };
                 },
             },
             "model.count": {
@@ -209,11 +190,9 @@ function IAMServiceSchema(opts) {
                         optional: true,
                     },
                 },
-                handler(ctx) {
-                    return tslib_1.__awaiter(this, void 0, void 0, function* () {
-                        const { kind, where } = ctx.params;
-                        return oidc.countModels(kind, where);
-                    });
+                async handler(ctx) {
+                    const { kind, where } = ctx.params;
+                    return oidc.countModels(kind, where);
                 },
             },
             "model.delete": {
@@ -237,11 +216,9 @@ function IAMServiceSchema(opts) {
                         default: 10,
                     },
                 },
-                handler(ctx) {
-                    return tslib_1.__awaiter(this, void 0, void 0, function* () {
-                        const _a = ctx.params, { kind } = _a, args = tslib_1.__rest(_a, ["kind"]);
-                        return oidc.deleteModels(kind, args);
-                    });
+                async handler(ctx) {
+                    const { kind, ...args } = ctx.params;
+                    return oidc.deleteModels(kind, args);
                 },
             },
             /* Identity Claims Schema Management */
@@ -281,10 +258,8 @@ function IAMServiceSchema(opts) {
                         optional: true,
                     },
                 },
-                handler(ctx) {
-                    return tslib_1.__awaiter(this, void 0, void 0, function* () {
-                        return idp.claims.getClaimsSchemata(ctx.params);
-                    });
+                async handler(ctx) {
+                    return idp.claims.getClaimsSchemata(ctx.params);
                 },
             },
             "schema.find": {
@@ -305,24 +280,20 @@ function IAMServiceSchema(opts) {
                         optional: true,
                     },
                 },
-                handler(ctx) {
-                    return tslib_1.__awaiter(this, void 0, void 0, function* () {
-                        return idp.claims.getClaimsSchema(ctx.params);
-                    });
+                async handler(ctx) {
+                    return idp.claims.getClaimsSchema(ctx.params);
                 },
             },
             "schema.define": {
                 params: params_1.IAMServiceActionParams["schema.define"],
-                handler(ctx) {
-                    return tslib_1.__awaiter(this, void 0, void 0, function* () {
-                        const payload = ctx.params;
-                        const oldSchema = yield idp.claims.getClaimsSchema({ key: payload.key, active: true });
-                        const schema = yield idp.claims.defineClaimsSchema(payload);
-                        if (!oldSchema || oldSchema.version !== schema.version) {
-                            this.broker.broadcast("iam.schema.updated");
-                        }
-                        return schema;
-                    });
+                async handler(ctx) {
+                    const payload = ctx.params;
+                    const oldSchema = await idp.claims.getClaimsSchema({ key: payload.key, active: true });
+                    const schema = await idp.claims.defineClaimsSchema(payload);
+                    if (!oldSchema || oldSchema.version !== schema.version) {
+                        this.broker.broadcast("iam.schema.updated");
+                    }
+                    return schema;
                 },
             },
             /* Identity Management */
@@ -358,11 +329,9 @@ function IAMServiceSchema(opts) {
                         default: {},
                     },
                 },
-                handler(ctx) {
-                    return tslib_1.__awaiter(this, void 0, void 0, function* () {
-                        yield idp.validate(ctx.params);
-                        return ctx.params;
-                    });
+                async handler(ctx) {
+                    await idp.validate(ctx.params);
+                    return ctx.params;
                 },
             },
             "id.validateCredentials": {
@@ -372,11 +341,9 @@ function IAMServiceSchema(opts) {
                         optional: true,
                     },
                 },
-                handler(ctx) {
-                    return tslib_1.__awaiter(this, void 0, void 0, function* () {
-                        yield idp.validateCredentials(ctx.params);
-                        return ctx.params;
-                    });
+                async handler(ctx) {
+                    await idp.validateCredentials(ctx.params);
+                    return ctx.params;
                 },
             },
             "id.create": {
@@ -411,13 +378,11 @@ function IAMServiceSchema(opts) {
                         default: {},
                     },
                 },
-                handler(ctx) {
-                    return tslib_1.__awaiter(this, void 0, void 0, function* () {
-                        const id = yield idp.create(ctx.params)
-                            .then(i => i.json());
-                        this.broker.broadcast("iam.id.updated");
-                        return id;
-                    });
+                async handler(ctx) {
+                    const id = await idp.create(ctx.params)
+                        .then(i => i.json());
+                    this.broker.broadcast("iam.id.updated");
+                    return id;
                 },
             },
             "id.update": {
@@ -464,26 +429,24 @@ function IAMServiceSchema(opts) {
                         default: {},
                     },
                 },
-                handler(ctx) {
-                    return tslib_1.__awaiter(this, void 0, void 0, function* () {
-                        const { id, claims, metadata, credentials, scope } = (ctx.params || {});
-                        let result;
-                        // batching
-                        if (Array.isArray(id)) {
-                            result = yield idp.get({ where: { id }, limit: id.length })
-                                .then(ids => Promise.all(ids.map(i => i.update(scope, claims, metadata, credentials)
-                                .then(() => i.json(scope), (err) => {
-                                err.batchingError = true;
-                                return err;
-                            }))));
-                        }
-                        else {
-                            result = yield idp.findOrFail({ id })
-                                .then(i => i.update(scope, claims, metadata, credentials).then(() => i.json(scope)));
-                        }
-                        this.broker.broadcast("iam.id.updated");
-                        return result;
-                    });
+                async handler(ctx) {
+                    const { id, claims, metadata, credentials, scope } = (ctx.params || {});
+                    let result;
+                    // batching
+                    if (Array.isArray(id)) {
+                        result = await idp.get({ where: { id }, limit: id.length })
+                            .then(ids => Promise.all(ids.map(i => i.update(scope, claims, metadata, credentials)
+                            .then(() => i.json(scope), (err) => {
+                            err.batchingError = true;
+                            return err;
+                        }))));
+                    }
+                    else {
+                        result = await idp.findOrFail({ id })
+                            .then(i => i.update(scope, claims, metadata, credentials).then(() => i.json(scope)));
+                    }
+                    this.broker.broadcast("iam.id.updated");
+                    return result;
                 },
             },
             "id.delete": {
@@ -505,21 +468,19 @@ function IAMServiceSchema(opts) {
                         default: false,
                     },
                 },
-                handler(ctx) {
-                    return tslib_1.__awaiter(this, void 0, void 0, function* () {
-                        const { id, permanently } = (ctx.params || {});
-                        const where = { id, metadata: { softDeleted: permanently } };
-                        // batching support
-                        if (Array.isArray(id)) {
-                            return idp.get({ where, limit: id.length })
-                                .then(ids => Promise.all(ids.map(i => i.delete(permanently)
-                                .then(() => i.id, (err) => {
-                                err.batchingError = true;
-                                return err;
-                            }))));
-                        }
-                        return idp.findOrFail(where).then(i => i.delete(permanently)).then(() => id);
-                    });
+                async handler(ctx) {
+                    const { id, permanently } = (ctx.params || {});
+                    const where = { id, metadata: { softDeleted: permanently } };
+                    // batching support
+                    if (Array.isArray(id)) {
+                        return idp.get({ where, limit: id.length })
+                            .then(ids => Promise.all(ids.map(i => i.delete(permanently)
+                            .then(() => i.id, (err) => {
+                            err.batchingError = true;
+                            return err;
+                        }))));
+                    }
+                    return idp.findOrFail(where).then(i => i.delete(permanently)).then(() => id);
                 },
             },
             "id.restore": {
@@ -537,21 +498,19 @@ function IAMServiceSchema(opts) {
                         },
                     ],
                 },
-                handler(ctx) {
-                    return tslib_1.__awaiter(this, void 0, void 0, function* () {
-                        const { id } = (ctx.params || {});
-                        const where = { id, metadata: { softDeleted: true } };
-                        // batching support
-                        if (Array.isArray(id)) {
-                            return idp.get({ where, limit: id.length })
-                                .then(ids => Promise.all(ids.map(i => i.restoreSoftDeleted()
-                                .then(() => i.id, (err) => {
-                                err.batchingError = true;
-                                return err;
-                            }))));
-                        }
-                        return idp.findOrFail(where).then(i => i.restoreSoftDeleted()).then(() => id);
-                    });
+                async handler(ctx) {
+                    const { id } = (ctx.params || {});
+                    const where = { id, metadata: { softDeleted: true } };
+                    // batching support
+                    if (Array.isArray(id)) {
+                        return idp.get({ where, limit: id.length })
+                            .then(ids => Promise.all(ids.map(i => i.restoreSoftDeleted()
+                            .then(() => i.id, (err) => {
+                            err.batchingError = true;
+                            return err;
+                        }))));
+                    }
+                    return idp.findOrFail(where).then(i => i.restoreSoftDeleted()).then(() => id);
                 },
             },
             "id.find": {
@@ -601,37 +560,35 @@ function IAMServiceSchema(opts) {
                         },
                     ],
                 },
-                handler(ctx) {
-                    return tslib_1.__awaiter(this, void 0, void 0, function* () {
-                        // tslint:disable-next-line:prefer-const
-                        let { id, email, phone_number, where, scope } = (ctx.params || {});
-                        if (typeof where !== "object" || where === null)
-                            where = {};
-                        // batching support
-                        if (Array.isArray(id)) {
-                            return idp.get({ where: { id }, limit: id.length })
-                                .then(ids => Promise.all(ids.map(i => i.json(scope)
-                                .then(undefined, (err) => {
-                                err.batchingError = true;
-                                return err;
-                            }))));
-                        }
-                        if (id)
-                            where.id = id;
-                        if (email) {
-                            if (!where.claims)
-                                where.claims = {};
-                            where.claims.email = email;
-                        }
-                        if (phone_number) {
-                            if (!where.claims)
-                                where.claims = {};
-                            where.claims.phone_number = phone_number;
-                        }
-                        if (Object.keys(where).length === 0)
-                            where.id = null;
-                        return idp.find(where).then(i => i ? i.json(scope) : null);
-                    });
+                async handler(ctx) {
+                    // tslint:disable-next-line:prefer-const
+                    let { id, email, phone_number, where, scope } = (ctx.params || {});
+                    if (typeof where !== "object" || where === null)
+                        where = {};
+                    // batching support
+                    if (Array.isArray(id)) {
+                        return idp.get({ where: { id }, limit: id.length })
+                            .then(ids => Promise.all(ids.map(i => i.json(scope)
+                            .then(undefined, (err) => {
+                            err.batchingError = true;
+                            return err;
+                        }))));
+                    }
+                    if (id)
+                        where.id = id;
+                    if (email) {
+                        if (!where.claims)
+                            where.claims = {};
+                        where.claims.email = email;
+                    }
+                    if (phone_number) {
+                        if (!where.claims)
+                            where.claims = {};
+                        where.claims.phone_number = phone_number;
+                    }
+                    if (Object.keys(where).length === 0)
+                        where.id = null;
+                    return idp.find(where).then(async (i) => i ? await i.json(scope) : null);
                 },
             },
             "id.get": {
@@ -671,15 +628,13 @@ function IAMServiceSchema(opts) {
                         },
                     ],
                 },
-                handler(ctx) {
-                    return tslib_1.__awaiter(this, void 0, void 0, function* () {
-                        const _a = (ctx.params || {}), { offset, limit, kind, where, scope } = _a, args = tslib_1.__rest(_a, ["offset", "limit", "kind", "where", "scope"]);
-                        const [total, entries] = yield Promise.all([
-                            idp.count(where),
-                            idp.get(Object.assign({ offset, limit, where }, args)).then(ids => Promise.all(ids.map(i => i.json(scope)))),
-                        ]);
-                        return { offset, limit, total, entries };
-                    });
+                async handler(ctx) {
+                    const { offset, limit, kind, where, scope, ...args } = (ctx.params || {});
+                    const [total, entries] = await Promise.all([
+                        idp.count(where),
+                        idp.get({ offset, limit, where, ...args }).then(ids => Promise.all(ids.map(i => i.json(scope)))),
+                    ]);
+                    return { offset, limit, total, entries };
                 },
             },
             "id.count": {
@@ -692,10 +647,8 @@ function IAMServiceSchema(opts) {
                         optional: true,
                     },
                 },
-                handler(ctx) {
-                    return tslib_1.__awaiter(this, void 0, void 0, function* () {
-                        return idp.count(ctx.params && ctx.params.where);
-                    });
+                async handler(ctx) {
+                    return idp.count(ctx.params && ctx.params.where);
                 },
             },
             "id.refresh": {
@@ -719,17 +672,15 @@ function IAMServiceSchema(opts) {
                         optional: true,
                     },
                 },
-                handler(ctx) {
-                    return tslib_1.__awaiter(this, void 0, void 0, function* () {
-                        const { where, id } = ctx.params;
-                        let ids;
-                        if (typeof id === "string")
-                            ids = [id];
-                        else if (Array.isArray(id))
-                            ids = id;
-                        yield idp.claims.forceReloadClaims({ where, ids });
-                        this.broker.broadcast("iam.id.updated");
-                    });
+                async handler(ctx) {
+                    const { where, id } = ctx.params;
+                    let ids;
+                    if (typeof id === "string")
+                        ids = [id];
+                    else if (Array.isArray(id))
+                        ids = id;
+                    await idp.claims.forceReloadClaims({ where, ids });
+                    this.broker.broadcast("iam.id.updated");
                 },
             },
         },
@@ -739,56 +690,46 @@ function IAMServiceSchema(opts) {
                 params: {
                     id: "string",
                 },
-                handler(ctx) {
-                    return tslib_1.__awaiter(this, void 0, void 0, function* () {
-                        try {
-                            // to clear internal memory cache
-                            yield oidc.deleteClient(ctx.params.id);
-                        }
-                        catch (err) {
-                            // ...NOTHING
-                        }
-                        finally {
-                            yield this.clearCache("client.**");
-                        }
-                    });
+                async handler(ctx) {
+                    try {
+                        // to clear internal memory cache
+                        await oidc.deleteClient(ctx.params.id);
+                    }
+                    catch (err) {
+                        // ...NOTHING
+                    }
+                    finally {
+                        await this.clearCache("client.**");
+                    }
                 },
             },
             "iam.client.updated": {
-                handler(ctx) {
-                    return tslib_1.__awaiter(this, void 0, void 0, function* () {
-                        yield this.clearCache("client.**");
-                    });
+                async handler(ctx) {
+                    await this.clearCache("client.**");
                 },
             },
             "iam.id.updated": {
-                handler(ctx) {
-                    return tslib_1.__awaiter(this, void 0, void 0, function* () {
-                        yield this.clearCache("id.*");
-                    });
+                async handler(ctx) {
+                    await this.clearCache("id.*");
                 },
             },
             "iam.schema.updated": {
-                handler(ctx) {
-                    return tslib_1.__awaiter(this, void 0, void 0, function* () {
-                        yield idp.claims.onClaimsSchemaUpdated();
-                        yield this.clearCache("schema.*");
-                        yield this.clearCache("id.*");
-                    });
+                async handler(ctx) {
+                    await idp.claims.onClaimsSchemaUpdated();
+                    await this.clearCache("schema.*");
+                    await this.clearCache("id.*");
                 },
             },
         },
         methods: {
-            clearCache(...keys) {
-                return tslib_1.__awaiter(this, void 0, void 0, function* () {
-                    if (this.broker.cacher) {
-                        if (keys.length === 0) {
-                            keys = ["**"];
-                        }
-                        const fullKeys = keys.map(key => `${this.fullName}.${key}`);
-                        yield this.broker.cacher.clean(fullKeys);
+            async clearCache(...keys) {
+                if (this.broker.cacher) {
+                    if (keys.length === 0) {
+                        keys = ["**"];
                     }
-                });
+                    const fullKeys = keys.map(key => `${this.fullName}.${key}`);
+                    await this.broker.cacher.clean(fullKeys);
+                }
             },
         },
     };

@@ -24,12 +24,20 @@ export class OIDCProvider {
   private readonly adapter: OIDCAdapter;
   private readonly original: OriginalProvider;
   public readonly devModeEnabled: boolean;
+  private readonly defaultClientConfig: ClientMetadata;
 
   constructor(private readonly props: OIDCProviderProps, options: OIDCProviderOptions) {
     const idp = props.idp;
     const logger = this.logger = props.logger || console;
-    const {issuer, trustProxy, devMode, adapter, interaction, ...providerConfig} = _.defaultsDeep(options || {}, defaultOIDCProviderOptions);
+    const {issuer, trustProxy, devMode, adapter, interaction, client, ...providerConfig} = _.defaultsDeep(options || {}, defaultOIDCProviderOptions);
     const devModeEnabled = this.devModeEnabled = !!(devMode || issuer.startsWith("http://"));
+
+    // prepare default client
+    client.redirect_uris = (client.redirect_uris || []).concat(issuer);
+    client.tos_uri = client.tos_uri || `${issuer}/help/tos`;
+    client.policy_uri = client.policy_uri || `${issuer}/help/policy`;
+    client.client_uri = client.client_uri || `${issuer}`;
+    this.defaultClientConfig = client;
 
     /* create provider adapter */
     const adapterKey: keyof (typeof OIDCAdapterConstructors) = Object.keys(OIDCAdapterConstructors).find(k => k.toLowerCase() === options.adapter!.type.toLowerCase())
@@ -147,6 +155,27 @@ export class OIDCProvider {
 
     // start adapter
     await this.adapter.start();
+
+    // create/update default client
+    let defaultClient: ClientMetadata;
+    let err: any;
+    try {
+      defaultClient = await this.createClient(this.defaultClientConfig);
+    } catch (err1) {
+      err = err1;
+      try {
+        defaultClient = await this.updateClient(this.defaultClientConfig);
+        err = null;
+      } catch (err2) {
+        err = err2;
+      }
+    } finally {
+      if (err) {
+        this.logger.error(`failed to create default client for account management:\n`, err);
+      } else {
+        this.logger.info(`default client for account management:\n`, defaultClient!);
+      }
+    }
 
     this.working = true;
     this.logger.info(`oidc provider has been started`);
@@ -284,7 +313,9 @@ export class OIDCProvider {
     const claimsSupported = (this.config as any).claimsSupported as Set<string>;
     claimsSchemata.forEach(schema => {
       let obj = claimsFilter.get(schema.scope);
-      if (obj === null) return;
+      if (obj === null) {
+        return;
+      }
       if (!obj) {
         obj = {};
         claimsFilter.set(schema.scope, obj);

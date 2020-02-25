@@ -1,5 +1,5 @@
 import crypto from "crypto";
-import { Configuration } from "./types";
+import { Configuration, ClientMetadata } from "./types";
 import { OIDCAdapterConstructorOptions } from "../adapter";
 import { InteractionFactoryOptions } from "../interaction";
 
@@ -13,13 +13,14 @@ export interface OIDCProviderDiscoveryMetadata {
   service_documentation?: string | null,
 }
 
-export type OIDCProviderOptions = Omit<Configuration, "adapter"|"claims"|"scopes"|"findAccount"|"dynamicScopes"|"interactions"|"discovery"> & {
+export type OIDCProviderOptions = Omit<Configuration, "adapter"|"claims"|"scopes"|"findAccount"|"dynamicScopes"|"interactions"|"discovery"|"client"> & {
   issuer: string,
   trustProxy?: boolean,
   devMode?: boolean;
   adapter?: OIDCAdapterConstructorOptions,
   interaction?: InteractionFactoryOptions;
   discovery?: OIDCProviderDiscoveryMetadata;
+  client?: Partial<ClientMetadata>;
 }
 
 export const defaultOIDCProviderOptions: OIDCProviderOptions = {
@@ -96,6 +97,14 @@ export const defaultOIDCProviderOptions: OIDCProviderOptions = {
     "S256",
     "plain",
   ],
+
+  client: {
+    client_id: 'default',
+    client_name: 'Account Manager',
+    // skip_consent: true,
+    subject_type: 'public',
+    application_type: 'web',
+  },
 
   clientDefaults: {
     grant_types: ["implicit", "authorization_code", "refresh_token"],

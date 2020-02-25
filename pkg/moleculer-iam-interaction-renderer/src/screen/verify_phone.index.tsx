@@ -43,13 +43,13 @@ export const VerifyPhoneIndexScreen: React.FunctionComponent = () => {
           text: "Send",
           onClick: handleSend,
           loading,
-          tabIndex: 2,
+          tabIndex: 1,
         },
         {
           text: "Cancel",
           onClick: handleCancel,
           loading,
-          tabIndex: 3,
+          tabIndex: 2,
         },
       ]}
       error={errors.global}

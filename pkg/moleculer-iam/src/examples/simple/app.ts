@@ -7,9 +7,11 @@ export const app = async (oidc: OIDCProvider) => {
     strict: false,
   });
 
-  router.get("/", (ctx, next) => {
-    ctx.body = `<html><body>Any optional application routes can be mapped except reserved ones:<pre>${JSON.stringify(oidc.defaultRoutes, null, 2)}</pre></body></html>`;
-  });
+  // TODO: remove creating default client and make upsertClient method and do that here
+
+  // router.get("/", (ctx, next) => {
+  //   ctx.body = `<html><body>Any optional application routes can be mapped except reserved ones, or just let be not found:<pre>${JSON.stringify(oidc.defaultRoutes, null, 2)}</pre></body></html>`;
+  // });
 
   return router.routes();
 };

@@ -35,7 +35,7 @@ export const ResetPasswordSetScreen: React.FunctionComponent = () => {
           text: "Continue",
           onClick: handlePayloadSubmit,
           loading,
-          tabIndex: 3,
+          tabIndex: 43,
         },
       ]}
       error={errors.global}
@@ -49,7 +49,7 @@ export const ResetPasswordSetScreen: React.FunctionComponent = () => {
         inputMode="text"
         placeholder="Enter new password"
         autoFocus
-        tabIndex={1}
+        tabIndex={41}
         value={payload.password}
         errorMessage={errors.password}
         onChange={(e, v) => setPayload(p => ({...p, password: v!}))}
@@ -62,7 +62,7 @@ export const ResetPasswordSetScreen: React.FunctionComponent = () => {
         inputMode="text"
         autoComplete="password"
         placeholder="Confirm your password"
-        tabIndex={2}
+        tabIndex={42}
         value={payload.password_confirmation}
         errorMessage={errors.password_confirmation}
         onChange={(e, v) => setPayload(p => ({...p, password_confirmation: v!}))}

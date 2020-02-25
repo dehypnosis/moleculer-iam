@@ -15,20 +15,21 @@ export declare class OIDCProvider {
     private readonly adapter;
     private readonly original;
     readonly devModeEnabled: boolean;
+    private readonly defaultClientConfig;
     constructor(props: OIDCProviderProps, options: OIDCProviderOptions);
-    get idp(): IdentityProvider;
-    get routes(): import("koa-compose").Middleware<import("koa").ParameterizedContext<any, {}>>;
-    private get originalHiddenProps();
-    get config(): OriginalProviderConfiguration;
-    get defaultRoutes(): Readonly<{
+    readonly idp: IdentityProvider;
+    readonly routes: import("koa-compose").Middleware<import("koa").ParameterizedContext<any, {}>>;
+    private readonly originalHiddenProps;
+    readonly config: OriginalProviderConfiguration;
+    readonly defaultRoutes: Readonly<{
         [key: string]: string | undefined;
     }>;
-    get discoveryPath(): string;
-    get issuer(): string;
+    readonly discoveryPath: string;
+    readonly issuer: string;
     private working;
     start(): Promise<void>;
     stop(): Promise<void>;
-    private get Client();
+    private readonly Client;
     findClient(id: string): Promise<ClientMetadata | undefined>;
     findClientOrFail(id: string): Promise<ClientMetadata>;
     createClient(metadata: Omit<ClientMetadata, "client_secret">): Promise<any>;

@@ -627,7 +627,7 @@ export function IAMServiceSchema(opts: IAMServiceSchemaOptions): ServiceSchema {
           }
           if (Object.keys(where).length === 0) where.id = null;
 
-          return idp.find(where).then(i => i ? i.json(scope) : null);
+          return idp.find(where).then(async i => i ? await i.json(scope) : null);
         },
       },
       "id.get": {

@@ -1,6 +1,7 @@
 import { OIDCErrors } from "../oidc/provider";
 import { ValidationError as ValidationErrorEntry } from "../validator";
 declare class IdentityProviderError extends OIDCErrors.OIDCProviderError {
+    constructor(status: number, message: string);
 }
 declare class IdentityAlreadyExistsError extends IdentityProviderError {
     constructor();

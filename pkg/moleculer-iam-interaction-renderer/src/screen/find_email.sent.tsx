@@ -28,7 +28,7 @@ export const FindEmailSentScreen: React.FunctionComponent = () => {
           text: "Done",
           onClick: handleDone,
           loading,
-          tabIndex: 1,
+          tabIndex: 31,
         },
       ]}
       error={errors.global}
