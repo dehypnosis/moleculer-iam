@@ -16,7 +16,14 @@ export const ConsentScreen: React.FunctionComponent = () => {
       .catch((err: any) => setErrors(err));
   });
 
+  // const handleReject = withLoading(() => {
+  //   return request("consent.reject")
+  //     .catch((err: any) => setErrors(err));
+  // });
+
   const handleChangeAccount = withLoading(() => {
+    // return request("consent.change_account")
+    //   .catch((err: any) => setErrors(err));
     return nav.navigate("login", {
       screen: "login.index",
       params: {},
@@ -40,7 +47,7 @@ export const ConsentScreen: React.FunctionComponent = () => {
         },
         // {
         //   text: "Cancel",
-        //   onClick: handleAbort,
+        //   onClick: handleReject,
         //   loading,
         //   tabIndex: 2,
         // },
@@ -64,7 +71,7 @@ export const ConsentScreen: React.FunctionComponent = () => {
         text={user.name}
         secondaryText={user.email}
         size={PersonaSize.size56}
-        imageUrl={user.picture_uri}
+        imageUrl={user.picture}
       />
     </ScreenLayout>
   );

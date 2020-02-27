@@ -7,9 +7,7 @@ export const app = async (oidc: OIDCProvider) => {
     strict: false,
   });
 
-  router.get("/", (ctx, next) => {
-    ctx.body = `<html><body>Any optional application routes can be mapped except reserved ones:<pre>${JSON.stringify(oidc.defaultRoutes, null, 2)}</pre></body></html>`;
-  });
+  // ... nothing
 
   return router.routes();
 };

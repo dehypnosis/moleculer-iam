@@ -39,8 +39,8 @@ export class Identity implements OIDCAccount {
     return this.adapter.getClaims(this.id, typeof scope === "string" ? scope.split(" ").filter(s => !!s) : scope);
   }
 
-  public async updateClaims(claims: Partial<OIDCAccountClaims>, scope: string | string[] = "", transaction?: Transaction): Promise<void> {
-    await this.adapter.createOrUpdateClaimsWithValidation(this.id, claims, typeof scope === "string" ? scope.split(" ").filter(s => !!s) : scope, false, transaction);
+  public async updateClaims(claims: Partial<OIDCAccountClaims>, scope: string | string[] = "", transaction?: Transaction, ignoreUndefinedClaims?: boolean): Promise<void> {
+    await this.adapter.createOrUpdateClaimsWithValidation(this.id, claims, typeof scope === "string" ? scope.split(" ").filter(s => !!s) : scope, false, transaction, ignoreUndefinedClaims);
   }
 
   public async deleteClaims(scope: string | string[] = "", transaction?: Transaction): Promise<void> {
@@ -75,7 +75,7 @@ export class Identity implements OIDCAccount {
   }
 
   /* update all */
-  public async update(scope: string | string[] = "", claims: Partial<OIDCAccountClaims>, metadata?: Partial<IdentityMetadata>, credentials?: Partial<OIDCAccountCredentials>, transaction?: Transaction) {
+  public async update(scope: string | string[] = "", claims: Partial<OIDCAccountClaims>, metadata?: Partial<IdentityMetadata>, credentials?: Partial<OIDCAccountCredentials>, transaction?: Transaction, ignoreUndefinedClaims?: boolean) {
     // validate claims and credentials
     if (typeof scope === "string") {
       scope = scope.split(" ").filter(s => !!s);
@@ -91,7 +91,7 @@ export class Identity implements OIDCAccount {
     }
     try {
       if (typeof claims === "object" && claims !== null && Object.keys(claims).length > 0) {
-        await this.updateClaims(claims, scope, transaction);
+        await this.updateClaims(claims, scope, transaction, ignoreUndefinedClaims);
       }
       if (typeof credentials === "object" && credentials !== null && Object.keys(credentials).length > 0) {
         await this.updateCredentials(credentials, transaction);

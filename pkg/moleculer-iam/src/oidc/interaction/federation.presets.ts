@@ -70,7 +70,7 @@ export const defaultIdentityFederationManagerOptions: IdentityFederationManagerO
         }
 
         await identity.updateMetadata({federation: {kakao}});
-        await identity.updateClaims(claims, upsertScopes);
+        await identity.updateClaims(claims, upsertScopes, undefined, true);
         return identity;
       } else {
         return idp.create({
@@ -126,7 +126,7 @@ export const defaultIdentityFederationManagerOptions: IdentityFederationManagerO
         }
 
         await identity.updateMetadata({federation: {facebook}});
-        await identity.updateClaims(claims, upsertScopes);
+        await identity.updateClaims(claims, upsertScopes, undefined, true);
         return identity;
       } else {
         return idp.create({
@@ -223,7 +223,7 @@ export const defaultIdentityFederationManagerOptions: IdentityFederationManagerO
       // 5. update or create
       if (identity) {
         await identity.updateMetadata({federation: {google}});
-        await identity.updateClaims(claims, upsertScopes);
+        await identity.updateClaims(claims, upsertScopes, undefined, true);
         return identity;
       } else {
         return idp.create({

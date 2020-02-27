@@ -6,19 +6,21 @@ import { Identity, IdentityProvider } from "../../identity";
 import { Logger } from "../../logger";
 import { Client, Interaction, interactionPolicy, KoaContextWithOIDC, Provider } from "../provider";
 import { IdentityFederationManager, IdentityFederationManagerOptions } from "./federation";
+import { getStaticInteractionActions } from "./interaction.actions";
 import { InternalInteractionConfigurationFactory } from "./interaction.internal";
-import { InteractionRenderer, InteractionRendererAdaptor } from "./interaction.render";
+import { InteractionActionEndpoints, InteractionRenderer, InteractionRendererAdaptor } from "./interaction.render";
 
 export type InteractionMiddlewareProps = {
   logger: Logger;
   router: Router<any, any>;
   parseContext: IMiddleware;
   render: InteractionRenderer["render"];
+  actions: { [name: string]: InteractionActionEndpoints };
   provider: Provider;
   url: (path: string) => string;
   idp: IdentityProvider;
   federation: InstanceType<typeof IdentityFederationManager>;
-  federationCallbackURL: (path: string) => string;
+  federationCallbackURL: (provider: string) => string;
   devModeEnabled: boolean;
 };
 export type InteractionMiddleware = (props: InteractionMiddlewareProps) => void;
@@ -41,10 +43,6 @@ import getProviderHiddenProps from "oidc-provider/lib/helpers/weak_cache";
 * INTERACTION:  https://github.com/panva/node-oidc-provider/blob/cd9bbfb653ddfb99c574ea3d4519b6f834274e86/docs/README.md#user-flows
 * PROMPT:       https://github.com/panva/node-oidc-provider/tree/master/lib/helpers/interaction_policy/prompts
 * ROUTE:        https://github.com/panva/node-oidc-provider/blob/06940e52ec5281d33bac2208fc014ac5ac741d5a/example/routes/koa.js
-*/
-
-/*
-TODO: refactor all this mess into the IDP methods
 */
 
 export type InteractionFactoryProps = {
@@ -114,12 +112,23 @@ export class InteractionFactory {
     const { idp, logger } = this.props;
     const url = (path: string) => `${provider.issuer}/interaction${path}`;
     const federationCallbackURL = (providerName: string) => `${url("/federate")}/${providerName}`;
+    const federation = new IdentityFederationManager({
+      logger,
+      idp,
+      callbackURL: federationCallbackURL,
+    }, this.opts.federation);
+    const actions = getStaticInteractionActions({
+      url,
+      availableFederationProviders: federation.availableProviders,
+    });
+
     const props: InteractionMiddlewareProps = {
       devModeEnabled: this.devModeEnabled,
       logger,
       idp,
       provider,
       router,
+      actions,
       url,
       federationCallbackURL,
       parseContext: async (ctx: any, next) => {
@@ -138,11 +147,7 @@ export class InteractionFactory {
         const metadata = getProviderHiddenProps(provider).configuration().discovery || {};
         return this.renderer.render(ctx, {metadata, ...renderProps});
       },
-      federation: new IdentityFederationManager({
-        logger,
-        idp,
-        callbackURL: federationCallbackURL,
-      }, this.opts.federation),
+      federation,
     };
 
     // apply middleware

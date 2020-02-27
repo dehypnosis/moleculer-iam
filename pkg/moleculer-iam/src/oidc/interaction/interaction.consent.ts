@@ -1,11 +1,13 @@
 import { InteractionMiddleware, InteractionRequestContext } from "./interaction";
 import { getPublicClientProps, getPublicUserProps } from "./util";
 
-export const useConsentInteraction: InteractionMiddleware = ({ provider, url, parseContext, render, router }) => {
+export const useConsentInteraction: InteractionMiddleware = ({ provider, actions, parseContext, render, router }) => {
 
   router.get("/consent", parseContext, async ctx => {
     const { user, client, interaction } = ctx.locals as InteractionRequestContext;
     ctx.assert(interaction.prompt.name === "consent", "Not a consent session.");
+
+    console.error("what the fucking consent gone");
 
     // skip consent if client has such property
     if (client && client.skip_consent) {
@@ -36,28 +38,7 @@ export const useConsentInteraction: InteractionMiddleware = ({ provider, url, pa
           // consent data (scopes, claims)
           consent: interaction.prompt.details,
         },
-        actions: {
-          "consent.accept": {
-            url: url("/consent/accept"),
-            method: "POST",
-            payload: {
-              rejected_scopes: [],
-              rejected_claims: [],
-            },
-          },
-          "login": {
-            url: url("/login"),
-            method: "GET",
-            payload: {
-              change_account: "true",
-            },
-            urlencoded: true,
-          },
-          abort: {
-            url: url(`/abort`),
-            method: "POST",
-          },
-        }
+        actions: actions.consent,
       },
     });
   });

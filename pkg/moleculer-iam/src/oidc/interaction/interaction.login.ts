@@ -2,7 +2,7 @@ import { Errors } from "../../identity/error";
 import { InteractionMiddleware, InteractionRequestContext } from "./interaction";
 import { getPublicClientProps, getPublicUserProps } from "./util";
 
-export const useLoginInteraction: InteractionMiddleware = ({ federation, provider, idp, url, render, router, parseContext }) => {
+export const useLoginInteraction: InteractionMiddleware = ({ provider, idp, render, router, url, actions, parseContext }) => {
   // render login page
   router.get("/login", parseContext, async ctx => {
     const {user, client, interaction} = ctx.locals as InteractionRequestContext;
@@ -29,35 +29,20 @@ export const useLoginInteraction: InteractionMiddleware = ({ federation, provide
       return render(ctx, {redirect});
     }
 
+    const userProps = await getPublicUserProps(user);
+
+    if (!changeAccount && userProps && userProps.email && !ctx.query.email) {
+      return ctx.redirect(url("/login") + `?email=${encodeURIComponent(userProps.email!)}`);
+    }
+
     return render(ctx, {
       interaction: {
         name: "login",
         data: {
-          user: await getPublicUserProps(user),
+          user: userProps,
           client: await getPublicClientProps(client),
-          federationProviders: federation.availableProviders,
         },
-        actions: {
-          "login.check_email": {
-            url: url("/login/check_email"),
-            method: "POST",
-            payload: {
-              email: "",
-            },
-          },
-          "login.check_password": {
-            url: url("/login/check_password"),
-            method: "POST",
-            payload: {
-              email: "",
-              password: "",
-            },
-          },
-          abort: {
-            url: url(`/abort`),
-            method: "POST",
-          },
-        },
+        actions: actions.login,
       },
     });
   });

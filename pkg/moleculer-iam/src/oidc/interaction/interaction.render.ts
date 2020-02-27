@@ -14,18 +14,21 @@ export interface InteractionRendererAdaptor {
   render(props: InteractionRenderProps, dev: boolean): string | Promise<string>;
 }
 
+export interface InteractionActionEndpoints {
+  [key: string]: {
+    url: string;
+    method: "POST"|"GET";
+    payload?: any;
+    urlencoded?: boolean;
+    [key: string]: any;
+  };
+}
+
 export interface InteractionRenderProps {
   interaction?: {
     name: string;
-    actions?: {
-      [key: string]: {
-        url: string;
-        method: "POST"|"GET";
-        payload?: any;
-        urlencoded?: boolean;
-      };
-    };
     data?: any;
+    actions?: InteractionActionEndpoints;
   };
 
   // global metadata

@@ -1,7 +1,8 @@
-import { Configuration, KoaContextWithOIDC } from "oidc-provider";
+import * as _ from "lodash";
+import { Configuration, KoaContextWithOIDC } from "../provider";
 import { Logger } from "../../logger";
 import { Identity, IdentityProvider } from "../../identity";
-import { getPublicClientProps, getPublicUserProps } from "./util"; // TODO
+import { getPublicClientProps, getPublicUserProps } from "./util";
 import { InteractionRenderer } from "./interaction.render";
 
 // @ts-ignore : need to hack oidc-provider private methods
@@ -201,6 +202,8 @@ export class InternalInteractionConfigurationFactory {
     if (props && props.interaction) {
       const xsrf = oidc.session && oidc.session.state && oidc.session.state.secret || undefined;
       if (xsrf) {
+        props.interaction.actions = _.cloneDeep(props.interaction.actions);
+
         // tslint:disable-next-line:forin
         for (const k in props.interaction.actions) {
           const action = props.interaction.actions[k];

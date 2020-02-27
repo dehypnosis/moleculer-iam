@@ -1,19 +1,19 @@
 import { Errors } from "../../identity/error";
 import { InteractionMiddleware, InteractionRequestContext } from "./interaction";
 
-export const useFederationInteraction: InteractionMiddleware = ({ provider, router, federation }) => {
+export const useFederationInteraction: InteractionMiddleware = ({ provider, router, parseContext, federation, render }) => {
 
-  router.post("/federate", async (ctx, next) => {
-    const { user, client, interaction } = ctx.locals as InteractionRequestContext;
-    ctx.assert(interaction.prompt.name === "login" || interaction.prompt.name === "consent", "Invalid Request.");
+  router.post("/federate", parseContext, async (ctx, next) => {
+    const { interaction } = ctx.locals as InteractionRequestContext;
+    ctx.assert(interaction.prompt.name === "login" || interaction.prompt.name === "consent", "Not a login session.");
 
-    await federation.request(ctx.request.body.provider, ctx, next);
+    return federation.request(ctx.request.body.provider, ctx, next);
   });
 
   // handle ferderation callback
-  router.get("/federate/:provider", async (ctx, next) => {
-    const { user, client, interaction } = ctx.locals as InteractionRequestContext;
-    ctx.assert(interaction.prompt.name === "login" || interaction.prompt.name === "consent", "Invalid Request.");
+  router.get("/federate/:provider", parseContext, async (ctx, next) => {
+    const { interaction } = ctx.locals as InteractionRequestContext;
+    ctx.assert(interaction.prompt.name === "login" || interaction.prompt.name === "consent", "Not a login session.");
 
     const federatedUser = await federation.callback(ctx.params.provider, ctx, next);
     if (!federatedUser) {
@@ -37,6 +37,6 @@ export const useFederationInteraction: InteractionMiddleware = ({ provider, rout
     // overwrite session
     await provider.setProviderSession(ctx.req, ctx.res, login);
 
-    return ctx.body = { redirect };
+    return render(ctx, { redirect });
   });
 };

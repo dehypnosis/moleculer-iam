@@ -1,7 +1,7 @@
 {
   "files": {
-    "static/js/0.chunk.js": "/assets/interaction/static/js/0.chunk.js",
-    "static/js/0.chunk.js.map": "/assets/interaction/static/js/0.chunk.js.map",
+    "static/js/1.chunk.js": "/assets/interaction/static/js/1.chunk.js",
+    "static/js/1.chunk.js.map": "/assets/interaction/static/js/1.chunk.js.map",
     "main.js": "/assets/interaction/static/js/main.chunk.js",
     "main.js.map": "/assets/interaction/static/js/main.chunk.js.map",
     "runtime-main.js": "/assets/interaction/static/js/bundle.js",
@@ -14,8 +14,7 @@
   },
   "entrypoints": [
     "static/js/bundle.js",
-    "static/js/0.chunk.js",
-    "static/js/main.chunk.js",
-    "main.8b6c1bd741ddbea8b584.hot-update.js"
+    "static/js/1.chunk.js",
+    "static/js/main.chunk.js"
   ]
 }

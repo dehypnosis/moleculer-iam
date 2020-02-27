@@ -8,10 +8,15 @@ export const LoginIndexScreen: React.FunctionComponent = () => {
   const nav = useNavigation();
   const { loading, errors, setErrors, withLoading } = useWithLoading();
   const [email, setEmail] = useState(((useRoute() as any).params || {}).email || "");
-  const federationProviders = ["google", "kakao", "facebook"];
-  const [federationOptionsVisible, setFederationOptionsVisible] = useState(false);
-  const { request } = useServerState();
   const { setGlobalState } = useGlobalState();
+  const { request, interaction } = useServerState();
+  const federationProviders = interaction.actions["login.federate"].providers || [];
+  const [federationOptionsVisible, setFederationOptionsVisible] = useState(false);
+
+  // const handleAbort = withLoading(() => {
+  //   return request("login.abort")
+  //     .catch((err: any) => setErrors(err));
+  // });
 
   const handleCheckLoginEmail = withLoading(() => {
     return request("login.check_email", { email })
@@ -47,8 +52,8 @@ export const LoginIndexScreen: React.FunctionComponent = () => {
   }));
 
   const handleFederation = withLoading((provider: string) => {
-    // TODO: federate provider
-    alert(provider);
+    return request("login.federate", { provider })
+      .catch((err: any) => setErrors(err));
   });
 
   useEffect(() => {

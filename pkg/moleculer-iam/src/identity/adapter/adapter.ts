@@ -150,6 +150,7 @@ export abstract class IDPAdapter {
         obj[schema.key] = schema.version;
         return obj;
       }, {} as { [key: string]: string });
+      const validClaimsKeys = claimsSchemata.map(s => s.key);
 
       // get unique claims schemata
       const uniqueClaimsSchemata = claimsSchemata.filter(s => s.unique);
@@ -211,6 +212,7 @@ export abstract class IDPAdapter {
         activeClaimsVersions,
         claimsSchemata,
         validateClaims,
+        validClaimsKeys,
         uniqueClaimsSchemata,
         validateClaimsUniqueness,
         immutableClaimsSchemata,
@@ -220,12 +222,21 @@ export abstract class IDPAdapter {
     (...args: any[]) => JSON.stringify(args),
   );
 
-  public async createOrUpdateClaimsWithValidation(id: string, claims: Partial<OIDCAccountClaims>, scope: string[], creating: boolean, transaction?: Transaction): Promise<void> {
-    const {activeClaimsVersions, claimsSchemata} = await this.getCachedActiveClaimsSchemata(scope);
+  public async createOrUpdateClaimsWithValidation(id: string, claims: Partial<OIDCAccountClaims>, scope: string[], creating: boolean, transaction?: Transaction, ignoreUndefinedClaims?: boolean): Promise<void> {
+    const {activeClaimsVersions, claimsSchemata, validClaimsKeys} = await this.getCachedActiveClaimsSchemata(scope);
 
     // merge old claims and validate merged one
     const oldClaims = await this.getClaims(id, scope);
     const mergedClaims: Partial<OIDCAccountClaims> = _.defaultsDeep(claims, oldClaims);
+
+    if (ignoreUndefinedClaims === true) {
+      for (const key of Object.keys(mergedClaims)) {
+        if (!validClaimsKeys.includes(key)) {
+          delete mergedClaims[key];
+        }
+      }
+    }
+
     try {
       await this.validate({id: creating ? undefined : id, scope, claims: mergedClaims});
     } catch (err) {

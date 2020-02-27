@@ -1,6 +1,6 @@
 import React, { ReactElement } from "react";
 import { ScrollView } from "react-native";
-import { FontWeights, Image, Stack, Text, AnimationStyles, ButtonStyles, DefaultButton, PrimaryButton, MessageBar, MessageBarType } from "../styles";
+import { FontWeights, Image, Stack, Text, AnimationStyles, ButtonStyles, DefaultButton, PrimaryButton, LabelStyles } from "../styles";
 import logo from "../image/logo.svg";
 
 export const ScreenLayout: React.FunctionComponent<{
@@ -46,7 +46,7 @@ export const ScreenLayout: React.FunctionComponent<{
           <Stack tokens={{childrenGap: 15}} children={children} />
 
           <Stack tokens={{childrenGap: 15}} verticalAlign="end">
-            { error ? <MessageBar messageBarType={MessageBarType.error} styles={{root: AnimationStyles.slideDownIn20}} children={typeof error === "string" ? error : JSON.stringify(error || "Unknown Error.")}/> : null }
+            { error ? <Text styles={{root: {...AnimationStyles.slideDownIn20, ...(LabelStyles.fieldErrorMessage.root as any) }}} children={typeof error === "string" ? error : JSON.stringify(error || "Unknown Error.")}/> : null }
             {buttons.map(({ primary, text, onClick, autoFocus, loading, tabIndex }, index) => {
               const Button = primary ? PrimaryButton : DefaultButton;
               return <Button key={index} tabIndex={tabIndex} autoFocus={autoFocus} checked={loading === true} allowDisabledFocus text={text} styles={ButtonStyles.large} onClick={loading ? undefined : onClick} />;
