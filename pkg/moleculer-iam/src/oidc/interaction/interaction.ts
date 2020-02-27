@@ -4,7 +4,7 @@ import noCache from "koajs-nocache";
 import compose from "koa-compose";
 import { Identity, IdentityProvider } from "../../identity";
 import { Logger } from "../../logger";
-import { Client, Interaction, interactionPolicy, KoaContextWithOIDC, Provider } from "../provider";
+import { Client, Interaction, interactionPolicy, KoaContextWithOIDC, OIDCProviderDiscoveryMetadata, Provider } from "../provider";
 import { IdentityFederationManager, IdentityFederationManagerOptions } from "./federation";
 import { getStaticInteractionActions } from "./interaction.actions";
 import { InternalInteractionConfigurationFactory } from "./interaction.internal";
@@ -35,9 +35,6 @@ import { useVerifyEmailInteraction } from "./interaction.verify_email";
 import { useVerifyPhoneInteraction } from "./interaction.verify_phone";
 import { useResetPasswordInteraction } from "./interaction.reset_password";
 
-// @ts-ignore : need to hack oidc-provider private methods
-import getProviderHiddenProps from "oidc-provider/lib/helpers/weak_cache";
-
 /*
 * can add more user interactive features (prompts) into base policy which includes login, consent prompts
 * INTERACTION:  https://github.com/panva/node-oidc-provider/blob/cd9bbfb653ddfb99c574ea3d4519b6f834274e86/docs/README.md#user-flows
@@ -48,12 +45,13 @@ import getProviderHiddenProps from "oidc-provider/lib/helpers/weak_cache";
 export type InteractionFactoryProps = {
   idp: IdentityProvider;
   logger: Logger;
+  metadata: OIDCProviderDiscoveryMetadata;
+  devModeEnabled: boolean;
 };
 
 export type InteractionFactoryOptions = {
   federation: IdentityFederationManagerOptions;
   renderer?: InteractionRendererAdaptor;
-  devModeEnabled?: boolean;
 };
 
 export type InteractionRequestContext = {
@@ -65,13 +63,14 @@ export type InteractionRequestContext = {
 export class InteractionFactory {
   private readonly renderer: InteractionRenderer;
   private readonly internal: InternalInteractionConfigurationFactory;
-  private readonly devModeEnabled: boolean;
 
   constructor(protected readonly props: InteractionFactoryProps, protected readonly opts: Partial<InteractionFactoryOptions> = {}) {
-    this.devModeEnabled = opts.devModeEnabled === true;
 
     // renderer
-    this.renderer = new InteractionRenderer({ adaptor: opts.renderer, logger: props.logger, devModeEnabled: this.devModeEnabled });
+    this.renderer = new InteractionRenderer({
+      ...props,
+      adaptor: opts.renderer,
+    });
 
     // internal interaction factory
     this.internal = new InternalInteractionConfigurationFactory({ ...props, renderer: this.renderer });
@@ -123,7 +122,7 @@ export class InteractionFactory {
     });
 
     const props: InteractionMiddlewareProps = {
-      devModeEnabled: this.devModeEnabled,
+      devModeEnabled: this.props.devModeEnabled,
       logger,
       idp,
       provider,
@@ -143,10 +142,7 @@ export class InteractionFactory {
 
         return next();
       },
-      render: (ctx, renderProps) => {
-        const metadata = getProviderHiddenProps(provider).configuration().discovery || {};
-        return this.renderer.render(ctx, {metadata, ...renderProps});
-      },
+      render: this.renderer.render.bind(this.renderer),
       federation,
     };
 

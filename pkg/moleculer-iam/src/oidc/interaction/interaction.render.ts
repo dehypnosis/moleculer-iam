@@ -2,12 +2,11 @@ import { RouterContext } from "koa-router";
 import compose from "koa-compose";
 import { Logger } from "../../logger";
 import { KoaContextWithOIDC, OIDCProviderDiscoveryMetadata } from "../provider";
+import { InteractionFactoryProps } from "./interaction";
 
 export type InteractionRendererProps = {
   adaptor?: InteractionRendererAdaptor;
-  logger: Logger;
-  devModeEnabled: boolean;
-}
+} & InteractionFactoryProps;
 
 export interface InteractionRendererAdaptor {
   routes(dev: boolean): compose.Middleware<any>[];
@@ -78,6 +77,7 @@ export class InteractionRenderer {
 
     // response HTML
     ctx.type = HTML;
+    props.metadata = this.props.metadata; // with metadata
     ctx.body = await this.props.adaptor!.render(props, this.props.devModeEnabled);
   }
 }

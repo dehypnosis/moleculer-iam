@@ -2,6 +2,7 @@
 
 import { IAMServiceSchema } from "../../";
 import { ServiceBroker } from "moleculer";
+import { isDev } from "../qmit/iam";
 import { app } from "./app";
 
 // create moleculer service (optional)
@@ -77,6 +78,7 @@ const serviceSchema = IAMServiceSchema({
     discovery: {
       ui_locales_supported: ["en-US", "ko-KR"],
       claims_locales_supported: ["en-US", "ko-KR"],
+      // op_logo_uri: "https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png",
       op_tos_uri: "/help/tos",
       op_policy_uri: "/help/policy",
       service_documentation: "/help",

@@ -133,7 +133,7 @@ export class IAMServer {
 
   private listenCallback(protocol: string, scheme: string, hostname: string, port: number) {
     const oidc = this.props.oidc;
-    const discoveryURL = kleur.blue(`${scheme}://${hostname}:${port}${oidc.discoveryPath}`);
+    const discoveryURL = kleur.blue(`${scheme}://${hostname}:${port}/.well-known/openid-configuration`);
     const issuerURL = kleur.yellow(oidc.issuer);
     return () => {
       this.logger.info(`${kleur.blue(protocol.toUpperCase() + " server")} is listening:\n* OIDC discovery endpoint: ${discoveryURL}\n* OIDC issuer: ${issuerURL}`);

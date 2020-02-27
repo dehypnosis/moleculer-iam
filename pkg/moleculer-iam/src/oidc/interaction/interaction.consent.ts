@@ -7,8 +7,6 @@ export const useConsentInteraction: InteractionMiddleware = ({ provider, actions
     const { user, client, interaction } = ctx.locals as InteractionRequestContext;
     ctx.assert(interaction.prompt.name === "consent", "Not a consent session.");
 
-    console.error("what the fucking consent gone");
-
     // skip consent if client has such property
     if (client && client.skip_consent) {
       const redirect = await provider.interactionResult(ctx.req, ctx.res, {

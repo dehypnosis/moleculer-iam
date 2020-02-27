@@ -1,5 +1,6 @@
 import React, { ReactElement } from "react";
 import { ScrollView } from "react-native";
+import { useServerState } from "../hook";
 import { FontWeights, Image, Stack, Text, AnimationStyles, ButtonStyles, DefaultButton, PrimaryButton, LabelStyles } from "../styles";
 import logo from "../image/logo.svg";
 
@@ -17,6 +18,7 @@ export const ScreenLayout: React.FunctionComponent<{
   footer?: ReactElement,
   error?: string,
 }> = (props) => {
+  const { metadata } = useServerState();
   const {title = "TODO", subtitle = null, children = null, buttons = [], error = null, footer = null} = props;
   return (
     <ScrollView contentContainerStyle={{marginTop: "auto", marginBottom: "auto"}}>
@@ -32,7 +34,7 @@ export const ScreenLayout: React.FunctionComponent<{
           }}
           tokens={{childrenGap: 30}}
         >
-          <Image src={logo} styles={{root: {height: "47px"}}} shouldFadeIn={false}/>
+          <Image src={metadata.op_logo_uri || logo} styles={{root: {height: "47px"}, image: {maxWidth: "100%", maxHeight: "100%"}}} shouldFadeIn={false}/>
 
           <Stack tokens={{childrenGap: 5}}>
             <Text

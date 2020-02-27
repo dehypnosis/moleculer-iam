@@ -6,7 +6,7 @@ export const useErrorMiddleware: InteractionMiddleware = ({ render, router, logg
     try {
       await next();
     } catch (err) {
-      logger.error(err);
+      logger.error("interaction error", err);
       const { error, name, message, status, statusCode, code, status_code, error_description, expose, ...otherProps } = err;
       ctx.status = status || statusCode || code || status_code || 500;
       if (isNaN(ctx.status)) ctx.status = 500;

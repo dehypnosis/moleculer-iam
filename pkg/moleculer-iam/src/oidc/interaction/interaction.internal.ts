@@ -46,7 +46,7 @@ export class InternalInteractionConfigurationFactory {
 
     return {
       async renderError(ctx, out, error) {
-        logger.error(error);
+        logger.error("internal error", error);
         return render(ctx, { error: out });
       },
 
@@ -213,9 +213,6 @@ export class InternalInteractionConfigurationFactory {
       }
     }
 
-    // get metadata
-    const metadata = oidc.provider && getProviderHiddenProps(oidc.provider).configuration().discovery || {};
-
-    return this.props.renderer.render(ctx, {metadata, ...props});
+    return this.props.renderer.render(ctx, props);
   }
 }

@@ -753,6 +753,7 @@ export function IAMServiceSchema(opts: IAMServiceSchemaOptions): ServiceSchema {
       "iam.schema.updated": {
         async handler(ctx: any) {
           await idp.claims.onClaimsSchemaUpdated();
+          await oidc.syncSupportedClaimsAndScopes();
           await this.clearCache("schema.*");
           await this.clearCache("id.*");
         },
