@@ -21,6 +21,6 @@
   },
   "include": [
     "./src",
-    "./server-state.ts"
+    "./inject.ts"
   ]
 }

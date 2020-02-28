@@ -6,7 +6,7 @@ import path from "path";
 import fs from "fs";
 import serveStatic from "koa-static-cache";
 import { InteractionRendererAdapter } from "moleculer-iam";
-import { ServerOptions } from "./server-state";
+import { ServerOptions } from "./inject";
 import config from "./config";
 
 const { output } = config;
@@ -16,7 +16,7 @@ type RecursivePartial<T> = {
 };
 
 export default class DefaultInteractionRendererAdapter implements InteractionRendererAdapter {
-  private views?: { footer: string; header: string; html: string };
+  private views?: { header: string; footer: string; };
   constructor(private readonly options: RecursivePartial<ServerOptions> = {}) {
     this.loadViews();
   }
@@ -24,10 +24,13 @@ export default class DefaultInteractionRendererAdapter implements InteractionRen
   private loadViews() {
     const html = fs.readFileSync(path.join(output.path, "index.html")).toString();
     const index = html.indexOf("<script");
+
+    // inject server-side options, ref ./src/server-state.ts
+    const options = `<script>window.__SERVER_OPTIONS__=${JSON.stringify(this.options)};</script>`
+
     this.views = {
-      html,
       header: html.substring(0, index),
-      footer: html.substring(index),
+      footer: options + html.substring(index),
     };
   }
 
@@ -41,9 +44,6 @@ export default class DefaultInteractionRendererAdapter implements InteractionRen
       }
     }
 
-    // merge partial options to state, ref ./src/server-state.ts
-    (state as any).options = this.options;
-
     // serialize state
     let serializedState: string;
     try {
@@ -53,11 +53,9 @@ export default class DefaultInteractionRendererAdapter implements InteractionRen
       serializedState = JSON.stringify({ error: { error: error.name, error_description: error.message }});
     }
 
-    const { header, footer, html } = this.views!;
-    return serializedState
-      ? header + `<script>window.__SERVER_STATE__=${serializedState};</script>` + footer
-      : html;
-  }
+    const { header, footer } = this.views!;
+    return `${header}<script>window.__SERVER_STATE__=${serializedState};</script>${footer}`;
+  };
 
   public routes: InteractionRendererAdapter["routes"] = (dev) => {
     return [
@@ -68,5 +66,5 @@ export default class DefaultInteractionRendererAdapter implements InteractionRen
         preload: !dev,
       }),
     ];
-  }
+  };
 }

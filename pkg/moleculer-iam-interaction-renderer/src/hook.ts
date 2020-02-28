@@ -1,6 +1,6 @@
 import { createContext, DependencyList, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
-import { getServerState } from "../server-state";
+import { getServerState, getServerOptions } from "../inject";
 
 /* do async job with loading state */
 export function useWithLoading() {
@@ -40,6 +40,11 @@ export function useWithLoading() {
     errors,
     setErrors,
   };
+}
+
+// return server options
+export function useServerOptions() {
+  return getServerOptions();
 }
 
 // read server state and inject helper function

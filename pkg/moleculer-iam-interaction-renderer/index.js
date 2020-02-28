@@ -26,8 +26,6 @@ var DefaultInteractionRendererAdapter = /** @class */ (function () {
                     console.error("failed to reload views", error);
                 }
             }
-            // merge partial options to state, ref ./src/server-state.ts
-            state.options = _this.options;
             // serialize state
             var serializedState;
             try {
@@ -37,10 +35,8 @@ var DefaultInteractionRendererAdapter = /** @class */ (function () {
                 console.error("failed to stringify server state", state, error);
                 serializedState = JSON.stringify({ error: { error: error.name, error_description: error.message } });
             }
-            var _a = _this.views, header = _a.header, footer = _a.footer, html = _a.html;
-            return serializedState
-                ? header + ("<script>window.__SERVER_STATE__=" + serializedState + ";</script>") + footer
-                : html;
+            var _a = _this.views, header = _a.header, footer = _a.footer;
+            return header + "<script>window.__SERVER_STATE__=" + serializedState + ";</script>" + footer;
         };
         this.routes = function (dev) {
             return [
@@ -57,10 +53,11 @@ var DefaultInteractionRendererAdapter = /** @class */ (function () {
     DefaultInteractionRendererAdapter.prototype.loadViews = function () {
         var html = fs_1.default.readFileSync(path_1.default.join(output.path, "index.html")).toString();
         var index = html.indexOf("<script");
+        // inject server-side options, ref ./src/server-state.ts
+        var options = "<script>window.__SERVER_OPTIONS__=" + JSON.stringify(this.options) + ";</script>";
         this.views = {
-            html: html,
             header: html.substring(0, index),
-            footer: html.substring(index),
+            footer: options + html.substring(index),
         };
     };
     return DefaultInteractionRendererAdapter;

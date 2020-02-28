@@ -4,7 +4,7 @@ import { IDatePickerStyleProps } from "office-ui-fabric-react/lib/components/Dat
 import { IDropdownStyleProps } from "office-ui-fabric-react/lib/components/Dropdown/Dropdown.types";
 import { initializeIcons } from "@uifabric/icons";
 import * as _ from "lodash";
-import { getServerState } from "../server-state";
+import { getServerOptions } from "../inject";
 import "./styles.css";
 
 export * from "office-ui-fabric-react/lib";
@@ -20,8 +20,7 @@ export * from "office-ui-fabric-react/lib";
 //   },
 // });
 
-// will be injected from server, ref: ./index.ts
-loadTheme(_.defaultsDeep(getServerState().options.theme || {}, {
+loadTheme(_.defaultsDeep(getServerOptions().theme || {}, {
   palette: {
     themePrimary: "#2a44ec",
     themeLighterAlt: "#f6f7fe",

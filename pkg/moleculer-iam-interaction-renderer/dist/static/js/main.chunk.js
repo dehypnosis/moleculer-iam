@@ -18,10 +18,10 @@ module.exports = exports;
 
 /***/ }),
 
-/***/ "./server-state.js":
-/*!*************************!*\
-  !*** ./server-state.js ***!
-  \*************************/
+/***/ "./inject.js":
+/*!*******************!*\
+  !*** ./inject.js ***!
+  \*******************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -50,24 +50,28 @@ var defaultServerOptions = {
   login: {
     federation_options_visible: false
   }
-}; // used only from browser
-
-var cachedServerState;
-var __EMPTY_SERVER_STATE__ = {
-  error: {
-    error: "unexpected_error",
-    error_description: "unrecognized state received from server"
-  }
 };
 
 exports.getServerState = function () {
   if (typeof window === "undefined") {
     throw new Error("cannot call getServerState from server-side");
   } else {
-    if (cachedServerState) return cachedServerState;
-    return cachedServerState = _.defaultsDeep(window.__SERVER_STATE__ || __EMPTY_SERVER_STATE__, {
-      options: defaultServerOptions
-    });
+    return window.__SERVER_STATE__ || {
+      error: {
+        error: "unexpected_error",
+        error_description: "unrecognized state received from server"
+      }
+    };
+  }
+};
+
+var cachedServerOptions;
+
+exports.getServerOptions = function () {
+  if (typeof window === "undefined") {
+    throw new Error("cannot call getServerState from server-side");
+  } else {
+    return cachedServerOptions || (cachedServerOptions = _.defaultsDeep(window.__SERVER_OPTIONS__, defaultServerOptions));
   }
 };
 
@@ -287,6 +291,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.useWithLoading = useWithLoading;
+exports.useServerOptions = useServerOptions;
 exports.useServerState = useServerState;
 exports.useClose = useClose;
 exports.useGlobalState = void 0;
@@ -305,7 +310,7 @@ var _react = __webpack_require__(/*! react */ "../../node_modules/react/index.js
 
 var _native = __webpack_require__(/*! @react-navigation/native */ "../../node_modules/@react-navigation/native/lib/module/index.js");
 
-var _serverState = __webpack_require__(/*! ../server-state */ "./server-state.js");
+var _inject = __webpack_require__(/*! ../inject */ "./inject.js");
 
 function useWithLoading() {
   var _useState = (0, _react.useState)(false),
@@ -392,8 +397,12 @@ function useWithLoading() {
   };
 }
 
+function useServerOptions() {
+  return (0, _inject.getServerOptions)();
+}
+
 function useServerState() {
-  var state = (0, _serverState.getServerState)();
+  var state = (0, _inject.getServerState)();
   return (0, _objectSpread2.default)({}, state, {
     request: function request(name) {
       var userPayload,
@@ -1542,9 +1551,7 @@ var _logo = _interopRequireDefault(__webpack_require__(/*! ../image/logo.svg */ 
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-interaction-renderer/src/screen/layout.tsx";
 
 var ScreenLayout = function ScreenLayout(props) {
-  var _useServerState = (0, _hook.useServerState)(),
-      options = _useServerState.options;
-
+  var options = (0, _hook.useServerOptions)();
   var _props$title = props.title,
       title = _props$title === void 0 ? "TODO" : _props$title,
       _props$subtitle = props.subtitle,
@@ -1923,12 +1930,12 @@ var LoginIndexScreen = function LoginIndexScreen() {
 
   var _useServerState = (0, _hook.useServerState)(),
       request = _useServerState.request,
-      interaction = _useServerState.interaction,
-      options = _useServerState.options;
+      interaction = _useServerState.interaction;
 
+  var options = (0, _hook.useServerOptions)();
   var federationProviders = interaction && interaction.actions["login.federate"].providers || [];
 
-  var _useState3 = (0, _react.useState)(options && options.login.federation_options_visible === true),
+  var _useState3 = (0, _react.useState)(options.login.federation_options_visible === true),
       _useState4 = (0, _slicedToArray2.default)(_useState3, 2),
       federationOptionsVisible = _useState4[0],
       setFederationOptionsVisible = _useState4[1];
@@ -2002,7 +2009,7 @@ var LoginIndexScreen = function LoginIndexScreen() {
     footer: federationProviders.length > 0 ? _react.default.createElement(_react.default.Fragment, null, _react.default.createElement(_styles.Separator, {
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 88
+        lineNumber: 89
       },
       __self: this
     }, _react.default.createElement("span", {
@@ -2011,7 +2018,7 @@ var LoginIndexScreen = function LoginIndexScreen() {
       },
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 88
+        lineNumber: 89
       },
       __self: this
     }, "OR")), federationOptionsVisible ? _react.default.createElement(_styles.Stack, {
@@ -2020,7 +2027,7 @@ var LoginIndexScreen = function LoginIndexScreen() {
       },
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 90
+        lineNumber: 91
       },
       __self: this
     }, federationProviders.includes("kakao") ? _react.default.createElement(_styles.PrimaryButton, {
@@ -2037,7 +2044,7 @@ var LoginIndexScreen = function LoginIndexScreen() {
       },
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 92
+        lineNumber: 93
       },
       __self: this
     }) : null, federationProviders.includes("facebook") ? _react.default.createElement(_styles.PrimaryButton, {
@@ -2053,7 +2060,7 @@ var LoginIndexScreen = function LoginIndexScreen() {
       },
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 100
+        lineNumber: 101
       },
       __self: this
     }) : null, federationProviders.includes("google") ? _react.default.createElement(_styles.DefaultButton, {
@@ -2070,7 +2077,7 @@ var LoginIndexScreen = function LoginIndexScreen() {
       },
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 108
+        lineNumber: 109
       },
       __self: this
     }) : null) : _react.default.createElement(_styles.Link, {
@@ -2082,13 +2089,13 @@ var LoginIndexScreen = function LoginIndexScreen() {
       },
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 124
+        lineNumber: 125
       },
       __self: this
     }, "Find more login options?")) : undefined,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 66
+      lineNumber: 67
     },
     __self: this
   }, _react.default.createElement("form", {
@@ -2098,7 +2105,7 @@ var LoginIndexScreen = function LoginIndexScreen() {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 130
+      lineNumber: 131
     },
     __self: this
   }, _react.default.createElement(_styles.TextField, {
@@ -2123,7 +2130,7 @@ var LoginIndexScreen = function LoginIndexScreen() {
     styles: _styles.TextFieldStyles.bold,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 131
+      lineNumber: 132
     },
     __self: this
   })), _react.default.createElement(_styles.Link, {
@@ -2135,7 +2142,7 @@ var LoginIndexScreen = function LoginIndexScreen() {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 149
+      lineNumber: 150
     },
     __self: this
   }, "Forgot email?"));
@@ -4117,11 +4124,11 @@ var _icons = __webpack_require__(/*! @uifabric/icons */ "../../node_modules/@uif
 
 var _ = _interopRequireWildcard(__webpack_require__(/*! lodash */ "../../node_modules/lodash/lodash.js"));
 
-var _serverState = __webpack_require__(/*! ../server-state */ "./server-state.js");
+var _inject = __webpack_require__(/*! ../inject */ "./inject.js");
 
 __webpack_require__(/*! ./styles.css */ "./src/styles.css");
 
-(0, _lib.loadTheme)(_.defaultsDeep((0, _serverState.getServerState)().options.theme || {}, {
+(0, _lib.loadTheme)(_.defaultsDeep((0, _inject.getServerOptions)().theme || {}, {
   palette: {
     themePrimary: "#2a44ec",
     themeLighterAlt: "#f6f7fe",
@@ -4278,5 +4285,5 @@ module.exports = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer
 
 /***/ })
 
-},[[1,"runtime-main",1]]]);
+},[[1,"runtime-main",0]]]);
 //# sourceMappingURL=main.chunk.js.map

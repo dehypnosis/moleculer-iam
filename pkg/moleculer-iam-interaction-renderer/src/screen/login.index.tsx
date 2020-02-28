@@ -2,16 +2,17 @@ import React, { useEffect, useState } from "react";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { ScreenLayout } from "./layout";
 import { PrimaryButton, DefaultButton, Link, TextField, TextFieldStyles, ButtonStyles, Separator, Stack, ThemeStyles } from "../styles";
-import { useGlobalState, useServerState, useWithLoading } from "../hook";
+import { useGlobalState, useServerOptions, useServerState, useWithLoading } from "../hook";
 
 export const LoginIndexScreen: React.FunctionComponent = () => {
   const nav = useNavigation();
   const { loading, errors, setErrors, withLoading } = useWithLoading();
   const [email, setEmail] = useState(((useRoute() as any).params || {}).email || "");
   const { setGlobalState } = useGlobalState();
-  const { request, interaction, options } = useServerState();
+  const { request, interaction } = useServerState();
+  const options = useServerOptions();
   const federationProviders = interaction && interaction.actions!["login.federate"]!.providers || [];
-  const [federationOptionsVisible, setFederationOptionsVisible] = useState(options && options.login!.federation_options_visible! === true);
+  const [federationOptionsVisible, setFederationOptionsVisible] = useState(options.login.federation_options_visible === true);
 
   // const handleAbort = withLoading(() => {
   //   return request("login.abort")
