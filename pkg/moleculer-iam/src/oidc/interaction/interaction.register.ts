@@ -151,7 +151,7 @@ export const useRegisterInteraction: InteractionMiddleware = ({ idp, provider, u
       // overwrite session
       await provider.setProviderSession(ctx.req, ctx.res, login);
 
-      // TODO: 5. send email which includes (email verification link) with adaptor props
+      // TODO: 5. send email which includes (email verification link) with adapter props
     }
 
     return ctx.body = {

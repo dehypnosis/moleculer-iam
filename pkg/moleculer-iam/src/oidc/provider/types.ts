@@ -1,5 +1,6 @@
+// @ts-ignore
 import "oidc-provider";
-import { AnyObject, ClaimsWithRejects, ClientAuthorizationState, InteractionResults, OIDCModelName } from "oidc-provider";
+import { AnyObject, ClaimsWithRejects, ClientAuthorizationState, InteractionResults } from "oidc-provider";
 import * as jose from "jose";
 
 export { AdapterConstructor as OIDCModelAdapterConstructor, AdapterPayload as OIDCModelPayload, Adapter as OIDCModelAdapter, errors as OIDCErrors } from "oidc-provider";

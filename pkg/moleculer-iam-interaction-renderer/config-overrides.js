@@ -2,7 +2,7 @@ const path = require("path");
 const fs = require("fs");
 const webpack = require('webpack');
 const CopyPlugin = require("copy-webpack-plugin");
-const { output } = require("./config");
+const { output } = require("./config").default;
 
 // ref: https://github.com/react-navigation/react-navigation/issues/6757#issuecomment-583319859
 // shim react-navigation missing types by edit code directly
@@ -29,6 +29,9 @@ module.exports = {
     ];
     babelRule.options.presets.push(require.resolve("metro-react-native-babel-preset"));
     // process.exit();
+
+    // to import ./server-state.ts
+    config.resolve.plugins = config.resolve.plugins.filter(plugin => plugin.constructor.name !== "ModuleScopePlugin");
 
     return {
       ...config,

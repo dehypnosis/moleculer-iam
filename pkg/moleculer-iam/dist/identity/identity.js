@@ -29,8 +29,8 @@ class Identity {
     async claims(use = "userinfo", scope = "", claims, rejected) {
         return this.adapter.getClaims(this.id, typeof scope === "string" ? scope.split(" ").filter(s => !!s) : scope);
     }
-    async updateClaims(claims, scope = "", transaction) {
-        await this.adapter.createOrUpdateClaimsWithValidation(this.id, claims, typeof scope === "string" ? scope.split(" ").filter(s => !!s) : scope, false, transaction);
+    async updateClaims(claims, scope = "", transaction, ignoreUndefinedClaims) {
+        await this.adapter.createOrUpdateClaimsWithValidation(this.id, claims, typeof scope === "string" ? scope.split(" ").filter(s => !!s) : scope, false, transaction, ignoreUndefinedClaims);
     }
     async deleteClaims(scope = "", transaction) {
         // check mandatory scopes
@@ -59,7 +59,7 @@ class Identity {
         return this.adapter.createOrUpdateCredentialsWithValidation(this.id, credentials, transaction);
     }
     /* update all */
-    async update(scope = "", claims, metadata, credentials, transaction) {
+    async update(scope = "", claims, metadata, credentials, transaction, ignoreUndefinedClaims) {
         // validate claims and credentials
         if (typeof scope === "string") {
             scope = scope.split(" ").filter(s => !!s);
@@ -75,7 +75,7 @@ class Identity {
         }
         try {
             if (typeof claims === "object" && claims !== null && Object.keys(claims).length > 0) {
-                await this.updateClaims(claims, scope, transaction);
+                await this.updateClaims(claims, scope, transaction, ignoreUndefinedClaims);
             }
             if (typeof credentials === "object" && credentials !== null && Object.keys(credentials).length > 0) {
                 await this.updateCredentials(credentials, transaction);

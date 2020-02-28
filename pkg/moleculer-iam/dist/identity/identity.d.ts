@@ -9,9 +9,9 @@ export interface IdentityProps {
 export declare class Identity implements OIDCAccount {
     private readonly props;
     constructor(props: IdentityProps);
-    readonly id: Readonly<string>;
-    private readonly adapter;
-    readonly accountId: Readonly<string>;
+    get id(): Readonly<string>;
+    private get adapter();
+    get accountId(): Readonly<string>;
     /**
      * @param use - can either be "id_token" or "userinfo", depending on where the specific claims are intended to be put in.
      * @param scope - the intended scope, while oidc-provider will mask
@@ -22,13 +22,13 @@ export declare class Identity implements OIDCAccount {
      * @param rejected
      */
     claims(use?: string, scope?: string | string[], claims?: OIDCClaimsInfo, rejected?: string[]): Promise<OIDCAccountClaims>;
-    updateClaims(claims: Partial<OIDCAccountClaims>, scope?: string | string[], transaction?: Transaction): Promise<void>;
+    updateClaims(claims: Partial<OIDCAccountClaims>, scope?: string | string[], transaction?: Transaction, ignoreUndefinedClaims?: boolean): Promise<void>;
     deleteClaims(scope?: string | string[], transaction?: Transaction): Promise<void>;
     metadata(): Promise<IdentityMetadata>;
     updateMetadata(metadata: Partial<IdentityMetadata>, transaction?: Transaction): Promise<void>;
     assertCredentials(credentials: Partial<OIDCAccountCredentials>): Promise<boolean>;
     updateCredentials(credentials: Partial<OIDCAccountCredentials>, transaction?: Transaction): Promise<boolean>;
-    update(scope: string | string[] | undefined, claims: Partial<OIDCAccountClaims>, metadata?: Partial<IdentityMetadata>, credentials?: Partial<OIDCAccountCredentials>, transaction?: Transaction): Promise<void>;
+    update(scope: string | string[] | undefined, claims: Partial<OIDCAccountClaims>, metadata?: Partial<IdentityMetadata>, credentials?: Partial<OIDCAccountCredentials>, transaction?: Transaction, ignoreUndefinedClaims?: boolean): Promise<void>;
     json(scope?: string | string[]): Promise<{
         id: string;
         claims: Partial<OIDCAccountClaims>;

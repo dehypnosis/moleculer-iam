@@ -1,8 +1,19 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const __1 = require("../../");
 const moleculer_1 = require("moleculer");
+// import { DefaultInteractionRendererAdapter } from "moleculer-iam-interaction-renderer";
+const __1 = require("../../"); // "moleculer-iam";
 const app_1 = require("./app");
+// can use any alternative renderer rather than this default one
+// const testRendererAdapter: InteractionRendererAdapter<{test: number}> = {
+//   render(state) {
+//     console.log(state);
+//     return JSON.stringify(state);
+//   },
+//   routes () {
+//     return [];
+//   },
+// };
 // create moleculer service (optional)
 const broker = new moleculer_1.ServiceBroker({
     transporter: {

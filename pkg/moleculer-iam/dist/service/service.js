@@ -716,6 +716,7 @@ function IAMServiceSchema(opts) {
             "iam.schema.updated": {
                 async handler(ctx) {
                     await idp.claims.onClaimsSchemaUpdated();
+                    await oidc.syncSupportedClaimsAndScopes();
                     await this.clearCache("schema.*");
                     await this.clearCache("id.*");
                 },

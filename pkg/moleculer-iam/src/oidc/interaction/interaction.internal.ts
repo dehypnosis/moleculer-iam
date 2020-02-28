@@ -2,11 +2,9 @@ import * as _ from "lodash";
 import { Configuration, KoaContextWithOIDC } from "../provider";
 import { Logger } from "../../logger";
 import { Identity, IdentityProvider } from "../../identity";
+import { normalizeError } from "./interaction.error";
 import { getPublicClientProps, getPublicUserProps } from "./util";
 import { InteractionRenderer } from "./interaction.render";
-
-// @ts-ignore : need to hack oidc-provider private methods
-import getProviderHiddenProps from "oidc-provider/lib/helpers/weak_cache";
 
 export type InternalInteractionConfigurationFactoryProps = {
   idp: IdentityProvider;
@@ -116,8 +114,8 @@ export class InternalInteractionConfigurationFactory {
             ctx.assert(user && client);
 
             await render(ctx, {
-              error,
-              interaction: error ? undefined : {
+              error: out,
+              interaction: out ? undefined : {
                 name: "device_code_verification",
                 data: {
                   user: await getPublicUserProps(user),
@@ -194,25 +192,25 @@ export class InternalInteractionConfigurationFactory {
     };
   }
 
-  private render: InteractionRenderer["render"] = (ctx, props) => {
+  private render: InteractionRenderer["render"] = (ctx, state) => {
     ctx = ctx as KoaContextWithOIDC;
     const oidc = (ctx.oidc || {}) as typeof ctx.state.oidc;
 
     // fill XSRF token
-    if (props && props.interaction) {
+    if (state && state.interaction) {
       const xsrf = oidc.session && oidc.session.state && oidc.session.state.secret || undefined;
       if (xsrf) {
-        props.interaction.actions = _.cloneDeep(props.interaction.actions);
+        state.interaction.actions = _.cloneDeep(state.interaction.actions);
 
         // tslint:disable-next-line:forin
-        for (const k in props.interaction.actions) {
-          const action = props.interaction.actions[k];
+        for (const k in state.interaction.actions) {
+          const action = state.interaction.actions[k];
           action.payload = action.payload || {};
           action.payload.xsrf = xsrf;
         }
       }
     }
 
-    return this.props.renderer.render(ctx, props);
+    return this.props.renderer.render(ctx, state);
   }
 }

@@ -30,7 +30,7 @@ export const ConsentScreen: React.FunctionComponent = () => {
     });
   });
 
-  const {user, client, consent} = (interaction.data || {}) as any;
+  const {user, client, consent} = (interaction && interaction.data) || {};
 
   // render
   return (

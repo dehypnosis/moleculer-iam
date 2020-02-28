@@ -4,11 +4,11 @@ import noCache from "koajs-nocache";
 import compose from "koa-compose";
 import { Identity, IdentityProvider } from "../../identity";
 import { Logger } from "../../logger";
-import { Client, Interaction, interactionPolicy, KoaContextWithOIDC, OIDCProviderDiscoveryMetadata, Provider } from "../provider";
+import { Client, Interaction, interactionPolicy, KoaContextWithOIDC, Provider, OIDCProviderDiscoveryMetadata } from "../provider";
 import { IdentityFederationManager, IdentityFederationManagerOptions } from "./federation";
 import { getStaticInteractionActions } from "./interaction.actions";
 import { InternalInteractionConfigurationFactory } from "./interaction.internal";
-import { InteractionActionEndpoints, InteractionRenderer, InteractionRendererAdaptor } from "./interaction.render";
+import { InteractionActionEndpoints, InteractionRenderer, InteractionRendererAdapter } from "./interaction.render";
 
 export type InteractionMiddlewareProps = {
   logger: Logger;
@@ -50,8 +50,8 @@ export type InteractionFactoryProps = {
 };
 
 export type InteractionFactoryOptions = {
-  federation: IdentityFederationManagerOptions;
-  renderer?: InteractionRendererAdaptor;
+  federation?: IdentityFederationManagerOptions;
+  renderer?: InteractionRendererAdapter;
 };
 
 export type InteractionRequestContext = {
@@ -64,15 +64,18 @@ export class InteractionFactory {
   private readonly renderer: InteractionRenderer;
   private readonly internal: InternalInteractionConfigurationFactory;
 
-  constructor(protected readonly props: InteractionFactoryProps, protected readonly opts: Partial<InteractionFactoryOptions> = {}) {
+  constructor(protected readonly props: InteractionFactoryProps, protected readonly opts: InteractionFactoryOptions = {}) {
 
-    // renderer
+    // create renderer
+    if (!opts.renderer) {
+      opts.renderer = new (require("moleculer-iam-interaction-renderer").default)(); // to avoid circular deps in our monorepo workspace
+    }
     this.renderer = new InteractionRenderer({
       ...props,
-      adaptor: opts.renderer,
+      adapter: opts.renderer!,
     });
 
-    // internal interaction factory
+    // create internal interaction factory
     this.internal = new InternalInteractionConfigurationFactory({ ...props, renderer: this.renderer });
   }
 

@@ -1,4 +1,4 @@
-import { Configuration } from "oidc-provider";
+import { Configuration } from "../provider";
 import { Logger } from "../../logger";
 import { IdentityProvider } from "../../identity";
 import { InteractionRenderer } from "./interaction.render";

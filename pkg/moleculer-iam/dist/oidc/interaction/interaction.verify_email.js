@@ -31,7 +31,7 @@ exports.useVerifyEmailInteraction = ({ devModeEnabled, url, idp, provider, route
             url: `${url("/verify_email_callback")}/${interaction.uid}`,
             expiresAt,
         };
-        // TODO: 5. send email which includes (callbackURL) with adaptor props
+        // TODO: 5. send email which includes (callbackURL) with adapter props
         console.log(payload);
         // 6. extend TTL and store the state
         await interaction.save(moment_1.default().isAfter((interaction.exp / 1000) + 60 * 10, "s") ? interaction.exp + 60 * 10 : undefined);

@@ -1,9 +1,10 @@
-import { FontSizes, ITextFieldStyles, IStyleFunctionOrObject, FontWeights, IDatePickerStyles, IButtonStyles, IDropdownStyles, ILabelStyles } from "office-ui-fabric-react/lib";
+import { loadTheme, getTheme, FontSizes, ITextFieldStyles, IStyleFunctionOrObject, FontWeights, IDatePickerStyles, IButtonStyles, IDropdownStyles, ILabelStyles, IPartialTheme } from "office-ui-fabric-react/lib";
 import { ITextFieldStyleProps } from "office-ui-fabric-react/lib/components/TextField/TextField.types";
 import { IDatePickerStyleProps } from "office-ui-fabric-react/lib/components/DatePicker/DatePicker.types";
 import { IDropdownStyleProps } from "office-ui-fabric-react/lib/components/Dropdown/Dropdown.types";
-import { loadTheme, getTheme } from "office-ui-fabric-react/lib";
 import { initializeIcons } from "@uifabric/icons";
+import * as _ from "lodash";
+import { getServerState } from "../server-state";
 import "./styles.css";
 
 export * from "office-ui-fabric-react/lib";
@@ -19,7 +20,8 @@ export * from "office-ui-fabric-react/lib";
 //   },
 // });
 
-loadTheme({
+// will be injected from server, ref: ./index.ts
+loadTheme(_.defaultsDeep(getServerState().options.theme || {}, {
   palette: {
     themePrimary: "#2a44ec",
     themeLighterAlt: "#f6f7fe",
@@ -45,7 +47,7 @@ loadTheme({
     white: "#ffffff",
     orange: "#ffa420",
   },
-});
+} as IPartialTheme));
 
 initializeIcons();
 

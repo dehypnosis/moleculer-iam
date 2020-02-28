@@ -1,5 +1,9 @@
-import { Configuration, ClientMetadata } from "./types";
-import { OIDCAdapterConstructorOptions } from "../adapter";
+/// <reference types="koa-bodyparser" />
+/// <reference types="koa-passport" />
+import { IdentityClaimsSchema, IdentityProvider } from "../../identity";
+import { Logger } from "../../logger";
+import { Provider, Configuration, ClientMetadata, Client } from "./types";
+import { OIDCAdapter, OIDCAdapterConstructorOptions } from "../adapter";
 import { InteractionFactoryOptions } from "../interaction";
 export interface OIDCProviderDiscoveryMetadata {
     display_values_supported?: string[];
@@ -17,6 +21,26 @@ export declare type OIDCProviderOptions = Omit<Configuration, "adapter" | "claim
     adapter?: OIDCAdapterConstructorOptions;
     interaction?: InteractionFactoryOptions;
     discovery?: OIDCProviderDiscoveryMetadata;
-    client?: Partial<ClientMetadata>;
 };
 export declare const defaultOIDCProviderOptions: OIDCProviderOptions;
+export declare const parseOIDCProviderOptions: (props: {
+    logger: Logger;
+    idp: IdentityProvider;
+}, opts: OIDCProviderOptions) => {
+    methods: {
+        configuration: () => Configuration;
+        clientAdd: (metadata: Partial<ClientMetadata>, opt: {
+            store: true;
+        }) => Client;
+        clientRemove: (id: string) => void;
+    };
+    syncSupportedClaimsAndScopes: (claimsSchemata: IdentityClaimsSchema[]) => void;
+    routes: import("koa-compose").Middleware<import("koa").ParameterizedContext<unknown, unknown>>;
+    adapter: OIDCAdapter;
+    devModeEnabled: boolean;
+    issuer: string;
+};
+export declare type OIDCProviderDebugOptions = {
+    [key in "disable-implicit-force-https" | "disable-implicit-forbid-localhost"]: boolean;
+};
+export declare function applyDebugOptions(provider: Provider, logger: Logger, options: OIDCProviderDebugOptions): void;

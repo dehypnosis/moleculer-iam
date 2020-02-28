@@ -7,9 +7,7 @@ exports.app = async (oidc) => {
         sensitive: false,
         strict: false,
     });
-    router.get("/", (ctx, next) => {
-        ctx.body = `<html><body>Any optional application routes can be mapped except reserved ones:<pre>${JSON.stringify(oidc.defaultRoutes, null, 2)}</pre></body></html>`;
-    });
+    // ... nothing
     return router.routes();
 };
 //# sourceMappingURL=app.js.map

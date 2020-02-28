@@ -17,6 +17,7 @@ class IDPAdapter {
                 obj[schema.key] = schema.version;
                 return obj;
             }, {});
+            const validClaimsKeys = claimsSchemata.map(s => s.key);
             // get unique claims schemata
             const uniqueClaimsSchemata = claimsSchemata.filter(s => s.unique);
             const uniqueClaimsSchemataKeys = uniqueClaimsSchemata.map(s => s.key);
@@ -74,6 +75,7 @@ class IDPAdapter {
                 activeClaimsVersions,
                 claimsSchemata,
                 validateClaims,
+                validClaimsKeys,
                 uniqueClaimsSchemata,
                 validateClaimsUniqueness,
                 immutableClaimsSchemata,
@@ -179,11 +181,18 @@ class IDPAdapter {
         }
         return claims;
     }
-    async createOrUpdateClaimsWithValidation(id, claims, scope, creating, transaction) {
-        const { activeClaimsVersions, claimsSchemata } = await this.getCachedActiveClaimsSchemata(scope);
+    async createOrUpdateClaimsWithValidation(id, claims, scope, creating, transaction, ignoreUndefinedClaims) {
+        const { activeClaimsVersions, claimsSchemata, validClaimsKeys } = await this.getCachedActiveClaimsSchemata(scope);
         // merge old claims and validate merged one
         const oldClaims = await this.getClaims(id, scope);
         const mergedClaims = _.defaultsDeep(claims, oldClaims);
+        if (ignoreUndefinedClaims === true) {
+            for (const key of Object.keys(mergedClaims)) {
+                if (!validClaimsKeys.includes(key)) {
+                    delete mergedClaims[key];
+                }
+            }
+        }
         try {
             await this.validate({ id: creating ? undefined : id, scope, claims: mergedClaims });
         }

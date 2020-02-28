@@ -6,9 +6,20 @@
     "url": "https://github.com/qmit-pro/moleculer-iam.git"
   },
   "main": "index.js",
+  "type": "index.d.ts",
   "license": "MIT",
+  "files": [
+    "dist",
+    "index.d.ts",
+    "index.js",
+    "config.d.ts",
+    "config.js",
+    "server-state.d.ts",
+    "server-state.js"
+  ],
   "dependencies": {
     "koa-static-cache": "^5.1.2",
+    "lodash": "^4.17.15",
     "moment": "^2.24.0",
     "office-ui-fabric-react": "^7.94.1",
     "react": "^16.12.0",
@@ -23,6 +34,7 @@
   "scripts": {
     "dev": "rm -rf ./dist && react-app-rewired start",
     "build": "rm -rf ./dist && react-app-rewired build",
+    "build-server": "tsc -p tsconfig.server.json",
     "test": "react-app-rewired test",
     "eject": "react-scripts eject"
   },
@@ -51,6 +63,7 @@
     "@types/react-dom": "^16.9.5",
     "@types/react-native": "^0.61.15",
     "metro-react-native-babel-preset": "^0.58.0",
+    "moleculer-iam": "*",
     "react-app-rewired": "^2.1.5",
     "typescript": "^3.7.3"
   }

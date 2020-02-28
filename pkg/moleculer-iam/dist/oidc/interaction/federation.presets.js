@@ -53,7 +53,7 @@ exports.defaultIdentityFederationManagerOptions = {
                     throw new error_1.Errors.UnexpectedError("cannot federate a deleted account");
                 }
                 await identity.updateMetadata({ federation: { kakao } });
-                await identity.updateClaims(claims, upsertScopes);
+                await identity.updateClaims(claims, upsertScopes, undefined, true);
                 return identity;
             }
             else {
@@ -106,7 +106,7 @@ exports.defaultIdentityFederationManagerOptions = {
                     throw new error_1.Errors.UnexpectedError("cannot federate a deleted account");
                 }
                 await identity.updateMetadata({ federation: { facebook } });
-                await identity.updateClaims(claims, upsertScopes);
+                await identity.updateClaims(claims, upsertScopes, undefined, true);
                 return identity;
             }
             else {
@@ -200,7 +200,7 @@ exports.defaultIdentityFederationManagerOptions = {
             // 5. update or create
             if (identity) {
                 await identity.updateMetadata({ federation: { google } });
-                await identity.updateClaims(claims, upsertScopes);
+                await identity.updateClaims(claims, upsertScopes, undefined, true);
                 return identity;
             }
             else {

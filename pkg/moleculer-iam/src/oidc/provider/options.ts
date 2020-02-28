@@ -17,7 +17,6 @@ export interface OIDCProviderDiscoveryMetadata {
   claim_types_supported?: string[];
   claims_locales_supported?: string[];
   ui_locales_supported?: string[];
-  op_logo_uri?: string | null;
   op_tos_uri?: string | null;
   op_policy_uri?: string | null;
   service_documentation?: string | null;
@@ -50,7 +49,6 @@ export const defaultOIDCProviderOptions: OIDCProviderOptions = {
     claims_locales_supported: ["en-US"],
     ui_locales_supported: ["en-US"],
     display_values_supported: ["page", "popup"],
-    op_logo_uri: null,
     op_tos_uri: null,
     op_policy_uri: null,
     service_documentation: null,
@@ -153,7 +151,7 @@ export const parseOIDCProviderOptions = (
   const { logger, idp } = props;
 
   // apply default options
-  const { issuer, trustProxy, devMode, interaction, ...config } = _.defaultsDeep(opts, defaultOIDCProviderOptions);
+  const { issuer, trustProxy, devMode, interaction, ...config } = _.defaultsDeep(opts, defaultOIDCProviderOptions) as OIDCProviderOptions;
   const devModeEnabled = !!(devMode || issuer.startsWith("http://"));
 
   // create provider adapter
@@ -167,8 +165,8 @@ export const parseOIDCProviderOptions = (
   const interactionFactory = new InteractionFactory({
     logger,
     idp,
-    metadata: config.discovery!,
     devModeEnabled,
+    metadata: config.discovery!,
   }, interaction);
 
   // create original provider

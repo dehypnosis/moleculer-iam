@@ -1,13 +1,13 @@
 import React from "react";
 import { Text, Link } from "../styles";
-import { useClose, useServerState, useWithLoading } from "../hook";
+import { useServerState, useWithLoading } from "../hook";
 import { ScreenLayout } from "./layout";
 
 export const LogoutIndexScreen: React.FunctionComponent = () => {
   // states
   const { loading, withLoading, errors, setErrors } = useWithLoading();
   const { request, interaction } = useServerState();
-  const { user, client } = interaction.data;
+  const { user, client } = (interaction && interaction.data) || {};
 
   const handleSignOutAll = withLoading(() => {
     return request("logout.confirm")

@@ -18,6 +18,61 @@ module.exports = exports;
 
 /***/ }),
 
+/***/ "./server-state.js":
+/*!*************************!*\
+  !*** ./server-state.js ***!
+  \*************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var __importStar = this && this.__importStar || function (mod) {
+  if (mod && mod.__esModule) return mod;
+  var result = {};
+  if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+  result["default"] = mod;
+  return result;
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _ = __importStar(__webpack_require__(/*! lodash */ "../../node_modules/lodash/lodash.js"));
+
+var defaultServerOptions = {
+  logo: {
+    uri: null,
+    align: "left"
+  },
+  login: {
+    federation_options_visible: false
+  }
+}; // used only from browser
+
+var cachedServerState;
+var __EMPTY_SERVER_STATE__ = {
+  error: {
+    error: "unexpected_error",
+    error_description: "unrecognized state received from server"
+  }
+};
+
+exports.getServerState = function () {
+  if (typeof window === "undefined") {
+    throw new Error("cannot call getServerState from server-side");
+  } else {
+    if (cachedServerState) return cachedServerState;
+    return cachedServerState = _.defaultsDeep(window.__SERVER_STATE__ || __EMPTY_SERVER_STATE__, {
+      options: defaultServerOptions
+    });
+  }
+};
+
+/***/ }),
+
 /***/ "./src/app.tsx":
 /*!*********************!*\
   !*** ./src/app.tsx ***!
@@ -250,6 +305,8 @@ var _react = __webpack_require__(/*! react */ "../../node_modules/react/index.js
 
 var _native = __webpack_require__(/*! @react-navigation/native */ "../../node_modules/@react-navigation/native/lib/module/index.js");
 
+var _serverState = __webpack_require__(/*! ../server-state */ "./server-state.js");
+
 function useWithLoading() {
   var _useState = (0, _react.useState)(false),
       _useState2 = (0, _slicedToArray2.default)(_useState, 2),
@@ -335,125 +392,116 @@ function useWithLoading() {
   };
 }
 
-var __EMPTY_SERVER_STATE__ = {
-  error: {
-    error: "unexpected_error",
-    error_description: "unrecognized state received from server"
-  },
-  metadata: {}
-};
-
 function useServerState() {
-  var state = window.__SERVER_STATE__ || __EMPTY_SERVER_STATE__;
+  var state = (0, _serverState.getServerState)();
+  return (0, _objectSpread2.default)({}, state, {
+    request: function request(name) {
+      var userPayload,
+          actions,
+          action,
+          url,
+          _action$urlencoded,
+          urlencoded,
+          method,
+          payload,
+          mergedPayload,
+          form,
+          k,
+          input,
+          err,
+          _args2 = arguments;
 
-  state.request = function _callee2(name) {
-    var userPayload,
-        actions,
-        action,
-        url,
-        _action$urlencoded,
-        urlencoded,
-        method,
-        payload,
-        mergedPayload,
-        form,
-        k,
-        input,
-        err,
-        _args2 = arguments;
+      return _regenerator.default.async(function request$(_context2) {
+        while (1) {
+          switch (_context2.prev = _context2.next) {
+            case 0:
+              userPayload = _args2.length > 1 && _args2[1] !== undefined ? _args2[1] : {};
+              actions = state.interaction && state.interaction.actions;
+              action = actions && actions[name];
 
-    return _regenerator.default.async(function _callee2$(_context2) {
-      while (1) {
-        switch (_context2.prev = _context2.next) {
-          case 0:
-            userPayload = _args2.length > 1 && _args2[1] !== undefined ? _args2[1] : {};
-            actions = state.interaction && state.interaction.actions;
-            action = actions && actions[name];
+              if (!action) {
+                _context2.next = 18;
+                break;
+              }
 
-            if (!action) {
-              _context2.next = 18;
-              break;
-            }
+              url = action.url, _action$urlencoded = action.urlencoded, urlencoded = _action$urlencoded === void 0 ? false : _action$urlencoded, method = action.method, payload = action.payload;
+              mergedPayload = (0, _objectSpread2.default)({}, payload, {}, userPayload);
 
-            url = action.url, _action$urlencoded = action.urlencoded, urlencoded = _action$urlencoded === void 0 ? false : _action$urlencoded, method = action.method, payload = action.payload;
-            mergedPayload = (0, _objectSpread2.default)({}, payload, {}, userPayload);
+              if (!urlencoded) {
+                _context2.next = 15;
+                break;
+              }
 
-            if (!urlencoded) {
-              _context2.next = 15;
-              break;
-            }
+              form = document.createElement("form");
+              form.action = url;
+              form.method = method;
+              form.style.display = "none";
 
-            form = document.createElement("form");
-            form.action = url;
-            form.method = method;
-            form.style.display = "none";
+              for (k in mergedPayload) {
+                input = document.createElement("input");
+                input.type = "hidden";
+                input.name = k;
+                input.value = mergedPayload[k];
+                form.appendChild(input);
+              }
 
-            for (k in mergedPayload) {
-              input = document.createElement("input");
-              input.type = "hidden";
-              input.name = k;
-              input.value = mergedPayload[k];
-              form.appendChild(input);
-            }
+              document.body.appendChild(form);
+              form.submit();
+              return _context2.abrupt("return", new Promise(function () {}));
 
-            document.body.appendChild(form);
-            form.submit();
-            return _context2.abrupt("return", new Promise(function () {}));
-
-          case 15:
-            return _context2.abrupt("return", fetch(action.url, {
-              headers: {
-                "Accept": "application/json",
-                "Content-Type": "application/json;charset=UTF-8"
-              },
-              credentials: "same-origin",
-              method: method,
-              body: method !== "GET" ? JSON.stringify(mergedPayload) : undefined
-            }).then(function (res) {
-              return res.json().then(function (data) {
-                if (data.error) {
-                  if (res.status === 422 && data.fields) {
-                    var err = data.fields.reduce(function (err, item) {
-                      err[item.field] = err[item.field] || item.message;
-                      return err;
-                    }, {});
-                    console.error(err, state);
-                    throw err;
+            case 15:
+              return _context2.abrupt("return", fetch(action.url, {
+                headers: {
+                  "Accept": "application/json",
+                  "Content-Type": "application/json;charset=UTF-8"
+                },
+                credentials: "same-origin",
+                method: method,
+                body: method !== "GET" ? JSON.stringify(mergedPayload) : undefined
+              }).then(function (res) {
+                return res.json().then(function (data) {
+                  if (data.error) {
+                    if (res.status === 422 && data.fields) {
+                      var err = data.fields.reduce(function (e, item) {
+                        e[item.field] = e[item.field] || item.message;
+                        return e;
+                      }, {});
+                      console.error(err, state);
+                      throw err;
+                    } else {
+                      var _err = {
+                        global: typeof data === "object" ? data.error_description || data.error || JSON.stringify(data) : data.toString()
+                      };
+                      console.error(_err, state);
+                      throw _err;
+                    }
+                  } else if (data.redirect) {
+                    window.location.assign(data.redirect);
+                    return new Promise(function () {});
                   } else {
-                    var _err = {
-                      global: typeof data === "object" ? data.error_description || data.error || JSON.stringify(data) : data.toString()
-                    };
-                    console.error(_err, state);
-                    throw _err;
+                    return data;
                   }
-                } else if (data.redirect) {
-                  window.location.assign(data.redirect);
-                  return new Promise(function () {});
-                } else {
-                  return data;
-                }
-              });
-            }, function (err) {
+                });
+              }, function (err) {
+                console.error(err, state);
+                throw err;
+              }));
+
+            case 18:
+              err = {
+                global: "Cannot call unsupported action."
+              };
               console.error(err, state);
               throw err;
-            }));
 
-          case 18:
-            err = {
-              global: "Cannot call unsupported action."
-            };
-            console.error(err, state);
-            throw err;
-
-          case 21:
-          case "end":
-            return _context2.stop();
+            case 21:
+            case "end":
+              return _context2.stop();
+          }
         }
-      }
-    });
-  };
-
-  return state;
+      });
+    }
+  });
 }
 
 var clientState = {};
@@ -1085,7 +1133,7 @@ var ConsentScreen = function ConsentScreen() {
     });
   });
 
-  var _ref = interaction.data || {},
+  var _ref = interaction && interaction.data || {},
       user = _ref.user,
       client = _ref.client,
       consent = _ref.consent;
@@ -1495,7 +1543,7 @@ var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-ia
 
 var ScreenLayout = function ScreenLayout(props) {
   var _useServerState = (0, _hook.useServerState)(),
-      metadata = _useServerState.metadata;
+      options = _useServerState.options;
 
   var _props$title = props.title,
       title = _props$title === void 0 ? "TODO" : _props$title,
@@ -1538,14 +1586,16 @@ var ScreenLayout = function ScreenLayout(props) {
     },
     __self: this
   }, _react.default.createElement(_styles.Image, {
-    src: metadata.op_logo_uri || _logo.default,
+    src: options.logo.uri || _logo.default,
     styles: {
       root: {
-        height: "47px"
+        height: "47px",
+        textAlign: options.logo.align
       },
       image: {
         maxWidth: "100%",
-        maxHeight: "100%"
+        maxHeight: "100%",
+        display: "inline-block"
       }
     },
     shouldFadeIn: false,
@@ -1873,11 +1923,12 @@ var LoginIndexScreen = function LoginIndexScreen() {
 
   var _useServerState = (0, _hook.useServerState)(),
       request = _useServerState.request,
-      interaction = _useServerState.interaction;
+      interaction = _useServerState.interaction,
+      options = _useServerState.options;
 
-  var federationProviders = interaction.actions["login.federate"].providers || [];
+  var federationProviders = interaction && interaction.actions["login.federate"].providers || [];
 
-  var _useState3 = (0, _react.useState)(false),
+  var _useState3 = (0, _react.useState)(options && options.login.federation_options_visible === true),
       _useState4 = (0, _slicedToArray2.default)(_useState3, 2),
       federationOptionsVisible = _useState4[0],
       setFederationOptionsVisible = _useState4[1];
@@ -2126,7 +2177,9 @@ var LogoutEndScreen = function LogoutEndScreen() {
   var _useServerState = (0, _hook.useServerState)(),
       interaction = _useServerState.interaction;
 
-  var user = interaction.data.user;
+  var _ref = interaction && interaction.data || {},
+      user = _ref.user;
+
   return _react.default.createElement(_layout.ScreenLayout, {
     title: "Signed out",
     subtitle: user ? user.email : undefined,
@@ -2191,9 +2244,10 @@ var LogoutIndexScreen = function LogoutIndexScreen() {
       request = _useServerState.request,
       interaction = _useServerState.interaction;
 
-  var _interaction$data = interaction.data,
-      user = _interaction$data.user,
-      client = _interaction$data.client;
+  var _ref = interaction && interaction.data || {},
+      user = _ref.user,
+      client = _ref.client;
+
   var handleSignOutAll = withLoading(function () {
     return request("logout.confirm").catch(function (err) {
       return setErrors(err);
@@ -4027,6 +4081,8 @@ if(true) {
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
+var _interopRequireWildcard = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireWildcard */ "../../node_modules/@babel/runtime/helpers/interopRequireWildcard.js");
+
 var _interopRequireDefault = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireDefault */ "../../node_modules/@babel/runtime/helpers/interopRequireDefault.js");
 
 Object.defineProperty(exports, "__esModule", {
@@ -4059,9 +4115,13 @@ Object.keys(_lib).forEach(function (key) {
 
 var _icons = __webpack_require__(/*! @uifabric/icons */ "../../node_modules/@uifabric/icons/lib/index.js");
 
+var _ = _interopRequireWildcard(__webpack_require__(/*! lodash */ "../../node_modules/lodash/lodash.js"));
+
+var _serverState = __webpack_require__(/*! ../server-state */ "./server-state.js");
+
 __webpack_require__(/*! ./styles.css */ "./src/styles.css");
 
-(0, _lib.loadTheme)({
+(0, _lib.loadTheme)(_.defaultsDeep((0, _serverState.getServerState)().options.theme || {}, {
   palette: {
     themePrimary: "#2a44ec",
     themeLighterAlt: "#f6f7fe",
@@ -4087,7 +4147,7 @@ __webpack_require__(/*! ./styles.css */ "./src/styles.css");
     white: "#ffffff",
     orange: "#ffa420"
   }
-});
+}));
 (0, _icons.initializeIcons)();
 var ThemeStyles = (0, _lib.getTheme)();
 exports.ThemeStyles = ThemeStyles;

@@ -38,19 +38,12 @@ yarn add moleculer-iam
 - `yarn workspace moleculer-iam test` - Run tests & generate coverage report
 - `yarn workspace moleculer-iam test --watch` - Watch and run tests
 
-## 2. moleculer-iam-app
+## 2. moleculer-iam-renderer
 ### React Application for OIDC interactions with browser
-- `yarn workspace moleculer-iam-app dev` - Start Server Application development (webpack)
-- `yarn workspace moleculer-iam-app lint` - Run TSLint
-- `yarn workspace moleculer-iam-app build`- Transpile ts/tsx to js 
-- `yarn workspace moleculer-iam-app deps`- Update dependencies
-- `yarn workspace moleculer-iam-app test` - Run tests & generate coverage report
-- `yarn workspace moleculer-iam-app test --watch` - Watch and run tests
-
-## 3. moleculer-iam-client
-### JS Client SDK for OIDC authnz + React hook and components
-- `yarn workspace moleculer-iam-client dev` - Start Client SDK development (webpack)
-// ...
+- `yarn workspace moleculer-iam-renderer dev` - Start Server Application development (webpack)
+- `yarn workspace moleculer-iam-renderer build`- Transpile client-side ts/tsx to js 
+- `yarn workspace moleculer-iam-renderer build-server`- Transpile server-side ts to js
+- `yarn workspace moleculer-iam-renderer test` - Run tests
 
 
 # Release Road-map

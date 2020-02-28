@@ -1,5 +1,5 @@
 import Router from "koa-router";
-import { OIDCProvider } from "../../";
+import { OIDCProvider } from "../../"; // "moleculer-iam";
 
 export const app = async (oidc: OIDCProvider) => {
   const router = new Router({

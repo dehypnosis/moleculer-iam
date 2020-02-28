@@ -3,7 +3,7 @@
 import { FindOptions, WhereAttributeHash } from "../../helper/rdbms";
 import { IdentityProvider } from "../../identity";
 import { Logger } from "../../logger";
-import { ClientMetadata, Configuration as OriginalProviderConfiguration, OIDCModelName, VolatileOIDCModelName } from "./types";
+import { ClientMetadata, Configuration, OIDCModelName, VolatileOIDCModelName } from "./types";
 import { OIDCProviderOptions } from "./options";
 export declare type OIDCProviderProps = {
     logger?: Logger;
@@ -12,24 +12,16 @@ export declare type OIDCProviderProps = {
 export declare class OIDCProvider {
     private readonly props;
     private readonly logger;
-    private readonly adapter;
-    private readonly original;
-    readonly devModeEnabled: boolean;
-    private readonly defaultClientConfig;
+    private readonly provider;
     constructor(props: OIDCProviderProps, options: OIDCProviderOptions);
-    readonly idp: IdentityProvider;
-    readonly routes: import("koa-compose").Middleware<import("koa").ParameterizedContext<any, {}>>;
-    private readonly originalHiddenProps;
-    readonly config: OriginalProviderConfiguration;
-    readonly defaultRoutes: Readonly<{
-        [key: string]: string | undefined;
-    }>;
-    readonly discoveryPath: string;
-    readonly issuer: string;
+    get idp(): IdentityProvider;
+    get routes(): import("koa-compose").Middleware<import("koa").ParameterizedContext<unknown, unknown>>;
+    get config(): Configuration;
+    get issuer(): string;
     private working;
     start(): Promise<void>;
     stop(): Promise<void>;
-    private readonly Client;
+    private get Client();
     findClient(id: string): Promise<ClientMetadata | undefined>;
     findClientOrFail(id: string): Promise<ClientMetadata>;
     createClient(metadata: Omit<ClientMetadata, "client_secret">): Promise<any>;

@@ -1,9 +1,24 @@
 "use strict";
 
-import { IAMServiceSchema } from "../../";
 import { ServiceBroker } from "moleculer";
-import { isDev } from "../qmit/iam";
 import { app } from "./app";
+import { IAMServiceSchema } from "../../"; // "moleculer-iam";
+
+// import Renderer from "moleculer-iam-interaction-renderer";
+// tslint:disable-next-line:no-var-requires to avoid circular deps in our monorepo workspace
+const Renderer = require("moleculer-iam-interaction-renderer").default;
+
+// can use any alternative renderer rather than this default one
+
+// const testRendererAdapter: InteractionRendererAdapter<{test: number}> = {
+//   render(state) {
+//     console.log(state);
+//     return JSON.stringify(state);
+//   },
+//   routes () {
+//     return [];
+//   },
+// };
 
 // create moleculer service (optional)
 const broker = new ServiceBroker({
@@ -74,11 +89,32 @@ const serviceSchema = IAMServiceSchema({
         },
         */
       },
+      renderer: new Renderer({
+        logo: {
+          uri: "https://upload.wikimedia.org/wikipedia/commons/a/a2/OpenID_logo_2.svg",
+          align: "left",
+        },
+        login: {
+          federation_options_visible: true,
+        },
+        theme: {
+          palette: {
+            themePrimary: "#ff6500",
+            themeLighterAlt: "#f6f7fe",
+            themeLighter: "#fce1f3",
+            themeLight: "#facfd4",
+            themeTertiary: "#f4909a",
+            themeSecondary: "#ef7551",
+            themeDarkAlt: "#d54627",
+            themeDark: "#bc4014",
+            themeDarker: "#a23414",
+          },
+        },
+      }),
     },
     discovery: {
       ui_locales_supported: ["en-US", "ko-KR"],
       claims_locales_supported: ["en-US", "ko-KR"],
-      // op_logo_uri: "https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png",
       op_tos_uri: "/help/tos",
       op_policy_uri: "/help/policy",
       service_documentation: "/help",

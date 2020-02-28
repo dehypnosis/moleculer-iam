@@ -29,7 +29,7 @@ exports.useVerifyPhoneInteraction = ({ url, idp, provider, router, devModeEnable
         // 4. create and send code
         const expiresAt = moment_1.default().add(phoneNumberVerificationTimeoutSeconds, "s").toISOString();
         const code = Math.floor(Math.random() * 1000000).toString();
-        // TODO: send sms via adaptor props
+        // TODO: send sms via adapter props
         // 5. extend TTL and store the code
         await interaction.save(moment_1.default().isAfter((interaction.exp / 1000) + 60 * 10, "s") ? interaction.exp + 60 * 10 : undefined);
         await provider.interactionResult(ctx.req, ctx.res, {

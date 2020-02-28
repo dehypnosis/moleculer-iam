@@ -14,15 +14,15 @@ export declare class IDP_RDBMS_Adapter extends IDPAdapter {
     constructor(props: IDPAdapterProps, options?: IDP_RDBMS_AdapterOptions);
     start(): Promise<void>;
     stop(): Promise<void>;
-    readonly IdentityCache: import("../../../helper/rdbms").ModelClass;
+    get IdentityCache(): import("../../../helper/rdbms").ModelClass;
     find(args: WhereAttributeHash): Promise<string | void>;
     count(args: WhereAttributeHash): Promise<number>;
     get(args: FindOptions): Promise<string[]>;
     delete(id: string, transaction?: Transaction): Promise<boolean>;
-    readonly IdentityMetadata: import("../../../helper/rdbms").ModelClass;
+    get IdentityMetadata(): import("../../../helper/rdbms").ModelClass;
     createOrUpdateMetadata(id: string, metadata: Partial<IdentityMetadata>, transaction?: Transaction): Promise<void>;
     getMetadata(id: string): Promise<IdentityMetadata | void>;
-    readonly IdentityClaims: import("../../../helper/rdbms").ModelClass;
+    get IdentityClaims(): import("../../../helper/rdbms").ModelClass;
     createOrUpdateVersionedClaims(id: string, claims: {
         key: string;
         value: any;
@@ -33,12 +33,12 @@ export declare class IDP_RDBMS_Adapter extends IDPAdapter {
         key: string;
         schemaVersion?: string;
     }[]): Promise<Partial<OIDCAccountClaims>>;
-    readonly IdentityClaimsCache: import("../../../helper/rdbms").ModelClass;
+    get IdentityClaimsCache(): import("../../../helper/rdbms").ModelClass;
     onClaimsUpdated(id: string, updatedClaims: Partial<OIDCAccountClaims>, transaction?: Transaction): Promise<void>;
-    readonly IdentityCredentials: import("../../../helper/rdbms").ModelClass;
+    get IdentityCredentials(): import("../../../helper/rdbms").ModelClass;
     createOrUpdateCredentials(id: string, credentials: Partial<OIDCAccountCredentials>, transaction?: Transaction): Promise<boolean>;
     assertCredentials(id: string, credentials: Partial<OIDCAccountCredentials>): Promise<boolean>;
-    readonly IdentityClaimsSchema: import("../../../helper/rdbms").ModelClass;
+    get IdentityClaimsSchema(): import("../../../helper/rdbms").ModelClass;
     createClaimsSchema(schema: IdentityClaimsSchema, transaction?: Transaction): Promise<void>;
     forceDeleteClaimsSchema(key: string): Promise<void>;
     getClaimsSchema(args: {
@@ -57,7 +57,7 @@ export declare class IDP_RDBMS_Adapter extends IDPAdapter {
         active?: boolean;
     }): Promise<IdentityClaimsSchema[]>;
     transaction(): Promise<Transaction>;
-    readonly IdentityClaimsMigrationLock: import("../../../helper/rdbms").ModelClass;
+    get IdentityClaimsMigrationLock(): import("../../../helper/rdbms").ModelClass;
     acquireMigrationLock(key: string): Promise<void>;
     touchMigrationLock(key: string, migratedIdentitiesNumber: number): Promise<void>;
     releaseMigrationLock(key: string): Promise<void>;

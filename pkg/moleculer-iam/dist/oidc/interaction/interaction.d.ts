@@ -4,30 +4,34 @@ import Router, { IMiddleware } from "koa-router";
 import compose from "koa-compose";
 import { Identity, IdentityProvider } from "../../identity";
 import { Logger } from "../../logger";
-import { Client, Interaction, Provider } from "../provider";
+import { Client, Interaction, Provider, OIDCProviderDiscoveryMetadata } from "../provider";
 import { IdentityFederationManager, IdentityFederationManagerOptions } from "./federation";
-import { InteractionRenderer, InteractionRendererAdaptor } from "./interaction.render";
+import { InteractionActionEndpoints, InteractionRenderer, InteractionRendererAdapter } from "./interaction.render";
 export declare type InteractionMiddlewareProps = {
     logger: Logger;
     router: Router<any, any>;
     parseContext: IMiddleware;
     render: InteractionRenderer["render"];
+    actions: {
+        [name: string]: InteractionActionEndpoints;
+    };
     provider: Provider;
     url: (path: string) => string;
     idp: IdentityProvider;
     federation: InstanceType<typeof IdentityFederationManager>;
-    federationCallbackURL: (path: string) => string;
+    federationCallbackURL: (provider: string) => string;
     devModeEnabled: boolean;
 };
 export declare type InteractionMiddleware = (props: InteractionMiddlewareProps) => void;
 export declare type InteractionFactoryProps = {
     idp: IdentityProvider;
     logger: Logger;
+    metadata: OIDCProviderDiscoveryMetadata;
+    devModeEnabled: boolean;
 };
 export declare type InteractionFactoryOptions = {
-    federation: IdentityFederationManagerOptions;
-    renderer?: InteractionRendererAdaptor;
-    devModeEnabled?: boolean;
+    federation?: IdentityFederationManagerOptions;
+    renderer?: InteractionRendererAdapter;
 };
 export declare type InteractionRequestContext = {
     interaction: Interaction;
@@ -36,11 +40,10 @@ export declare type InteractionRequestContext = {
 };
 export declare class InteractionFactory {
     protected readonly props: InteractionFactoryProps;
-    protected readonly opts: Partial<InteractionFactoryOptions>;
+    protected readonly opts: InteractionFactoryOptions;
     private readonly renderer;
     private readonly internal;
-    private readonly devModeEnabled;
-    constructor(props: InteractionFactoryProps, opts?: Partial<InteractionFactoryOptions>);
+    constructor(props: InteractionFactoryProps, opts?: InteractionFactoryOptions);
     configuration(): any;
     routes(provider: Provider): compose.ComposedMiddleware<import("koa").ParameterizedContext<any, Router.IRouterParamContext<any, {}>>>;
 }

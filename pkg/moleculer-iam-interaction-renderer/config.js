@@ -1,10 +1,12 @@
-const path = require("path");
-
-const output = {
-  path: path.resolve(__dirname, "./dist"),
-  publicPath: "/assets/interaction/",
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-
-module.exports = {
-  output,
+Object.defineProperty(exports, "__esModule", { value: true });
+var path_1 = __importDefault(require("path"));
+exports.default = {
+    output: {
+        path: path_1.default.resolve(__dirname, "./dist"),
+        publicPath: "/assets/interaction/",
+    },
 };

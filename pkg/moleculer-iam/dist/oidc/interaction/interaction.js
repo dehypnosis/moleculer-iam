@@ -7,6 +7,7 @@ const koajs_nocache_1 = tslib_1.__importDefault(require("koajs-nocache"));
 const koa_compose_1 = tslib_1.__importDefault(require("koa-compose"));
 const provider_1 = require("../provider");
 const federation_1 = require("./federation");
+const interaction_actions_1 = require("./interaction.actions");
 const interaction_internal_1 = require("./interaction.internal");
 const interaction_render_1 = require("./interaction.render");
 const interaction_error_1 = require("./interaction.error");
@@ -18,16 +19,20 @@ const interaction_register_1 = require("./interaction.register");
 const interaction_verify_email_1 = require("./interaction.verify_email");
 const interaction_verify_phone_1 = require("./interaction.verify_phone");
 const interaction_reset_password_1 = require("./interaction.reset_password");
-// @ts-ignore : need to hack oidc-provider private methods
-const weak_cache_1 = tslib_1.__importDefault(require("oidc-provider/lib/helpers/weak_cache"));
 class InteractionFactory {
     constructor(props, opts = {}) {
         this.props = props;
         this.opts = opts;
-        this.devModeEnabled = opts.devModeEnabled === true;
-        // renderer
-        this.renderer = new interaction_render_1.InteractionRenderer({ adaptor: opts.renderer, logger: props.logger, devModeEnabled: this.devModeEnabled });
-        // internal interaction factory
+        // create renderer
+        if (!opts.renderer) {
+            const DefaultInteractionRendererAdapter = require("moleculer-iam-default-renderer").default; // to avoid circular deps in our monorepo workspace
+            opts.renderer = new DefaultInteractionRendererAdapter();
+        }
+        this.renderer = new interaction_render_1.InteractionRenderer({
+            ...props,
+            adapter: opts.renderer,
+        });
+        // create internal interaction factory
         this.internal = new interaction_internal_1.InternalInteractionConfigurationFactory({ ...props, renderer: this.renderer });
     }
     configuration() {
@@ -60,12 +65,22 @@ class InteractionFactory {
         const { idp, logger } = this.props;
         const url = (path) => `${provider.issuer}/interaction${path}`;
         const federationCallbackURL = (providerName) => `${url("/federate")}/${providerName}`;
+        const federation = new federation_1.IdentityFederationManager({
+            logger,
+            idp,
+            callbackURL: federationCallbackURL,
+        }, this.opts.federation);
+        const actions = interaction_actions_1.getStaticInteractionActions({
+            url,
+            availableFederationProviders: federation.availableProviders,
+        });
         const props = {
-            devModeEnabled: this.devModeEnabled,
+            devModeEnabled: this.props.devModeEnabled,
             logger,
             idp,
             provider,
             router,
+            actions,
             url,
             federationCallbackURL,
             parseContext: async (ctx, next) => {
@@ -78,15 +93,8 @@ class InteractionFactory {
                 ctx.locals = locals;
                 return next();
             },
-            render: (ctx, renderProps) => {
-                const metadata = weak_cache_1.default(provider).configuration().discovery || {};
-                return this.renderer.render(ctx, { metadata, ...renderProps });
-            },
-            federation: new federation_1.IdentityFederationManager({
-                logger,
-                idp,
-                callbackURL: federationCallbackURL,
-            }, this.opts.federation),
+            render: this.renderer.render.bind(this.renderer),
+            federation,
         };
         // apply middleware
         interaction_error_1.useErrorMiddleware(props);

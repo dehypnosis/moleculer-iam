@@ -1,29 +1,28 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
-const util_1 = require("./util"); // TODO
-// @ts-ignore : need to hack oidc-provider private methods
-const weak_cache_1 = tslib_1.__importDefault(require("oidc-provider/lib/helpers/weak_cache"));
+const _ = tslib_1.__importStar(require("lodash"));
+const util_1 = require("./util");
 class InternalInteractionConfigurationFactory {
     constructor(props) {
         this.props = props;
-        this.render = (ctx, props) => {
+        this.render = (ctx, state) => {
             ctx = ctx;
             const oidc = (ctx.oidc || {});
             // fill XSRF token
-            if (props && props.interaction) {
+            if (state && state.interaction) {
                 const xsrf = oidc.session && oidc.session.state && oidc.session.state.secret || undefined;
                 if (xsrf) {
+                    state.interaction.actions = _.cloneDeep(state.interaction.actions);
                     // tslint:disable-next-line:forin
-                    for (const k in props.interaction.actions) {
-                        const action = props.interaction.actions[k];
-                        (action.payload = action.payload || {}).xsrf = xsrf;
+                    for (const k in state.interaction.actions) {
+                        const action = state.interaction.actions[k];
+                        action.payload = action.payload || {};
+                        action.payload.xsrf = xsrf;
                     }
                 }
             }
-            // get metadata
-            const metadata = oidc.provider && weak_cache_1.default(oidc.provider).configuration().discovery || {};
-            return this.props.renderer.render(ctx, { metadata, ...props });
+            return this.props.renderer.render(ctx, state);
         };
     }
     configuration() {
@@ -40,14 +39,26 @@ class InternalInteractionConfigurationFactory {
         }
         return {
             async renderError(ctx, out, error) {
-                logger.error(error);
+                logger.error("internal error", error);
                 return render(ctx, { error: out });
             },
             // signed out without post_logout_redirect_uri params
             async postLogoutSuccessSource(ctx) {
+                let user;
+                try {
+                    const session = await ctx.oidc.provider.Session.get(ctx);
+                    if (typeof session.account === "string") {
+                        user = await idp.findOrFail({ id: session.account });
+                    }
+                }
+                catch {
+                }
                 return render(ctx, {
                     interaction: {
                         name: "logout",
+                        data: {
+                            user: await util_1.getPublicUserProps(user),
+                        },
                     },
                 });
             },
@@ -64,12 +75,19 @@ class InternalInteractionConfigurationFactory {
                             client: await util_1.getPublicClientProps(client),
                         },
                         actions: {
+                            // destroy sessions
                             "logout.confirm": {
                                 url: ctx.oidc.urlFor("end_session_confirm"),
                                 method: "POST",
                                 payload: {
                                     logout: "true",
                                 },
+                                urlencoded: true,
+                            },
+                            // without session destroy
+                            "logout.redirect": {
+                                url: ctx.oidc.urlFor("end_session_confirm"),
+                                method: "POST",
                                 urlencoded: true,
                             },
                         },
@@ -85,8 +103,8 @@ class InternalInteractionConfigurationFactory {
                         const { user, client } = await getContext(ctx);
                         ctx.assert(user && client);
                         await render(ctx, {
-                            error,
-                            interaction: error ? undefined : {
+                            error: out,
+                            interaction: out ? undefined : {
                                 name: "device_code_verification",
                                 data: {
                                     user: await util_1.getPublicUserProps(user),

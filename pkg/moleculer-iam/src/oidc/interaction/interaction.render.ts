@@ -1,16 +1,15 @@
 import { RouterContext } from "koa-router";
-import compose from "koa-compose";
-import { Logger } from "../../logger";
+import * as compose from "koa-compose";
 import { KoaContextWithOIDC, OIDCProviderDiscoveryMetadata } from "../provider";
 import { InteractionFactoryProps } from "./interaction";
 
 export type InteractionRendererProps = {
-  adaptor?: InteractionRendererAdaptor;
+  adapter: InteractionRendererAdapter;
 } & InteractionFactoryProps;
 
-export interface InteractionRendererAdaptor {
+export interface InteractionRendererAdapter {
   routes(dev: boolean): compose.Middleware<any>[];
-  render(props: InteractionRenderProps, dev: boolean): string | Promise<string>;
+  render(state: InteractionRenderState, dev: boolean): string | Promise<string>;
 }
 
 export interface InteractionActionEndpoints {
@@ -23,7 +22,7 @@ export interface InteractionActionEndpoints {
   };
 }
 
-export interface InteractionRenderProps {
+export interface InteractionRenderState {
   interaction?: {
     name: string;
     data?: any;
@@ -35,8 +34,9 @@ export interface InteractionRenderProps {
 
   // global error
   error?: {
-    error?: string;
+    error: string;
     error_description?: string;
+    fields?: {field: string, message: string, type: string, actual: any, expected: any}[];
     [key: string]: any;
   };
 
@@ -51,61 +51,60 @@ export class InteractionRenderer {
   };
 
   constructor(private readonly props: InteractionRendererProps) {
-    if (!props.adaptor) props.adaptor = loadDefaultInteractionRendererAdaptor(props.logger);
   }
 
   public routes(): compose.Middleware<any>[] {
-    return this.props.adaptor!.routes(this.props.devModeEnabled);
+    return this.props.adapter!.routes(this.props.devModeEnabled);
   }
 
-  public async render(ctx: KoaContextWithOIDC | RouterContext, props: InteractionRenderProps = {}): Promise<void> {
+  public async render(ctx: KoaContextWithOIDC | RouterContext, state: InteractionRenderState): Promise<void> {
     const { JSON, HTML } = InteractionRenderer.contentTypes;
 
     // response for ajax
     if (ctx.accepts(JSON, HTML) === JSON) {
       ctx.type = JSON;
-      ctx.body = props.error || props; // response error only for xhr request
+      ctx.body = state.error || state; // response error only for xhr request
       return;
     }
 
     // response redirection
-    if (props.redirect) {
+    if (state.redirect) {
       ctx.status = 302;
-      ctx.redirect(props.redirect);
+      ctx.redirect(state.redirect);
       return;
     }
 
     // response HTML
     ctx.type = HTML;
-    props.metadata = this.props.metadata; // with metadata
-    ctx.body = await this.props.adaptor!.render(props, this.props.devModeEnabled);
+    state.metadata = this.props.metadata; // with metadata
+    ctx.body = await this.props.adapter!.render(state, this.props.devModeEnabled);
   }
 }
 
-function loadDefaultInteractionRendererAdaptor(logger: Logger): InteractionRendererAdaptor {
-  try {
-    // tslint:disable-next-line:no-var-requires
-    return require("moleculer-iam-interaction-renderer");
-  } catch (error) {
-    logger.error(error);
-
-    return {
-      routes() {
-        return [];
-      },
-      render(props) {
-        return `
-          <html>
-              <body>
-                  <div style="background-color:#9b0000; color: white; padding: 2em; font-family: monospace">
-                      <p>OIDC interaction renderer has not been configured: can install 'moleculer-iam-interaction-renderer' or set oidc.renderer option.</p>
-                      <pre>${JSON.stringify(error, null, 2)}</pre>
-                  </div>
-                  <hr>
-                  <pre>${JSON.stringify(props, null, 2)}</pre>
-              </body>
-          </html>`;
-      },
-    };
-  }
-}
+// function loadDefaultInteractionRendererAdapter(logger: Logger): InteractionRendererAdapter<any> {
+//   try {
+//     // tslint:disable-next-line:no-var-requires
+//     return require("moleculer-iam-interaction-renderer");
+//   } catch (error) {
+//     logger.error(error);
+//
+//     return {
+//       routes() {
+//         return [];
+//       },
+//       render(state) {
+//         return `
+//           <html>
+//               <body>
+//                   <div style="background-color:#9b0000; color: white; padding: 2em; font-family: monospace">
+//                       <p>OIDC interaction renderer adapter has not been configured: can install 'moleculer-iam-interaction-renderer' or set oidc.interaction.renderer/rendererOptions option.</p>
+//                       <pre>${JSON.stringify(error, null, 2)}</pre>
+//                   </div>
+//                   <hr>
+//                   <pre>${JSON.stringify(state, null, 2)}</pre>
+//               </body>
+//           </html>`;
+//       },
+//     };
+//   }
+// }

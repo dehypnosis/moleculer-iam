@@ -9,9 +9,9 @@ export const LoginIndexScreen: React.FunctionComponent = () => {
   const { loading, errors, setErrors, withLoading } = useWithLoading();
   const [email, setEmail] = useState(((useRoute() as any).params || {}).email || "");
   const { setGlobalState } = useGlobalState();
-  const { request, interaction } = useServerState();
-  const federationProviders = interaction.actions["login.federate"].providers || [];
-  const [federationOptionsVisible, setFederationOptionsVisible] = useState(false);
+  const { request, interaction, options } = useServerState();
+  const federationProviders = interaction && interaction.actions!["login.federate"]!.providers || [];
+  const [federationOptionsVisible, setFederationOptionsVisible] = useState(options && options.login!.federation_options_visible! === true);
 
   // const handleAbort = withLoading(() => {
   //   return request("login.abort")

@@ -7,7 +7,7 @@ export const LogoutEndScreen: React.FunctionComponent = () => {
   // states
   const { closed, close } = useClose(false);
   const { interaction } = useServerState();
-  const { user } = interaction.data;
+  const { user } = (interaction && interaction.data) || {};
 
   // render
   return (

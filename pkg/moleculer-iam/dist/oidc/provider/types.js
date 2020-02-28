@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
+// @ts-ignore
 require("oidc-provider");
 var oidc_provider_1 = require("oidc-provider");
 exports.OIDCErrors = oidc_provider_1.errors;

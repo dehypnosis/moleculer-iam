@@ -1,33 +1,40 @@
 import { RouterContext } from "koa-router";
-import compose from "koa-compose";
-import { Logger } from "../../logger";
+import * as compose from "koa-compose";
 import { KoaContextWithOIDC, OIDCProviderDiscoveryMetadata } from "../provider";
+import { InteractionFactoryProps } from "./interaction";
 export declare type InteractionRendererProps = {
-    adaptor?: InteractionRendererAdaptor;
-    logger: Logger;
-    devModeEnabled: boolean;
-};
-export interface InteractionRendererAdaptor {
+    adapter: InteractionRendererAdapter;
+} & InteractionFactoryProps;
+export interface InteractionRendererAdapter {
     routes(dev: boolean): compose.Middleware<any>[];
-    render(props: InteractionRenderProps, dev: boolean): string | Promise<string>;
+    render(state: InteractionRenderState, dev: boolean): string | Promise<string>;
 }
-export interface InteractionRenderProps {
+export interface InteractionActionEndpoints {
+    [key: string]: {
+        url: string;
+        method: "POST" | "GET";
+        payload?: any;
+        urlencoded?: boolean;
+        [key: string]: any;
+    };
+}
+export interface InteractionRenderState {
     interaction?: {
         name: string;
-        actions?: {
-            [key: string]: {
-                url: string;
-                method: "POST" | "GET";
-                payload?: any;
-                urlencoded?: boolean;
-            };
-        };
         data?: any;
+        actions?: InteractionActionEndpoints;
     };
     metadata?: OIDCProviderDiscoveryMetadata;
     error?: {
-        error?: string;
+        error: string;
         error_description?: string;
+        fields?: {
+            field: string;
+            message: string;
+            type: string;
+            actual: any;
+            expected: any;
+        }[];
         [key: string]: any;
     };
     redirect?: string;
@@ -40,5 +47,5 @@ export declare class InteractionRenderer {
     };
     constructor(props: InteractionRendererProps);
     routes(): compose.Middleware<any>[];
-    render(ctx: KoaContextWithOIDC | RouterContext, props?: InteractionRenderProps): Promise<void>;
+    render(ctx: KoaContextWithOIDC | RouterContext, state: InteractionRenderState): Promise<void>;
 }

@@ -51,7 +51,7 @@ export const RegisterIndexScreen: React.FunctionComponent = () => {
       error={errors.global}
       footer={
         <>
-          <Text>When you sign up as a member, you agree to the <Link href={metadata.op_tos_uri} target="_blank">terms of service</Link> and the <Link href={metadata.op_policy_uri} target="_blank">privacy policy</Link>.</Text>
+          <Text>When you sign up as a member, you agree to the <Link href={metadata!.op_tos_uri!} target="_blank">terms of service</Link> and the <Link href={metadata!.op_policy_uri!} target="_blank">privacy policy</Link>.</Text>
         </>
       }
     >

@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const error_1 = require("../../identity/error");
 const util_1 = require("./util");
-exports.useLoginInteraction = ({ federation, provider, idp, url, render, router, parseContext }) => {
+exports.useLoginInteraction = ({ provider, idp, render, router, url, actions, parseContext }) => {
     // render login page
     router.get("/login", parseContext, async (ctx) => {
         const { user, client, interaction } = ctx.locals;
@@ -24,35 +24,18 @@ exports.useLoginInteraction = ({ federation, provider, idp, url, render, router,
             await provider.setProviderSession(ctx.req, ctx.res, login);
             return render(ctx, { redirect });
         }
+        const userProps = await util_1.getPublicUserProps(user);
+        if (!changeAccount && userProps && userProps.email && !ctx.query.email) {
+            return ctx.redirect(url("/login") + `?email=${encodeURIComponent(userProps.email)}`);
+        }
         return render(ctx, {
             interaction: {
                 name: "login",
                 data: {
-                    user: await util_1.getPublicUserProps(user),
+                    user: userProps,
                     client: await util_1.getPublicClientProps(client),
-                    federationProviders: federation.availableProviders,
                 },
-                actions: {
-                    "login.check_email": {
-                        url: url("/login/check_email"),
-                        method: "POST",
-                        payload: {
-                            email: "",
-                        },
-                    },
-                    "login.check_password": {
-                        url: url("/login/check_password"),
-                        method: "POST",
-                        payload: {
-                            email: "",
-                            password: "",
-                        },
-                    },
-                    abort: {
-                        url: url(`/abort`),
-                        method: "POST",
-                    },
-                },
+                actions: actions.login,
             },
         });
     });

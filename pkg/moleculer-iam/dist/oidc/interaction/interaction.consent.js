@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const util_1 = require("./util");
-exports.useConsentInteraction = ({ provider, url, parseContext, render, router }) => {
+exports.useConsentInteraction = ({ provider, actions, parseContext, render, router }) => {
     router.get("/consent", parseContext, async (ctx) => {
         const { user, client, interaction } = ctx.locals;
         ctx.assert(interaction.prompt.name === "consent", "Not a consent session.");
@@ -31,28 +31,7 @@ exports.useConsentInteraction = ({ provider, url, parseContext, render, router }
                     // consent data (scopes, claims)
                     consent: interaction.prompt.details,
                 },
-                actions: {
-                    "consent.accept": {
-                        url: url("/consent/accept"),
-                        method: "POST",
-                        payload: {
-                            rejected_scopes: [],
-                            rejected_claims: [],
-                        },
-                    },
-                    "login": {
-                        url: url("/login"),
-                        method: "GET",
-                        payload: {
-                            change_account: "true",
-                        },
-                        urlencoded: true,
-                    },
-                    abort: {
-                        url: url(`/abort`),
-                        method: "POST",
-                    },
-                }
+                actions: actions.consent,
             },
         });
     });

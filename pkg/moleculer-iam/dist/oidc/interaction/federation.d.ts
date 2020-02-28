@@ -15,7 +15,7 @@ export declare class IdentityFederationManager {
     private readonly scopes;
     private readonly callbacks;
     constructor(props: IdentityFederationManagerProps, opts?: IdentityFederationManagerOptions);
-    readonly availableProviders: string[];
+    get availableProviders(): string[];
     request(provider: string, ctx: Context, next: () => Promise<void>): Promise<void>;
     callback(provider: string, ctx: Context, next: () => Promise<void>): Promise<Identity>;
 }

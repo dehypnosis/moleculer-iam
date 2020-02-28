@@ -42,6 +42,7 @@ export declare abstract class IDPAdapter {
         };
         claimsSchemata: IdentityClaimsSchema[];
         validateClaims: (object: any) => true | ValidationError[];
+        validClaimsKeys: string[];
         uniqueClaimsSchemata: IdentityClaimsSchema[];
         validateClaimsUniqueness: (id: string | void, object: {
             [key: string]: any;
@@ -51,7 +52,7 @@ export declare abstract class IDPAdapter {
             [key: string]: any;
         }) => Promise<true | ValidationError[]>;
     }>) & _.MemoizedFunction;
-    createOrUpdateClaimsWithValidation(id: string, claims: Partial<OIDCAccountClaims>, scope: string[], creating: boolean, transaction?: Transaction): Promise<void>;
+    createOrUpdateClaimsWithValidation(id: string, claims: Partial<OIDCAccountClaims>, scope: string[], creating: boolean, transaction?: Transaction, ignoreUndefinedClaims?: boolean): Promise<void>;
     deleteClaims(id: string, scope: string[], transaction?: Transaction): Promise<void>;
     abstract onClaimsUpdated(id: string, updatedClaims: Partial<OIDCAccountClaims>, transaction?: Transaction): Promise<void>;
     abstract createOrUpdateVersionedClaims(id: string, claims: {

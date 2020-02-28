@@ -28,9 +28,11 @@ exports.broker.createService(__1.IAMServiceSchema(_.defaultsDeep({
     oidc: {
         devMode: exports.isDev,
         issuer: exports.isDev ? "https://account.dev.qmit.pro" : "https://account.qmit.pro",
-        op_policy_uri: exports.isDev ? "https://account.dev.qmit.pro/help/policy" : "https://account.qmit.pro/help/policy",
-        op_tos_uri: exports.isDev ? "https://account.dev.qmit.pro/help/tos" : "https://account.qmit.pro/help/tos",
-        service_documentation: exports.isDev ? "https://account.dev.qmit.pro/help" : "https://account.qmit.pro/help",
+        discovery: {
+            op_policy_uri: exports.isDev ? "https://account.dev.qmit.pro/help/policy" : "https://account.qmit.pro/help/policy",
+            op_tos_uri: exports.isDev ? "https://account.dev.qmit.pro/help/tos" : "https://account.qmit.pro/help/tos",
+            service_documentation: exports.isDev ? "https://account.dev.qmit.pro/help" : "https://account.qmit.pro/help",
+        },
     },
     server: {
         app: app_1.app,

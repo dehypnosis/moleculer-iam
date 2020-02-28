@@ -37,7 +37,7 @@ export const useVerifyEmailInteraction: InteractionMiddleware = ({ devModeEnable
       expiresAt,
     };
 
-    // TODO: 5. send email which includes (callbackURL) with adaptor props
+    // TODO: 5. send email which includes (callbackURL) with adapter props
     console.log(payload);
 
     // 6. extend TTL and store the state
