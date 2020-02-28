@@ -1,6 +1,6 @@
 import request from "request-promise-native";
 import { Profile, Strategy } from "passport";
-import { OIDCAccountClaims } from "../account";
+import { OIDCAccountClaims } from "../wrapper/types.identity";
 import { Errors } from "../../identity/error";
 import { Identity, IdentityProvider } from "../../identity";
 import { Logger } from "../../logger";

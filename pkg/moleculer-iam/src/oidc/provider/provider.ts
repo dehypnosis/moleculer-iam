@@ -1,10 +1,8 @@
 import * as kleur from "kleur";
-import * as _ from "lodash";
 import uuid from "uuid";
 import { FindOptions, WhereAttributeHash } from "../../helper/rdbms";
 import { IdentityProvider } from "../../identity";
 import { Logger } from "../../logger";
-import { Client, ClientMetadata, errors, Configuration, OIDCModelName, VolatileOIDCModelName } from "./types";
 import { OIDCProviderOptions, parseOIDCProviderOptions } from "./options";
 
 export type OIDCProviderProps = {
@@ -14,7 +12,7 @@ export type OIDCProviderProps = {
 
 export class OIDCProvider {
   private readonly logger: Logger;
-  private readonly provider: ReturnType<typeof parseOIDCProviderOptions>;
+  private readonly wrapper: ReturnType<typeof parseOIDCProviderOptions>;
 
   constructor(private readonly props: OIDCProviderProps, options: OIDCProviderOptions) {
     const logger = this.logger = props.logger || console;

@@ -1,64 +1,57 @@
-import { OIDCErrors } from "../oidc/provider";
+// tslint:disable:max-classes-per-file
+// tslint:disable:variable-name
+import { OIDCError } from "../oidc/proxy";
 import { ValidationError as ValidationErrorEntry } from "../validator";
 
-// tslint:disable:max-classes-per-file
-
-class IdentityProviderError extends OIDCErrors.OIDCProviderError {
-  constructor(status: number, message: string) {
-    super(status, message);
+class IdentityProviderError implements OIDCError {
+  constructor(
+      public readonly status: number,
+      public readonly error: string,
+      public readonly error_description: string|undefined,
+      public readonly data: any = {},
+    ) {
   }
 }
 
 class IdentityAlreadyExistsError extends IdentityProviderError {
   constructor() {
-    super(400, "identity_already_exists");
-    this.error_description = "The account already exists.";
+    super(400, "identity_already_exists", "The account already exists.");
   }
 }
 
 class IdentityNotExistsError extends IdentityProviderError {
   constructor() {
-    super(400, "identity_not_exists");
-    this.error_description = "The account does not exists.";
+    super(400, "identity_not_exists", "The account does not exists.");
   }
 }
 
 class InvalidCredentialsError extends IdentityProviderError {
   constructor() {
-    super(400, "invalid_credentials");
-    this.error_description = "Invalid credentials.";
+    super(400, "invalid_credentials", "Invalid credentials.");
   }
 }
 
 class ValidationError extends IdentityProviderError {
-  // @ts-ignore
-  // tslint:disable-next-line:variable-name
-  public readonly error_detail: any;
   constructor(public readonly fields: ValidationErrorEntry[], detail?: any) {
-    super(422, "validation_failed");
-    this.error_description = "Validation failed.";
-    this.error_detail = detail;
+    super(422, "validation_failed", "Validation failed.", fields);
   }
 }
 
 class MigrationError extends IdentityProviderError {
   constructor(desc: string) {
-    super(500, "migration_error");
-    this.error_description = desc;
+    super(500, "migration_error", desc);
   }
 }
 
 class UnexpectedError extends IdentityProviderError {
-  constructor(message?: string, status: number = 500) {
-    super(status, "unexpected_error");
-    this.error_description = message || "Unexpected Error";
+  constructor(message: string = "Unexpected Error.", status: number = 500) {
+    super(status, "unexpected_error", message);
   }
 }
 
 class BadRequestError extends IdentityProviderError {
-  constructor(message?: string, status: number = 400) {
-    super(status, "bad_request");
-    this.error_description = message || "Bad Request";
+  constructor(message: string = "Bad Request", status: number = 400) {
+    super(status, "bad_request", message);
   }
 }
 

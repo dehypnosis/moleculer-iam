@@ -1,20 +1,28 @@
 import React, { useState } from "react";
 import { ScreenLayout } from "./layout";
 import { TextFieldStyles, Text, TextField } from "../styles";
-import { useWithLoading } from "../hook";
-import { useNavigation } from "@react-navigation/native";
+import { useServerState, useWithLoading } from "../hook";
+import { useNavigation, useRoute } from "@react-navigation/native";
 
 export const FindEmailIndexScreen: React.FunctionComponent = () => {
   const nav = useNavigation();
-  const [phoneNumber, setPhoneNumber] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState(((useRoute() as any).params || {}).phoneNumber || "");
   const {loading, errors, setErrors, withLoading} = useWithLoading();
+  const { interaction, request } = useServerState();;
 
-  const handleCheckPhoneNumber = withLoading(() => nav.navigate("find_email", {
-    screen: "find_email.sent",
-    params: {
-      phoneNumber,
-    },
-  }), [phoneNumber]);
+  const handleCheckPhoneNumber = withLoading(() => {
+    request("find_email.check_phone")
+      .then(data => {
+        console.log(data);
+        nav.navigate("find_email", {
+          screen: "find_email.sent",
+          params: {
+            phoneNumber,
+          },
+        });
+      })
+      .catch(err => setErrors(err))
+  }, [phoneNumber]);
 
   const handleCancel = withLoading(() => nav.navigate("login", {
     screen: "login.index",
@@ -39,6 +47,7 @@ export const FindEmailIndexScreen: React.FunctionComponent = () => {
           onClick: handleCancel,
           loading,
           tabIndex: 23,
+          hidden: !interaction || (interaction.name === "find_email"),
         },
       ]}
       error={errors.global}

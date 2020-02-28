@@ -16,14 +16,14 @@ export declare class IdentityClaimsManager {
     private readonly logger;
     private readonly options;
     constructor(props: IdentityClaimsManagerProps, opts?: Partial<IdentityClaimsManagerOptions>);
-    private get adapter();
+    private readonly adapter;
     start(): Promise<void>;
     stop(): Promise<void>;
     private hashClaimsSchemaPayload;
     private createClaimsSchema;
     private compileClaimsValidator;
     private compileClaimsMigrationStrategy;
-    get mandatoryScopes(): ReadonlyArray<string>;
+    readonly mandatoryScopes: ReadonlyArray<string>;
     onClaimsSchemaUpdated(): Promise<void>;
     getActiveClaimsSchemata(): Promise<IdentityClaimsSchema[]>;
     getClaimsSchemata(args: {

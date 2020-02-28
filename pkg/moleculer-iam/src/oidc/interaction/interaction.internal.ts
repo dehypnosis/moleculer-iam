@@ -2,7 +2,6 @@ import * as _ from "lodash";
 import { Configuration, KoaContextWithOIDC } from "../provider";
 import { Logger } from "../../logger";
 import { Identity, IdentityProvider } from "../../identity";
-import { normalizeError } from "./interaction.error";
 import { getPublicClientProps, getPublicUserProps } from "./util";
 import { InteractionRenderer } from "./interaction.render";
 

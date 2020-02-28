@@ -48,7 +48,7 @@ const serviceSchema = IAMServiceSchema({
   },
   oidc: {
     issuer: "http://localhost:9090",
-    devMode: true,
+    dev: true,
 
     adapter: {
       // type: "Memory",

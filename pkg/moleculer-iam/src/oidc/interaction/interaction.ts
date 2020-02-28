@@ -6,9 +6,14 @@ import { Identity, IdentityProvider } from "../../identity";
 import { Logger } from "../../logger";
 import { Client, Interaction, interactionPolicy, KoaContextWithOIDC, Provider, OIDCProviderDiscoveryMetadata } from "../provider";
 import { IdentityFederationManager, IdentityFederationManagerOptions } from "./federation";
-import { getStaticInteractionActions } from "./interaction.actions";
 import { InternalInteractionConfigurationFactory } from "./interaction.internal";
 import { InteractionActionEndpoints, InteractionRenderer, InteractionRendererAdapter } from "./interaction.render";
+
+// ref: https://github.com/panva/node-oidc-provider/blob/9306f66bdbcdff01400773f26539cf35951b9ce8/lib/models/client.js#L385
+// @ts-ignore : need to hack oidc-provider private methods
+import getProviderHiddenProps from "oidc-provider/lib/helpers/weak_cache";
+// @ts-ignore : need to hack oidc-provider private methods
+import sessionMiddleware from "oidc-provider/lib/shared/session";
 
 export type InteractionMiddlewareProps = {
   logger: Logger;
@@ -25,6 +30,7 @@ export type InteractionMiddlewareProps = {
 };
 export type InteractionMiddleware = (props: InteractionMiddlewareProps) => void;
 
+import { getStaticInteractionActions } from "./interaction.actions";
 import { useErrorMiddleware } from "./interaction.error";
 import { useAbortInteraction } from "./interaction.abort";
 import { useLoginInteraction } from "./interaction.login";
@@ -34,6 +40,7 @@ import { useRegisterInteraction } from "./interaction.register";
 import { useVerifyEmailInteraction } from "./interaction.verify_email";
 import { useVerifyPhoneInteraction } from "./interaction.verify_phone";
 import { useResetPasswordInteraction } from "./interaction.reset_password";
+import { useFindEmailInteraction } from "./interaction.find_email";
 
 /*
 * can add more user interactive features (prompts) into base policy which includes login, consent prompts
@@ -108,6 +115,9 @@ export class InteractionFactory {
       .use(
         noCache(),
         bodyParser(),
+        function getContext() {
+
+        }
       );
 
     // prepare route props
@@ -134,6 +144,16 @@ export class InteractionFactory {
       url,
       federationCallbackURL,
       parseContext: async (ctx: any, next) => {
+        // ensure oidc context is created
+        if (!ctx.oidc) {
+          const OIDCContext = getProviderHiddenProps(provider).OIDCContext;
+          Object.defineProperty(ctx, 'oidc', { value: new OIDCContext(ctx) });
+          await sessionMiddleware(ctx, () => {
+            ctx.oidc.session.touched = true;
+          });
+          console.log("oidc.session.save", ctx.oidc.session);
+        }
+
         // fetch interaction details
         const interaction = await provider.interactionDetails(ctx.req, ctx.res);
 
@@ -155,6 +175,7 @@ export class InteractionFactory {
     // map sub routes
     useAbortInteraction(props);
     useLoginInteraction(props);
+    useFindEmailInteraction(props);
     useFederationInteraction(props);
     useConsentInteraction(props);
     useVerifyPhoneInteraction(props);

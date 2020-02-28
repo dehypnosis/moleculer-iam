@@ -1,5 +1,5 @@
 import { ValidationRule, ValidationSchema } from "../../validator";
-import { OIDCAccountClaims } from "../../oidc";
+import { OIDCAccountClaims } from "../../oidc/proxy";
 
 export interface IdentityClaimsSchema extends IdentityClaimsSchemaPayload {
   // internally calculated hash of whole definition props which denote unique version from this claims versions

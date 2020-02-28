@@ -1351,7 +1351,7 @@ var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-ia
 var FindEmailIndexScreen = function FindEmailIndexScreen() {
   var nav = (0, _native.useNavigation)();
 
-  var _useState = (0, _react.useState)(""),
+  var _useState = (0, _react.useState)(((0, _native.useRoute)().params || {}).phoneNumber || ""),
       _useState2 = (0, _slicedToArray2.default)(_useState, 2),
       phoneNumber = _useState2[0],
       setPhoneNumber = _useState2[1];
@@ -1362,12 +1362,22 @@ var FindEmailIndexScreen = function FindEmailIndexScreen() {
       setErrors = _useWithLoading.setErrors,
       withLoading = _useWithLoading.withLoading;
 
+  var _useServerState = (0, _hook.useServerState)(),
+      interaction = _useServerState.interaction,
+      request = _useServerState.request;
+
+  ;
   var handleCheckPhoneNumber = withLoading(function () {
-    return nav.navigate("find_email", {
-      screen: "find_email.sent",
-      params: {
-        phoneNumber: phoneNumber
-      }
+    request("find_email.check_phone").then(function (data) {
+      console.log(data);
+      nav.navigate("find_email", {
+        screen: "find_email.sent",
+        params: {
+          phoneNumber: phoneNumber
+        }
+      });
+    }).catch(function (err) {
+      return setErrors(err);
     });
   }, [phoneNumber]);
   var handleCancel = withLoading(function () {
@@ -1389,18 +1399,19 @@ var FindEmailIndexScreen = function FindEmailIndexScreen() {
       text: "Cancel",
       onClick: handleCancel,
       loading: loading,
-      tabIndex: 23
+      tabIndex: 23,
+      hidden: !interaction || interaction.name === "find_email"
     }],
     error: errors.global,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 26
+      lineNumber: 34
     },
     __self: this
   }, _react.default.createElement(_styles.Text, {
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 46
+      lineNumber: 55
     },
     __self: this
   }, "Have a registered phone number? Can find the ID only if have one."), _react.default.createElement(_styles.TextField, {
@@ -1421,7 +1432,7 @@ var FindEmailIndexScreen = function FindEmailIndexScreen() {
     styles: _styles.TextFieldStyles.bold,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 49
+      lineNumber: 58
     },
     __self: this
   }));
@@ -1571,7 +1582,7 @@ var ScreenLayout = function ScreenLayout(props) {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 24
+      lineNumber: 25
     },
     __self: this
   }, _react.default.createElement(_styles.Stack, {
@@ -1589,7 +1600,7 @@ var ScreenLayout = function ScreenLayout(props) {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 25
+      lineNumber: 26
     },
     __self: this
   }, _react.default.createElement(_styles.Image, {
@@ -1608,7 +1619,7 @@ var ScreenLayout = function ScreenLayout(props) {
     shouldFadeIn: false,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 37
+      lineNumber: 38
     },
     __self: this
   }), _react.default.createElement(_styles.Stack, {
@@ -1617,7 +1628,7 @@ var ScreenLayout = function ScreenLayout(props) {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 39
+      lineNumber: 40
     },
     __self: this
   }, _react.default.createElement(_styles.Text, {
@@ -1630,7 +1641,7 @@ var ScreenLayout = function ScreenLayout(props) {
     children: title,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 40
+      lineNumber: 41
     },
     __self: this
   }), _react.default.createElement(_styles.Text, {
@@ -1638,7 +1649,7 @@ var ScreenLayout = function ScreenLayout(props) {
     children: subtitle,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 45
+      lineNumber: 46
     },
     __self: this
   })), _react.default.createElement(_styles.Stack, {
@@ -1648,7 +1659,7 @@ var ScreenLayout = function ScreenLayout(props) {
     children: children,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 48
+      lineNumber: 49
     },
     __self: this
   }), _react.default.createElement(_styles.Stack, {
@@ -1658,7 +1669,7 @@ var ScreenLayout = function ScreenLayout(props) {
     verticalAlign: "end",
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 50
+      lineNumber: 51
     },
     __self: this
   }, error ? _react.default.createElement(_styles.Text, {
@@ -1668,16 +1679,18 @@ var ScreenLayout = function ScreenLayout(props) {
     children: typeof error === "string" ? error : JSON.stringify(error || "Unknown Error."),
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 51
+      lineNumber: 52
     },
     __self: this
   }) : null, buttons.map(function (_ref, index) {
-    var primary = _ref.primary,
+    var hidden = _ref.hidden,
+        primary = _ref.primary,
         text = _ref.text,
         onClick = _ref.onClick,
         autoFocus = _ref.autoFocus,
         loading = _ref.loading,
         tabIndex = _ref.tabIndex;
+    if (hidden === true) return null;
     var Button = primary ? _styles.PrimaryButton : _styles.DefaultButton;
     return _react.default.createElement(Button, {
       key: index,
@@ -1690,7 +1703,7 @@ var ScreenLayout = function ScreenLayout(props) {
       onClick: loading ? undefined : onClick,
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 54
+        lineNumber: 56
       },
       __self: this
     });

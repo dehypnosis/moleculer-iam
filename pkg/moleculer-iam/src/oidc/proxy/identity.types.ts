@@ -1,5 +1,5 @@
 // ref: https://github.com/panva/node-oidc-provider/blob/master/docs/README.md#accounts
-import { Account, AccountClaims } from "../oidc";
+import { Account, AccountClaims, ErrorOut } from "oidc-provider";
 
 export type OIDCClaimsInfo = {
   [key: string]: null | {

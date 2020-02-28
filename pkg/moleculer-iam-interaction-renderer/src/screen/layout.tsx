@@ -14,6 +14,7 @@ export const ScreenLayout: React.FunctionComponent<{
     primary?: boolean,
     loading?: boolean,
     tabIndex?: number,
+    hidden?: boolean,
   }[],
   footer?: ReactElement,
   error?: string,
@@ -49,7 +50,8 @@ export const ScreenLayout: React.FunctionComponent<{
 
           <Stack tokens={{childrenGap: 15}} verticalAlign="end">
             { error ? <Text styles={{root: {...AnimationStyles.slideDownIn20, ...(LabelStyles.fieldErrorMessage.root as any) }}} children={typeof error === "string" ? error : JSON.stringify(error || "Unknown Error.")}/> : null }
-            {buttons.map(({ primary, text, onClick, autoFocus, loading, tabIndex }, index) => {
+            {buttons.map(({ hidden, primary, text, onClick, autoFocus, loading, tabIndex }, index) => {
+              if (hidden === true) return null;
               const Button = primary ? PrimaryButton : DefaultButton;
               return <Button key={index} tabIndex={tabIndex} autoFocus={autoFocus} checked={loading === true} allowDisabledFocus text={text} styles={ButtonStyles.large} onClick={loading ? undefined : onClick} />;
             })}

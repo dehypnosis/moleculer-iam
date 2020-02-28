@@ -2,7 +2,7 @@
 
 import { IdentityProvider } from "../provider";
 import { Identity } from "../identity";
-import { OIDCAccountClaims } from "../../oidc";
+import { OIDCAccountClaims } from "../../oidc/proxy";
 import { IdentityClaimsSchema } from "../claims";
 import uuid from "uuid";
 

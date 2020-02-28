@@ -39,7 +39,7 @@ export const defaultOIDCProviderOptions: OIDCProviderOptions = {
     options: {},
   },
   trustProxy: true,
-  devMode: false,
+  dev: false,
 
   // metadata
   discovery: {

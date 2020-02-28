@@ -10,8 +10,20 @@ export const getStaticInteractionActions = (props: {
 
   const {url, availableFederationProviders} = props;
 
+  // [find_email]
+  const findEmail: InteractionActionEndpoints = {
+    "find_email.check_phone": {
+      url: url("/find_email/check_phone"),
+      method: "POST",
+      payload: {
+        phone_number: "",
+      },
+    },
+  };
+
   // [login] can go to [find_email, reset_password, register, verify_phone, verify_email]
   const login: InteractionActionEndpoints = {
+    ...findEmail,
     "login.check_email": {
       url: url("/login/check_email"),
       method: "POST",
@@ -68,6 +80,7 @@ export const getStaticInteractionActions = (props: {
   };
 
   return {
+    findEmail,
     login,
     consent,
   };

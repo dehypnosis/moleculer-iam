@@ -6,7 +6,7 @@ export declare type OIDCAdapterProps = {
 };
 export declare abstract class OIDCAdapter {
     protected readonly props: OIDCAdapterProps;
-    protected readonly models: Map<OIDCModelName, OIDCModel<OIDCModelPayload>>;
+    protected readonly models: Map<any, OIDCModel<any>>;
     protected readonly logger: Logger;
     readonly originalAdapterProxy: OIDCModelAdapterConstructor;
     abstract readonly displayName: string;

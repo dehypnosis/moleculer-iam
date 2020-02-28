@@ -1,10 +1,10 @@
 // @ts-ignore
-import "oidc-provider";
+//import "oidc-provider";
 import { AnyObject, ClaimsWithRejects, ClientAuthorizationState, InteractionResults } from "oidc-provider";
 import * as jose from "jose";
 
-export { AdapterConstructor as OIDCModelAdapterConstructor, AdapterPayload as OIDCModelPayload, Adapter as OIDCModelAdapter, errors as OIDCErrors } from "oidc-provider";
-
+// export { AdapterConstructor as OIDCModelAdapterConstructor, AdapterPayload as OIDCModelPayload, Adapter as OIDCModelAdapter, errors as OIDCErrors } from "oidc-provider";
+/*
 declare module "oidc-provider" {
   export type OIDCModelName = "Session" | "AccessToken" | "AuthorizationCode" | "RefreshToken" | "DeviceCode" | "ClientCredentials" | "Client" |
     "InitialAccessToken" | "RegistrationAccessToken" | "Interaction" | "ReplayDetection" | "PushedAuthorizationRequest";
@@ -219,5 +219,4 @@ declare module "oidc-provider" {
     consumed?: any;
   };
 }
-
-export * from "oidc-provider";
+**/

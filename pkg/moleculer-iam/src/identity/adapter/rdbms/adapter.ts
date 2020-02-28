@@ -8,7 +8,7 @@ import { IDPAdapter, IDPAdapterProps } from "../adapter";
 import { IdentityMetadata } from "../../metadata";
 import { Identity } from "../../identity";
 import { IdentityClaimsSchema } from "../../claims";
-import { OIDCAccountClaims, OIDCAccountClaimsFilter, OIDCAccountCredentials } from "../../../oidc";
+import { OIDCAccountClaims, OIDCAccountClaimsFilter, OIDCAccountCredentials } from "../../../oidc/proxy";
 import { defineAdapterModels } from "./model";
 
 export type IDP_RDBMS_AdapterOptions = RDBMSManagerOptions & { claimsMigrationLockTimeoutSeconds?: number };

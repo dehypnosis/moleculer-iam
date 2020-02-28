@@ -1,5 +1,5 @@
 import * as _ from "lodash";
-import { OIDCAccount, OIDCAccountClaims, OIDCAccountCredentials, OIDCClaimsInfo } from "../oidc";
+import { OIDCAccount, OIDCAccountClaims, OIDCAccountCredentials, OIDCClaimsInfo } from "../oidc/proxy";
 import { Transaction } from "./adapter";
 import { defaultIdentityMetadata, IdentityMetadata } from "./metadata";
 import { Errors } from "./error";

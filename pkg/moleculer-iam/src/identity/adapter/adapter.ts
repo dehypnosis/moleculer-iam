@@ -2,7 +2,7 @@ import * as _ from "lodash";
 import kleur from "kleur";
 import { Logger } from "../../logger";
 import { FindOptions, WhereAttributeHash } from "../../helper/rdbms";
-import { OIDCAccountClaims, OIDCAccountCredentials } from "../../oidc";
+import { OIDCAccountClaims, OIDCAccountCredentials } from "../../oidc/proxy";
 import { defaultIdentityMetadata, IdentityMetadata } from "../metadata";
 import { IdentityClaimsSchema } from "../claims";
 import { ValidationSchema, ValidationError, validator } from "../../validator";

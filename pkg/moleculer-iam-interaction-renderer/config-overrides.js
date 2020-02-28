@@ -63,6 +63,7 @@ module.exports = {
 
       return {
         ...config,
+        open: false, // why it doesn't work...?
         logLevel: "debug",
         writeToDisk: true,
         contentBase: output.path,

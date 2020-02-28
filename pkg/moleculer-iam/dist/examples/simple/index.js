@@ -1,9 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const moleculer_1 = require("moleculer");
-// import { DefaultInteractionRendererAdapter } from "moleculer-iam-interaction-renderer";
-const __1 = require("../../"); // "moleculer-iam";
 const app_1 = require("./app");
+const __1 = require("../../"); // "moleculer-iam";
+// import Renderer from "moleculer-iam-interaction-renderer";
+// tslint:disable-next-line:no-var-requires to avoid circular deps in our monorepo workspace
+const Renderer = require("moleculer-iam-interaction-renderer").default;
 // can use any alternative renderer rather than this default one
 // const testRendererAdapter: InteractionRendererAdapter<{test: number}> = {
 //   render(state) {
@@ -78,6 +80,28 @@ const serviceSchema = __1.IAMServiceSchema({
             },
             */
             },
+            renderer: new Renderer({
+                logo: {
+                    uri: "https://upload.wikimedia.org/wikipedia/commons/a/a2/OpenID_logo_2.svg",
+                    align: "left",
+                },
+                login: {
+                    federation_options_visible: true,
+                },
+                theme: {
+                    palette: {
+                        themePrimary: "#ff6500",
+                        themeLighterAlt: "#f6f7fe",
+                        themeLighter: "#fce1f3",
+                        themeLight: "#facfd4",
+                        themeTertiary: "#f4909a",
+                        themeSecondary: "#ef7551",
+                        themeDarkAlt: "#d54627",
+                        themeDark: "#bc4014",
+                        themeDarker: "#a23414",
+                    },
+                },
+            }),
         },
         discovery: {
             ui_locales_supported: ["en-US", "ko-KR"],

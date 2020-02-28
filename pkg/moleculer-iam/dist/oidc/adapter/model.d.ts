@@ -22,7 +22,7 @@ export declare abstract class OIDCModel<M extends OIDCModelPayload = OIDCModelPa
      */
     constructor(props: OIDCModelProps, options?: any);
     protected readonly logger: Logger;
-    get name(): OIDCModelName;
+    readonly name: OIDCModelName;
     /**
      *
      * Query instances of an oidc-provider model.

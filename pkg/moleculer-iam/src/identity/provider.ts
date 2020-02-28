@@ -1,15 +1,13 @@
 import * as _ from "lodash";
-import { FindOptions } from "../helper/rdbms";
+import { FindOptions, WhereAttributeHash } from "../helper/rdbms";
 import { Logger } from "../logger";
 import { Identity } from "./identity";
 import { Errors } from "./error";
 import { IDPAdapter, IDPAdapterConstructors, IDPAdapterConstructorOptions } from "./adapter";
-import { OIDCAccountClaims, OIDCAccountCredentials } from "../oidc";
+import { OIDCAccountClaims, OIDCAccountCredentials } from "../oidc/proxy";
 import { IdentityClaimsManager, IdentityClaimsManagerOptions } from "./claims";
 import { IdentityMetadata } from "./metadata";
 import { validator, ValidationError } from "../validator";
-import { WhereAttributeHash } from "sequelize";
-import uuid from "uuid";
 
 export type IdentityProviderProps = {
   logger?: Logger,

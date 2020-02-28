@@ -3,8 +3,19 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getStaticInteractionActions = (props) => {
     // internal actions for [logout], [device_code_verification] are not described here
     const { url, availableFederationProviders } = props;
+    // [find_email]
+    const findEmail = {
+        "find_email.check_phone": {
+            url: url("/find_email/check_phone"),
+            method: "POST",
+            payload: {
+                phone_number: "",
+            },
+        },
+    };
     // [login] can go to [find_email, reset_password, register, verify_phone, verify_email]
     const login = {
+        ...findEmail,
         "login.check_email": {
             url: url("/login/check_email"),
             method: "POST",
@@ -59,6 +70,7 @@ exports.getStaticInteractionActions = (props) => {
         },
     };
     return {
+        findEmail,
         login,
         consent,
     };

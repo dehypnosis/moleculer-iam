@@ -1,6 +1,6 @@
 import * as _ from "lodash";
 import { IDPAdapter, IDPAdapterProps, Transaction } from "../adapter";
-import { OIDCAccountClaims, OIDCAccountCredentials } from "../../../oidc";
+import { OIDCAccountClaims, OIDCAccountCredentials } from "../../../oidc/proxy";
 import { IdentityMetadata } from "../../metadata";
 import { IdentityClaimsSchema } from "../../claims";
 import { FindOptions, WhereAttributeHash } from "../../../helper/rdbms";

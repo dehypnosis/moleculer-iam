@@ -7,7 +7,7 @@ import { Logger } from "../../logger";
 import { Errors } from "../error";
 import { IDPAdapter } from "../adapter";
 import { IdentityClaimsSchema, IdentityClaimsSchemaPayload, IdentityClaimsSchemaPayloadValidationSchema } from "./types";
-import { OIDCAccountClaims } from "../../oidc";
+import { OIDCAccountClaims } from "../../oidc/proxy";
 import { defaultIdentityClaimsManagerOptions } from "./options";
 import { Transaction } from "../adapter";
 import { WhereAttributeHash } from "../../helper/rdbms";

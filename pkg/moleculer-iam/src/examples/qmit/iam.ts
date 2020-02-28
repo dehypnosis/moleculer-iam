@@ -27,7 +27,7 @@ broker.createService(
       },
     },
     oidc: {
-      devMode: isDev,
+      dev: isDev,
       issuer: isDev ? "https://account.dev.qmit.pro" : "https://account.qmit.pro",
       discovery: {
         op_policy_uri: isDev ? "https://account.dev.qmit.pro/help/policy" : "https://account.qmit.pro/help/policy",

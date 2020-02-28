@@ -2,7 +2,7 @@
 /// <reference types="koa-passport" />
 import { IdentityClaimsSchema, IdentityProvider } from "../../identity";
 import { Logger } from "../../logger";
-import { Provider, Configuration, ClientMetadata, Client } from "./types";
+import { Provider, Configuration } from "./types";
 import { OIDCAdapter, OIDCAdapterConstructorOptions } from "../adapter";
 import { InteractionFactoryOptions } from "../interaction";
 export interface OIDCProviderDiscoveryMetadata {
@@ -28,10 +28,10 @@ export declare const parseOIDCProviderOptions: (props: {
     idp: IdentityProvider;
 }, opts: OIDCProviderOptions) => {
     methods: {
-        configuration: () => Configuration;
-        clientAdd: (metadata: Partial<ClientMetadata>, opt: {
+        configuration: () => any;
+        clientAdd: (metadata: any, opt: {
             store: true;
-        }) => Client;
+        }) => any;
         clientRemove: (id: string) => void;
     };
     syncSupportedClaimsAndScopes: (claimsSchemata: IdentityClaimsSchema[]) => void;
