@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
 const uuid = tslib_1.__importStar(require("uuid"));
-const provider_1 = require("../../oidc/provider");
+const op_1 = require("../../op");
 function doCommonServiceTest(broker, service) {
     beforeAll(async () => {
         await broker.start();
@@ -31,7 +31,7 @@ function doCommonServiceTest(broker, service) {
         });
     });
     describe("iam.model.*", () => {
-        for (const kind of provider_1.OIDCProvider.volatileModelNames) {
+        for (const kind of op_1.OIDCProvider.volatileModelNames) {
             it(`iam.model.get/count/delete for ${kind}`, async () => {
                 const where = { exp: { $gte: Math.floor(new Date().getTime() / 1000) } };
                 const entries = await broker.call("iam.model.get", { kind, where });

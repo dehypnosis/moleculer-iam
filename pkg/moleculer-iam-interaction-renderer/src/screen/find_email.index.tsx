@@ -8,11 +8,11 @@ export const FindEmailIndexScreen: React.FunctionComponent = () => {
   const nav = useNavigation();
   const [phoneNumber, setPhoneNumber] = useState(((useRoute() as any).params || {}).phoneNumber || "");
   const {loading, errors, setErrors, withLoading} = useWithLoading();
-  const { interaction, request } = useServerState();;
+  const { interaction, request } = useServerState();
 
   const handleCheckPhoneNumber = withLoading(() => {
     request("find_email.check_phone")
-      .then(data => {
+      .then((data: any) => {
         console.log(data);
         nav.navigate("find_email", {
           screen: "find_email.sent",
@@ -21,7 +21,7 @@ export const FindEmailIndexScreen: React.FunctionComponent = () => {
           },
         });
       })
-      .catch(err => setErrors(err))
+      .catch((err: any) => setErrors(err))
   }, [phoneNumber]);
 
   const handleCancel = withLoading(() => nav.navigate("login", {

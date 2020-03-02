@@ -1,6 +1,7 @@
 import React from "react";
 import { LinkingOptions } from "@react-navigation/native/lib/typescript/src/types";
 import { createStackNavigator, StackNavigationOptions } from "@react-navigation/stack";
+import { getServerOptions } from "../inject";
 
 // error
 import { ErrorScreen } from "./screen/error";
@@ -42,53 +43,56 @@ import { VerifyEmailSentScreen } from "./screen/verify_email.sent";
 import { VerifyEmailEndScreen } from "./screen/verify_email.end";
 
 
+let prefix = getServerOptions().prefix;
+if (prefix.startsWith("/")) prefix = prefix.substr(1);
+
 export const routeConfig: LinkingOptions["config"] = {
   "login": {
     screens: {
-      "login.check_password": "interaction/login/check_password",
-      "login.index": "interaction/login",
+      "login.check_password": `${prefix}/login/check_password`,
+      "login.index": `${prefix}/login`,
     },
   },
-  "consent": "interaction/consent",
+  "consent": `${prefix}/consent`,
   "logout": {
     screens: {
-      "logout.end": "oidc/session/end/success",
-      "logout.index": "oidc/session/end",
+      "logout.end": `${prefix}/session/end/success`,
+      "logout.index": `${prefix}/session/end`,
     },
   },
   "find_email": {
     screens: {
-      "find_email.sent": "interaction/find_email/sent",
-      "find_email.index": "interaction/find_email",
+      "find_email.sent": `${prefix}/find_email/sent`,
+      "find_email.index": `${prefix}/find_email`,
     },
   },
   "reset_password": {
     screens: {
-      "reset_password.end": "interaction/reset_password/end",
-      "reset_password.set": "interaction/reset_password/set",
-      "reset_password.sent": "interaction/reset_password/sent",
-      "reset_password.index": "interaction/reset_password",
+      "reset_password.end": `${prefix}/reset_password/end`,
+      "reset_password.set": `${prefix}/reset_password/set`,
+      "reset_password.sent": `${prefix}/reset_password/sent`,
+      "reset_password.index": `${prefix}/reset_password`,
     },
   },
   "register": {
     screens: {
-      "register.end": "interaction/register/end",
-      "register.detail": "interaction/register/detail",
-      "register.index": "interaction/register",
+      "register.end": `${prefix}/register/end`,
+      "register.detail": `${prefix}/register/detail`,
+      "register.index": `${prefix}/register`,
     },
   },
   "verify_phone": {
     screens: {
-      "verify_phone.end": "interaction/verify_phone/end",
-      "verify_phone.sent": "interaction/verify_phone/sent",
-      "verify_phone.index": "interaction/verify_phone",
+      "verify_phone.end": `${prefix}/verify_phone/end`,
+      "verify_phone.sent": `${prefix}/verify_phone/sent`,
+      "verify_phone.index": `${prefix}/verify_phone`,
     },
   },
   "verify_email": {
     screens: {
-      "verify_email.end": "interaction/verify_email/end",
-      "verify_email.sent": "interaction/verify_email/sent",
-      "verify_email.index": "interaction/verify_email",
+      "verify_email.end": `${prefix}/verify_email/end`,
+      "verify_email.sent": `${prefix}/verify_email/sent`,
+      "verify_email.index": `${prefix}/verify_email`,
     },
   },
   "error": "",

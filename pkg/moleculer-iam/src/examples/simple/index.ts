@@ -46,7 +46,7 @@ const serviceSchema = IAMServiceSchema({
       },
     },
   },
-  oidc: {
+  op: {
     issuer: "http://localhost:9090",
     dev: true,
 

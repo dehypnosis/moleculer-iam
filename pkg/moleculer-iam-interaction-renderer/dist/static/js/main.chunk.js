@@ -43,6 +43,7 @@ Object.defineProperty(exports, "__esModule", {
 var _ = __importStar(__webpack_require__(/*! lodash */ "../../node_modules/lodash/lodash.js"));
 
 var defaultServerOptions = {
+  prefix: "/op",
   logo: {
     uri: null,
     align: "left"
@@ -121,6 +122,17 @@ var _error = __webpack_require__(/*! ./screen/error */ "./src/screen/error.tsx")
 
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-interaction-renderer/src/app.tsx";
 
+var getMatchedRoute = function getMatchedRoute(state) {
+  var route = state.routes && state.routes[0];
+  if (!route) return;
+
+  if (route.state) {
+    return getMatchedRoute(route.state);
+  }
+
+  return route;
+};
+
 var InnerApp = function InnerApp() {
   var ref = (0, _react.useRef)();
   var serverState = (0, _hook.useServerState)();
@@ -131,16 +143,18 @@ var InnerApp = function InnerApp() {
     getStateFromPath: function getStateFromPath(path, options) {
       var state = (0, _native.getStateFromPath)(path, options);
 
-      if (state && state.routes[0]) {
-        var route = state.routes[0];
-
+      if (state) {
         if (serverState.error) {
-          route.name = "error";
+          state.routes[0].name = "error";
           console.error("serverState.error", serverState);
         }
 
-        if (serverState.interaction && route.name !== serverState.interaction.name) {
-          console.warn("serverState.interaction differs from matched route", serverState.interaction, route);
+        if (serverState.interaction) {
+          var route = getMatchedRoute(state);
+
+          if (route && route.name !== serverState.interaction.name) {
+            console.warn("serverState.interaction differs from matched route", serverState.interaction, route);
+          }
         }
       }
 
@@ -205,13 +219,13 @@ var InnerApp = function InnerApp() {
     ref: ref,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 52
+      lineNumber: 66
     },
     __self: this
   }, _react.default.createElement(_navigator.Navigator, {
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 56
+      lineNumber: 70
     },
     __self: this
   }));
@@ -255,7 +269,7 @@ var App = function (_React$Component) {
         return _react.default.createElement(_error.ClientErrorScreen, (0, _extends2.default)({}, this.state, {
           __source: {
             fileName: _jsxFileName,
-            lineNumber: 72
+            lineNumber: 86
           },
           __self: this
         }));
@@ -264,7 +278,7 @@ var App = function (_React$Component) {
       return _react.default.createElement(InnerApp, {
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 75
+          lineNumber: 89
         },
         __self: this
       });
@@ -659,6 +673,8 @@ var _react = _interopRequireDefault(__webpack_require__(/*! react */ "../../node
 
 var _stack = __webpack_require__(/*! @react-navigation/stack */ "../../node_modules/@react-navigation/stack/lib/module/index.js");
 
+var _inject = __webpack_require__(/*! ../inject */ "./inject.js");
+
 var _error = __webpack_require__(/*! ./screen/error */ "./src/screen/error.tsx");
 
 var _login = __webpack_require__(/*! ./screen/login.index */ "./src/screen/login.index.tsx");
@@ -702,53 +718,55 @@ var _verify_email2 = __webpack_require__(/*! ./screen/verify_email.sent */ "./sr
 var _verify_email3 = __webpack_require__(/*! ./screen/verify_email.end */ "./src/screen/verify_email.end.tsx");
 
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-interaction-renderer/src/navigator.tsx";
+var prefix = (0, _inject.getServerOptions)().prefix;
+if (prefix.startsWith("/")) prefix = prefix.substr(1);
 var routeConfig = {
   "login": {
     screens: {
-      "login.check_password": "interaction/login/check_password",
-      "login.index": "interaction/login"
+      "login.check_password": prefix + "/login/check_password",
+      "login.index": prefix + "/login"
     }
   },
-  "consent": "interaction/consent",
+  "consent": prefix + "/consent",
   "logout": {
     screens: {
-      "logout.end": "oidc/session/end/success",
-      "logout.index": "oidc/session/end"
+      "logout.end": prefix + "/session/end/success",
+      "logout.index": prefix + "/session/end"
     }
   },
   "find_email": {
     screens: {
-      "find_email.sent": "interaction/find_email/sent",
-      "find_email.index": "interaction/find_email"
+      "find_email.sent": prefix + "/find_email/sent",
+      "find_email.index": prefix + "/find_email"
     }
   },
   "reset_password": {
     screens: {
-      "reset_password.end": "interaction/reset_password/end",
-      "reset_password.set": "interaction/reset_password/set",
-      "reset_password.sent": "interaction/reset_password/sent",
-      "reset_password.index": "interaction/reset_password"
+      "reset_password.end": prefix + "/reset_password/end",
+      "reset_password.set": prefix + "/reset_password/set",
+      "reset_password.sent": prefix + "/reset_password/sent",
+      "reset_password.index": prefix + "/reset_password"
     }
   },
   "register": {
     screens: {
-      "register.end": "interaction/register/end",
-      "register.detail": "interaction/register/detail",
-      "register.index": "interaction/register"
+      "register.end": prefix + "/register/end",
+      "register.detail": prefix + "/register/detail",
+      "register.index": prefix + "/register"
     }
   },
   "verify_phone": {
     screens: {
-      "verify_phone.end": "interaction/verify_phone/end",
-      "verify_phone.sent": "interaction/verify_phone/sent",
-      "verify_phone.index": "interaction/verify_phone"
+      "verify_phone.end": prefix + "/verify_phone/end",
+      "verify_phone.sent": prefix + "/verify_phone/sent",
+      "verify_phone.index": prefix + "/verify_phone"
     }
   },
   "verify_email": {
     screens: {
-      "verify_email.end": "interaction/verify_email/end",
-      "verify_email.sent": "interaction/verify_email/sent",
-      "verify_email.index": "interaction/verify_email"
+      "verify_email.end": prefix + "/verify_email/end",
+      "verify_email.sent": prefix + "/verify_email/sent",
+      "verify_email.index": prefix + "/verify_email"
     }
   },
   "error": ""
@@ -768,7 +786,7 @@ var LoginStackScreen = function LoginStackScreen() {
     screenOptions: screenOptions,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 107
+      lineNumber: 111
     },
     __self: this
   }, _react.default.createElement(LoginStack.Screen, {
@@ -776,7 +794,7 @@ var LoginStackScreen = function LoginStackScreen() {
     component: _login.LoginIndexScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 110
+      lineNumber: 114
     },
     __self: this
   }), _react.default.createElement(LoginStack.Screen, {
@@ -784,7 +802,7 @@ var LoginStackScreen = function LoginStackScreen() {
     component: _login2.LoginCheckPasswordScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 114
+      lineNumber: 118
     },
     __self: this
   }));
@@ -797,7 +815,7 @@ var LogoutStackScreen = function LogoutStackScreen() {
     screenOptions: screenOptions,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 123
+      lineNumber: 127
     },
     __self: this
   }, _react.default.createElement(LogoutStack.Screen, {
@@ -805,7 +823,7 @@ var LogoutStackScreen = function LogoutStackScreen() {
     component: _logout.LogoutIndexScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 126
+      lineNumber: 130
     },
     __self: this
   }), _react.default.createElement(LogoutStack.Screen, {
@@ -813,7 +831,7 @@ var LogoutStackScreen = function LogoutStackScreen() {
     component: _logout2.LogoutEndScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 130
+      lineNumber: 134
     },
     __self: this
   }));
@@ -826,7 +844,7 @@ var FindEmailStackScreen = function FindEmailStackScreen() {
     screenOptions: screenOptions,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 139
+      lineNumber: 143
     },
     __self: this
   }, _react.default.createElement(FindEmailStack.Screen, {
@@ -834,7 +852,7 @@ var FindEmailStackScreen = function FindEmailStackScreen() {
     component: _find_email.FindEmailIndexScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 142
+      lineNumber: 146
     },
     __self: this
   }), _react.default.createElement(FindEmailStack.Screen, {
@@ -842,7 +860,7 @@ var FindEmailStackScreen = function FindEmailStackScreen() {
     component: _find_email2.FindEmailSentScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 146
+      lineNumber: 150
     },
     __self: this
   }));
@@ -855,7 +873,7 @@ var ResetPasswordStackScreen = function ResetPasswordStackScreen() {
     screenOptions: screenOptions,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 155
+      lineNumber: 159
     },
     __self: this
   }, _react.default.createElement(ResetPasswordStack.Screen, {
@@ -863,7 +881,7 @@ var ResetPasswordStackScreen = function ResetPasswordStackScreen() {
     component: _reset_password.ResetPasswordIndexScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 158
+      lineNumber: 162
     },
     __self: this
   }), _react.default.createElement(ResetPasswordStack.Screen, {
@@ -871,7 +889,7 @@ var ResetPasswordStackScreen = function ResetPasswordStackScreen() {
     component: _reset_password2.ResetPasswordSentScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 162
+      lineNumber: 166
     },
     __self: this
   }), _react.default.createElement(ResetPasswordStack.Screen, {
@@ -879,7 +897,7 @@ var ResetPasswordStackScreen = function ResetPasswordStackScreen() {
     component: _reset_password3.ResetPasswordSetScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 166
+      lineNumber: 170
     },
     __self: this
   }), _react.default.createElement(ResetPasswordStack.Screen, {
@@ -887,7 +905,7 @@ var ResetPasswordStackScreen = function ResetPasswordStackScreen() {
     component: _reset_password4.ResetPasswordEndScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 170
+      lineNumber: 174
     },
     __self: this
   }));
@@ -900,7 +918,7 @@ var RegisterStackScreen = function RegisterStackScreen() {
     screenOptions: screenOptions,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 179
+      lineNumber: 183
     },
     __self: this
   }, _react.default.createElement(RegisterStack.Screen, {
@@ -908,7 +926,7 @@ var RegisterStackScreen = function RegisterStackScreen() {
     component: _register.RegisterIndexScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 182
+      lineNumber: 186
     },
     __self: this
   }), _react.default.createElement(RegisterStack.Screen, {
@@ -916,7 +934,7 @@ var RegisterStackScreen = function RegisterStackScreen() {
     component: _register2.RegisterDetailScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 186
+      lineNumber: 190
     },
     __self: this
   }), _react.default.createElement(RegisterStack.Screen, {
@@ -924,7 +942,7 @@ var RegisterStackScreen = function RegisterStackScreen() {
     component: _register3.RegisterEndScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 190
+      lineNumber: 194
     },
     __self: this
   }));
@@ -937,7 +955,7 @@ var VerifyPhoneStackScreen = function VerifyPhoneStackScreen() {
     screenOptions: screenOptions,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 199
+      lineNumber: 203
     },
     __self: this
   }, _react.default.createElement(VerifyPhoneStack.Screen, {
@@ -945,7 +963,7 @@ var VerifyPhoneStackScreen = function VerifyPhoneStackScreen() {
     component: _verify_phone.VerifyPhoneIndexScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 202
+      lineNumber: 206
     },
     __self: this
   }), _react.default.createElement(VerifyPhoneStack.Screen, {
@@ -953,7 +971,7 @@ var VerifyPhoneStackScreen = function VerifyPhoneStackScreen() {
     component: _verify_phone2.VerifyPhoneSentScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 206
+      lineNumber: 210
     },
     __self: this
   }), _react.default.createElement(VerifyPhoneStack.Screen, {
@@ -961,7 +979,7 @@ var VerifyPhoneStackScreen = function VerifyPhoneStackScreen() {
     component: _verify_phone3.VerifyPhoneEndScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 210
+      lineNumber: 214
     },
     __self: this
   }));
@@ -974,7 +992,7 @@ var VerifyEmailStackScreen = function VerifyEmailStackScreen() {
     screenOptions: screenOptions,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 219
+      lineNumber: 223
     },
     __self: this
   }, _react.default.createElement(VerifyEmailStack.Screen, {
@@ -982,7 +1000,7 @@ var VerifyEmailStackScreen = function VerifyEmailStackScreen() {
     component: _verify_email.VerifyEmailIndexScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 222
+      lineNumber: 226
     },
     __self: this
   }), _react.default.createElement(VerifyEmailStack.Screen, {
@@ -990,7 +1008,7 @@ var VerifyEmailStackScreen = function VerifyEmailStackScreen() {
     component: _verify_email2.VerifyEmailSentScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 226
+      lineNumber: 230
     },
     __self: this
   }), _react.default.createElement(VerifyEmailStack.Screen, {
@@ -998,7 +1016,7 @@ var VerifyEmailStackScreen = function VerifyEmailStackScreen() {
     component: _verify_email3.VerifyEmailEndScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 230
+      lineNumber: 234
     },
     __self: this
   }));
@@ -1009,7 +1027,7 @@ var Navigator = function Navigator() {
     screenOptions: screenOptions,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 239
+      lineNumber: 243
     },
     __self: this
   }, _react.default.createElement(RootStack.Screen, {
@@ -1017,7 +1035,7 @@ var Navigator = function Navigator() {
     component: _error.ErrorScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 242
+      lineNumber: 246
     },
     __self: this
   }), _react.default.createElement(RootStack.Screen, {
@@ -1025,7 +1043,7 @@ var Navigator = function Navigator() {
     component: _consent.ConsentScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 246
+      lineNumber: 250
     },
     __self: this
   }), _react.default.createElement(RootStack.Screen, {
@@ -1033,7 +1051,7 @@ var Navigator = function Navigator() {
     component: LoginStackScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 250
+      lineNumber: 254
     },
     __self: this
   }), _react.default.createElement(RootStack.Screen, {
@@ -1041,7 +1059,7 @@ var Navigator = function Navigator() {
     component: FindEmailStackScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 254
+      lineNumber: 258
     },
     __self: this
   }), _react.default.createElement(RootStack.Screen, {
@@ -1049,7 +1067,7 @@ var Navigator = function Navigator() {
     component: ResetPasswordStackScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 258
+      lineNumber: 262
     },
     __self: this
   }), _react.default.createElement(RootStack.Screen, {
@@ -1057,7 +1075,7 @@ var Navigator = function Navigator() {
     component: RegisterStackScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 262
+      lineNumber: 266
     },
     __self: this
   }), _react.default.createElement(RootStack.Screen, {
@@ -1065,7 +1083,7 @@ var Navigator = function Navigator() {
     component: LogoutStackScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 266
+      lineNumber: 270
     },
     __self: this
   }), _react.default.createElement(RootStack.Screen, {
@@ -1073,7 +1091,7 @@ var Navigator = function Navigator() {
     component: VerifyPhoneStackScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 270
+      lineNumber: 274
     },
     __self: this
   }), _react.default.createElement(RootStack.Screen, {
@@ -1081,7 +1099,7 @@ var Navigator = function Navigator() {
     component: VerifyEmailStackScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 274
+      lineNumber: 278
     },
     __self: this
   }));
@@ -1366,7 +1384,6 @@ var FindEmailIndexScreen = function FindEmailIndexScreen() {
       interaction = _useServerState.interaction,
       request = _useServerState.request;
 
-  ;
   var handleCheckPhoneNumber = withLoading(function () {
     request("find_email.check_phone").then(function (data) {
       console.log(data);

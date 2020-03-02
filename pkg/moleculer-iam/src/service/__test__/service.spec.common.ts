@@ -2,8 +2,8 @@
 
 import * as uuid from "uuid";
 import { ServiceBroker, Service } from "moleculer";
-import { IdentityProvider } from "../../identity";
-import { OIDCProvider } from "../../oidc/provider";
+import { IdentityProvider } from "../../idp";
+import { OIDCProvider } from "../../op";
 
 export function doCommonServiceTest(broker: ServiceBroker, service: Service) {
 

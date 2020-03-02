@@ -9,6 +9,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var _ = __importStar(require("lodash"));
 var defaultServerOptions = {
+    prefix: "/op",
     logo: {
         uri: null,
         align: "left",

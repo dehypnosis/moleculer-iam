@@ -8,21 +8,22 @@ const kleur = tslib_1.__importStar(require("kleur"));
 const koa_1 = tslib_1.__importDefault(require("koa"));
 const koa_helmet_1 = tslib_1.__importDefault(require("koa-helmet"));
 const koa_json_1 = tslib_1.__importDefault(require("koa-json"));
+const koa_mount_1 = tslib_1.__importDefault(require("koa-mount"));
+// @ts-ignore
+const koa_locale_1 = tslib_1.__importDefault(require("koa-locale"));
 const logging_1 = require("./logging");
 const koa_compose_1 = tslib_1.__importDefault(require("koa-compose"));
-/*
-  Mount OIDC Provider routes and static client application
- */
 class IAMServer {
     constructor(props, opts) {
         this.props = props;
         this.working = false;
         const options = this.options = opts || {};
-        this.logger = props.logger || console;
+        const { logger, op } = props;
+        this.logger = logger || console;
         // create web server application
         const app = this.app = new koa_1.default();
-        app.env = "production";
-        app.proxy = true;
+        app.env = op.app.env = "production";
+        app.proxy = op.app.proxy = true;
         // apply web security and logging middleware
         app.use(logging_1.logging(this.logger, options.logging));
         app.use(koa_helmet_1.default(options.security));
@@ -30,26 +31,34 @@ class IAMServer {
             pretty: true,
             spaces: 2,
         }));
-        // mount optional app and oidc provider router
-        if (options.app) {
-            options.app(props.oidc)
-                .then(appRoutes => {
-                app.use(koa_compose_1.default([appRoutes, props.oidc.routes]));
-            }, err => {
-                this.logger.error("failed to initialize server application:", err);
-                app.use(props.oidc.routes);
-            });
-        }
-        else {
-            app.use(props.oidc.routes);
-        }
+        // set locale into context
+        koa_locale_1.default(app, "locale");
+        app.use((ctx, next) => {
+            // parsed by precedence of ?locale=ko-KR, Cookie: locale=ko-KR, Accept-Language: ko-KR
+            // ref: https://github.com/koa-modules/locale
+            // @ts-ignore
+            const request = ctx.getLocaleFromQuery() || ctx.getLocaleFromCookie() || ctx.getLocaleFromHeader();
+            const result = op.parseLocale(request);
+            ctx.locale = result;
+            return next();
+        });
     }
     async start() {
         if (this.working) {
             return;
         }
         // start op
-        await this.props.oidc.start();
+        const { op } = this.props;
+        await op.start();
+        // mount optional app routes and oidc provider routes
+        const opRoutes = koa_mount_1.default(op.app);
+        if (this.options.app) {
+            const appRoutes = await this.options.app(op);
+            this.app.use(koa_compose_1.default([appRoutes, opRoutes]));
+        }
+        else {
+            this.app.use(opRoutes);
+        }
         // start servers
         const config = this.options;
         const handler = this.app.callback();
@@ -77,9 +86,9 @@ class IAMServer {
         this.logger.info(`IAM server has been started`);
     }
     listenCallback(protocol, scheme, hostname, port) {
-        const oidc = this.props.oidc;
+        const { op } = this.props;
         const discoveryURL = kleur.blue(`${scheme}://${hostname}:${port}/.well-known/openid-configuration`);
-        const issuerURL = kleur.yellow(oidc.issuer);
+        const issuerURL = kleur.yellow(op.issuer);
         return () => {
             this.logger.info(`${kleur.blue(protocol.toUpperCase() + " server")} is listening:\n* OIDC discovery endpoint: ${discoveryURL}\n* OIDC issuer: ${issuerURL}`);
         };
@@ -101,7 +110,7 @@ class IAMServer {
             this.http2s.close(() => this.logger.info(`http2s server has been stopped`));
         }
         // stop op
-        await this.props.oidc.stop();
+        await this.props.op.stop();
         this.working = false;
         this.logger.info(`IAM server has been stopped`);
     }

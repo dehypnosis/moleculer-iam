@@ -1,8 +1,17 @@
 import React, { useEffect, useRef, useState } from "react";
-import { getStateFromPath, NavigationContainer, useLinking } from "@react-navigation/native";
+import { getStateFromPath, NavigationContainer, useLinking, NavigationState, Route } from "@react-navigation/native";
 import { Navigator, routeConfig } from "./navigator";
 import { useServerState } from "./hook";
 import { ClientErrorScreen } from "./screen/error";
+
+const getMatchedRoute = (state: Partial<NavigationState>): Route<string> & {state?: Partial<NavigationState>} | undefined => {
+  const route = state.routes && state.routes[0];
+  if (!route) return;
+  if (route.state) {
+    return getMatchedRoute(route.state);
+  }
+  return route;
+};
 
 const InnerApp: React.FunctionComponent = () => {
   // read state from URI
@@ -13,14 +22,19 @@ const InnerApp: React.FunctionComponent = () => {
     config: routeConfig,
     getStateFromPath: (path, options) => {
       const state = getStateFromPath(path, options);
-      if (state && state.routes[0]) {
-        const route = state.routes[0];
+      if (state) {
+        // show error route on server error
         if (serverState.error) {
-          route.name = "error";
+          state.routes[0].name = "error";
           console.error(`serverState.error`, serverState);
         }
-        if (serverState.interaction && route.name !== serverState.interaction.name) {
-          console.warn(`serverState.interaction differs from matched route`, serverState.interaction, route);
+
+        // warn unmatched interaction
+        if (serverState.interaction) {
+          const route = getMatchedRoute(state);
+          if (route && route.name !== serverState.interaction.name) {
+            console.warn(`serverState.interaction differs from matched route`, serverState.interaction, route);
+          }
         }
       }
       return state;

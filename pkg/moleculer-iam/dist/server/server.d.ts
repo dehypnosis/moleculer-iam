@@ -4,17 +4,17 @@ import * as http2 from "http2";
 import * as https from "https";
 import { IHelmetConfiguration } from "helmet";
 import { Logger } from "../logger";
-import { OIDCProvider } from "../oidc";
+import { OIDCProvider, ParsedLocale } from "../op";
 import { LoggingOptions } from "./logging";
 import compose from "koa-compose";
 export declare type IAMServerProps = {
-    oidc: OIDCProvider;
+    op: OIDCProvider;
     logger?: Logger;
 };
 export declare type IAMServerOptions = {
     security?: IHelmetConfiguration;
     logging?: LoggingOptions;
-    app?: (oidc: OIDCProvider) => Promise<compose.Middleware<any>>;
+    app?: (op: OIDCProvider) => Promise<compose.Middleware<any>>;
     assets?: {
         path: string;
         prefix: string;
@@ -37,6 +37,9 @@ export declare type IAMServerOptions = {
         port?: number;
     } & http2.SecureServerOptions;
 };
+export interface IAMServerRequestContextProps {
+    locale: ParsedLocale;
+}
 export declare class IAMServer {
     private readonly props;
     private readonly logger;

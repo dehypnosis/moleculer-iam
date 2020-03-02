@@ -2,6 +2,7 @@ import { InteractionRenderState } from "moleculer-iam";
 import { IPartialTheme } from "office-ui-fabric-react/lib";
 export declare type Inject = InteractionRenderState;
 export declare type ServerOptions = {
+    prefix: string;
     logo: {
         uri: string | null;
         align: "center" | "left" | "right";

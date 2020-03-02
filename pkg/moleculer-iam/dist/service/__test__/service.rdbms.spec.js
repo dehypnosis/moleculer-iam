@@ -23,7 +23,7 @@ const service = broker.createService(service_1.IAMServiceSchema({
     idp: {
         adapter,
     },
-    oidc: {
+    op: {
         issuer: "http://localhost:8899",
         adapter,
     },

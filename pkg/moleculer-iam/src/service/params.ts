@@ -1,6 +1,6 @@
 import * as _ from "lodash";
 import { ActionParams } from "moleculer";
-import { IdentityClaimsSchemaPayloadValidationSchema } from "../identity/claims";
+import { IdentityClaimsSchemaPayloadValidationSchema } from "../idp/claims";
 
 export const IAMServiceActionParams: { [actionName: string]: ActionParams } = {};
 

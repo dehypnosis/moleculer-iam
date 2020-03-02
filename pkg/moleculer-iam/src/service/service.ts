@@ -5,20 +5,20 @@
  */
 
 import { Errors, ServiceSchema } from "moleculer";
-import { IdentityProvider, IdentityProviderOptions, IdentityClaimsSchemaPayload } from "../identity";
-import { OIDCProvider, OIDCProviderOptions, OIDCModelNames } from "../oidc";
+import { IdentityProvider, IdentityProviderOptions, IdentityClaimsSchemaPayload } from "../idp";
+import { OIDCProvider, OIDCProviderOptions } from "../op";
 import { IAMServer, IAMServerOptions } from "../server";
 import { IAMServiceActionParams } from "./params";
 
 export type IAMServiceSchemaOptions = {
   idp: IdentityProviderOptions,
-  oidc: OIDCProviderOptions,
+  op: OIDCProviderOptions,
   server: IAMServerOptions,
 };
 
 export function IAMServiceSchema(opts: IAMServiceSchemaOptions): ServiceSchema {
   let idp: IdentityProvider;
-  let oidc: OIDCProvider;
+  let op: OIDCProvider;
   let server: IAMServer;
 
   return {
@@ -29,14 +29,14 @@ export function IAMServiceSchema(opts: IAMServiceSchemaOptions): ServiceSchema {
       }, opts.idp);
 
       // create oidc provider
-      oidc = this.oidc = new OIDCProvider({
+      op = this.op = new OIDCProvider({
         idp,
-        logger: this.broker.getLogger("oidc"),
-      }, opts.oidc);
+        logger: this.broker.getLogger("op"),
+      }, opts.op);
 
       // create server
       server = this.server = new IAMServer({
-        oidc,
+        op,
         logger: this.broker.getLogger("server"),
       }, opts.server);
     },
@@ -161,7 +161,7 @@ export function IAMServiceSchema(opts: IAMServiceSchemaOptions): ServiceSchema {
         params: {
           kind: {
             type: "enum",
-            values: OIDCModelNames,
+            values: OIDCProvider.modelNames,
           },
           where: {
             type: "any",
@@ -194,7 +194,7 @@ export function IAMServiceSchema(opts: IAMServiceSchemaOptions): ServiceSchema {
         params: {
           kind: {
             type: "enum",
-            values: OIDCModelNames,
+            values: OIDCProvider.modelNames,
           },
           where: {
             type: "any",
@@ -203,14 +203,14 @@ export function IAMServiceSchema(opts: IAMServiceSchemaOptions): ServiceSchema {
         },
         async handler(ctx) {
           const {kind, where} = ctx.params! as any;
-          return oidc.countModels(kind, where);
+          return op.countModels(kind, where);
         },
       },
       "model.delete": {
         params: {
           kind: {
             type: "enum",
-            values: OIDCModelNames,
+            values: OIDCProvider.modelNames,
           },
           where: {
             type: "any",
@@ -229,7 +229,7 @@ export function IAMServiceSchema(opts: IAMServiceSchemaOptions): ServiceSchema {
         },
         async handler(ctx) {
           const {kind, ...args} = ctx.params! as any;
-          return oidc.deleteModels(kind, args);
+          return op.deleteModels(kind, args);
         },
       },
 
@@ -753,7 +753,7 @@ export function IAMServiceSchema(opts: IAMServiceSchemaOptions): ServiceSchema {
       "iam.schema.updated": {
         async handler(ctx: any) {
           await idp.claims.onClaimsSchemaUpdated();
-          await oidc.syncSupportedClaimsAndScopes();
+          await op.syncSupportedClaimsAndScopes();
           await this.clearCache("schema.*");
           await this.clearCache("id.*");
         },

@@ -2,10 +2,13 @@
   should be recompiled (yarn workspace moleculer-iam-interaction-renderer build-server) on updates
  */
 
+// @ts-ignore
 import path from "path";
+// @ts-ignore
 import fs from "fs";
+// @ts-ignore
 import serveStatic from "koa-static-cache";
-import { InteractionRendererAdapter } from "moleculer-iam";
+import { InteractionRenderer } from "moleculer-iam";
 import { ServerOptions } from "./inject";
 import config from "./config";
 
@@ -15,17 +18,17 @@ type RecursivePartial<T> = {
   [P in keyof T]?: T[P] extends (infer U)[] ? RecursivePartial<U>[] : (T[P] extends object ? RecursivePartial<T[P]> : T[P]);
 };
 
-export default class DefaultInteractionRendererAdapter implements InteractionRendererAdapter {
+export default class DefaultInteractionRenderer implements InteractionRenderer {
   private views?: { header: string; footer: string; };
   constructor(private readonly options: RecursivePartial<ServerOptions> = {}) {
-    this.loadViews();
   }
 
-  private loadViews() {
+  private loadViews(prefix: string) {
     const html = fs.readFileSync(path.join(output.path, "index.html")).toString();
     const index = html.indexOf("<script");
 
-    // inject server-side options, ref ./src/server-state.ts
+    // inject server-side options, ref ./inject.ts
+    this.options.prefix = prefix;
     const options = `<script>window.__SERVER_OPTIONS__=${JSON.stringify(this.options)};</script>`
 
     this.views = {
@@ -34,13 +37,13 @@ export default class DefaultInteractionRendererAdapter implements InteractionRen
     };
   }
 
-  public render: InteractionRendererAdapter["render"] = (state, dev) => {
+  public render: InteractionRenderer["render"] = async (ctx, state, props) => {
     // reload views for each rendering for development mode
-    if (dev) {
+    if (props.dev) {
       try {
-        this.loadViews();
+        this.loadViews(props.prefix);
       } catch (error) {
-        console.error("failed to reload views", error);
+        props.logger.error("failed to reload views", error);
       }
     }
 
@@ -49,21 +52,21 @@ export default class DefaultInteractionRendererAdapter implements InteractionRen
     try {
       serializedState = JSON.stringify(state);
     } catch (error) {
-      console.error("failed to stringify server state", state, error);
+      props.logger.error("failed to stringify server state", state, error);
       serializedState = JSON.stringify({ error: { error: error.name, error_description: error.message }});
     }
 
     const { header, footer } = this.views!;
-    return `${header}<script>window.__SERVER_STATE__=${serializedState};</script>${footer}`;
+    ctx.body = `${header}<script>window.__SERVER_STATE__=${serializedState};</script>${footer}`;
   };
 
-  public routes: InteractionRendererAdapter["routes"] = (dev) => {
+  public routes: InteractionRenderer["routes"] = (props) => {
     return [
       serveStatic(output.path, {
-        maxAge: dev ? 0 : 60 * 60 * 24 * 7,
         prefix: output.publicPath,
-        dynamic: dev,
-        preload: !dev,
+        maxAge: props.dev ? 0 : 60 * 60 * 24 * 7,
+        dynamic: props.dev,
+        preload: !props.dev,
       }),
     ];
   };

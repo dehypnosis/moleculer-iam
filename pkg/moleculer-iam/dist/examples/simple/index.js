@@ -41,9 +41,9 @@ const serviceSchema = __1.IAMServiceSchema({
             },
         },
     },
-    oidc: {
+    op: {
         issuer: "http://localhost:9090",
-        devMode: true,
+        dev: true,
         adapter: {
             // type: "Memory",
             type: "RDBMS",

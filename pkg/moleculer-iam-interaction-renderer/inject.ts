@@ -4,6 +4,7 @@ import { IPartialTheme } from "office-ui-fabric-react/lib";
 
 export type Inject = InteractionRenderState;
 export type ServerOptions = {
+  prefix: string;
   logo: {
     uri: string | null,
     align: "center" | "left" | "right",
@@ -15,6 +16,7 @@ export type ServerOptions = {
 };
 
 const defaultServerOptions: ServerOptions = {
+  prefix: "/op",
   logo: {
     uri: null,
     align: "left",

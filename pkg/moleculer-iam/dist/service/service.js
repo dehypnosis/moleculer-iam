@@ -6,28 +6,28 @@
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 const moleculer_1 = require("moleculer");
-const identity_1 = require("../identity");
-const oidc_1 = require("../oidc");
+const idp_1 = require("../idp");
+const op_1 = require("../op");
 const server_1 = require("../server");
 const params_1 = require("./params");
 function IAMServiceSchema(opts) {
     let idp;
-    let oidc;
+    let op;
     let server;
     return {
         created() {
             // create identity provider
-            idp = this.idp = new identity_1.IdentityProvider({
+            idp = this.idp = new idp_1.IdentityProvider({
                 logger: this.broker.getLogger("idp"),
             }, opts.idp);
             // create oidc provider
-            oidc = this.oidc = new oidc_1.OIDCProvider({
+            op = this.op = new op_1.OIDCProvider({
                 idp,
-                logger: this.broker.getLogger("oidc"),
-            }, opts.oidc);
+                logger: this.broker.getLogger("op"),
+            }, opts.op);
             // create server
             server = this.server = new server_1.IAMServer({
-                oidc,
+                op,
                 logger: this.broker.getLogger("server"),
             }, opts.server);
         },
@@ -65,17 +65,17 @@ function IAMServiceSchema(opts) {
         `,
                 params: params_1.IAMServiceActionParams["client.create"],
                 async handler(ctx) {
-                    const client = await oidc.createClient(ctx.params);
-                    this.broker.broadcast("iam.client.updated");
-                    return client;
+                    // const client = await oidc.createClient(ctx.params as any);
+                    // this.broker.broadcast("iam.client.updated");
+                    // return client;
                 },
             },
             "client.update": {
                 params: params_1.IAMServiceActionParams["client.update"],
                 async handler(ctx) {
-                    const client = await oidc.updateClient(ctx.params);
-                    this.broker.broadcast("iam.client.updated");
-                    return client;
+                    // const client = await oidc.updateClient(ctx.params as any);
+                    // this.broker.broadcast("iam.client.updated");
+                    // return client;
                 },
             },
             "client.delete": {
@@ -83,7 +83,7 @@ function IAMServiceSchema(opts) {
                     id: "string",
                 },
                 async handler(ctx) {
-                    await oidc.deleteClient(ctx.params.id);
+                    // await oidc.deleteClient((ctx.params as any).id);
                     this.broker.broadcast("iam.client.deleted", ctx.params); // 'oidc-provider' has a hard coded LRU cache internally... using pub/sub to clear distributed nodes' cache
                     return true;
                 },
@@ -96,7 +96,7 @@ function IAMServiceSchema(opts) {
                     id: "string",
                 },
                 async handler(ctx) {
-                    return oidc.findClient(ctx.params.id);
+                    // return oidc.findClient((ctx.params as any).id);
                 },
             },
             "client.get": {
@@ -122,8 +122,8 @@ function IAMServiceSchema(opts) {
                 async handler(ctx) {
                     const { offset, limit, where } = ctx.params;
                     const [total, entries] = await Promise.all([
-                        oidc.countClients(where),
-                        oidc.getClients(ctx.params),
+                    // oidc.countClients(where),
+                    // oidc.getClients(ctx.params),
                     ]);
                     return { offset, limit, total, entries };
                 },
@@ -139,7 +139,7 @@ function IAMServiceSchema(opts) {
                     },
                 },
                 async handler(ctx) {
-                    return oidc.countClients(ctx.params && ctx.params.where);
+                    // return oidc.countClients(ctx.params && (ctx.params as any).where);
                 },
             },
             /* "Session", "AccessToken", "AuthorizationCode", "RefreshToken", "DeviceCode", "InitialAccessToken", "RegistrationAccessToken", "Interaction", "ReplayDetection", "PushedAuthorizationRequest" Management */
@@ -150,7 +150,7 @@ function IAMServiceSchema(opts) {
                 params: {
                     kind: {
                         type: "enum",
-                        values: oidc_1.OIDCProvider.volatileModelNames,
+                        values: op_1.OIDCProvider.modelNames,
                     },
                     where: {
                         type: "any",
@@ -170,8 +170,8 @@ function IAMServiceSchema(opts) {
                 async handler(ctx) {
                     const { offset, limit, kind, where, ...args } = ctx.params;
                     const [total, entries] = await Promise.all([
-                        oidc.countModels(kind, where),
-                        oidc.getModels(kind, { offset, limit, where, ...args }),
+                    // oidc.countModels(kind, where),
+                    // oidc.getModels(kind, {offset, limit, where, ...args}),
                     ]);
                     return { offset, limit, total, entries };
                 },
@@ -183,7 +183,7 @@ function IAMServiceSchema(opts) {
                 params: {
                     kind: {
                         type: "enum",
-                        values: oidc_1.OIDCProvider.volatileModelNames,
+                        values: op_1.OIDCProvider.modelNames,
                     },
                     where: {
                         type: "any",
@@ -192,14 +192,14 @@ function IAMServiceSchema(opts) {
                 },
                 async handler(ctx) {
                     const { kind, where } = ctx.params;
-                    return oidc.countModels(kind, where);
+                    return op.countModels(kind, where);
                 },
             },
             "model.delete": {
                 params: {
                     kind: {
                         type: "enum",
-                        values: oidc_1.OIDCProvider.volatileModelNames,
+                        values: op_1.OIDCProvider.modelNames,
                     },
                     where: {
                         type: "any",
@@ -218,7 +218,7 @@ function IAMServiceSchema(opts) {
                 },
                 async handler(ctx) {
                     const { kind, ...args } = ctx.params;
-                    return oidc.deleteModels(kind, args);
+                    return op.deleteModels(kind, args);
                 },
             },
             /* Identity Claims Schema Management */
@@ -693,7 +693,7 @@ function IAMServiceSchema(opts) {
                 async handler(ctx) {
                     try {
                         // to clear internal memory cache
-                        await oidc.deleteClient(ctx.params.id);
+                        // await oidc.deleteClient(ctx.params.id);
                     }
                     catch (err) {
                         // ...NOTHING
@@ -716,7 +716,7 @@ function IAMServiceSchema(opts) {
             "iam.schema.updated": {
                 async handler(ctx) {
                     await idp.claims.onClaimsSchemaUpdated();
-                    await oidc.syncSupportedClaimsAndScopes();
+                    await op.syncSupportedClaimsAndScopes();
                     await this.clearCache("schema.*");
                     await this.clearCache("id.*");
                 },

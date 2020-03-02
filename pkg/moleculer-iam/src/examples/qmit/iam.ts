@@ -26,7 +26,7 @@ broker.createService(
         ],
       },
     },
-    oidc: {
+    op: {
       dev: isDev,
       issuer: isDev ? "https://account.dev.qmit.pro" : "https://account.qmit.pro",
       discovery: {

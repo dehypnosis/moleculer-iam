@@ -21,7 +21,7 @@ const service = broker.createService(
     idp: {
       adapter,
     },
-    oidc: {
+    op: {
       issuer: "http://localhost:8898",
       adapter,
     },

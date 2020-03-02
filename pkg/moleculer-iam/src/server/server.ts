@@ -6,20 +6,23 @@ import Koa from "koa";
 import helmet from "koa-helmet";
 import { IHelmetConfiguration } from "helmet";
 import prettyJSON from "koa-json";
+import mount from "koa-mount";
+// @ts-ignore
+import locale from "koa-locale";
 import { Logger } from "../logger";
-import { OIDCProvider } from "../oidc";
+import { OIDCProvider, ParsedLocale } from "../op";
 import { logging, LoggingOptions } from "./logging";
 import compose from "koa-compose";
 
 export type IAMServerProps = {
-  oidc: OIDCProvider,
+  op: OIDCProvider,
   logger?: Logger,
 };
 
 export type IAMServerOptions = {
   security?: IHelmetConfiguration,
   logging?: LoggingOptions,
-  app?: (oidc: OIDCProvider) => Promise<compose.Middleware<any>>,
+  app?: (op: OIDCProvider) => Promise<compose.Middleware<any>>,
   assets?: {
     path: string;
     prefix: string;
@@ -48,19 +51,24 @@ export type IAMServerOptions = {
 /*
   Mount OIDC Provider routes and static client application
  */
+export interface IAMServerRequestContextProps {
+  locale: ParsedLocale;
+}
+
 export class IAMServer {
   private readonly logger: Logger;
-  private readonly app: Koa;
+  private readonly app: Koa<any, IAMServerRequestContextProps>;
   private readonly options: IAMServerOptions;
 
   constructor(private readonly props: IAMServerProps, opts?: IAMServerOptions) {
     const options: IAMServerOptions = this.options = opts || {};
-    this.logger = props.logger || console;
+    const { logger, op } = props;
+    this.logger = logger || console;
 
     // create web server application
     const app = this.app = new Koa();
-    app.env = "production";
-    app.proxy = true;
+    app.env = op.app.env = "production";
+    app.proxy = op.app.proxy = true;
 
     // apply web security and logging middleware
     app.use(logging(this.logger, options.logging));
@@ -70,18 +78,17 @@ export class IAMServer {
       spaces: 2,
     }));
 
-    // mount optional app and oidc provider router
-    if (options.app) {
-      options.app(props.oidc)
-        .then(appRoutes => {
-          app.use(compose([appRoutes, props.oidc.routes]));
-        }, err => {
-          this.logger.error("failed to initialize server application:", err);
-          app.use(props.oidc.routes);
-        });
-    } else {
-      app.use(props.oidc.routes);
-    }
+    // set locale into context
+    locale(app, "locale");
+    app.use((ctx, next) => {
+      // parsed by precedence of ?locale=ko-KR, Cookie: locale=ko-KR, Accept-Language: ko-KR
+      // ref: https://github.com/koa-modules/locale
+      // @ts-ignore
+      const request = ctx.getLocaleFromQuery() || ctx.getLocaleFromCookie() || ctx.getLocaleFromHeader();
+      const result = op.parseLocale(request);
+      ctx.locale = result;
+      return next();
+    });
   }
 
   /* lifecycle */
@@ -98,7 +105,17 @@ export class IAMServer {
     }
 
     // start op
-    await this.props.oidc.start();
+    const { op } = this.props;
+    await op.start();
+
+    // mount optional app routes and oidc provider routes
+    const opRoutes = mount(op.app);
+    if (this.options.app) {
+      const appRoutes = await this.options.app(op);
+      this.app.use(compose([appRoutes, opRoutes]));
+    } else {
+      this.app.use(opRoutes);
+    }
 
     // start servers
     const config = this.options;
@@ -132,9 +149,9 @@ export class IAMServer {
   }
 
   private listenCallback(protocol: string, scheme: string, hostname: string, port: number) {
-    const oidc = this.props.oidc;
+    const { op } = this.props;
     const discoveryURL = kleur.blue(`${scheme}://${hostname}:${port}/.well-known/openid-configuration`);
-    const issuerURL = kleur.yellow(oidc.issuer);
+    const issuerURL = kleur.yellow(op.issuer);
     return () => {
       this.logger.info(`${kleur.blue(protocol.toUpperCase() + " server")} is listening:\n* OIDC discovery endpoint: ${discoveryURL}\n* OIDC issuer: ${issuerURL}`);
     };
@@ -159,7 +176,7 @@ export class IAMServer {
     }
 
     // stop op
-    await this.props.oidc.stop();
+    await this.props.op.stop();
 
     this.working = false;
     this.logger.info(`IAM server has been stopped`);

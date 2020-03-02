@@ -25,8 +25,8 @@ exports.broker.createService(__1.IAMServiceSchema(_.defaultsDeep({
             ],
         },
     },
-    oidc: {
-        devMode: exports.isDev,
+    op: {
+        dev: exports.isDev,
         issuer: exports.isDev ? "https://account.dev.qmit.pro" : "https://account.qmit.pro",
         discovery: {
             op_policy_uri: exports.isDev ? "https://account.dev.qmit.pro/help/policy" : "https://account.qmit.pro/help/policy",
