@@ -84,7 +84,7 @@ export abstract class IDPAdapter {
     }
   }
 
-  public async create(args: { metadata: Partial<IdentityMetadata>, scope: string[], claims: OIDCAccountClaims, credentials: Partial<OIDCAccountCredentials> }, transaction?: Transaction): Promise<string> {
+  public async create(args: { metadata: Partial<IdentityMetadata>, scope: string[], claims: OIDCAccountClaims, credentials: Partial<OIDCAccountCredentials> }, transaction?: Transaction, ignoreUndefinedClaims?: boolean): Promise<string> {
     const {metadata = {}, claims = {} as OIDCAccountClaims, credentials = {}, scope = []} = args || {};
 
     if (claims && !claims.sub) {
@@ -104,7 +104,7 @@ export abstract class IDPAdapter {
     const id = claims.sub;
     try {
       await this.createOrUpdateMetadata(id, _.defaultsDeep(metadata, defaultIdentityMetadata), transaction);
-      await this.createOrUpdateClaimsWithValidation(id, claims, scope, true, transaction);
+      await this.createOrUpdateClaimsWithValidation(id, claims, scope, true, transaction, ignoreUndefinedClaims);
       await this.createOrUpdateCredentialsWithValidation(id, credentials, transaction);
       if (isolated) {
         await transaction.commit();
@@ -230,11 +230,17 @@ export abstract class IDPAdapter {
     const mergedClaims: Partial<OIDCAccountClaims> = _.defaultsDeep(claims, oldClaims);
 
     if (ignoreUndefinedClaims === true) {
+      const ignoredClaims: any = {};
       for (const key of Object.keys(mergedClaims)) {
         if (!validClaimsKeys.includes(key)) {
+          ignoredClaims[key] = mergedClaims[key];
           delete mergedClaims[key];
         }
       }
+      this.logger.debug("IDP ignored undefined claims (ignoreUndefinedClaims flag enabled)", {
+        claims: mergedClaims,
+        ignoredClaims,
+      });
     }
 
     try {

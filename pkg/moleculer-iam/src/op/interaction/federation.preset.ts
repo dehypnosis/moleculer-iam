@@ -29,8 +29,8 @@ export const defaultIdentityFederationProviderOptions: IdentityFederationProvide
     clientID: "",
     clientSecret: "",
     scope: "profile account_email", // not a oidc provider, phone is not supported
-    callback: async (args: any) => {
-      const {accessToken, idp, profile} = args;
+    callback: async (props) => {
+      const {accessToken, idp, profile} = props;
       const upsertScopes = [...idp.claims.mandatoryScopes];
       const kakao = {id: profile.id};
       const claims: Partial<OIDCAccountClaims> = {
@@ -78,7 +78,7 @@ export const defaultIdentityFederationProviderOptions: IdentityFederationProvide
           claims,
           credentials: {},
           scope: upsertScopes,
-        });
+        }, undefined, true);
       }
     },
   },
@@ -88,8 +88,8 @@ export const defaultIdentityFederationProviderOptions: IdentityFederationProvide
     scope: "public_profile email", // not a oidc provider, phone is not supported (seems only for the whatsapp platform apps)
     profileFields: ["id", "name", "displayName", "photos", "email"],
     enableProof: true,
-    callback: async (args: any) => {
-      const {accessToken, idp, profile} = args;
+    callback: async (props) => {
+      const {accessToken, idp, profile} = props;
       const upsertScopes = [...idp.claims.mandatoryScopes];
       const facebook = {id: profile.id};
       const claims: Partial<OIDCAccountClaims> = {
@@ -134,7 +134,7 @@ export const defaultIdentityFederationProviderOptions: IdentityFederationProvide
           claims,
           credentials: {},
           scope: upsertScopes,
-        });
+        }, undefined, true);
       }
     },
   },
@@ -144,8 +144,8 @@ export const defaultIdentityFederationProviderOptions: IdentityFederationProvide
     // approval_prompt: "auto",
     prompt: "select_account",
     scope: "openid profile email", // add https://www.googleapis.com/auth/user.phonenumbers.read to get phone number with user confirmation
-    callback: async (args: any) => {
-      const {accessToken, idp, profile} = args;
+    callback: async (props) => {
+      const {accessToken, idp, profile} = props;
       const upsertScopes = [...idp.claims.mandatoryScopes];
       const claims: OIDCAccountClaims = (profile as any)._json;
       const google = {id: claims.sub, hd: claims.hd || null};
@@ -182,7 +182,7 @@ export const defaultIdentityFederationProviderOptions: IdentityFederationProvide
         }
 
         // if phone scope is requested
-        if (args.scope.some((s: string[]) => s.includes("phone"))) {
+        if (props.scope.some(s => s.includes("phone"))) {
           const oldClaims = await identity.claims("userinfo", "phone");
           if (oldClaims.phone_number) {
             // already have phone claims
@@ -209,14 +209,14 @@ export const defaultIdentityFederationProviderOptions: IdentityFederationProvide
             claims.phone_number = phone_number;
             claims.phone_number_verified = true;
           } else {
-            args.logger.error("failed to validate phone_number from google", result);
+            props.logger.error("failed to validate phone_number from google", result);
           }
         }
       } catch (response) {
         if (response.error && response.error.error) {
-          args.logger.error("failed to fetch phone_number from google", response.error.error);
+          props.logger.error("failed to fetch phone_number from google", response.error.error);
         } else {
-          args.logger.error("failed to fetch phone_number from google", response);
+          props.logger.error("failed to fetch phone_number from google", response);
         }
       }
 
@@ -231,7 +231,7 @@ export const defaultIdentityFederationProviderOptions: IdentityFederationProvide
           claims,
           credentials: {},
           scope: upsertScopes,
-        });
+        }, undefined, true);
       }
     },
   },

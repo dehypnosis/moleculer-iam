@@ -3,7 +3,7 @@ import { FindOptions, WhereAttributeHash } from "../helper/rdbms";
 import { Logger } from "../logger";
 import { Identity } from "./identity";
 import { Errors } from "./error";
-import { IDPAdapter, IDPAdapterConstructors, IDPAdapterConstructorOptions } from "./adapter";
+import { IDPAdapter, IDPAdapterConstructors, IDPAdapterConstructorOptions, Transaction } from "./adapter";
 import { OIDCAccountClaims, OIDCAccountCredentials } from "../op";
 import { IdentityClaimsManager, IdentityClaimsManagerOptions } from "./claims";
 import { IdentityMetadata } from "./metadata";
@@ -187,7 +187,8 @@ export class IdentityProvider {
   }
 
   /* create account */
-  public async create(args: { metadata: Partial<IdentityMetadata>, scope: string[] | string, claims: Partial<OIDCAccountClaims>, credentials: Partial<OIDCAccountCredentials> }): Promise<Identity> {
+  public async create(args: { metadata: Partial<IdentityMetadata>, scope: string[] | string, claims: Partial<OIDCAccountClaims>, credentials: Partial<OIDCAccountCredentials> },
+                      transaction?: Transaction, ignoreUndefinedClaims?: boolean): Promise<Identity> {
     if (typeof args.scope === "string") {
       args = {...args, scope: args.scope.split(" ").filter(s => !!s)};
     } else if (typeof args.scope === "undefined") {
@@ -197,7 +198,7 @@ export class IdentityProvider {
     // push mandatory scopes
     args.scope = [...new Set([...args.scope, ...this.claims.mandatoryScopes])];
 
-    return this.adapter.create(args as any)
+    return this.adapter.create(args as any, transaction, ignoreUndefinedClaims)
       .then(id => new Identity({id, provider: this}));
   }
 

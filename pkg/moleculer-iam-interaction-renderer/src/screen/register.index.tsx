@@ -1,11 +1,10 @@
 import React, { useState } from "react";
 import { ScreenLayout } from "./layout";
 import { TextFieldStyles, Text, TextField, Stack, Link } from "../styles";
-import { useServerState, useWithLoading } from "../hook";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useServerState, useWithLoading } from "../hook";
 
 export const RegisterIndexScreen: React.FunctionComponent = () => {
-  const nav = useNavigation();
+  const { nav } = useNavigation();
   const [payload, setPayload] = useState({
     name: "",
     email: "",

@@ -1,12 +1,11 @@
 import React, { useState } from "react";
 import { ScreenLayout } from "./layout";
 import { TextFieldStyles, Text, TextField } from "../styles";
-import { useServerState, useWithLoading } from "../hook";
-import { useNavigation, useRoute } from "@react-navigation/native";
+import { useServerState, useWithLoading, useNavigation } from "../hook";
 
 export const FindEmailIndexScreen: React.FunctionComponent = () => {
-  const nav = useNavigation();
-  const [phoneNumber, setPhoneNumber] = useState(((useRoute() as any).params || {}).phoneNumber || "");
+  const { nav, route } = useNavigation();
+  const [phoneNumber, setPhoneNumber] = useState(route.params.phoneNumber || "");
   const {loading, errors, setErrors, withLoading} = useWithLoading();
   const { interaction, request } = useServerState();
 

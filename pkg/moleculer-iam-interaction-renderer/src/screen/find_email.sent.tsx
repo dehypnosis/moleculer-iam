@@ -1,21 +1,20 @@
 import React from "react";
 import { ScreenLayout } from "./layout";
 import { Text, Image } from "../styles";
-import { useWithLoading } from "../hook";
-import { useNavigation, useRoute } from "@react-navigation/native";
+import { useWithLoading, useNavigation } from "../hook";
 import svg from "../image/screen_sent.svg";
 
 export const FindEmailSentScreen: React.FunctionComponent = () => {
   const {loading, errors, setErrors, withLoading} = useWithLoading();
 
   // handlers
-  const nav = useNavigation();
+  const { nav, route } = useNavigation();
   const handleDone = withLoading(() => nav.navigate("login", {
     screen: "login.index",
     params: {},
   }));
 
-  const { phoneNumber = "" } = (useRoute() as any).params || {};
+  const { phoneNumber = "" } = route.params;
 
   // render
   return (

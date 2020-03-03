@@ -1,18 +1,15 @@
 import React from "react";
 import { Text } from "../styles";
-import { useWithLoading } from "../hook";
-import { useNavigation, useRoute } from "@react-navigation/native";
+import { useWithLoading, useNavigation } from "../hook";
 import { ScreenLayout } from "./layout";
 
 export const VerifyPhoneEndScreen: React.FunctionComponent = () => {
   // states
   const {loading, errors, setErrors, withLoading} = useWithLoading();
-
-  // props
-  const { phoneNumber = "" } = (useRoute() as any).params || {};
+  const { nav, route } = useNavigation();
+  const { phoneNumber = "" } = route.params;
 
   // handlers
-  const nav = useNavigation();
   const handleDone = withLoading(() =>
     nav.navigate("login", {
       screen: "login.index",

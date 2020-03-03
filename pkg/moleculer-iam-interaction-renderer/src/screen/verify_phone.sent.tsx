@@ -1,16 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { Text, TextField, TextFieldStyles } from "../styles";
-import { useWithLoading } from "../hook";
-import { useNavigation, useRoute } from "@react-navigation/native";
+import { useNavigation, useWithLoading } from "../hook";
 import { ScreenLayout } from "./layout";
 
 export const VerifyPhoneSentScreen: React.FunctionComponent = () => {
   // states
   const {loading, errors, setErrors, withLoading} = useWithLoading();
   const [code, setCode] = useState("");
-
-  // props
-  const { phoneNumber = "", ttl = 0, callback = "" } = (useRoute() as any).params || {};
+  const { nav, route } = useNavigation();
+  const { phoneNumber = "", ttl = 0, callback = "" } = route.params;
   const [remainingSeconds, setRemainingSeconds] = useState(ttl as number);
 
   useEffect(() => {
@@ -19,7 +17,6 @@ export const VerifyPhoneSentScreen: React.FunctionComponent = () => {
   }, []);
 
   // handlers
-  const nav = useNavigation();
   const handleVerify = withLoading(() => {
     if (callback === "register") {
       nav.navigate("register", {

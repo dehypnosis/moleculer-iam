@@ -1,18 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { Text, TextField, TextFieldStyles } from "../styles";
-import { useWithLoading } from "../hook";
-import { useNavigation, useRoute } from "@react-navigation/native";
+import { useNavigation, useWithLoading } from "../hook";
 import { ScreenLayout } from "./layout";
 
 export const VerifyEmailSentScreen: React.FunctionComponent = () => {
   // states
   const {loading, errors, setErrors, withLoading} = useWithLoading();
-
-  // props
-  const { email = "", ttl = 0, callback = "" } = (useRoute() as any).params || {};
+  const { nav, route } = useNavigation();
+  const { email = "", ttl = 0, callback = "" } = route.params;
 
   // handlers
-  const nav = useNavigation();
   const handleDone = withLoading(() => {
     if (callback === "register") {
       nav.navigate("register", {

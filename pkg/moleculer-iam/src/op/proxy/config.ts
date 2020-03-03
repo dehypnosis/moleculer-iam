@@ -205,6 +205,8 @@ export class ProviderConfigBuilder {
 
     // create provider with config proxy
     const provider = this.provider = new Provider(this.issuer, _.defaultsDeep(this.dynamicConfig, this.staticConfig));
+    // provider.env = "production";
+    // provider.proxy = true; // trust http proxy header
 
     // ref: https://github.com/panva/node-oidc-provider/tree/master/recipes#oidc-provider-recipes
     if (this.dev) {

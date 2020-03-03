@@ -7,7 +7,6 @@ import { ParameterizedContext } from "koa";
 import noCache from "koajs-nocache";
 import Provider, { ClientMetadata, InteractionResults } from "oidc-provider";
 import { IAMServerRequestContextProps } from "../../server";
-import { normalizeError } from "../interaction.bak/interaction.error";
 import { OIDCError } from "./error.types";
 import { OIDCAccountClaims } from "./identity.types";
 import { ParsedLocale } from "./proxy";
@@ -176,11 +175,11 @@ export class ProviderInteractionBuilder {
       };
       ctx.op.user = interaction.session && typeof interaction.session.accountId === "string" ? (await this.idp.findOrFail({ id: interaction.session.accountId })) : undefined;
       if (ctx.op.user) {
-        ctx.op.data.user = this.getPublicUserProps(ctx.op.user);
+        ctx.op.data.user = await this.getPublicUserProps(ctx.op.user);
       }
       ctx.op.client = interaction.params.client_id ? (await this.op.Client.find(interaction.params.client_id) as Client) : undefined;
       if (ctx.op.client) {
-        ctx.op.data.client = this.getPublicClientProps(ctx.op.client);
+        ctx.op.data.client = await this.getPublicClientProps(ctx.op.client);
       }
     } catch (err) {}
 
@@ -436,7 +435,7 @@ export class ProviderInteractionBuilder {
   }
 
   // utility
-  private async getPublicClientProps(client?: Client): Promise<Partial<ClientMetadata> | undefined> {
+  public async getPublicClientProps(client?: Client): Promise<Partial<ClientMetadata> | undefined> {
     if (!client) return;
     return {
       id: client.clientId,
@@ -448,7 +447,7 @@ export class ProviderInteractionBuilder {
     };
   }
 
-  private async getPublicUserProps(id?: Identity): Promise<Partial<OIDCAccountClaims> | undefined> {
+  public async getPublicUserProps(id?: Identity): Promise<Partial<OIDCAccountClaims> | undefined> {
     if (!id) return;
     const {email, picture, name} = await id.claims("userinfo", "profile email");
     return {

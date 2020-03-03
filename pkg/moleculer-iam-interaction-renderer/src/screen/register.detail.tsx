@@ -1,12 +1,11 @@
 import React, { useState } from "react";
 import { ScreenLayout } from "./layout";
 import { TextFieldStyles, Text, TextField, Stack, DatePicker, DatePickerStyles, Dropdown, DropdownStyles, Label, LabelStyles } from "../styles";
-import { useServerState, useWithLoading } from "../hook";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useWithLoading } from "../hook";
 import moment from "moment";
 
 export const RegisterDetailScreen: React.FunctionComponent = () => {
-  const nav = useNavigation();
+  const { nav } = useNavigation();
   const [payload, setPayload] = useState({
     phone_number: "",
     birthdate: "",

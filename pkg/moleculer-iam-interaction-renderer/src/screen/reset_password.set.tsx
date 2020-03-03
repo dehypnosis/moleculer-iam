@@ -1,22 +1,19 @@
 import React, { useState } from "react";
-import { Stack, Text, TextField, TextFieldStyles } from "../styles";
-import { useWithLoading } from "../hook";
-import { useNavigation, useRoute } from "@react-navigation/native";
+import { Text, TextField, TextFieldStyles } from "../styles";
+import { useNavigation, useWithLoading } from "../hook";
 import { ScreenLayout } from "./layout";
 
 export const ResetPasswordSetScreen: React.FunctionComponent = () => {
   // states
   const {loading, errors, setErrors, withLoading} = useWithLoading();
-
-  // props
-  const { email = "" } = (useRoute() as any).params || {};
+  const { nav, route } = useNavigation();
+  const { email = "" } = route.params;
   const [payload, setPayload] = useState({
     password: "",
     password_confirmation: "",
   });
 
   // handlers
-  const nav = useNavigation();
   const handlePayloadSubmit = withLoading(() => {
     nav.navigate("reset_password", {
       screen: "reset_password.end",

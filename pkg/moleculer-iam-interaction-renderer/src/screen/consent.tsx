@@ -1,13 +1,12 @@
 import React from "react";
 import { Text, ThemeStyles, Link, Persona, PersonaSize } from "../styles";
-import { useServerState, useWithLoading } from "../hook";
+import { useServerState, useWithLoading, useNavigation } from "../hook";
 import { ScreenLayout } from "./layout";
-import { useNavigation } from "@react-navigation/native";
 
 export const ConsentScreen: React.FunctionComponent = () => {
   // states
   const {loading, withLoading, errors, setErrors} = useWithLoading();
-  const nav = useNavigation();
+  const { nav } = useNavigation();
   const { interaction, request } = useServerState();
 
   // handlers

@@ -96,6 +96,7 @@ export class OIDCProvider {
     return client;
   }
 
+  // TODO: create default client.... as default
   public async createClient(metadata: Omit<ClientMetadata, "client_secret">) {
     if (metadata.client_id && await this.findClient(metadata.client_id)) {
       throw new errors.InvalidClient("client_id_duplicated");

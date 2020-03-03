@@ -1,19 +1,16 @@
 import React, { useEffect } from "react";
 import { Text, Image } from "../styles";
-import { useWithLoading } from "../hook";
-import svg from "../image/screen_sent.svg";
-import { useNavigation, useRoute } from "@react-navigation/native";
+import { useNavigation, useWithLoading } from "../hook";
 import { ScreenLayout } from "./layout";
+import svg from "../image/screen_sent.svg";
 
 export const ResetPasswordSentScreen: React.FunctionComponent = () => {
   // states
   const {loading, errors, setErrors, withLoading} = useWithLoading();
-
-  // props
-  const {email = "", ttl = 0 } = (useRoute() as any).params || {};
+  const { nav, route } = useNavigation();
+  const {email = "", ttl = 0 } = route.params;
 
   // handlers
-  const nav = useNavigation();
   const handleDone = withLoading(() => nav.navigate("login", {
     screen: "login.index",
     params: { email },

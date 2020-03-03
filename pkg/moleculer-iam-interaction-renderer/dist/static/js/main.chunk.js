@@ -305,6 +305,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.useWithLoading = useWithLoading;
+exports.useNavigation = useNavigation;
 exports.useServerOptions = useServerOptions;
 exports.useServerState = useServerState;
 exports.useClose = useClose;
@@ -408,6 +409,43 @@ function useWithLoading() {
     setLoading: setLoading,
     errors: errors,
     setErrors: setErrors
+  };
+}
+
+function includeLocaleQuery(args, route) {
+  if (route.params.locale) {
+    if (!args[1] || !args[1].params || !args[1].params.locale) {
+      if (!args[1]) {
+        args[1] = {};
+      }
+
+      if (!args[1].params) {
+        args[1].params = {};
+      }
+
+      args[1].params.locale = route.params.locale;
+    }
+  }
+}
+
+function useNavigation() {
+  var route = (0, _native.useRoute)();
+  if (!route.params) route.params = {};
+  var nav = (0, _native.useNavigation)();
+  var navigate = nav.navigate;
+
+  nav.navigate = function () {
+    for (var _len2 = arguments.length, args = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+      args[_key2] = arguments[_key2];
+    }
+
+    includeLocaleQuery(args, route);
+    return navigate.apply(void 0, (0, _toConsumableArray2.default)(args));
+  };
+
+  return {
+    nav: nav,
+    route: route
   };
 }
 
@@ -556,7 +594,9 @@ function useClose() {
       closed = _useState6[0],
       setClosed = _useState6[1];
 
-  var nav = (0, _native.useNavigation)();
+  var _useNavigation = useNavigation(),
+      nav = _useNavigation.nav;
+
   var close = (0, _react.useCallback)(function () {
     if (tryGoBack && nav.canGoBack()) {
       nav.goBack();
@@ -1131,8 +1171,6 @@ var _hook = __webpack_require__(/*! ../hook */ "./src/hook.ts");
 
 var _layout = __webpack_require__(/*! ./layout */ "./src/screen/layout.tsx");
 
-var _native = __webpack_require__(/*! @react-navigation/native */ "../../node_modules/@react-navigation/native/lib/module/index.js");
-
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-interaction-renderer/src/screen/consent.tsx";
 
 var ConsentScreen = function ConsentScreen() {
@@ -1142,7 +1180,8 @@ var ConsentScreen = function ConsentScreen() {
       errors = _useWithLoading.errors,
       setErrors = _useWithLoading.setErrors;
 
-  var nav = (0, _native.useNavigation)();
+  var _useNavigation = (0, _hook.useNavigation)(),
+      nav = _useNavigation.nav;
 
   var _useServerState = (0, _hook.useServerState)(),
       interaction = _useServerState.interaction,
@@ -1169,7 +1208,7 @@ var ConsentScreen = function ConsentScreen() {
     title: _react.default.createElement("span", {
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 38
+        lineNumber: 37
       },
       __self: this
     }, "Sign in to ", _react.default.createElement(_styles.Link, {
@@ -1181,7 +1220,7 @@ var ConsentScreen = function ConsentScreen() {
       variant: "xxLarge",
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 38
+        lineNumber: 37
       },
       __self: this
     }, client.name)),
@@ -1201,7 +1240,7 @@ var ConsentScreen = function ConsentScreen() {
     footer: _react.default.createElement(_styles.Text, {
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 62
+        lineNumber: 61
       },
       __self: this
     }, "To continue, you need to offer ", consent.scopes.new.concat(consent.scopes.accepted).join(", "), " information. Before consent this application, you could review the ", _react.default.createElement(_styles.Link, {
@@ -1209,7 +1248,7 @@ var ConsentScreen = function ConsentScreen() {
       target: "_blank",
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 64
+        lineNumber: 63
       },
       __self: this
     }, client.name), "'s ", _react.default.createElement(_styles.Link, {
@@ -1217,7 +1256,7 @@ var ConsentScreen = function ConsentScreen() {
       target: "_blank",
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 64
+        lineNumber: 63
       },
       __self: this
     }, "privacy policy"), " and ", _react.default.createElement(_styles.Link, {
@@ -1225,14 +1264,14 @@ var ConsentScreen = function ConsentScreen() {
       target: "_blank",
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 64
+        lineNumber: 63
       },
       __self: this
     }, "terms of service"), "."),
     error: errors.global,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 37
+      lineNumber: 36
     },
     __self: this
   }, _react.default.createElement(_styles.Persona, {
@@ -1242,7 +1281,7 @@ var ConsentScreen = function ConsentScreen() {
     imageUrl: user.picture,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 70
+      lineNumber: 69
     },
     __self: this
   }));
@@ -1278,7 +1317,7 @@ var ErrorScreen = function ErrorScreen() {
   var state = (0, _hook.useServerState)();
   var error = state.error || {
     error: "unexpected_server_error",
-    error_description: "unrecognized state received from server"
+    error_description: "unrecognized state received from server."
   };
 
   var _useClose = (0, _hook.useClose)(),
@@ -1362,14 +1401,14 @@ var _styles = __webpack_require__(/*! ../styles */ "./src/styles.ts");
 
 var _hook = __webpack_require__(/*! ../hook */ "./src/hook.ts");
 
-var _native = __webpack_require__(/*! @react-navigation/native */ "../../node_modules/@react-navigation/native/lib/module/index.js");
-
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-interaction-renderer/src/screen/find_email.index.tsx";
 
 var FindEmailIndexScreen = function FindEmailIndexScreen() {
-  var nav = (0, _native.useNavigation)();
+  var _useNavigation = (0, _hook.useNavigation)(),
+      nav = _useNavigation.nav,
+      route = _useNavigation.route;
 
-  var _useState = (0, _react.useState)(((0, _native.useRoute)().params || {}).phoneNumber || ""),
+  var _useState = (0, _react.useState)(route.params.phoneNumber || ""),
       _useState2 = (0, _slicedToArray2.default)(_useState, 2),
       phoneNumber = _useState2[0],
       setPhoneNumber = _useState2[1];
@@ -1422,13 +1461,13 @@ var FindEmailIndexScreen = function FindEmailIndexScreen() {
     error: errors.global,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 34
+      lineNumber: 33
     },
     __self: this
   }, _react.default.createElement(_styles.Text, {
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 55
+      lineNumber: 54
     },
     __self: this
   }, "Have a registered phone number? Can find the ID only if have one."), _react.default.createElement(_styles.TextField, {
@@ -1449,7 +1488,7 @@ var FindEmailIndexScreen = function FindEmailIndexScreen() {
     styles: _styles.TextFieldStyles.bold,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 58
+      lineNumber: 57
     },
     __self: this
   }));
@@ -1481,8 +1520,6 @@ var _styles = __webpack_require__(/*! ../styles */ "./src/styles.ts");
 
 var _hook = __webpack_require__(/*! ../hook */ "./src/hook.ts");
 
-var _native = __webpack_require__(/*! @react-navigation/native */ "../../node_modules/@react-navigation/native/lib/module/index.js");
-
 var _screen_sent = _interopRequireDefault(__webpack_require__(/*! ../image/screen_sent.svg */ "./src/image/screen_sent.svg"));
 
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-interaction-renderer/src/screen/find_email.sent.tsx";
@@ -1494,18 +1531,18 @@ var FindEmailSentScreen = function FindEmailSentScreen() {
       setErrors = _useWithLoading.setErrors,
       withLoading = _useWithLoading.withLoading;
 
-  var nav = (0, _native.useNavigation)();
+  var _useNavigation = (0, _hook.useNavigation)(),
+      nav = _useNavigation.nav,
+      route = _useNavigation.route;
+
   var handleDone = withLoading(function () {
     return nav.navigate("login", {
       screen: "login.index",
       params: {}
     });
   });
-
-  var _ref = (0, _native.useRoute)().params || {},
-      _ref$phoneNumber = _ref.phoneNumber,
-      phoneNumber = _ref$phoneNumber === void 0 ? "" : _ref$phoneNumber;
-
+  var _route$params$phoneNu = route.params.phoneNumber,
+      phoneNumber = _route$params$phoneNu === void 0 ? "" : _route$params$phoneNu;
   return _react.default.createElement(_layout.ScreenLayout, {
     title: "Find email",
     subtitle: phoneNumber,
@@ -1519,13 +1556,13 @@ var FindEmailSentScreen = function FindEmailSentScreen() {
     error: errors.global,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 22
+      lineNumber: 21
     },
     __self: this
   }, _react.default.createElement(_styles.Text, {
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 36
+      lineNumber: 35
     },
     __self: this
   }, "Account email address has been sent to your mobile device."), _react.default.createElement(_styles.Image, {
@@ -1540,7 +1577,7 @@ var FindEmailSentScreen = function FindEmailSentScreen() {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 39
+      lineNumber: 38
     },
     __self: this
   }));
@@ -1759,12 +1796,11 @@ var _styles = __webpack_require__(/*! ../styles */ "./src/styles.ts");
 
 var _hook = __webpack_require__(/*! ../hook */ "./src/hook.ts");
 
-var _native = __webpack_require__(/*! @react-navigation/native */ "../../node_modules/@react-navigation/native/lib/module/index.js");
-
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-interaction-renderer/src/screen/login.check_password.tsx";
 
 var LoginCheckPasswordScreen = function LoginCheckPasswordScreen() {
-  var nav = (0, _native.useNavigation)();
+  var _useNavigation = (0, _hook.useNavigation)(),
+      nav = _useNavigation.nav;
 
   var _useGlobalState = (0, _hook.useGlobalState)(),
       globalState = _useGlobalState.globalState;
@@ -1841,7 +1877,7 @@ var LoginCheckPasswordScreen = function LoginCheckPasswordScreen() {
     error: errors.global,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 36
+      lineNumber: 35
     },
     __self: this
   }, _react.default.createElement("form", {
@@ -1851,7 +1887,7 @@ var LoginCheckPasswordScreen = function LoginCheckPasswordScreen() {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 55
+      lineNumber: 54
     },
     __self: this
   }, _react.default.createElement("input", {
@@ -1864,7 +1900,7 @@ var LoginCheckPasswordScreen = function LoginCheckPasswordScreen() {
     readOnly: true,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 56
+      lineNumber: 55
     },
     __self: this
   }), _react.default.createElement(_styles.TextField, {
@@ -1887,7 +1923,7 @@ var LoginCheckPasswordScreen = function LoginCheckPasswordScreen() {
     styles: _styles.TextFieldStyles.bold,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 57
+      lineNumber: 56
     },
     __self: this
   })), _react.default.createElement(_styles.Link, {
@@ -1899,7 +1935,7 @@ var LoginCheckPasswordScreen = function LoginCheckPasswordScreen() {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 73
+      lineNumber: 72
     },
     __self: this
   }, "Forgot password?"));
@@ -1931,8 +1967,6 @@ var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehy
 
 var _react = _interopRequireWildcard(__webpack_require__(/*! react */ "../../node_modules/react/index.js"));
 
-var _native = __webpack_require__(/*! @react-navigation/native */ "../../node_modules/@react-navigation/native/lib/module/index.js");
-
 var _layout = __webpack_require__(/*! ./layout */ "./src/screen/layout.tsx");
 
 var _styles = __webpack_require__(/*! ../styles */ "./src/styles.ts");
@@ -1942,7 +1976,9 @@ var _hook = __webpack_require__(/*! ../hook */ "./src/hook.ts");
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-interaction-renderer/src/screen/login.index.tsx";
 
 var LoginIndexScreen = function LoginIndexScreen() {
-  var nav = (0, _native.useNavigation)();
+  var _useNavigation = (0, _hook.useNavigation)(),
+      nav = _useNavigation.nav,
+      route = _useNavigation.route;
 
   var _useWithLoading = (0, _hook.useWithLoading)(),
       loading = _useWithLoading.loading,
@@ -1950,7 +1986,7 @@ var LoginIndexScreen = function LoginIndexScreen() {
       setErrors = _useWithLoading.setErrors,
       withLoading = _useWithLoading.withLoading;
 
-  var _useState = (0, _react.useState)(((0, _native.useRoute)().params || {}).email || ""),
+  var _useState = (0, _react.useState)(route.params.email || ""),
       _useState2 = (0, _slicedToArray2.default)(_useState, 2),
       email = _useState2[0],
       setEmail = _useState2[1];
@@ -2039,7 +2075,7 @@ var LoginIndexScreen = function LoginIndexScreen() {
     footer: federationProviders.length > 0 ? _react.default.createElement(_react.default.Fragment, null, _react.default.createElement(_styles.Separator, {
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 89
+        lineNumber: 88
       },
       __self: this
     }, _react.default.createElement("span", {
@@ -2048,7 +2084,7 @@ var LoginIndexScreen = function LoginIndexScreen() {
       },
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 89
+        lineNumber: 88
       },
       __self: this
     }, "OR")), federationOptionsVisible ? _react.default.createElement(_styles.Stack, {
@@ -2057,7 +2093,7 @@ var LoginIndexScreen = function LoginIndexScreen() {
       },
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 91
+        lineNumber: 90
       },
       __self: this
     }, federationProviders.includes("kakao") ? _react.default.createElement(_styles.PrimaryButton, {
@@ -2074,7 +2110,7 @@ var LoginIndexScreen = function LoginIndexScreen() {
       },
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 93
+        lineNumber: 92
       },
       __self: this
     }) : null, federationProviders.includes("facebook") ? _react.default.createElement(_styles.PrimaryButton, {
@@ -2090,7 +2126,7 @@ var LoginIndexScreen = function LoginIndexScreen() {
       },
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 101
+        lineNumber: 100
       },
       __self: this
     }) : null, federationProviders.includes("google") ? _react.default.createElement(_styles.DefaultButton, {
@@ -2107,7 +2143,7 @@ var LoginIndexScreen = function LoginIndexScreen() {
       },
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 109
+        lineNumber: 108
       },
       __self: this
     }) : null) : _react.default.createElement(_styles.Link, {
@@ -2119,13 +2155,13 @@ var LoginIndexScreen = function LoginIndexScreen() {
       },
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 125
+        lineNumber: 124
       },
       __self: this
     }, "Find more login options?")) : undefined,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 67
+      lineNumber: 66
     },
     __self: this
   }, _react.default.createElement("form", {
@@ -2135,7 +2171,7 @@ var LoginIndexScreen = function LoginIndexScreen() {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 131
+      lineNumber: 130
     },
     __self: this
   }, _react.default.createElement(_styles.TextField, {
@@ -2160,7 +2196,7 @@ var LoginIndexScreen = function LoginIndexScreen() {
     styles: _styles.TextFieldStyles.bold,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 132
+      lineNumber: 131
     },
     __self: this
   })), _react.default.createElement(_styles.Link, {
@@ -2172,7 +2208,7 @@ var LoginIndexScreen = function LoginIndexScreen() {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 150
+      lineNumber: 149
     },
     __self: this
   }, "Forgot email?"));
@@ -2380,14 +2416,13 @@ var _styles = __webpack_require__(/*! ../styles */ "./src/styles.ts");
 
 var _hook = __webpack_require__(/*! ../hook */ "./src/hook.ts");
 
-var _native = __webpack_require__(/*! @react-navigation/native */ "../../node_modules/@react-navigation/native/lib/module/index.js");
-
 var _moment = _interopRequireDefault(__webpack_require__(/*! moment */ "../../node_modules/moment/moment.js"));
 
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-interaction-renderer/src/screen/register.detail.tsx";
 
 var RegisterDetailScreen = function RegisterDetailScreen() {
-  var nav = (0, _native.useNavigation)();
+  var _useNavigation = (0, _hook.useNavigation)(),
+      nav = _useNavigation.nav;
 
   var _useState = (0, _react.useState)({
     phone_number: "",
@@ -2461,7 +2496,7 @@ var RegisterDetailScreen = function RegisterDetailScreen() {
     error: errors.global,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 44
+      lineNumber: 43
     },
     __self: this
   }, _react.default.createElement("form", {
@@ -2471,7 +2506,7 @@ var RegisterDetailScreen = function RegisterDetailScreen() {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 64
+      lineNumber: 63
     },
     __self: this
   }, _react.default.createElement(_styles.Stack, {
@@ -2480,13 +2515,13 @@ var RegisterDetailScreen = function RegisterDetailScreen() {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 68
+      lineNumber: 67
     },
     __self: this
   }, _react.default.createElement(_styles.Text, {
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 69
+      lineNumber: 68
     },
     __self: this
   }, "It is highly recommended to enter the mobile phone number to make it easier to find the your lost account."), _react.default.createElement(_styles.TextField, {
@@ -2511,7 +2546,7 @@ var RegisterDetailScreen = function RegisterDetailScreen() {
     styles: _styles.TextFieldStyles.bold,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 70
+      lineNumber: 69
     },
     __self: this
   }), _react.default.createElement(_styles.DatePicker, {
@@ -2544,14 +2579,14 @@ var RegisterDetailScreen = function RegisterDetailScreen() {
     styles: _styles.DatePickerStyles.bold,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 84
+      lineNumber: 83
     },
     __self: this
   }), errors.birthdate ? _react.default.createElement(_styles.Label, {
     styles: _styles.LabelStyles.fieldErrorMessage,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 103
+      lineNumber: 102
     },
     __self: this
   }, errors.birthdate) : null, _react.default.createElement(_styles.Dropdown, {
@@ -2580,7 +2615,7 @@ var RegisterDetailScreen = function RegisterDetailScreen() {
     styles: _styles.DropdownStyles.bold,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 105
+      lineNumber: 104
     },
     __self: this
   }))));
@@ -2610,8 +2645,6 @@ var _styles = __webpack_require__(/*! ../styles */ "./src/styles.ts");
 
 var _hook = __webpack_require__(/*! ../hook */ "./src/hook.ts");
 
-var _native = __webpack_require__(/*! @react-navigation/native */ "../../node_modules/@react-navigation/native/lib/module/index.js");
-
 var _layout = __webpack_require__(/*! ./layout */ "./src/screen/layout.tsx");
 
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-interaction-renderer/src/screen/register.end.tsx";
@@ -2623,11 +2656,12 @@ var RegisterEndScreen = function RegisterEndScreen() {
       setErrors = _useWithLoading.setErrors,
       withLoading = _useWithLoading.withLoading;
 
-  var _ref = (0, _native.useRoute)().params || {},
-      _ref$email = _ref.email,
-      email = _ref$email === void 0 ? "" : _ref$email;
+  var _useNavigation = (0, _hook.useNavigation)(),
+      nav = _useNavigation.nav,
+      route = _useNavigation.route;
 
-  var nav = (0, _native.useNavigation)();
+  var _route$params$email = route.params.email,
+      email = _route$params$email === void 0 ? "" : _route$params$email;
   var handleContinue = withLoading(function () {
     nav.navigate("login", {
       screen: "login.index",
@@ -2650,13 +2684,13 @@ var RegisterEndScreen = function RegisterEndScreen() {
     error: errors.global,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 28
+      lineNumber: 25
     },
     __self: this
   }, _react.default.createElement(_styles.Text, {
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 43
+      lineNumber: 40
     },
     __self: this
   }, "Congratulations! The account has been registered. This email account can be used to sign in to multiple services. So don't forget it please. ", _react.default.createElement("span", {
@@ -2664,7 +2698,7 @@ var RegisterEndScreen = function RegisterEndScreen() {
     "aria-label": "smile",
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 43
+      lineNumber: 40
     },
     __self: this
   }, "\uD83D\uDE42")));
@@ -2704,12 +2738,11 @@ var _styles = __webpack_require__(/*! ../styles */ "./src/styles.ts");
 
 var _hook = __webpack_require__(/*! ../hook */ "./src/hook.ts");
 
-var _native = __webpack_require__(/*! @react-navigation/native */ "../../node_modules/@react-navigation/native/lib/module/index.js");
-
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-interaction-renderer/src/screen/register.index.tsx";
 
 var RegisterIndexScreen = function RegisterIndexScreen() {
-  var nav = (0, _native.useNavigation)();
+  var _useNavigation = (0, _hook.useNavigation)(),
+      nav = _useNavigation.nav;
 
   var _useState = (0, _react.useState)({
     name: "",
@@ -2778,7 +2811,7 @@ var RegisterIndexScreen = function RegisterIndexScreen() {
     footer: _react.default.createElement(_react.default.Fragment, null, _react.default.createElement(_styles.Text, {
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 54
+        lineNumber: 53
       },
       __self: this
     }, "When you sign up as a member, you agree to the ", _react.default.createElement(_styles.Link, {
@@ -2786,7 +2819,7 @@ var RegisterIndexScreen = function RegisterIndexScreen() {
       target: "_blank",
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 54
+        lineNumber: 53
       },
       __self: this
     }, "terms of service"), " and the ", _react.default.createElement(_styles.Link, {
@@ -2794,13 +2827,13 @@ var RegisterIndexScreen = function RegisterIndexScreen() {
       target: "_blank",
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 54
+        lineNumber: 53
       },
       __self: this
     }, "privacy policy"), ".")),
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 33
+      lineNumber: 32
     },
     __self: this
   }, _react.default.createElement("form", {
@@ -2810,7 +2843,7 @@ var RegisterIndexScreen = function RegisterIndexScreen() {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 58
+      lineNumber: 57
     },
     __self: this
   }, _react.default.createElement(_styles.Stack, {
@@ -2819,7 +2852,7 @@ var RegisterIndexScreen = function RegisterIndexScreen() {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 62
+      lineNumber: 61
     },
     __self: this
   }, _react.default.createElement(_styles.TextField, {
@@ -2844,7 +2877,7 @@ var RegisterIndexScreen = function RegisterIndexScreen() {
     styles: _styles.TextFieldStyles.bold,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 63
+      lineNumber: 62
     },
     __self: this
   }), _react.default.createElement(_styles.TextField, {
@@ -2869,7 +2902,7 @@ var RegisterIndexScreen = function RegisterIndexScreen() {
     styles: _styles.TextFieldStyles.bold,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 76
+      lineNumber: 75
     },
     __self: this
   }), _react.default.createElement(_styles.TextField, {
@@ -2903,7 +2936,7 @@ var RegisterIndexScreen = function RegisterIndexScreen() {
     styles: _styles.TextFieldStyles.bold,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 89
+      lineNumber: 88
     },
     __self: this
   }), _react.default.createElement(_styles.TextField, {
@@ -2928,7 +2961,7 @@ var RegisterIndexScreen = function RegisterIndexScreen() {
     styles: _styles.TextFieldStyles.bold,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 103
+      lineNumber: 102
     },
     __self: this
   }))));
@@ -2958,8 +2991,6 @@ var _styles = __webpack_require__(/*! ../styles */ "./src/styles.ts");
 
 var _hook = __webpack_require__(/*! ../hook */ "./src/hook.ts");
 
-var _native = __webpack_require__(/*! @react-navigation/native */ "../../node_modules/@react-navigation/native/lib/module/index.js");
-
 var _layout = __webpack_require__(/*! ./layout */ "./src/screen/layout.tsx");
 
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-interaction-renderer/src/screen/reset_password.end.tsx";
@@ -2971,11 +3002,12 @@ var ResetPasswordEndScreen = function ResetPasswordEndScreen() {
       setErrors = _useWithLoading.setErrors,
       withLoading = _useWithLoading.withLoading;
 
-  var _ref = (0, _native.useRoute)().params || {},
-      _ref$email = _ref.email,
-      email = _ref$email === void 0 ? "" : _ref$email;
+  var _useNavigation = (0, _hook.useNavigation)(),
+      nav = _useNavigation.nav,
+      route = _useNavigation.route;
 
-  var nav = (0, _native.useNavigation)();
+  var _route$params$email = route.params.email,
+      email = _route$params$email === void 0 ? "" : _route$params$email;
   var handleDone = withLoading(function () {
     return nav.navigate("login", {
       screen: "login.index",
@@ -2995,13 +3027,13 @@ var ResetPasswordEndScreen = function ResetPasswordEndScreen() {
     error: errors.global,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 25
+      lineNumber: 22
     },
     __self: this
   }, _react.default.createElement(_styles.Text, {
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 39
+      lineNumber: 36
     },
     __self: this
   }, "Account credential has been updated successfully."));
@@ -3033,8 +3065,6 @@ var _styles = __webpack_require__(/*! ../styles */ "./src/styles.ts");
 
 var _hook = __webpack_require__(/*! ../hook */ "./src/hook.ts");
 
-var _native = __webpack_require__(/*! @react-navigation/native */ "../../node_modules/@react-navigation/native/lib/module/index.js");
-
 var _layout = __webpack_require__(/*! ./layout */ "./src/screen/layout.tsx");
 
 var _screen_password = _interopRequireDefault(__webpack_require__(/*! ../image/screen_password.svg */ "./src/image/screen_password.svg"));
@@ -3048,11 +3078,12 @@ var ResetPasswordIndexScreen = function ResetPasswordIndexScreen() {
       setErrors = _useWithLoading.setErrors,
       withLoading = _useWithLoading.withLoading;
 
-  var _ref = (0, _native.useRoute)().params || {},
-      _ref$email = _ref.email,
-      email = _ref$email === void 0 ? "" : _ref$email;
+  var _useNavigation = (0, _hook.useNavigation)(),
+      nav = _useNavigation.nav,
+      route = _useNavigation.route;
 
-  var nav = (0, _native.useNavigation)();
+  var _route$params$email = route.params.email,
+      email = _route$params$email === void 0 ? "" : _route$params$email;
   var handleSend = withLoading(function _callee() {
     return _regenerator.default.async(function _callee$(_context) {
       while (1) {
@@ -3097,13 +3128,13 @@ var ResetPasswordIndexScreen = function ResetPasswordIndexScreen() {
     error: errors.global,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 32
+      lineNumber: 31
     },
     __self: this
   }, _react.default.createElement(_styles.Text, {
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 52
+      lineNumber: 51
     },
     __self: this
   }, "An email with a link will be sent to help you to reset password."), _react.default.createElement(_styles.Image, {
@@ -3118,7 +3149,7 @@ var ResetPasswordIndexScreen = function ResetPasswordIndexScreen() {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 55
+      lineNumber: 54
     },
     __self: this
   }));
@@ -3148,11 +3179,9 @@ var _styles = __webpack_require__(/*! ../styles */ "./src/styles.ts");
 
 var _hook = __webpack_require__(/*! ../hook */ "./src/hook.ts");
 
-var _screen_sent = _interopRequireDefault(__webpack_require__(/*! ../image/screen_sent.svg */ "./src/image/screen_sent.svg"));
-
-var _native = __webpack_require__(/*! @react-navigation/native */ "../../node_modules/@react-navigation/native/lib/module/index.js");
-
 var _layout = __webpack_require__(/*! ./layout */ "./src/screen/layout.tsx");
+
+var _screen_sent = _interopRequireDefault(__webpack_require__(/*! ../image/screen_sent.svg */ "./src/image/screen_sent.svg"));
 
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-interaction-renderer/src/screen/reset_password.sent.tsx";
 
@@ -3163,13 +3192,15 @@ var ResetPasswordSentScreen = function ResetPasswordSentScreen() {
       setErrors = _useWithLoading.setErrors,
       withLoading = _useWithLoading.withLoading;
 
-  var _ref = (0, _native.useRoute)().params || {},
-      _ref$email = _ref.email,
-      email = _ref$email === void 0 ? "" : _ref$email,
-      _ref$ttl = _ref.ttl,
-      ttl = _ref$ttl === void 0 ? 0 : _ref$ttl;
+  var _useNavigation = (0, _hook.useNavigation)(),
+      nav = _useNavigation.nav,
+      route = _useNavigation.route;
 
-  var nav = (0, _native.useNavigation)();
+  var _route$params = route.params,
+      _route$params$email = _route$params.email,
+      email = _route$params$email === void 0 ? "" : _route$params$email,
+      _route$params$ttl = _route$params.ttl,
+      ttl = _route$params$ttl === void 0 ? 0 : _route$params$ttl;
   var handleDone = withLoading(function () {
     return nav.navigate("login", {
       screen: "login.index",
@@ -3191,13 +3222,13 @@ var ResetPasswordSentScreen = function ResetPasswordSentScreen() {
     error: errors.global,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 24
+      lineNumber: 21
     },
     __self: this
   }, _react.default.createElement(_styles.Text, {
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 38
+      lineNumber: 35
     },
     __self: this
   }, "You could check the email to set a new password within ", Math.floor(ttl / 60), " minutes."), _react.default.createElement(_styles.Image, {
@@ -3212,7 +3243,7 @@ var ResetPasswordSentScreen = function ResetPasswordSentScreen() {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 41
+      lineNumber: 38
     },
     __self: this
   }));
@@ -3248,8 +3279,6 @@ var _styles = __webpack_require__(/*! ../styles */ "./src/styles.ts");
 
 var _hook = __webpack_require__(/*! ../hook */ "./src/hook.ts");
 
-var _native = __webpack_require__(/*! @react-navigation/native */ "../../node_modules/@react-navigation/native/lib/module/index.js");
-
 var _layout = __webpack_require__(/*! ./layout */ "./src/screen/layout.tsx");
 
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-interaction-renderer/src/screen/reset_password.set.tsx";
@@ -3261,9 +3290,12 @@ var ResetPasswordSetScreen = function ResetPasswordSetScreen() {
       setErrors = _useWithLoading.setErrors,
       withLoading = _useWithLoading.withLoading;
 
-  var _ref = (0, _native.useRoute)().params || {},
-      _ref$email = _ref.email,
-      email = _ref$email === void 0 ? "" : _ref$email;
+  var _useNavigation = (0, _hook.useNavigation)(),
+      nav = _useNavigation.nav,
+      route = _useNavigation.route;
+
+  var _route$params$email = route.params.email,
+      email = _route$params$email === void 0 ? "" : _route$params$email;
 
   var _useState = (0, _react.useState)({
     password: "",
@@ -3273,7 +3305,6 @@ var ResetPasswordSetScreen = function ResetPasswordSetScreen() {
       payload = _useState2[0],
       setPayload = _useState2[1];
 
-  var nav = (0, _native.useNavigation)();
   var handlePayloadSubmit = withLoading(function () {
     nav.navigate("reset_password", {
       screen: "reset_password.end",
@@ -3295,13 +3326,13 @@ var ResetPasswordSetScreen = function ResetPasswordSetScreen() {
     error: errors.global,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 29
+      lineNumber: 26
     },
     __self: this
   }, _react.default.createElement(_styles.Text, {
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 43
+      lineNumber: 40
     },
     __self: this
   }, "Set a new password for your account."), _react.default.createElement(_styles.TextField, {
@@ -3326,7 +3357,7 @@ var ResetPasswordSetScreen = function ResetPasswordSetScreen() {
     styles: _styles.TextFieldStyles.bold,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 46
+      lineNumber: 43
     },
     __self: this
   }), _react.default.createElement(_styles.TextField, {
@@ -3351,7 +3382,7 @@ var ResetPasswordSetScreen = function ResetPasswordSetScreen() {
     styles: _styles.TextFieldStyles.bold,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 59
+      lineNumber: 56
     },
     __self: this
   }));
@@ -3381,8 +3412,6 @@ var _styles = __webpack_require__(/*! ../styles */ "./src/styles.ts");
 
 var _hook = __webpack_require__(/*! ../hook */ "./src/hook.ts");
 
-var _native = __webpack_require__(/*! @react-navigation/native */ "../../node_modules/@react-navigation/native/lib/module/index.js");
-
 var _layout = __webpack_require__(/*! ./layout */ "./src/screen/layout.tsx");
 
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-interaction-renderer/src/screen/verify_email.end.tsx";
@@ -3394,11 +3423,12 @@ var VerifyEmailEndScreen = function VerifyEmailEndScreen() {
       setErrors = _useWithLoading.setErrors,
       withLoading = _useWithLoading.withLoading;
 
-  var _ref = (0, _native.useRoute)().params || {},
-      _ref$email = _ref.email,
-      email = _ref$email === void 0 ? "" : _ref$email;
+  var _useNavigation = (0, _hook.useNavigation)(),
+      route = _useNavigation.route,
+      nav = _useNavigation.nav;
 
-  var nav = (0, _native.useNavigation)();
+  var _route$params$email = route.params.email,
+      email = _route$params$email === void 0 ? "" : _route$params$email;
   var handleDone = withLoading(function () {
     return nav.navigate("login", {
       screen: "login.index",
@@ -3420,13 +3450,13 @@ var VerifyEmailEndScreen = function VerifyEmailEndScreen() {
     error: errors.global,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 27
+      lineNumber: 26
     },
     __self: this
   }, _react.default.createElement(_styles.Text, {
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 41
+      lineNumber: 40
     },
     __self: this
   }, "Account email address has been verified successfully."));
@@ -3456,8 +3486,6 @@ var _styles = __webpack_require__(/*! ../styles */ "./src/styles.ts");
 
 var _hook = __webpack_require__(/*! ../hook */ "./src/hook.ts");
 
-var _native = __webpack_require__(/*! @react-navigation/native */ "../../node_modules/@react-navigation/native/lib/module/index.js");
-
 var _layout = __webpack_require__(/*! ./layout */ "./src/screen/layout.tsx");
 
 var _screen_verify = _interopRequireDefault(__webpack_require__(/*! ../image/screen_verify.svg */ "./src/image/screen_verify.svg"));
@@ -3471,13 +3499,15 @@ var VerifyEmailIndexScreen = function VerifyEmailIndexScreen() {
       setErrors = _useWithLoading.setErrors,
       withLoading = _useWithLoading.withLoading;
 
-  var _ref = (0, _native.useRoute)().params || {},
-      _ref$email = _ref.email,
-      email = _ref$email === void 0 ? "" : _ref$email,
-      _ref$callback = _ref.callback,
-      callback = _ref$callback === void 0 ? "" : _ref$callback;
+  var _useNavigation = (0, _hook.useNavigation)(),
+      nav = _useNavigation.nav,
+      route = _useNavigation.route;
 
-  var nav = (0, _native.useNavigation)();
+  var _route$params = route.params,
+      _route$params$email = _route$params.email,
+      email = _route$params$email === void 0 ? "" : _route$params$email,
+      _route$params$callbac = _route$params.callback,
+      callback = _route$params$callbac === void 0 ? "" : _route$params$callbac;
   var handleSend = withLoading(function () {
     nav.navigate("verify_email", {
       screen: "verify_email.sent",
@@ -3517,13 +3547,13 @@ var VerifyEmailIndexScreen = function VerifyEmailIndexScreen() {
     error: errors.global,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 39
+      lineNumber: 36
     },
     __self: this
   }, _react.default.createElement(_styles.Text, {
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 59
+      lineNumber: 56
     },
     __self: this
   }, "An email with a verification link will be sent to verify the email address."), _react.default.createElement(_styles.Image, {
@@ -3538,7 +3568,7 @@ var VerifyEmailIndexScreen = function VerifyEmailIndexScreen() {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 62
+      lineNumber: 59
     },
     __self: this
   }));
@@ -3568,8 +3598,6 @@ var _styles = __webpack_require__(/*! ../styles */ "./src/styles.ts");
 
 var _hook = __webpack_require__(/*! ../hook */ "./src/hook.ts");
 
-var _native = __webpack_require__(/*! @react-navigation/native */ "../../node_modules/@react-navigation/native/lib/module/index.js");
-
 var _layout = __webpack_require__(/*! ./layout */ "./src/screen/layout.tsx");
 
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-interaction-renderer/src/screen/verify_email.sent.tsx";
@@ -3581,15 +3609,17 @@ var VerifyEmailSentScreen = function VerifyEmailSentScreen() {
       setErrors = _useWithLoading.setErrors,
       withLoading = _useWithLoading.withLoading;
 
-  var _ref = (0, _native.useRoute)().params || {},
-      _ref$email = _ref.email,
-      email = _ref$email === void 0 ? "" : _ref$email,
-      _ref$ttl = _ref.ttl,
-      ttl = _ref$ttl === void 0 ? 0 : _ref$ttl,
-      _ref$callback = _ref.callback,
-      callback = _ref$callback === void 0 ? "" : _ref$callback;
+  var _useNavigation = (0, _hook.useNavigation)(),
+      nav = _useNavigation.nav,
+      route = _useNavigation.route;
 
-  var nav = (0, _native.useNavigation)();
+  var _route$params = route.params,
+      _route$params$email = _route$params.email,
+      email = _route$params$email === void 0 ? "" : _route$params$email,
+      _route$params$ttl = _route$params.ttl,
+      ttl = _route$params$ttl === void 0 ? 0 : _route$params$ttl,
+      _route$params$callbac = _route$params.callback,
+      callback = _route$params$callbac === void 0 ? "" : _route$params$callbac;
   var handleDone = withLoading(function () {
     if (callback === "register") {
       nav.navigate("register", {
@@ -3618,13 +3648,13 @@ var VerifyEmailSentScreen = function VerifyEmailSentScreen() {
     error: errors.global,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 34
+      lineNumber: 31
     },
     __self: this
   }, _react.default.createElement(_styles.Text, {
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 48
+      lineNumber: 45
     },
     __self: this
   }, "An email with the verification link has been sent."));
@@ -3654,8 +3684,6 @@ var _styles = __webpack_require__(/*! ../styles */ "./src/styles.ts");
 
 var _hook = __webpack_require__(/*! ../hook */ "./src/hook.ts");
 
-var _native = __webpack_require__(/*! @react-navigation/native */ "../../node_modules/@react-navigation/native/lib/module/index.js");
-
 var _layout = __webpack_require__(/*! ./layout */ "./src/screen/layout.tsx");
 
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-interaction-renderer/src/screen/verify_phone.end.tsx";
@@ -3667,11 +3695,12 @@ var VerifyPhoneEndScreen = function VerifyPhoneEndScreen() {
       setErrors = _useWithLoading.setErrors,
       withLoading = _useWithLoading.withLoading;
 
-  var _ref = (0, _native.useRoute)().params || {},
-      _ref$phoneNumber = _ref.phoneNumber,
-      phoneNumber = _ref$phoneNumber === void 0 ? "" : _ref$phoneNumber;
+  var _useNavigation = (0, _hook.useNavigation)(),
+      nav = _useNavigation.nav,
+      route = _useNavigation.route;
 
-  var nav = (0, _native.useNavigation)();
+  var _route$params$phoneNu = route.params.phoneNumber,
+      phoneNumber = _route$params$phoneNu === void 0 ? "" : _route$params$phoneNu;
   var handleDone = withLoading(function () {
     return nav.navigate("login", {
       screen: "login.index",
@@ -3691,13 +3720,13 @@ var VerifyPhoneEndScreen = function VerifyPhoneEndScreen() {
     error: errors.global,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 25
+      lineNumber: 22
     },
     __self: this
   }, _react.default.createElement(_styles.Text, {
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 39
+      lineNumber: 36
     },
     __self: this
   }, "Account phone number has been verified successfully."));
@@ -3727,8 +3756,6 @@ var _styles = __webpack_require__(/*! ../styles */ "./src/styles.ts");
 
 var _hook = __webpack_require__(/*! ../hook */ "./src/hook.ts");
 
-var _native = __webpack_require__(/*! @react-navigation/native */ "../../node_modules/@react-navigation/native/lib/module/index.js");
-
 var _layout = __webpack_require__(/*! ./layout */ "./src/screen/layout.tsx");
 
 var _screen_verify = _interopRequireDefault(__webpack_require__(/*! ../image/screen_verify.svg */ "./src/image/screen_verify.svg"));
@@ -3742,13 +3769,15 @@ var VerifyPhoneIndexScreen = function VerifyPhoneIndexScreen() {
       setErrors = _useWithLoading.setErrors,
       withLoading = _useWithLoading.withLoading;
 
-  var _ref = (0, _native.useRoute)().params || {},
-      _ref$phoneNumber = _ref.phoneNumber,
-      phoneNumber = _ref$phoneNumber === void 0 ? "" : _ref$phoneNumber,
-      _ref$callback = _ref.callback,
-      callback = _ref$callback === void 0 ? "" : _ref$callback;
+  var _useNavigation = (0, _hook.useNavigation)(),
+      nav = _useNavigation.nav,
+      route = _useNavigation.route;
 
-  var nav = (0, _native.useNavigation)();
+  var _route$params = route.params,
+      _route$params$phoneNu = _route$params.phoneNumber,
+      phoneNumber = _route$params$phoneNu === void 0 ? "" : _route$params$phoneNu,
+      _route$params$callbac = _route$params.callback,
+      callback = _route$params$callbac === void 0 ? "" : _route$params$callbac;
   var handleSend = withLoading(function () {
     nav.navigate("verify_phone", {
       screen: "verify_phone.sent",
@@ -3786,13 +3815,13 @@ var VerifyPhoneIndexScreen = function VerifyPhoneIndexScreen() {
     error: errors.global,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 37
+      lineNumber: 34
     },
     __self: this
   }, _react.default.createElement(_styles.Text, {
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 57
+      lineNumber: 54
     },
     __self: this
   }, "A text message with a verification code will be sent to verify the phone number."), _react.default.createElement(_styles.Image, {
@@ -3807,7 +3836,7 @@ var VerifyPhoneIndexScreen = function VerifyPhoneIndexScreen() {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 60
+      lineNumber: 57
     },
     __self: this
   }));
@@ -3841,8 +3870,6 @@ var _styles = __webpack_require__(/*! ../styles */ "./src/styles.ts");
 
 var _hook = __webpack_require__(/*! ../hook */ "./src/hook.ts");
 
-var _native = __webpack_require__(/*! @react-navigation/native */ "../../node_modules/@react-navigation/native/lib/module/index.js");
-
 var _layout = __webpack_require__(/*! ./layout */ "./src/screen/layout.tsx");
 
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-interaction-renderer/src/screen/verify_phone.sent.tsx";
@@ -3859,13 +3886,17 @@ var VerifyPhoneSentScreen = function VerifyPhoneSentScreen() {
       code = _useState2[0],
       setCode = _useState2[1];
 
-  var _ref = (0, _native.useRoute)().params || {},
-      _ref$phoneNumber = _ref.phoneNumber,
-      phoneNumber = _ref$phoneNumber === void 0 ? "" : _ref$phoneNumber,
-      _ref$ttl = _ref.ttl,
-      ttl = _ref$ttl === void 0 ? 0 : _ref$ttl,
-      _ref$callback = _ref.callback,
-      callback = _ref$callback === void 0 ? "" : _ref$callback;
+  var _useNavigation = (0, _hook.useNavigation)(),
+      nav = _useNavigation.nav,
+      route = _useNavigation.route;
+
+  var _route$params = route.params,
+      _route$params$phoneNu = _route$params.phoneNumber,
+      phoneNumber = _route$params$phoneNu === void 0 ? "" : _route$params$phoneNu,
+      _route$params$ttl = _route$params.ttl,
+      ttl = _route$params$ttl === void 0 ? 0 : _route$params$ttl,
+      _route$params$callbac = _route$params.callback,
+      callback = _route$params$callbac === void 0 ? "" : _route$params$callbac;
 
   var _useState3 = (0, _react.useState)(ttl),
       _useState4 = (0, _slicedToArray2.default)(_useState3, 2),
@@ -3882,7 +3913,6 @@ var VerifyPhoneSentScreen = function VerifyPhoneSentScreen() {
       return clearInterval(timer);
     };
   }, []);
-  var nav = (0, _native.useNavigation)();
   var handleVerify = withLoading(function () {
     if (callback === "register") {
       nav.navigate("register", {
@@ -3940,13 +3970,13 @@ var VerifyPhoneSentScreen = function VerifyPhoneSentScreen() {
     error: errors.global,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 60
+      lineNumber: 57
     },
     __self: this
   }, _react.default.createElement(_styles.Text, {
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 86
+      lineNumber: 83
     },
     __self: this
   }, "Enter the received 6-digit verification code."), _react.default.createElement(_styles.TextField, {
@@ -3968,7 +3998,7 @@ var VerifyPhoneSentScreen = function VerifyPhoneSentScreen() {
     styles: _styles.TextFieldStyles.bold,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 89
+      lineNumber: 86
     },
     __self: this
   }));

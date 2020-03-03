@@ -8,6 +8,7 @@ import { buildFindEmailRoutes } from "./routes.find_email";
 import { buildResetPasswordRoutes } from "./routes.reset_password";
 import { buildVerifyEmailRoutes } from "./routes.verify_email";
 import { buildVerifyPhoneRoutes } from "./routes.verify_phone";
+import { buildRegisterRoutes } from "./routes.register";
 import { buildFederationRoutes } from "./routes.federation";
 import { buildLoginRoutes } from "./routes.login";
 import { buildConsentRoutes } from "./routes.consent";
@@ -73,13 +74,14 @@ export function buildDefaultInteractions(builder: ProviderConfigBuilder, opts: I
   const federationManager = new IdentityFederationManager(builder, federation);
 
   // build interaction routes
-  const endpoints = buildInteractionActionEndpoints(builder, opts, federationManager);
-  buildAbortRoutes(builder, opts, endpoints);
-  buildFindEmailRoutes(builder, opts, endpoints);
-  buildVerifyEmailRoutes(builder, opts, endpoints);
-  buildVerifyPhoneRoutes(builder, opts, endpoints);
-  buildResetPasswordRoutes(builder, opts, endpoints);
-  buildFederationRoutes(builder, opts, endpoints, federationManager);
-  buildLoginRoutes(builder, opts, endpoints);
-  buildConsentRoutes(builder, opts, endpoints);
+  const actions = buildInteractionActionEndpoints(builder, opts, federationManager);
+  buildAbortRoutes(builder, opts, actions);
+  buildFindEmailRoutes(builder, opts, actions);
+  buildVerifyEmailRoutes(builder, opts, actions);
+  buildVerifyPhoneRoutes(builder, opts, actions);
+  buildResetPasswordRoutes(builder, opts, actions);
+  buildRegisterRoutes(builder, opts, actions);
+  buildFederationRoutes(builder, opts, actions, federationManager);
+  buildLoginRoutes(builder, opts, actions);
+  buildConsentRoutes(builder, opts, actions);
 }

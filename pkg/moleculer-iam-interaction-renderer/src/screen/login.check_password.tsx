@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { ScreenLayout } from "./layout";
 import { Link, TextField, TextFieldStyles } from "../styles";
-import { useGlobalState, useServerState, useWithLoading } from "../hook";
-import { useNavigation, useRoute } from "@react-navigation/native";
+import { useGlobalState, useServerState, useNavigation, useWithLoading } from "../hook";
 
 export const LoginCheckPasswordScreen: React.FunctionComponent = () => {
-  const nav = useNavigation();
+  const { nav } = useNavigation();
   const { globalState } = useGlobalState();
   const { email = "unknown", name = "unknown" } = globalState.user || {};
   const { loading, errors, setErrors, withLoading } = useWithLoading();

@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { useNavigation, useRoute } from "@react-navigation/native";
 import { ScreenLayout } from "./layout";
 import { PrimaryButton, DefaultButton, Link, TextField, TextFieldStyles, ButtonStyles, Separator, Stack, ThemeStyles } from "../styles";
-import { useGlobalState, useServerOptions, useServerState, useWithLoading } from "../hook";
+import { useGlobalState, useNavigation, useServerOptions, useServerState, useWithLoading } from "../hook";
 
 export const LoginIndexScreen: React.FunctionComponent = () => {
-  const nav = useNavigation();
+  const { nav, route } = useNavigation();
   const { loading, errors, setErrors, withLoading } = useWithLoading();
-  const [email, setEmail] = useState(((useRoute() as any).params || {}).email || "");
+  const [email, setEmail] = useState(route.params.email || "");
   const { setGlobalState } = useGlobalState();
   const { request, interaction } = useServerState();
   const options = useServerOptions();

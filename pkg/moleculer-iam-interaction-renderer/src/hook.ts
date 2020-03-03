@@ -1,5 +1,5 @@
 import { createContext, DependencyList, useCallback, useContext, useEffect, useRef, useState } from "react";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation as useOriginalNavigation, useRoute } from "@react-navigation/native";
 import { getServerState, getServerOptions } from "../inject";
 
 /* do async job with loading state */
@@ -40,6 +40,36 @@ export function useWithLoading() {
     errors,
     setErrors,
   };
+}
+
+function includeLocaleQuery(args: any, route: any) {
+  if (route.params.locale) {
+    if (!args[1] || !args[1].params || !args[1].params.locale) {
+      if (!args[1]) {
+        args[1] = {};
+      }
+      if (!args[1].params) {
+        args[1].params = {};
+      }
+      args[1].params.locale = route.params.locale;
+    }
+  }
+}
+
+export function useNavigation() {
+  // set undefined params as empty object
+  const route = useRoute() as ReturnType<typeof useRoute> & { params: {[key: string]: any} };
+  if (!route.params) route.params = {};
+
+  // override nav methods to include locale query for navigation
+  const nav = useOriginalNavigation();
+  const navigate = nav.navigate;
+  nav.navigate = (...args: any[]) => {
+    includeLocaleQuery(args, route);
+    return navigate(...args as any);
+  };
+
+  return { nav, route };
 }
 
 // return server options
@@ -146,7 +176,7 @@ export const useGlobalState = () => useContext(globalStateContext);
 /* close screen */
 export function useClose(tryGoBack = true) {
   const [closed, setClosed] = useState(false);
-  const nav = useNavigation();
+  const { nav } = useNavigation();
   const close = useCallback(() => {
     if (tryGoBack && nav.canGoBack()) {
       nav.goBack();

@@ -1,18 +1,15 @@
 import React from "react";
 import { Text } from "../styles";
-import { useWithLoading } from "../hook";
-import { useNavigation, useRoute } from "@react-navigation/native";
+import { useWithLoading, useNavigation } from "../hook";
 import { ScreenLayout } from "./layout";
 
 export const RegisterEndScreen: React.FunctionComponent = () => {
   // states
   const {loading, errors, setErrors, withLoading} = useWithLoading();
-
-  // props
-  const { email = "" } = (useRoute() as any).params || {};
+  const { nav, route } = useNavigation();
+  const { email = "" } = route.params;
 
   // handlers
-  const nav = useNavigation();
   const handleContinue = withLoading(() => {
     // ... login
     nav.navigate("login", {

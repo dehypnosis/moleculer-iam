@@ -1,19 +1,16 @@
 import React  from "react";
 import { Text, Image } from "../styles";
-import { useWithLoading } from "../hook";
-import { useNavigation, useRoute } from "@react-navigation/native";
+import { useNavigation, useWithLoading } from "../hook";
 import { ScreenLayout } from "./layout";
 import svg from "../image/screen_verify.svg";
 
 export const VerifyEmailIndexScreen: React.FunctionComponent = () => {
   // states
   const {loading, errors, setErrors, withLoading} = useWithLoading();
-
-  // props
-  const { email = "", callback = "" } = (useRoute() as any).params || {};
+  const { nav, route } = useNavigation();
+  const { email = "", callback = "" } = route.params;
 
   // handlers
-  const nav = useNavigation();
   const handleSend = withLoading(() => {
     // TODO: ..
     nav.navigate("verify_email", {

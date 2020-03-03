@@ -2,13 +2,14 @@ import * as http from "http";
 import * as http2 from "http2";
 import * as https from "https";
 import * as kleur from "kleur";
+import * as url from "url";
 import Koa from "koa";
 import helmet from "koa-helmet";
 import { IHelmetConfiguration } from "helmet";
 import prettyJSON from "koa-json";
 import mount from "koa-mount";
 // @ts-ignore
-import locale from "koa-locale";
+import useLocale from "koa-locale";
 import { Logger } from "../logger";
 import { OIDCProvider, ParsedLocale } from "../op";
 import { logging, LoggingOptions } from "./logging";
@@ -79,15 +80,24 @@ export class IAMServer {
     }));
 
     // set locale into context
-    locale(app, "locale");
+    useLocale(app, "locale");
     app.use((ctx, next) => {
       // parsed by precedence of ?locale=ko-KR, Cookie: locale=ko-KR, Accept-Language: ko-KR
       // ref: https://github.com/koa-modules/locale
       // @ts-ignore
-      const request = ctx.getLocaleFromQuery() || ctx.getLocaleFromCookie() || ctx.getLocaleFromHeader();
-      const result = op.parseLocale(request);
-      ctx.locale = result;
-      return next();
+      const locale = op.parseLocale(ctx.getLocaleFromQuery() || ctx.getLocaleFromCookie() || ctx.getLocaleFromHeader());
+      ctx.locale = locale;
+      return next()
+        .then(() => {
+          // reassign locale query for redirection response
+          if (ctx.headerSent || !ctx.query.locale) return;
+          const redirect = ctx.response.get("Location");
+          if (redirect.startsWith("/") || redirect.startsWith(op.issuer)) {
+            const { protocol, auth, slashes, host, hash, query, pathname } = url.parse(redirect, true);
+            query.locale = ctx.query.locale;
+            ctx.response.set("Location", url.format({ protocol, auth, slashes, host, hash, query, pathname }));
+          }
+        });
     });
   }
 
@@ -150,10 +160,10 @@ export class IAMServer {
 
   private listenCallback(protocol: string, scheme: string, hostname: string, port: number) {
     const { op } = this.props;
-    const discoveryURL = kleur.blue(`${scheme}://${hostname}:${port}/.well-known/openid-configuration`);
-    const issuerURL = kleur.yellow(op.issuer);
+    const serverURL = kleur.blue(`${scheme}://${hostname}:${port}`);
+    const discoveryURL = kleur.yellow(`${op.issuer}/.well-known/openid-configuration`);
     return () => {
-      this.logger.info(`${kleur.blue(protocol.toUpperCase() + " server")} is listening:\n* OIDC discovery endpoint: ${discoveryURL}\n* OIDC issuer: ${issuerURL}`);
+      this.logger.info(`${kleur.blue(protocol.toUpperCase() + " server")} is listening\n* Web server bound to: ${serverURL}\n* OIDC discovery endpoint: ${discoveryURL}`);
     };
   }
 
