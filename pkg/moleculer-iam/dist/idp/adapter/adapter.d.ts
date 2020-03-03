@@ -33,7 +33,7 @@ export declare abstract class IDPAdapter {
         scope: string[];
         claims: OIDCAccountClaims;
         credentials: Partial<OIDCAccountCredentials>;
-    }, transaction?: Transaction): Promise<string>;
+    }, transaction?: Transaction, ignoreUndefinedClaims?: boolean): Promise<string>;
     abstract delete(id: string, transaction?: Transaction): Promise<boolean>;
     getClaims(id: string, scope: string[]): Promise<OIDCAccountClaims>;
     protected readonly getCachedActiveClaimsSchemata: ((scope: string[]) => Promise<{

@@ -23,9 +23,8 @@ export type OIDCProviderProxyOptions = StaticConfiguration & {
 };
 
 export type ParsedLocale  = {
-  raw: string;
   language: string;
-  region: string | null;
+  country: string;
 }
 
 export class OIDCProviderProxy {
@@ -72,8 +71,9 @@ export class OIDCProviderProxy {
   public parseLocale(locale: string): ParsedLocale {
     const locales = this.supportedLocales;
     const raw = pickLanguage(locales, locale, { loose: true }) || locales[0] || "ko-KR";
-    const [language, region = null ] = raw.split("-");
-    return { raw, language, region };
+    const [language, country] = raw.split("-");
+    const [_, requestCountry] = locale.split("-"); // request locale country will take precedence over matched one
+    return { language: language || "ko", country: requestCountry || country || "KR" };
   }
 
   public get issuer() {

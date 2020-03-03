@@ -42,7 +42,6 @@ export const defaultIdentityClaimsManagerOptions: IdentityClaimsManagerOptions =
       key: "phone_number",
       validation: {
         type: "phone",
-        country: "KR",  // TODO: locale from context...
       },
       unique: true,
       immutable: true,

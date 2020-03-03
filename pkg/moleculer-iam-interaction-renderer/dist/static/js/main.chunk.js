@@ -309,7 +309,7 @@ exports.useNavigation = useNavigation;
 exports.useServerOptions = useServerOptions;
 exports.useServerState = useServerState;
 exports.useClose = useClose;
-exports.useGlobalState = void 0;
+exports.useClientState = void 0;
 
 var _extends2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/extends */ "../../node_modules/@babel/runtime/helpers/esm/extends.js"));
 
@@ -539,8 +539,11 @@ function useServerState() {
                   } else if (data.redirect) {
                     window.location.assign(data.redirect);
                     return new Promise(function () {});
+                  } else if (data.session) {
+                    state.session = data.session;
+                    return state.session;
                   } else {
-                    return data;
+                    console.error("unrecognized response structure", state);
                   }
                 });
               }, function (err) {
@@ -573,18 +576,20 @@ var setClientState = function setClientState(reducer) {
   } else {
     (0, _extends2.default)(clientState, reducer);
   }
+
+  console.debug("update client state", clientState);
 };
 
-var globalStateContext = (0, _react.createContext)({
-  globalState: clientState,
-  setGlobalState: setClientState
+var clientStateContext = (0, _react.createContext)({
+  clientState: clientState,
+  setClientState: setClientState
 });
 
-var useGlobalState = function useGlobalState() {
-  return (0, _react.useContext)(globalStateContext);
+var useClientState = function useClientState() {
+  return (0, _react.useContext)(clientStateContext);
 };
 
-exports.useGlobalState = useGlobalState;
+exports.useClientState = useClientState;
 
 function useClose() {
   var tryGoBack = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
@@ -729,7 +734,7 @@ var _logout2 = __webpack_require__(/*! ./screen/logout.end */ "./src/screen/logo
 
 var _find_email = __webpack_require__(/*! ./screen/find_email.index */ "./src/screen/find_email.index.tsx");
 
-var _find_email2 = __webpack_require__(/*! ./screen/find_email.sent */ "./src/screen/find_email.sent.tsx");
+var _find_email2 = __webpack_require__(/*! ./screen/find_email.verify */ "./src/screen/find_email.verify.tsx");
 
 var _reset_password = __webpack_require__(/*! ./screen/reset_password.index */ "./src/screen/reset_password.index.tsx");
 
@@ -747,13 +752,13 @@ var _register3 = __webpack_require__(/*! ./screen/register.end */ "./src/screen/
 
 var _verify_phone = __webpack_require__(/*! ./screen/verify_phone.index */ "./src/screen/verify_phone.index.tsx");
 
-var _verify_phone2 = __webpack_require__(/*! ./screen/verify_phone.sent */ "./src/screen/verify_phone.sent.tsx");
+var _verify_phone2 = __webpack_require__(/*! ./screen/verify_phone.verify */ "./src/screen/verify_phone.verify.tsx");
 
 var _verify_phone3 = __webpack_require__(/*! ./screen/verify_phone.end */ "./src/screen/verify_phone.end.tsx");
 
 var _verify_email = __webpack_require__(/*! ./screen/verify_email.index */ "./src/screen/verify_email.index.tsx");
 
-var _verify_email2 = __webpack_require__(/*! ./screen/verify_email.sent */ "./src/screen/verify_email.sent.tsx");
+var _verify_email2 = __webpack_require__(/*! ./screen/verify_email.verify */ "./src/screen/verify_email.verify.tsx");
 
 var _verify_email3 = __webpack_require__(/*! ./screen/verify_email.end */ "./src/screen/verify_email.end.tsx");
 
@@ -776,7 +781,7 @@ var routeConfig = {
   },
   "find_email": {
     screens: {
-      "find_email.sent": prefix + "/find_email/sent",
+      "find_email.verify": prefix + "/find_email/verify",
       "find_email.index": prefix + "/find_email"
     }
   },
@@ -798,14 +803,14 @@ var routeConfig = {
   "verify_phone": {
     screens: {
       "verify_phone.end": prefix + "/verify_phone/end",
-      "verify_phone.sent": prefix + "/verify_phone/sent",
+      "verify_phone.verify": prefix + "/verify_phone/verify",
       "verify_phone.index": prefix + "/verify_phone"
     }
   },
   "verify_email": {
     screens: {
       "verify_email.end": prefix + "/verify_email/end",
-      "verify_email.sent": prefix + "/verify_email/sent",
+      "verify_email.verify": prefix + "/verify_email/verify",
       "verify_email.index": prefix + "/verify_email"
     }
   },
@@ -896,8 +901,8 @@ var FindEmailStackScreen = function FindEmailStackScreen() {
     },
     __self: this
   }), _react.default.createElement(FindEmailStack.Screen, {
-    name: "find_email.sent",
-    component: _find_email2.FindEmailSentScreen,
+    name: "find_email.verify",
+    component: _find_email2.FindEmailVerifyScreen,
     __source: {
       fileName: _jsxFileName,
       lineNumber: 150
@@ -1007,8 +1012,8 @@ var VerifyPhoneStackScreen = function VerifyPhoneStackScreen() {
     },
     __self: this
   }), _react.default.createElement(VerifyPhoneStack.Screen, {
-    name: "verify_phone.sent",
-    component: _verify_phone2.VerifyPhoneSentScreen,
+    name: "verify_phone.verify",
+    component: _verify_phone2.VerifyPhoneVerifyScreen,
     __source: {
       fileName: _jsxFileName,
       lineNumber: 210
@@ -1044,8 +1049,8 @@ var VerifyEmailStackScreen = function VerifyEmailStackScreen() {
     },
     __self: this
   }), _react.default.createElement(VerifyEmailStack.Screen, {
-    name: "verify_email.sent",
-    component: _verify_email2.VerifyEmailSentScreen,
+    name: "verify_email.verify",
+    component: _verify_email2.VerifyEmailVerifyScreen,
     __source: {
       fileName: _jsxFileName,
       lineNumber: 230
@@ -1427,7 +1432,7 @@ var FindEmailIndexScreen = function FindEmailIndexScreen() {
     request("find_email.check_phone").then(function (data) {
       console.log(data);
       nav.navigate("find_email", {
-        screen: "find_email.sent",
+        screen: "find_email.verify",
         params: {
           phoneNumber: phoneNumber
         }
@@ -1498,10 +1503,10 @@ exports.FindEmailIndexScreen = FindEmailIndexScreen;
 
 /***/ }),
 
-/***/ "./src/screen/find_email.sent.tsx":
-/*!****************************************!*\
-  !*** ./src/screen/find_email.sent.tsx ***!
-  \****************************************/
+/***/ "./src/screen/find_email.verify.tsx":
+/*!******************************************!*\
+  !*** ./src/screen/find_email.verify.tsx ***!
+  \******************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -1510,7 +1515,7 @@ var _interopRequireDefault = __webpack_require__(/*! /Users/dehypnosis/Synced/qm
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.FindEmailSentScreen = void 0;
+exports.FindEmailVerifyScreen = void 0;
 
 var _react = _interopRequireDefault(__webpack_require__(/*! react */ "../../node_modules/react/index.js"));
 
@@ -1522,9 +1527,9 @@ var _hook = __webpack_require__(/*! ../hook */ "./src/hook.ts");
 
 var _screen_sent = _interopRequireDefault(__webpack_require__(/*! ../image/screen_sent.svg */ "./src/image/screen_sent.svg"));
 
-var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-interaction-renderer/src/screen/find_email.sent.tsx";
+var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-interaction-renderer/src/screen/find_email.verify.tsx";
 
-var FindEmailSentScreen = function FindEmailSentScreen() {
+var FindEmailVerifyScreen = function FindEmailVerifyScreen() {
   var _useWithLoading = (0, _hook.useWithLoading)(),
       loading = _useWithLoading.loading,
       errors = _useWithLoading.errors,
@@ -1583,7 +1588,7 @@ var FindEmailSentScreen = function FindEmailSentScreen() {
   }));
 };
 
-exports.FindEmailSentScreen = FindEmailSentScreen;
+exports.FindEmailVerifyScreen = FindEmailVerifyScreen;
 
 /***/ }),
 
@@ -1799,31 +1804,28 @@ var _hook = __webpack_require__(/*! ../hook */ "./src/hook.ts");
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-interaction-renderer/src/screen/login.check_password.tsx";
 
 var LoginCheckPasswordScreen = function LoginCheckPasswordScreen() {
-  var _useNavigation = (0, _hook.useNavigation)(),
-      nav = _useNavigation.nav;
-
-  var _useGlobalState = (0, _hook.useGlobalState)(),
-      globalState = _useGlobalState.globalState;
-
-  var _ref = globalState.user || {},
-      _ref$email = _ref.email,
-      email = _ref$email === void 0 ? "unknown" : _ref$email,
-      _ref$name = _ref.name,
-      name = _ref$name === void 0 ? "unknown" : _ref$name;
-
-  var _useWithLoading = (0, _hook.useWithLoading)(),
-      loading = _useWithLoading.loading,
-      errors = _useWithLoading.errors,
-      setErrors = _useWithLoading.setErrors,
-      withLoading = _useWithLoading.withLoading;
-
   var _useState = (0, _react.useState)(""),
       _useState2 = (0, _slicedToArray2.default)(_useState, 2),
       password = _useState2[0],
       setPassword = _useState2[1];
 
   var _useServerState = (0, _hook.useServerState)(),
+      session = _useServerState.session,
       request = _useServerState.request;
+
+  var _session$login$user = session.login.user,
+      email = _session$login$user.email,
+      name = _session$login$user.name,
+      picture = _session$login$user.picture;
+
+  var _useNavigation = (0, _hook.useNavigation)(),
+      nav = _useNavigation.nav;
+
+  var _useWithLoading = (0, _hook.useWithLoading)(),
+      loading = _useWithLoading.loading,
+      errors = _useWithLoading.errors,
+      setErrors = _useWithLoading.setErrors,
+      withLoading = _useWithLoading.withLoading;
 
   var handleCheckLoginPassword = withLoading(function _callee() {
     return _regenerator.default.async(function _callee$(_context) {
@@ -1877,7 +1879,7 @@ var LoginCheckPasswordScreen = function LoginCheckPasswordScreen() {
     error: errors.global,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 35
+      lineNumber: 37
     },
     __self: this
   }, _react.default.createElement("form", {
@@ -1887,7 +1889,7 @@ var LoginCheckPasswordScreen = function LoginCheckPasswordScreen() {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 54
+      lineNumber: 56
     },
     __self: this
   }, _react.default.createElement("input", {
@@ -1900,7 +1902,7 @@ var LoginCheckPasswordScreen = function LoginCheckPasswordScreen() {
     readOnly: true,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 55
+      lineNumber: 57
     },
     __self: this
   }), _react.default.createElement(_styles.TextField, {
@@ -1923,7 +1925,7 @@ var LoginCheckPasswordScreen = function LoginCheckPasswordScreen() {
     styles: _styles.TextFieldStyles.bold,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 56
+      lineNumber: 58
     },
     __self: this
   })), _react.default.createElement(_styles.Link, {
@@ -1935,7 +1937,7 @@ var LoginCheckPasswordScreen = function LoginCheckPasswordScreen() {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 72
+      lineNumber: 74
     },
     __self: this
   }, "Forgot password?"));
@@ -1960,8 +1962,6 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.LoginIndexScreen = void 0;
-
-var _objectSpread2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/objectSpread2 */ "../../node_modules/@babel/runtime/helpers/esm/objectSpread2.js"));
 
 var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/slicedToArray */ "../../node_modules/@babel/runtime/helpers/esm/slicedToArray.js"));
 
@@ -1991,9 +1991,6 @@ var LoginIndexScreen = function LoginIndexScreen() {
       email = _useState2[0],
       setEmail = _useState2[1];
 
-  var _useGlobalState = (0, _hook.useGlobalState)(),
-      setGlobalState = _useGlobalState.setGlobalState;
-
   var _useServerState = (0, _hook.useServerState)(),
       request = _useServerState.request,
       interaction = _useServerState.interaction;
@@ -2009,13 +2006,7 @@ var LoginIndexScreen = function LoginIndexScreen() {
   var handleCheckLoginEmail = withLoading(function () {
     return request("login.check_email", {
       email: email
-    }).then(function (data) {
-      var user = data.user;
-      setGlobalState(function (s) {
-        return (0, _objectSpread2.default)({}, s, {
-          user: user
-        });
-      });
+    }).then(function () {
       nav.navigate("login", {
         screen: "login.check_password",
         params: {
@@ -2075,7 +2066,7 @@ var LoginIndexScreen = function LoginIndexScreen() {
     footer: federationProviders.length > 0 ? _react.default.createElement(_react.default.Fragment, null, _react.default.createElement(_styles.Separator, {
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 88
+        lineNumber: 85
       },
       __self: this
     }, _react.default.createElement("span", {
@@ -2084,7 +2075,7 @@ var LoginIndexScreen = function LoginIndexScreen() {
       },
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 88
+        lineNumber: 85
       },
       __self: this
     }, "OR")), federationOptionsVisible ? _react.default.createElement(_styles.Stack, {
@@ -2093,7 +2084,7 @@ var LoginIndexScreen = function LoginIndexScreen() {
       },
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 90
+        lineNumber: 87
       },
       __self: this
     }, federationProviders.includes("kakao") ? _react.default.createElement(_styles.PrimaryButton, {
@@ -2110,7 +2101,7 @@ var LoginIndexScreen = function LoginIndexScreen() {
       },
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 92
+        lineNumber: 89
       },
       __self: this
     }) : null, federationProviders.includes("facebook") ? _react.default.createElement(_styles.PrimaryButton, {
@@ -2126,7 +2117,7 @@ var LoginIndexScreen = function LoginIndexScreen() {
       },
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 100
+        lineNumber: 97
       },
       __self: this
     }) : null, federationProviders.includes("google") ? _react.default.createElement(_styles.DefaultButton, {
@@ -2143,7 +2134,7 @@ var LoginIndexScreen = function LoginIndexScreen() {
       },
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 108
+        lineNumber: 105
       },
       __self: this
     }) : null) : _react.default.createElement(_styles.Link, {
@@ -2155,13 +2146,13 @@ var LoginIndexScreen = function LoginIndexScreen() {
       },
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 124
+        lineNumber: 121
       },
       __self: this
     }, "Find more login options?")) : undefined,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 66
+      lineNumber: 63
     },
     __self: this
   }, _react.default.createElement("form", {
@@ -2171,7 +2162,7 @@ var LoginIndexScreen = function LoginIndexScreen() {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 130
+      lineNumber: 127
     },
     __self: this
   }, _react.default.createElement(_styles.TextField, {
@@ -2196,7 +2187,7 @@ var LoginIndexScreen = function LoginIndexScreen() {
     styles: _styles.TextFieldStyles.bold,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 131
+      lineNumber: 128
     },
     __self: this
   })), _react.default.createElement(_styles.Link, {
@@ -2208,7 +2199,7 @@ var LoginIndexScreen = function LoginIndexScreen() {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 149
+      lineNumber: 146
     },
     __self: this
   }, "Forgot email?"));
@@ -2402,9 +2393,9 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.RegisterDetailScreen = void 0;
 
-var _objectSpread2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/objectSpread2 */ "../../node_modules/@babel/runtime/helpers/esm/objectSpread2.js"));
-
 var _regenerator = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/regenerator */ "../../node_modules/@babel/runtime/regenerator/index.js"));
+
+var _objectSpread2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/objectSpread2 */ "../../node_modules/@babel/runtime/helpers/esm/objectSpread2.js"));
 
 var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/slicedToArray */ "../../node_modules/@babel/runtime/helpers/esm/slicedToArray.js"));
 
@@ -2424,6 +2415,27 @@ var RegisterDetailScreen = function RegisterDetailScreen() {
   var _useNavigation = (0, _hook.useNavigation)(),
       nav = _useNavigation.nav;
 
+  var _useClientState = (0, _hook.useClientState)(),
+      clientState = _useClientState.clientState,
+      setClientState = _useClientState.setClientState;
+
+  var _ref = clientState.register || {},
+      _ref$claims = _ref.claims,
+      claims = _ref$claims === void 0 ? {
+    email: "unknown"
+  } : _ref$claims,
+      _ref$scope = _ref.scope,
+      scope = _ref$scope === void 0 ? [] : _ref$scope,
+      _ref$mandatoryScopes = _ref.mandatoryScopes,
+      mandatoryScopes = _ref$mandatoryScopes === void 0 ? [] : _ref$mandatoryScopes;
+
+  var phoneNumberIsRequired = mandatoryScopes.includes("phone");
+
+  var _useServerState = (0, _hook.useServerState)(),
+      interaction = _useServerState.interaction,
+      request = _useServerState.request,
+      locale = _useServerState.locale;
+
   var _useState = (0, _react.useState)({
     phone_number: "",
     birthdate: "",
@@ -2433,6 +2445,22 @@ var RegisterDetailScreen = function RegisterDetailScreen() {
       payload = _useState2[0],
       setPayload = _useState2[1];
 
+  (0, _react.useEffect)(function () {
+    var savedScope = interaction && interaction.data.scope;
+
+    if (savedScope && savedScope.includes("birthdate") && savedScope.includes("gender")) {
+      var _data$claims = interaction.data.claims,
+          phone_number = _data$claims.phone_number,
+          birthdate = _data$claims.birthdate,
+          gender = _data$claims.gender;
+      setPayload({
+        phone_number: phone_number,
+        birthdate: birthdate,
+        gender: gender
+      });
+    }
+  }, []);
+
   var _useWithLoading = (0, _hook.useWithLoading)(),
       loading = _useWithLoading.loading,
       errors = _useWithLoading.errors,
@@ -2440,28 +2468,53 @@ var RegisterDetailScreen = function RegisterDetailScreen() {
       withLoading = _useWithLoading.withLoading;
 
   var handlePayloadSubmit = withLoading(function _callee() {
+    var saved, phone_number, birthdate, gender;
     return _regenerator.default.async(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
-            if (payload.phone_number) {
-              nav.navigate("verify_phone", {
-                screen: "verify_phone.index",
-                params: {
-                  phoneNumber: payload.phone_number,
-                  callback: "register"
-                }
+            saved = interaction && interaction.data;
+            phone_number = payload.phone_number, birthdate = payload.birthdate, gender = payload.gender;
+            return _context.abrupt("return", request("register.validate", {
+              claims: (0, _objectSpread2.default)({}, saved.claims, {
+                phone_number: phone_number ? locale.country + "|" + phone_number : undefined,
+                birthdate: birthdate,
+                gender: gender
+              }),
+              credentials: saved.credentials,
+              scope: ["email", "profile", "birthdate", "gender"].concat(phoneNumberIsRequired || phone_number ? "phone" : [])
+            }).then(function (register) {
+              setClientState(function (s) {
+                return (0, _objectSpread2.default)({}, s, {
+                  register: register
+                });
               });
-            } else {
-              nav.navigate("register", {
-                screen: "register.end",
-                params: {
-                  email: "to@do.com"
-                }
-              });
-            }
 
-          case 1:
+              if (payload.phone_number) {
+                return request("verify_phone.send", {
+                  phone_number: register.claims.phone_number,
+                  register: true
+                }).then(function (phoneVerification) {
+                  setClientState(function (s) {
+                    return (0, _objectSpread2.default)({}, s, {
+                      phoneVerification: phoneVerification
+                    });
+                  });
+                  nav.navigate("verify_phone", {
+                    screen: "verify_phone.verify",
+                    params: {}
+                  });
+                });
+              } else {
+                nav.navigate("register", {
+                  screen: "register.end"
+                });
+              }
+            }).catch(function (err) {
+              return setErrors(err);
+            }));
+
+          case 3:
           case "end":
             return _context.stop();
         }
@@ -2474,13 +2527,9 @@ var RegisterDetailScreen = function RegisterDetailScreen() {
       params: {}
     });
   }, [nav]);
-  var _email = {
-    email: "to@do.com"
-  },
-      email = _email.email;
   return _react.default.createElement(_layout.ScreenLayout, {
     title: "Sign up",
-    subtitle: email,
+    subtitle: claims.email,
     buttons: [{
       primary: true,
       text: "Continue",
@@ -2496,7 +2545,7 @@ var RegisterDetailScreen = function RegisterDetailScreen() {
     error: errors.global,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 43
+      lineNumber: 79
     },
     __self: this
   }, _react.default.createElement("form", {
@@ -2506,7 +2555,7 @@ var RegisterDetailScreen = function RegisterDetailScreen() {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 63
+      lineNumber: 99
     },
     __self: this
   }, _react.default.createElement(_styles.Stack, {
@@ -2515,17 +2564,17 @@ var RegisterDetailScreen = function RegisterDetailScreen() {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 67
+      lineNumber: 103
     },
     __self: this
   }, _react.default.createElement(_styles.Text, {
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 68
+      lineNumber: 104
     },
     __self: this
-  }, "It is highly recommended to enter the mobile phone number to make it easier to find the your lost account."), _react.default.createElement(_styles.TextField, {
-    label: "Phone (optional)",
+  }, "Please enter the mobile phone number to find the your account for the case of lost."), _react.default.createElement(_styles.TextField, {
+    label: "Phone" + (phoneNumberIsRequired ? "" : " (optional)"),
     type: "text",
     inputMode: "tel",
     placeholder: "Enter your mobile phone number",
@@ -2546,7 +2595,7 @@ var RegisterDetailScreen = function RegisterDetailScreen() {
     styles: _styles.TextFieldStyles.bold,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 69
+      lineNumber: 105
     },
     __self: this
   }), _react.default.createElement(_styles.DatePicker, {
@@ -2579,14 +2628,14 @@ var RegisterDetailScreen = function RegisterDetailScreen() {
     styles: _styles.DatePickerStyles.bold,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 83
+      lineNumber: 119
     },
     __self: this
   }), errors.birthdate ? _react.default.createElement(_styles.Label, {
     styles: _styles.LabelStyles.fieldErrorMessage,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 102
+      lineNumber: 138
     },
     __self: this
   }, errors.birthdate) : null, _react.default.createElement(_styles.Dropdown, {
@@ -2615,7 +2664,7 @@ var RegisterDetailScreen = function RegisterDetailScreen() {
     styles: _styles.DropdownStyles.bold,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 104
+      lineNumber: 140
     },
     __self: this
   }))));
@@ -2724,9 +2773,9 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.RegisterIndexScreen = void 0;
 
-var _objectSpread2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/objectSpread2 */ "../../node_modules/@babel/runtime/helpers/esm/objectSpread2.js"));
-
 var _regenerator = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/regenerator */ "../../node_modules/@babel/runtime/regenerator/index.js"));
+
+var _objectSpread2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/objectSpread2 */ "../../node_modules/@babel/runtime/helpers/esm/objectSpread2.js"));
 
 var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/slicedToArray */ "../../node_modules/@babel/runtime/helpers/esm/slicedToArray.js"));
 
@@ -2754,6 +2803,38 @@ var RegisterIndexScreen = function RegisterIndexScreen() {
       payload = _useState2[0],
       setPayload = _useState2[1];
 
+  var _useServerState = (0, _hook.useServerState)(),
+      interaction = _useServerState.interaction,
+      request = _useServerState.request;
+
+  var _useClientState = (0, _hook.useClientState)(),
+      setClientState = _useClientState.setClientState;
+
+  (0, _react.useEffect)(function () {
+    var savedScope = interaction && interaction.data.scope;
+
+    if (savedScope && savedScope.includes("email") && savedScope.includes("profile") && interaction.data.credentials) {
+      var _data$claims = interaction.data.claims,
+          name = _data$claims.name,
+          email = _data$claims.email;
+      setPayload({
+        name: name,
+        email: email,
+        password: "",
+        password_confirmation: ""
+      });
+      setClientState(function (s) {
+        return (0, _objectSpread2.default)({}, s, {
+          register: interaction.data
+        });
+      });
+      nav.navigate("register", {
+        screen: "register.detail",
+        params: {}
+      });
+    }
+  }, []);
+
   var _useState3 = (0, _react.useState)(false),
       _useState4 = (0, _slicedToArray2.default)(_useState3, 2),
       passwordVisible = _useState4[0],
@@ -2766,16 +2847,37 @@ var RegisterIndexScreen = function RegisterIndexScreen() {
       withLoading = _useWithLoading.withLoading;
 
   var handlePayloadSubmit = withLoading(function _callee() {
+    var name, email, password, password_confirmation;
     return _regenerator.default.async(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
-            nav.navigate("register", {
-              screen: "register.detail",
-              params: {}
-            });
+            name = payload.name, email = payload.email, password = payload.password, password_confirmation = payload.password_confirmation;
+            return _context.abrupt("return", request("register.validate", {
+              claims: {
+                name: name,
+                email: email
+              },
+              credentials: {
+                password: password,
+                password_confirmation: password_confirmation
+              },
+              scope: ["email", "profile"]
+            }).then(function (register) {
+              setClientState(function (s) {
+                return (0, _objectSpread2.default)({}, s, {
+                  register: register
+                });
+              });
+              nav.navigate("register", {
+                screen: "register.detail",
+                params: {}
+              });
+            }).catch(function (err) {
+              return setErrors(err);
+            }));
 
-          case 1:
+          case 2:
           case "end":
             return _context.stop();
         }
@@ -2789,8 +2891,8 @@ var RegisterIndexScreen = function RegisterIndexScreen() {
     });
   }, [nav]);
 
-  var _useServerState = (0, _hook.useServerState)(),
-      metadata = _useServerState.metadata;
+  var _useServerState2 = (0, _hook.useServerState)(),
+      metadata = _useServerState2.metadata;
 
   return _react.default.createElement(_layout.ScreenLayout, {
     title: "Sign up",
@@ -2805,13 +2907,14 @@ var RegisterIndexScreen = function RegisterIndexScreen() {
       text: "Cancel",
       onClick: handleCancel,
       loading: loading,
+      hidden: !interaction || interaction.name === "register",
       tabIndex: 56
     }],
     error: errors.global,
     footer: _react.default.createElement(_react.default.Fragment, null, _react.default.createElement(_styles.Text, {
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 53
+        lineNumber: 95
       },
       __self: this
     }, "When you sign up as a member, you agree to the ", _react.default.createElement(_styles.Link, {
@@ -2819,7 +2922,7 @@ var RegisterIndexScreen = function RegisterIndexScreen() {
       target: "_blank",
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 53
+        lineNumber: 95
       },
       __self: this
     }, "terms of service"), " and the ", _react.default.createElement(_styles.Link, {
@@ -2827,13 +2930,13 @@ var RegisterIndexScreen = function RegisterIndexScreen() {
       target: "_blank",
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 53
+        lineNumber: 95
       },
       __self: this
     }, "privacy policy"), ".")),
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 32
+      lineNumber: 73
     },
     __self: this
   }, _react.default.createElement("form", {
@@ -2843,7 +2946,7 @@ var RegisterIndexScreen = function RegisterIndexScreen() {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 57
+      lineNumber: 99
     },
     __self: this
   }, _react.default.createElement(_styles.Stack, {
@@ -2852,7 +2955,7 @@ var RegisterIndexScreen = function RegisterIndexScreen() {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 61
+      lineNumber: 103
     },
     __self: this
   }, _react.default.createElement(_styles.TextField, {
@@ -2877,7 +2980,7 @@ var RegisterIndexScreen = function RegisterIndexScreen() {
     styles: _styles.TextFieldStyles.bold,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 62
+      lineNumber: 104
     },
     __self: this
   }), _react.default.createElement(_styles.TextField, {
@@ -2902,7 +3005,7 @@ var RegisterIndexScreen = function RegisterIndexScreen() {
     styles: _styles.TextFieldStyles.bold,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 75
+      lineNumber: 117
     },
     __self: this
   }), _react.default.createElement(_styles.TextField, {
@@ -2936,7 +3039,7 @@ var RegisterIndexScreen = function RegisterIndexScreen() {
     styles: _styles.TextFieldStyles.bold,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 88
+      lineNumber: 130
     },
     __self: this
   }), _react.default.createElement(_styles.TextField, {
@@ -2961,7 +3064,7 @@ var RegisterIndexScreen = function RegisterIndexScreen() {
     styles: _styles.TextFieldStyles.bold,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 102
+      lineNumber: 144
     },
     __self: this
   }))));
@@ -3510,7 +3613,7 @@ var VerifyEmailIndexScreen = function VerifyEmailIndexScreen() {
       callback = _route$params$callbac === void 0 ? "" : _route$params$callbac;
   var handleSend = withLoading(function () {
     nav.navigate("verify_email", {
-      screen: "verify_email.sent",
+      screen: "verify_email.verify",
       params: {
         email: email,
         ttl: 1800,
@@ -3578,10 +3681,10 @@ exports.VerifyEmailIndexScreen = VerifyEmailIndexScreen;
 
 /***/ }),
 
-/***/ "./src/screen/verify_email.sent.tsx":
-/*!******************************************!*\
-  !*** ./src/screen/verify_email.sent.tsx ***!
-  \******************************************/
+/***/ "./src/screen/verify_email.verify.tsx":
+/*!********************************************!*\
+  !*** ./src/screen/verify_email.verify.tsx ***!
+  \********************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -3590,7 +3693,7 @@ var _interopRequireDefault = __webpack_require__(/*! /Users/dehypnosis/Synced/qm
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.VerifyEmailSentScreen = void 0;
+exports.VerifyEmailVerifyScreen = void 0;
 
 var _react = _interopRequireDefault(__webpack_require__(/*! react */ "../../node_modules/react/index.js"));
 
@@ -3600,9 +3703,9 @@ var _hook = __webpack_require__(/*! ../hook */ "./src/hook.ts");
 
 var _layout = __webpack_require__(/*! ./layout */ "./src/screen/layout.tsx");
 
-var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-interaction-renderer/src/screen/verify_email.sent.tsx";
+var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-interaction-renderer/src/screen/verify_email.verify.tsx";
 
-var VerifyEmailSentScreen = function VerifyEmailSentScreen() {
+var VerifyEmailVerifyScreen = function VerifyEmailVerifyScreen() {
   var _useWithLoading = (0, _hook.useWithLoading)(),
       loading = _useWithLoading.loading,
       errors = _useWithLoading.errors,
@@ -3660,7 +3763,7 @@ var VerifyEmailSentScreen = function VerifyEmailSentScreen() {
   }, "An email with the verification link has been sent."));
 };
 
-exports.VerifyEmailSentScreen = VerifyEmailSentScreen;
+exports.VerifyEmailVerifyScreen = VerifyEmailVerifyScreen;
 
 /***/ }),
 
@@ -3780,7 +3883,7 @@ var VerifyPhoneIndexScreen = function VerifyPhoneIndexScreen() {
       callback = _route$params$callbac === void 0 ? "" : _route$params$callbac;
   var handleSend = withLoading(function () {
     nav.navigate("verify_phone", {
-      screen: "verify_phone.sent",
+      screen: "verify_phone.verify",
       params: {
         phoneNumber: phoneNumber,
         ttl: 500,
@@ -3846,10 +3949,10 @@ exports.VerifyPhoneIndexScreen = VerifyPhoneIndexScreen;
 
 /***/ }),
 
-/***/ "./src/screen/verify_phone.sent.tsx":
-/*!******************************************!*\
-  !*** ./src/screen/verify_phone.sent.tsx ***!
-  \******************************************/
+/***/ "./src/screen/verify_phone.verify.tsx":
+/*!********************************************!*\
+  !*** ./src/screen/verify_phone.verify.tsx ***!
+  \********************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -3860,7 +3963,7 @@ var _interopRequireWildcard = __webpack_require__(/*! /Users/dehypnosis/Synced/q
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.VerifyPhoneSentScreen = void 0;
+exports.VerifyPhoneVerifyScreen = void 0;
 
 var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/slicedToArray */ "../../node_modules/@babel/runtime/helpers/esm/slicedToArray.js"));
 
@@ -3872,9 +3975,9 @@ var _hook = __webpack_require__(/*! ../hook */ "./src/hook.ts");
 
 var _layout = __webpack_require__(/*! ./layout */ "./src/screen/layout.tsx");
 
-var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-interaction-renderer/src/screen/verify_phone.sent.tsx";
+var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-interaction-renderer/src/screen/verify_phone.verify.tsx";
 
-var VerifyPhoneSentScreen = function VerifyPhoneSentScreen() {
+var VerifyPhoneVerifyScreen = function VerifyPhoneVerifyScreen() {
   var _useWithLoading = (0, _hook.useWithLoading)(),
       loading = _useWithLoading.loading,
       errors = _useWithLoading.errors,
@@ -3902,6 +4005,9 @@ var VerifyPhoneSentScreen = function VerifyPhoneSentScreen() {
       _useState4 = (0, _slicedToArray2.default)(_useState3, 2),
       remainingSeconds = _useState4[0],
       setRemainingSeconds = _useState4[1];
+
+  var _useServerState = (0, _hook.useServerState)(),
+      interaction = _useServerState.interaction;
 
   (0, _react.useEffect)(function () {
     var timer = setInterval(function () {
@@ -3935,18 +4041,18 @@ var VerifyPhoneSentScreen = function VerifyPhoneSentScreen() {
     setCode("");
   });
   var handleCancel = withLoading(function () {
-    if (callback === "register") {
+    if (interaction && interaction.name === "register") {
       nav.navigate("register", {
         screen: "register.detail",
         params: {}
       });
-    } else {
+    } else if (interaction && (interaction.name === "login" || interaction.name === "consent")) {
       nav.navigate("login", {
         screen: "login.index",
         params: {}
       });
     }
-  }, [nav, phoneNumber, callback]);
+  }, []);
   return _react.default.createElement(_layout.ScreenLayout, {
     title: "Verify phone number",
     subtitle: phoneNumber,
@@ -3964,19 +4070,20 @@ var VerifyPhoneSentScreen = function VerifyPhoneSentScreen() {
     }, {
       text: "Cancel",
       onClick: handleCancel,
+      hidden: !interaction || interaction.name === "verify_phone",
       loading: loading,
       tabIndex: 24
     }],
     error: errors.global,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 57
+      lineNumber: 58
     },
     __self: this
   }, _react.default.createElement(_styles.Text, {
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 83
+      lineNumber: 85
     },
     __self: this
   }, "Enter the received 6-digit verification code."), _react.default.createElement(_styles.TextField, {
@@ -3998,13 +4105,13 @@ var VerifyPhoneSentScreen = function VerifyPhoneSentScreen() {
     styles: _styles.TextFieldStyles.bold,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 86
+      lineNumber: 88
     },
     __self: this
   }));
 };
 
-exports.VerifyPhoneSentScreen = VerifyPhoneSentScreen;
+exports.VerifyPhoneVerifyScreen = VerifyPhoneVerifyScreen;
 
 /***/ }),
 
@@ -4345,5 +4452,5 @@ module.exports = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer
 
 /***/ })
 
-},[[1,"runtime-main",0]]]);
+},[[1,"runtime-main",1]]]);
 //# sourceMappingURL=main.chunk.js.map

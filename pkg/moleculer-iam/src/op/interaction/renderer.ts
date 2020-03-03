@@ -1,10 +1,10 @@
 import * as compose from "koa-compose";
 import { Logger } from "../../logger";
-import { InteractionRouteContext, InteractionRenderState, ProviderInteractionBuilder, DiscoveryMetadata } from "../proxy";
+import { InteractionRequestContext, InteractionResponse, DiscoveryMetadata } from "../proxy";
 
 export interface InteractionRenderer {
-  routes(props: InteractionRendererProps): compose.Middleware<InteractionRouteContext>[];
-  render(ctx: InteractionRouteContext, state: InteractionRenderState, props: InteractionRendererProps): Promise<void>;
+  routes(props: InteractionRendererProps): compose.Middleware<InteractionRequestContext>[];
+  render(ctx: InteractionRequestContext, response: InteractionResponse, props: InteractionRendererProps): Promise<void>;
 }
 
 export type InteractionRendererProps = {
@@ -30,26 +30,19 @@ export class InteractionRendererFactory {
     const { renderer, props } = this;
     return {
       routes: renderer.routes(props),
-      render: async (ctx: InteractionRouteContext, state: InteractionRenderState) => {
+      render: async (ctx: InteractionRequestContext, res: InteractionResponse) => {
         const { JSON, HTML } = InteractionRendererFactory.contentTypes;
 
         // response for ajax
         if (ctx.accepts(JSON, HTML) === JSON) {
           ctx.type = JSON;
-          ctx.body = state.error || state; // response error only for xhr request
-          return;
-        }
-
-        // response redirection
-        if (state.redirect) {
-          ctx.status = 302;
-          ctx.redirect(state.redirect);
+          ctx.body = res;
           return;
         }
 
         // response HTML
         ctx.type = HTML;
-        return renderer.render(ctx, state, props);
+        return renderer.render(ctx, res, props);
       },
     };
   }

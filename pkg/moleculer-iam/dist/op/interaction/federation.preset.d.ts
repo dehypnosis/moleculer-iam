@@ -11,7 +11,7 @@ export declare type IdentityFederationCallback = (args: {
     scope: string[];
     logger: Logger;
 }) => Promise<Identity | void>;
-export declare type IdentityFederationManagerOptions = {
+export declare type IdentityFederationProviderOptions = {
     kakao?: Partial<Omit<KakaoOptions, "callbackURL"> & {
         scope: string | string[];
         callback: IdentityFederationCallback;
@@ -31,7 +31,7 @@ export declare type IdentityFederationManagerOptions = {
         [key: string]: any;
     };
 };
-export declare const defaultIdentityFederationManagerStrategies: {
+export declare const defaultIdentityFederationProviderStrategies: {
     [provider: string]: new (opts: any, callback: any) => Strategy;
 };
-export declare const defaultIdentityFederationManagerOptions: IdentityFederationManagerOptions;
+export declare const defaultIdentityFederationProviderOptions: IdentityFederationProviderOptions;

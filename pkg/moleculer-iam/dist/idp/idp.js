@@ -148,7 +148,7 @@ class IdentityProvider {
             .then(ids => ids.map(id => new identity_1.Identity({ id, provider: this })));
     }
     /* create account */
-    async create(args) {
+    async create(args, transaction, ignoreUndefinedClaims) {
         if (typeof args.scope === "string") {
             args = { ...args, scope: args.scope.split(" ").filter(s => !!s) };
         }
@@ -157,7 +157,7 @@ class IdentityProvider {
         }
         // push mandatory scopes
         args.scope = [...new Set([...args.scope, ...this.claims.mandatoryScopes])];
-        return this.adapter.create(args)
+        return this.adapter.create(args, transaction, ignoreUndefinedClaims)
             .then(id => new identity_1.Identity({ id, provider: this }));
     }
     async validate(args) {

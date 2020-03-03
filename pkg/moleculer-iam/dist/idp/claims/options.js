@@ -42,7 +42,6 @@ exports.defaultIdentityClaimsManagerOptions = {
             key: "phone_number",
             validation: {
                 type: "phone",
-                country: "KR",
             },
             unique: true,
             immutable: true,

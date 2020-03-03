@@ -1,7 +1,7 @@
 import { FindOptions, WhereAttributeHash } from "../helper/rdbms";
 import { Logger } from "../logger";
 import { Identity } from "./identity";
-import { IDPAdapter, IDPAdapterConstructorOptions } from "./adapter";
+import { IDPAdapter, IDPAdapterConstructorOptions, Transaction } from "./adapter";
 import { OIDCAccountClaims, OIDCAccountCredentials } from "../op";
 import { IdentityClaimsManager, IdentityClaimsManagerOptions } from "./claims";
 import { IdentityMetadata } from "./metadata";
@@ -35,7 +35,7 @@ export declare class IdentityProvider {
         scope: string[] | string;
         claims: Partial<OIDCAccountClaims>;
         credentials: Partial<OIDCAccountCredentials>;
-    }): Promise<Identity>;
+    }, transaction?: Transaction, ignoreUndefinedClaims?: boolean): Promise<Identity>;
     validate(args: {
         id?: string;
         scope: string[] | string;

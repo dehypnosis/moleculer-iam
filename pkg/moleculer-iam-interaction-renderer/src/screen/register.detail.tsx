@@ -1,48 +1,84 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ScreenLayout } from "./layout";
 import { TextFieldStyles, Text, TextField, Stack, DatePicker, DatePickerStyles, Dropdown, DropdownStyles, Label, LabelStyles } from "../styles";
-import { useNavigation, useWithLoading } from "../hook";
+import { useClientState, useNavigation, useServerState, useWithLoading } from "../hook";
 import moment from "moment";
 
 export const RegisterDetailScreen: React.FunctionComponent = () => {
   const { nav } = useNavigation();
+  const { clientState, setClientState } = useClientState();
+  const { claims = { email: "unknown" }, scope = [], mandatoryScopes = [] } = clientState.register || {};
+  const phoneNumberIsRequired = mandatoryScopes.includes("phone");
+  const { interaction, request, locale } = useServerState();
   const [payload, setPayload] = useState({
     phone_number: "",
     birthdate: "",
     gender: "",
   });
-  const {loading, errors, setErrors, withLoading} = useWithLoading();
-  const handlePayloadSubmit = withLoading(async () => {
-    // TODO ...
-    if (payload.phone_number) {
-      nav.navigate("verify_phone", {
-        screen: "verify_phone.index",
-        params: {
-          phoneNumber: payload.phone_number,
-          callback: "register",
-        },
-      });
-    } else {
-      nav.navigate("register", {
-        screen: "register.end",
-        params: {
-          email: "to@do.com",
-        },
+
+  // set payload if claims already saved
+  useEffect(() => {
+    const savedScope = interaction && interaction.data.scope;
+
+    if (savedScope && savedScope.includes("birthdate") && savedScope.includes("gender")) {
+      const { phone_number, birthdate, gender } = interaction!.data.claims;
+      setPayload({
+        phone_number,
+        birthdate,
+        gender,
       });
     }
+  }, []);
+
+
+  const {loading, errors, setErrors, withLoading} = useWithLoading();
+
+  const handlePayloadSubmit = withLoading(async () => {
+    const saved = interaction && interaction.data;
+    const { phone_number, birthdate, gender } = payload;
+    return request("register.validate", {
+      claims: {
+        ...saved.claims,
+        phone_number: phone_number ? `${locale.country}|${phone_number}` : undefined,
+        birthdate,
+        gender,
+      },
+      credentials: saved.credentials,
+      scope: ["email", "profile", "birthdate", "gender"].concat((phoneNumberIsRequired || phone_number) ? "phone" : []),
+    })
+      .then((register: any) => {
+        setClientState(s => ({...s, register}));
+        if (payload.phone_number) {
+          return request("verify_phone.send", {
+            phone_number: register.claims.phone_number,
+            register: true,
+          })
+            .then(phoneVerification => {
+              setClientState(s => ({...s, phoneVerification}));
+              nav.navigate("verify_phone", {
+                screen: "verify_phone.verify",
+                params: {},
+              });
+            });
+        } else {
+          nav.navigate("register", {
+            screen: "register.end",
+          });
+        }
+      })
+      .catch((err: any) => setErrors(err));
   }, [payload]);
+
   const handleCancel = withLoading(() => nav.navigate("register", {
     screen: "register.index",
     params: {},
   }), [nav]);
 
-  const {email} = { email: "to@do.com" };
-
   // render
   return (
     <ScreenLayout
       title={"Sign up"}
-      subtitle={email}
+      subtitle={claims.email}
       buttons={[
         {
           primary: true,
@@ -65,9 +101,9 @@ export const RegisterDetailScreen: React.FunctionComponent = () => {
         handlePayloadSubmit();
       }}>
         <Stack tokens={{childrenGap: 15}}>
-          <Text>It is highly recommended to enter the mobile phone number to make it easier to find the your lost account.</Text>
+          <Text>Please enter the mobile phone number to find the your account for the case of lost.</Text>
           <TextField
-            label="Phone (optional)"
+            label={`Phone${phoneNumberIsRequired ? "" : " (optional)"}`}
             type="text"
             inputMode="tel"
             placeholder="Enter your mobile phone number"

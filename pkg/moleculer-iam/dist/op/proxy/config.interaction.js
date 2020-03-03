@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
-const _ = tslib_1.__importStar(require("lodash"));
 const koa_bodyparser_1 = tslib_1.__importDefault(require("koa-bodyparser"));
 const koa_compose_1 = tslib_1.__importDefault(require("koa-compose"));
 const koa_mount_1 = tslib_1.__importDefault(require("koa-mount"));
@@ -15,6 +14,8 @@ const session_1 = tslib_1.__importDefault(require("oidc-provider/lib/shared/sess
 class ProviderInteractionBuilder {
     constructor(props) {
         this.props = props;
+        this._prefix = "/op";
+        this.url = (path) => `${this.props.issuer}${this.prefix}${path}`;
         this.parseContext = async (ctx, next) => {
             // @ts-ignore ensure oidc context is created
             if (!ctx.oidc) {
@@ -23,104 +24,149 @@ class ProviderInteractionBuilder {
             }
             const session = await this.op.Session.get(ctx);
             ctx.op = {
-                provider: this.op,
-                render: (state) => {
-                    const mergedState = {
-                        ...state,
+                response: {
+                    render: page => this.render(ctx, {
+                        page,
+                        session: session.state && session.state.custom || {},
                         locale: ctx.locale,
                         metadata: this.metadata,
-                    };
-                    return this.render(ctx, mergedState);
+                    }),
+                    renderError: error => this.render(ctx, { error }),
+                    redirect: async (url) => ctx.redirect(url),
+                    updateSessionState: async (state) => {
+                        const sessionState = await ctx.op.setSessionState(prevState => ({
+                            ...prevState,
+                            ...state,
+                        }));
+                        const response = { session: sessionState };
+                        ctx.type = "json";
+                        ctx.body = response;
+                    },
+                    updateInteractionResult: async (partialInteractionResult) => {
+                        const mergedResult = { ...ctx.op.interaction.result, ...partialInteractionResult };
+                        const redirectURL = await this.op.interactionResult(ctx.req, ctx.res, mergedResult, { mergeWithLastSubmission: true });
+                        if (mergedResult.login) { // overwrite session account if need
+                            await this.op.setProviderSession(ctx.req, ctx.res, mergedResult.login);
+                        }
+                        return ctx.op.response.redirect(redirectURL);
+                    },
                 },
+                provider: this.op,
                 session,
-                setSessionState: async (state) => {
-                    session.state = _.defaultsDeep(state, session.state);
+                setSessionState: async (fn) => {
+                    if (!session.state) {
+                        session.state = { custom: {} };
+                    }
+                    else if (!session.state.custom) {
+                        session.state.custom = {};
+                    }
+                    session.state.custom = fn(session.state.custom);
                     await session_1.default(ctx, () => {
-                        // @ts-ignore
+                        // @ts-ignore to set Set-Cookie response header
                         ctx.oidc.session.touched = true;
                     });
+                    // store/update session in to adapter
                     await session.save();
                     // @ts-ignore
                     delete session.touched;
+                    return session.state.custom;
                 },
-                url: (path) => `${this.op.issuer}/interaction/${path}`,
-                namedUrl: ctx.oidc.urlFor,
+                url: this.url,
+                namedUrl: (name, opts) => this.op.urlFor(name, opts),
                 data: {},
+                xsrf: session.state && session.state.secret || undefined,
             };
-            if (session.state && session.state.secret) {
-                ctx.op.xsrf = session.state.secret;
-            }
             ctx.idp = this.idp;
             // fetch interaction details
             try {
                 const interaction = await this.op.interactionDetails(ctx.req, ctx.res);
                 ctx.op.interaction = interaction;
-                ctx.op.setInteractionResult = async (result) => {
-                    const mergedResult = { ...ctx.op.interaction, ...result };
-                    const redirect = await this.op.interactionResult(ctx.req, ctx.res, mergedResult, { mergeWithLastSubmission: true });
-                    if (mergedResult.login) { // overwrite session account if need
-                        await this.op.setProviderSession(ctx.req, ctx.res, mergedResult.login);
-                    }
-                    return redirect;
-                };
                 ctx.op.user = interaction.session && typeof interaction.session.accountId === "string" ? (await this.idp.findOrFail({ id: interaction.session.accountId })) : undefined;
                 if (ctx.op.user) {
-                    ctx.op.data.user = this.getPublicUserProps(ctx.op.user);
+                    ctx.op.data.user = await this.getPublicUserProps(ctx.op.user);
                 }
                 ctx.op.client = interaction.params.client_id ? await this.op.Client.find(interaction.params.client_id) : undefined;
                 if (ctx.op.client) {
-                    ctx.op.data.client = this.getPublicClientProps(ctx.op.client);
+                    ctx.op.data.client = await this.getPublicClientProps(ctx.op.client);
                 }
             }
             catch (err) { }
             return next();
         };
+        this.errorHandler = async (ctx, next) => {
+            try {
+                await next();
+            }
+            catch (err) {
+                this.logger.error("interaction error", err);
+                // normalize error
+                const { error, name, message, status, statusCode, code, status_code, error_description, expose, ...otherProps } = err;
+                let normalizedStatus = status || statusCode || code || status_code || 500;
+                if (isNaN(normalizedStatus))
+                    normalizedStatus = 500;
+                const normalizedError = {
+                    error: error || name,
+                    error_description: error_description || message || "Unexpected error.",
+                    ...((expose || this.props.dev) ? otherProps : {}),
+                };
+                if (!normalizedError.error || normalizedError.error === "InternalServerError") {
+                    normalizedError.error = "internal_server_error";
+                    normalizedError.error_description = "Cannot handle the invalid request.";
+                }
+                if (normalizedError.error_description.startsWith("unrecognized route or not allowed method")) {
+                    normalizedError.error_description = "Cannot handle the unrecognized route or not allowed method.";
+                }
+                ctx.status = normalizedStatus;
+                return ctx.op.response.renderError(normalizedError);
+            }
+        };
         this.commonMiddleware = [
             koajs_nocache_1.default(),
             koa_bodyparser_1.default(),
             this.parseContext,
+            this.errorHandler,
         ];
         this.composed = [];
-        this.render = async (ctx, state) => {
-            this.props.logger.warn("interaction render function not configured");
-            ctx.body = state;
+        this.render = async (ctx, response) => {
+            this.logger.warn("interaction render function not configured");
+            ctx.body = response;
         };
         // internally named routes render default functions
         this.renderError = async (ctx, error) => {
-            return ctx.op.render({ error });
+            return this.errorHandler(ctx, () => {
+                throw error;
+            });
         };
         // ref: https://github.com/panva/node-oidc-provider/blob/74b434c627248c82ca9db5aed3a03f0acd0d7214/lib/shared/error_handler.js#L47
         this.renderErrorProxy = (ctx, out, error) => {
             return this.parseContext(ctx, () => {
-                this.props.logger.error("internal render error", error);
+                this.logger.error("internal render error", error);
                 return this.renderError(ctx, out);
             });
         };
         this.renderLogout = async (ctx, xsrf) => {
-            return ctx.op.render({
-                interaction: {
-                    name: "logout",
-                    data: ctx.op.data,
-                    actions: {
-                        // destroy sessions
-                        "logout.confirm": {
-                            url: ctx.op.namedUrl("end_session_confirm"),
-                            method: "POST",
-                            payload: {
-                                xsrf,
-                                logout: "true",
-                            },
-                            urlencoded: true,
+            return ctx.op.response.render({
+                name: "logout",
+                data: ctx.op.data,
+                actions: {
+                    // destroy sessions
+                    "logout.confirm": {
+                        url: ctx.op.namedUrl("end_session_confirm"),
+                        method: "POST",
+                        payload: {
+                            xsrf,
+                            logout: "true",
                         },
-                        // without session destroy
-                        "logout.redirect": {
-                            url: ctx.op.namedUrl("end_session_confirm"),
-                            method: "POST",
-                            payload: {
-                                xsrf,
-                            },
-                            urlencoded: true,
+                        urlencoded: true,
+                    },
+                    // without session destroy
+                    "logout.redirect": {
+                        url: ctx.op.namedUrl("end_session_confirm"),
+                        method: "POST",
+                        payload: {
+                            xsrf,
                         },
+                        urlencoded: true,
                     },
                 },
             });
@@ -134,11 +180,9 @@ class ProviderInteractionBuilder {
             });
         };
         this.renderLogoutEnd = async (ctx) => {
-            return ctx.op.render({
-                interaction: {
-                    name: "logout.end",
-                    data: ctx.op.data,
-                },
+            return ctx.op.response.render({
+                name: "logout.end",
+                data: ctx.op.data,
             });
         };
         // ref: https://github.com/panva/node-oidc-provider/blob/e5ecd85c346761f1ac7a89b8bf174b873be09239/lib/actions/end_session.js#L272
@@ -149,18 +193,16 @@ class ProviderInteractionBuilder {
             });
         };
         this.renderDeviceFlow = async (ctx, userCode, xsrf) => {
-            return ctx.op.render({
-                interaction: {
-                    name: "device_flow",
-                    data: ctx.op.data,
-                    actions: {
-                        submit: {
-                            url: ctx.op.namedUrl("code_verification"),
-                            method: "POST",
-                            payload: {
-                                xsrf,
-                                user_code: userCode,
-                            },
+            return ctx.op.response.render({
+                name: "device_flow",
+                data: ctx.op.data,
+                actions: {
+                    submit: {
+                        url: ctx.op.namedUrl("code_verification"),
+                        method: "POST",
+                        payload: {
+                            xsrf,
+                            user_code: userCode,
                         },
                     },
                 },
@@ -171,7 +213,7 @@ class ProviderInteractionBuilder {
             return this.parseContext(ctx, () => {
                 ctx.assert(ctx.op.user && ctx.op.client);
                 if (error || out) {
-                    this.props.logger.error("internal device code flow error", error || out);
+                    this.logger.error("internal device code flow error", error || out);
                     return this.renderError(ctx, (out || error));
                 }
                 const xsrf = ctx.op.session.state.secret;
@@ -179,31 +221,29 @@ class ProviderInteractionBuilder {
             });
         };
         this.renderDeviceFlowConfirm = async (ctx, userCode, xsrf, device) => {
-            return ctx.op.render({
-                interaction: {
-                    name: "device_flow.confirm",
-                    data: ctx.op.data,
-                    actions: {
-                        verify: {
-                            url: ctx.op.namedUrl("code_verification"),
-                            method: "POST",
-                            payload: {
-                                xsrf,
-                                user_code: userCode,
-                                confirm: "true",
-                            },
-                        },
-                        abort: {
-                            url: ctx.op.namedUrl("code_verification"),
-                            method: "POST",
-                            payload: {
-                                xsrf,
-                                user_code: userCode,
-                                abort: "true",
-                            },
+            return ctx.op.response.render({
+                name: "device_flow.confirm",
+                data: ctx.op.data,
+                actions: {
+                    verify: {
+                        url: ctx.op.namedUrl("code_verification"),
+                        method: "POST",
+                        payload: {
+                            xsrf,
+                            user_code: userCode,
+                            confirm: "true",
                         },
                     },
-                }
+                    abort: {
+                        url: ctx.op.namedUrl("code_verification"),
+                        method: "POST",
+                        payload: {
+                            xsrf,
+                            user_code: userCode,
+                            abort: "true",
+                        },
+                    },
+                },
             });
         };
         // ref: https://github.com/panva/node-oidc-provider/blob/74b434c627248c82ca9db5aed3a03f0acd0d7214/lib/actions/code_verification.js#L54
@@ -216,11 +256,9 @@ class ProviderInteractionBuilder {
             });
         };
         this.renderDeviceFlowEnd = async (ctx) => {
-            return ctx.op.render({
-                interaction: {
-                    name: "device_flow.end",
-                    data: ctx.op.data,
-                },
+            return ctx.op.response.render({
+                name: "device_flow.end",
+                data: ctx.op.data,
             });
         };
         // ref: https://github.com/panva/node-oidc-provider/blob/ae8a4589c582b96f4e9ca0432307da15792ac29d/lib/actions/authorization/device_user_flow_response.js#L42
@@ -229,17 +267,26 @@ class ProviderInteractionBuilder {
                 return this.renderDeviceFlowEnd(ctx);
             });
         };
+        this.logger = props.logger;
         this.router = new koa_router_1.default({
-            prefix: "/op",
+            prefix: this.prefix,
             sensitive: true,
             strict: false,
         })
             .use(...this.commonMiddleware);
-        const originalPrefix = this.router.prefix.bind(this.router);
-        this.router.prefix = (prefix) => {
-            return originalPrefix(prefix)
-                .use(...this.commonMiddleware);
+        this.setRouterPrefix = this.router.prefix.bind(this.router);
+        this.router.prefix = () => {
+            this.logger.warn("rather call builder.setPrefix, it will not affect");
+            return this.router;
         };
+    }
+    get prefix() {
+        return this._prefix;
+    }
+    _dangerouslySetPrefix(prefix) {
+        this._prefix = prefix;
+        this.setRouterPrefix(prefix).use(...this.commonMiddleware); // re-apply middleware
+        this.logger.info(`interaction router path configured:`, `${prefix}/:routes`);
     }
     get op() {
         return this.props.getProvider();

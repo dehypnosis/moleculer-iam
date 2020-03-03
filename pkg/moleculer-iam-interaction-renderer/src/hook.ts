@@ -143,8 +143,12 @@ export function useServerState() {
                   window.location.assign(data.redirect);
                   return new Promise(() => {
                   });
+                } else if (data.session) {
+                  // got updated session state
+                  state.session = data.session;
+                  return state.session;
                 } else {
-                  return data;
+                  console.error("unrecognized response structure", state);
                 }
               });
           }, err => {
@@ -169,9 +173,10 @@ const setClientState = (reducer: (prevState: any) => any | any) => {
   } else {
     Object.assign(clientState, reducer);
   }
+  console.debug("update client state", clientState);
 };
-const globalStateContext = createContext({globalState: clientState, setGlobalState: setClientState});
-export const useGlobalState = () => useContext(globalStateContext);
+const clientStateContext = createContext({clientState, setClientState});
+export const useClientState = () => useContext(clientStateContext);
 
 /* close screen */
 export function useClose(tryGoBack = true) {

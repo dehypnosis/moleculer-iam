@@ -19,7 +19,7 @@ import { LogoutEndScreen } from "./screen/logout.end";
 
 // find email
 import { FindEmailIndexScreen } from "./screen/find_email.index";
-import { FindEmailSentScreen } from "./screen/find_email.sent";
+import { FindEmailVerifyScreen } from "./screen/find_email.verify";
 
 // reset password
 import { ResetPasswordIndexScreen } from "./screen/reset_password.index";
@@ -34,12 +34,12 @@ import { RegisterEndScreen } from "./screen/register.end";
 
 // verify phone
 import { VerifyPhoneIndexScreen } from "./screen/verify_phone.index";
-import { VerifyPhoneSentScreen } from "./screen/verify_phone.sent";
+import { VerifyPhoneVerifyScreen } from "./screen/verify_phone.verify";
 import { VerifyPhoneEndScreen } from "./screen/verify_phone.end";
 
 // verify email
 import { VerifyEmailIndexScreen } from "./screen/verify_email.index";
-import { VerifyEmailSentScreen } from "./screen/verify_email.sent";
+import { VerifyEmailVerifyScreen } from "./screen/verify_email.verify";
 import { VerifyEmailEndScreen } from "./screen/verify_email.end";
 
 
@@ -62,7 +62,7 @@ export const routeConfig: LinkingOptions["config"] = {
   },
   "find_email": {
     screens: {
-      "find_email.sent": `${prefix}/find_email/sent`,
+      "find_email.verify": `${prefix}/find_email/verify`,
       "find_email.index": `${prefix}/find_email`,
     },
   },
@@ -84,14 +84,14 @@ export const routeConfig: LinkingOptions["config"] = {
   "verify_phone": {
     screens: {
       "verify_phone.end": `${prefix}/verify_phone/end`,
-      "verify_phone.sent": `${prefix}/verify_phone/sent`,
+      "verify_phone.verify": `${prefix}/verify_phone/verify`,
       "verify_phone.index": `${prefix}/verify_phone`,
     },
   },
   "verify_email": {
     screens: {
       "verify_email.end": `${prefix}/verify_email/end`,
-      "verify_email.sent": `${prefix}/verify_email/sent`,
+      "verify_email.verify": `${prefix}/verify_email/verify`,
       "verify_email.index": `${prefix}/verify_email`,
     },
   },
@@ -148,8 +148,8 @@ const FindEmailStackScreen = () => (
       component={FindEmailIndexScreen}
     />
     <FindEmailStack.Screen
-      name={"find_email.sent"}
-      component={FindEmailSentScreen}
+      name={"find_email.verify"}
+      component={FindEmailVerifyScreen}
     />
   </FindEmailStack.Navigator>
 );
@@ -208,8 +208,8 @@ const VerifyPhoneStackScreen = () => (
       component={VerifyPhoneIndexScreen}
     />
     <VerifyPhoneStack.Screen
-      name={"verify_phone.sent"}
-      component={VerifyPhoneSentScreen}
+      name={"verify_phone.verify"}
+      component={VerifyPhoneVerifyScreen}
     />
     <VerifyPhoneStack.Screen
       name={"verify_phone.end"}
@@ -228,8 +228,8 @@ const VerifyEmailStackScreen = () => (
       component={VerifyEmailIndexScreen}
     />
     <VerifyEmailStack.Screen
-      name={"verify_email.sent"}
-      component={VerifyEmailSentScreen}
+      name={"verify_email.verify"}
+      component={VerifyEmailVerifyScreen}
     />
     <VerifyEmailStack.Screen
       name={"verify_email.end"}

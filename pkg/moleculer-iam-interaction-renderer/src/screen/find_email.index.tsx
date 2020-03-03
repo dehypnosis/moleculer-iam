@@ -14,7 +14,7 @@ export const FindEmailIndexScreen: React.FunctionComponent = () => {
       .then((data: any) => {
         console.log(data);
         nav.navigate("find_email", {
-          screen: "find_email.sent",
+          screen: "find_email.verify",
           params: {
             phoneNumber,
           },

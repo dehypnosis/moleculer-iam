@@ -2,7 +2,7 @@ import * as _ from "lodash";
 import { Profile, Authenticator } from "passport";
 import { KoaPassport } from "koa-passport";
 import { Identity, Errors } from "../../idp";
-import { InteractionRouteContext, ProviderConfigBuilder } from "../proxy";
+import { InteractionRequestContext, ProviderConfigBuilder } from "../proxy";
 import { defaultIdentityFederationProviderOptions, defaultIdentityFederationProviderStrategies, IdentityFederationCallback, IdentityFederationProviderOptions } from "./federation.preset";
 
 export type IdentityFederationManagerOptions = IdentityFederationProviderOptions & { prefix?: string };
@@ -56,7 +56,7 @@ export class IdentityFederationManager {
     return Object.keys(this.callbacks);
   }
 
-  public async request(ctx: InteractionRouteContext, next: () => Promise<void>, provider: string): Promise<void> {
+  public async request(ctx: InteractionRequestContext, next: () => Promise<void>, provider: string): Promise<void> {
     return new Promise((resolve, reject) => {
       this.passport.authenticate(provider, {
         scope: this.scopes[provider],
@@ -69,7 +69,7 @@ export class IdentityFederationManager {
     });
   }
 
-  public async callback(ctx: InteractionRouteContext, next: () => Promise<void>, provider: string): Promise<Identity> {
+  public async callback(ctx: InteractionRequestContext, next: () => Promise<void>, provider: string): Promise<Identity> {
     return new Promise((resolve, reject) => {
       this.passport.authenticate(provider, {
         scope: this.scopes[provider],

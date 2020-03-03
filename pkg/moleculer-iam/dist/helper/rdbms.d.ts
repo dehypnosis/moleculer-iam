@@ -59,14 +59,14 @@ export declare class RDBMSManager {
         $col: symbol;
     };
     constructor(props: RDBMSManagerProps, opts?: RDBMSManagerOptions);
-    get sequelize(): Sequelize;
+    readonly sequelize: Sequelize;
     define(name: string, attr: ModelAttributes, opts?: ModelOptions): ModelClass;
     getModel(name: string): ModelClass | undefined;
     migrate(opts?: UpToOptions | UpDownMigrationsOptions): Promise<void>;
     rollback(opts?: DownToOptions | UpDownMigrationsOptions): Promise<unknown>;
     dispose(): Promise<void>;
-    private get lockTableName();
-    private get migrationTableLabel();
+    private readonly lockTableName;
+    private readonly migrationTableLabel;
     private acquireLock;
     private releaseLock;
 }

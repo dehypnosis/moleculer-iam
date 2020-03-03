@@ -7,8 +7,8 @@ import { buildAbortRoutes } from "./routes.abort";
 import { buildFindEmailRoutes } from "./routes.find_email";
 import { buildResetPasswordRoutes } from "./routes.reset_password";
 import { buildVerifyEmailRoutes } from "./routes.verify_email";
-import { buildVerifyPhoneRoutes } from "./routes.verify_phone";
-import { buildRegisterRoutes } from "./routes.register";
+import { buildVerifyPhoneRoutes, IdentityPhoneVerificationOptions } from "./routes.verify_phone";
+import { buildRegisterRoutes, IdentityRegisterOptions } from "./routes.register";
 import { buildFederationRoutes } from "./routes.federation";
 import { buildLoginRoutes } from "./routes.login";
 import { buildConsentRoutes } from "./routes.consent";
@@ -17,6 +17,8 @@ export interface InteractionBuildOptions {
   prefix?: string;
   federation?: IdentityFederationManagerOptions;
   renderer?: InteractionRenderer;
+  register?: IdentityRegisterOptions;
+  phoneVerification?: IdentityPhoneVerificationOptions;
 }
 
 export function buildDefaultInteractions(builder: ProviderConfigBuilder, opts: InteractionBuildOptions = {}): void {

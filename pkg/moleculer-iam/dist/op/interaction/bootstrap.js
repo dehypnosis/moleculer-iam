@@ -1,7 +1,18 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const oidc_provider_1 = require("oidc-provider");
+const federation_1 = require("./federation");
 const renderer_1 = require("./renderer");
+const routes_1 = require("./routes");
+const routes_abort_1 = require("./routes.abort");
+const routes_find_email_1 = require("./routes.find_email");
+const routes_reset_password_1 = require("./routes.reset_password");
+const routes_verify_email_1 = require("./routes.verify_email");
+const routes_verify_phone_1 = require("./routes.verify_phone");
+const routes_register_1 = require("./routes.register");
+const routes_federation_1 = require("./routes.federation");
+const routes_login_1 = require("./routes.login");
+const routes_consent_1 = require("./routes.consent");
 function buildDefaultInteractions(builder, opts = {}) {
     const { prefix = "/op", federation, renderer } = opts;
     builder
@@ -49,22 +60,19 @@ function buildDefaultInteractions(builder, opts = {}) {
         .create();
     builder.interaction.setRenderFunction(render);
     builder.interaction.use(...routes);
-    // TODO: build interaction routes
-    builder.interaction.router
-        .get("/test", ctx => {
-        return ctx.op.render({
-            interaction: {
-                name: "test",
-                data: {
-                    locale: ctx.locale,
-                },
-            },
-        });
-    })
-        .get("/login", async (ctx) => {
-        await ctx.op.setSessionState({ test: new Date().toISOString() });
-        ctx.body = ctx.op.session;
-    });
+    // create federation manager
+    const federationManager = new federation_1.IdentityFederationManager(builder, federation);
+    // build interaction routes
+    const actions = routes_1.buildInteractionActionEndpoints(builder, opts, federationManager);
+    routes_abort_1.buildAbortRoutes(builder, opts, actions);
+    routes_find_email_1.buildFindEmailRoutes(builder, opts, actions);
+    routes_verify_email_1.buildVerifyEmailRoutes(builder, opts, actions);
+    routes_verify_phone_1.buildVerifyPhoneRoutes(builder, opts, actions);
+    routes_reset_password_1.buildResetPasswordRoutes(builder, opts, actions);
+    routes_register_1.buildRegisterRoutes(builder, opts, actions);
+    routes_federation_1.buildFederationRoutes(builder, opts, actions, federationManager);
+    routes_login_1.buildLoginRoutes(builder, opts, actions);
+    routes_consent_1.buildConsentRoutes(builder, opts, actions);
 }
 exports.buildDefaultInteractions = buildDefaultInteractions;
 //# sourceMappingURL=bootstrap.js.map

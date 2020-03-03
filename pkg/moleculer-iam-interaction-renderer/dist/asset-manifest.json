@@ -1,12 +1,11 @@
 {
   "files": {
-    "static/js/0.chunk.js": "/op/assets/static/js/0.chunk.js",
-    "static/js/0.chunk.js.map": "/op/assets/static/js/0.chunk.js.map",
+    "static/js/1.chunk.js": "/op/assets/static/js/1.chunk.js",
+    "static/js/1.chunk.js.map": "/op/assets/static/js/1.chunk.js.map",
     "main.js": "/op/assets/static/js/main.chunk.js",
     "main.js.map": "/op/assets/static/js/main.chunk.js.map",
     "runtime-main.js": "/op/assets/static/js/bundle.js",
     "runtime-main.js.map": "/op/assets/static/js/bundle.js.map",
-    "favicon.ico": "/op/assets/favicon.ico",
     "index.html": "/op/assets/index.html",
     "static/media/logo.svg": "/op/assets/static/media/logo.060b0e6c.svg",
     "static/media/screen_password.svg": "/op/assets/static/media/screen_password.8f6c6a92.svg",
@@ -15,7 +14,8 @@
   },
   "entrypoints": [
     "static/js/bundle.js",
-    "static/js/0.chunk.js",
-    "static/js/main.chunk.js"
+    "static/js/1.chunk.js",
+    "static/js/main.chunk.js",
+    "main.40b8229e77229352e7f7.hot-update.js"
   ]
 }

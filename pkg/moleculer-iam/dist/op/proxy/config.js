@@ -40,6 +40,8 @@ class ProviderConfigBuilder {
         this.interaction = new config_interaction_1.ProviderInteractionBuilder({
             logger,
             idp,
+            dev,
+            issuer,
             getProvider: () => this.provider,
         });
         this.staticConfig = _.defaultsDeep({
@@ -81,8 +83,7 @@ class ProviderConfigBuilder {
         };
         this.logger.info(`interaction url generation rule configured:`, `${prefix}/:interaction-prompt-name`);
         // set interaction router prefix
-        this.interaction.router.prefix(prefix);
-        this.logger.info(`interaction router path configured:`, `${prefix}/:routes`);
+        this.interaction._dangerouslySetPrefix(prefix);
         // set interaction named url
         this.dynamicConfig.routes = {
             jwks: `${prefix}/jwks`,
@@ -124,6 +125,8 @@ class ProviderConfigBuilder {
         const { logger } = this;
         // create provider with config proxy
         const provider = this.provider = new oidc_provider_1.Provider(this.issuer, _.defaultsDeep(this.dynamicConfig, this.staticConfig));
+        // provider.env = "production";
+        // provider.proxy = true; // trust http proxy header
         // ref: https://github.com/panva/node-oidc-provider/tree/master/recipes#oidc-provider-recipes
         if (this.dev) {
             ((features) => {

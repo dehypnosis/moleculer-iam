@@ -4,9 +4,17 @@ import { InteractionBuildOptions } from "./bootstrap";
 import { InteractionActionEndpointGroups } from "./routes";
 
 export function buildLoginRoutes(builder: ProviderConfigBuilder, opts: InteractionBuildOptions, actions: InteractionActionEndpointGroups): void {
-  builder.interaction.router
+  builder.interaction.router// redirect to initial render page
+
+    .get("/login/:any+", async ctx => {
+      return ctx.op.render({
+        redirect: ctx.op.url("/login") + (ctx.search || ""),
+      });
+    })
+
+    // initial render page
     .get("/login", async ctx => {
-      const { user, interaction, setInteractionResult, render, data, url } = ctx.op;
+      const { user, interaction, setInteractionResult, session, render, data, url } = ctx.op;
       ctx.assert(interaction);
 
       // already signed in and consent interaction
@@ -40,25 +48,24 @@ export function buildLoginRoutes(builder: ProviderConfigBuilder, opts: Interacti
       });
     })
 
-    // redirect to initial render page
-    .get("/login/:any*", ctx => {
-      return ctx.op.render({
-        redirect: ctx.op.url("/login") + (ctx.search || ""),
-      });
-    })
-
     // check login email exists
     .post("/login/check_email", async ctx => {
       const {email} = ctx.request.body;
       const user = await ctx.idp.findOrFail({claims: {email: email || ""}});
-      return ctx.body = {
-        user: await builder.interaction.getPublicUserProps(user),
-      };
+
+      // set login data to session state and response
+      const userClaims = await builder.interaction.getPublicUserProps(user);
+
+      ctx.op.render({
+        session: {
+          user: userClaims,
+        },
+      });
     })
 
     // handle password login
     .post("/login/check_password", async ctx => {
-      const { interaction, setInteractionResult, render } = ctx.op;
+      const { interaction, setInteractionResult, setSessionState, render } = ctx.op;
       ctx.assert(interaction);
       const {email, password} = ctx.request.body;
 
@@ -75,6 +82,12 @@ export function buildLoginRoutes(builder: ProviderConfigBuilder, opts: Interacti
           remember: true,
         },
       });
+
+      // clear login session state
+      await setSessionState(prevState => ({
+        ...prevState,
+        login: undefined,
+      }));
 
       return render({
         redirect,

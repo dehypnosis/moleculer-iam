@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { ScreenLayout } from "./layout";
 import { PrimaryButton, DefaultButton, Link, TextField, TextFieldStyles, ButtonStyles, Separator, Stack, ThemeStyles } from "../styles";
-import { useGlobalState, useNavigation, useServerOptions, useServerState, useWithLoading } from "../hook";
+import { useNavigation, useServerOptions, useServerState, useWithLoading } from "../hook";
 
 export const LoginIndexScreen: React.FunctionComponent = () => {
   const { nav, route } = useNavigation();
   const { loading, errors, setErrors, withLoading } = useWithLoading();
   const [email, setEmail] = useState(route.params.email || "");
-  const { setGlobalState } = useGlobalState();
   const { request, interaction } = useServerState();
   const options = useServerOptions();
   const federationProviders = interaction && interaction.actions!["login.federate"]!.providers || [];
@@ -20,9 +19,7 @@ export const LoginIndexScreen: React.FunctionComponent = () => {
 
   const handleCheckLoginEmail = withLoading(() => {
     return request("login.check_email", { email })
-      .then((data: any) => {
-        const { user } = data;
-        setGlobalState((s: any) => ({...s, user}));
+      .then(() => {
         nav.navigate("login", {
           screen: "login.check_password",
           params: {

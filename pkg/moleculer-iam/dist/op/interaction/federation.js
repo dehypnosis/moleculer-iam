@@ -6,24 +6,26 @@ const koa_passport_1 = require("koa-passport");
 const idp_1 = require("../../idp");
 const federation_preset_1 = require("./federation.preset");
 class IdentityFederationManager {
-    constructor(props, opts = {}) {
-        this.props = props;
+    constructor(builder, opts = {}) {
+        this.builder = builder;
         this.scopes = {};
         this.callbacks = {};
-        this.logger = props.logger;
+        this.callbackURL = (providerName) => this.builder.interaction.url(`${this.prefix}/${providerName}`);
         this.passport = new koa_passport_1.KoaPassport();
-        opts = _.defaultsDeep(opts, federation_preset_1.defaultIdentityFederationManagerOptions);
-        for (const [provider, options] of Object.entries(opts)) {
+        const { prefix = "/federate", ...providerOpts } = opts;
+        this.prefix = prefix;
+        const providerOptions = _.defaultsDeep(providerOpts, federation_preset_1.defaultIdentityFederationProviderOptions);
+        for (const [provider, options] of Object.entries(providerOptions)) {
             if (!options || !options.clientID) {
                 continue;
             }
-            const callbackURL = props.callbackURL(provider);
-            const { scope, callback, ...providerOpts } = options;
+            const { scope, callback, ...customProviderStrategyOptions } = options;
             this.scopes[provider] = typeof scope === "string" ? scope.split(" ").map(s => s.trim()).filter(s => !!s) : scope;
             this.callbacks[provider] = callback;
-            this.logger.info(`enable identity federation from ${provider} with ${this.scopes[provider].join(", ")} scopes: ${callbackURL}`);
-            this.passport.use(new (federation_preset_1.defaultIdentityFederationManagerStrategies[provider])({
-                ...providerOpts,
+            const callbackURL = this.callbackURL(provider);
+            this.builder.logger.info(`enable identity federation from ${provider} with ${this.scopes[provider].join(", ")} scopes: ${callbackURL}`);
+            this.passport.use(new (federation_preset_1.defaultIdentityFederationProviderStrategies[provider])({
+                ...customProviderStrategyOptions,
                 callbackURL,
             }, async (accessToken, refreshToken, profile, done) => {
                 try {
@@ -35,10 +37,10 @@ class IdentityFederationManager {
             }));
         }
     }
-    get availableProviders() {
-        return Object.keys(this.scopes);
+    get providerNames() {
+        return Object.keys(this.callbacks);
     }
-    async request(provider, ctx, next) {
+    async request(ctx, next, provider) {
         return new Promise((resolve, reject) => {
             this.passport.authenticate(provider, {
                 scope: this.scopes[provider],
@@ -50,7 +52,7 @@ class IdentityFederationManager {
                 .then(resolve);
         });
     }
-    async callback(provider, ctx, next) {
+    async callback(ctx, next, provider) {
         return new Promise((resolve, reject) => {
             this.passport.authenticate(provider, {
                 scope: this.scopes[provider],
@@ -63,8 +65,8 @@ class IdentityFederationManager {
                         throw err;
                     }
                     const identity = await this.callbacks[provider]({
-                        idp: this.props.idp,
-                        logger: this.logger,
+                        idp: this.builder.idp,
+                        logger: this.builder.logger,
                         scope: this.scopes[provider],
                         ...args,
                     });
@@ -74,12 +76,10 @@ class IdentityFederationManager {
                     resolve(identity);
                 }
                 catch (error) {
-                    this.logger.error(error);
                     reject(error);
                 }
             })(ctx, next)
                 .catch((err) => {
-                this.logger.error(err);
                 reject(err);
             });
         });

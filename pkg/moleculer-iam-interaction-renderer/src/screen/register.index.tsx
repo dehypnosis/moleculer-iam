@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ScreenLayout } from "./layout";
 import { TextFieldStyles, Text, TextField, Stack, Link } from "../styles";
-import { useNavigation, useServerState, useWithLoading } from "../hook";
+import { useClientState, useNavigation, useServerState, useWithLoading } from "../hook";
 
 export const RegisterIndexScreen: React.FunctionComponent = () => {
   const { nav } = useNavigation();
@@ -11,15 +11,56 @@ export const RegisterIndexScreen: React.FunctionComponent = () => {
     password: "",
     password_confirmation: "",
   });
+  const { interaction, request } = useServerState();
+  const { setClientState } = useClientState();
+
+  // skip if claims already saved
+  useEffect(() => {
+    const savedScope = interaction && interaction.data.scope;
+
+    if (savedScope && savedScope.includes("email") && savedScope.includes("profile") && interaction!.data.credentials) {
+      const { name, email } = interaction!.data.claims;
+      setPayload({
+        name,
+        email,
+        password: "",
+        password_confirmation: "",
+      });
+
+      setClientState(s => ({...s, register: interaction!.data}));
+      nav.navigate("register", {
+        screen: "register.detail",
+        params: {},
+      });
+    }
+  }, []);
+
   const [passwordVisible, setPasswordVisible] = useState(false);
   const {loading, errors, setErrors, withLoading} = useWithLoading();
+
   const handlePayloadSubmit = withLoading(async () => {
-    // TODO ...
-    nav.navigate("register", {
-      screen: "register.detail",
-      params: {},
-    });
+    const { name, email, password, password_confirmation } = payload;
+    return request("register.validate", {
+      claims: {
+        name,
+        email,
+      },
+      credentials: {
+        password,
+        password_confirmation,
+      },
+      scope: ["email", "profile"],
+    })
+      .then((register: any) => {
+        setClientState(s => ({...s, register}));
+        nav.navigate("register", {
+          screen: "register.detail",
+          params: {},
+        });
+      })
+      .catch((err: any) => setErrors(err));
   }, [nav, payload]);
+
   const handleCancel = withLoading(() => nav.navigate("login", {
     screen: "login.index",
     params: {},
@@ -44,6 +85,7 @@ export const RegisterIndexScreen: React.FunctionComponent = () => {
           text: "Cancel",
           onClick: handleCancel,
           loading,
+          hidden: (!interaction || interaction.name === "register"),
           tabIndex: 56,
         },
       ]}

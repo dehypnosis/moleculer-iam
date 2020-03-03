@@ -135,7 +135,7 @@ class IDPAdapter {
             throw new error_1.Errors.ValidationError(mergedResult);
         }
     }
-    async create(args, transaction) {
+    async create(args, transaction, ignoreUndefinedClaims) {
         const { metadata = {}, claims = {}, credentials = {}, scope = [] } = args || {};
         if (claims && !claims.sub) {
             claims.sub = uuid_1.default.v4();
@@ -152,7 +152,7 @@ class IDPAdapter {
         const id = claims.sub;
         try {
             await this.createOrUpdateMetadata(id, _.defaultsDeep(metadata, metadata_1.defaultIdentityMetadata), transaction);
-            await this.createOrUpdateClaimsWithValidation(id, claims, scope, true, transaction);
+            await this.createOrUpdateClaimsWithValidation(id, claims, scope, true, transaction, ignoreUndefinedClaims);
             await this.createOrUpdateCredentialsWithValidation(id, credentials, transaction);
             if (isolated) {
                 await transaction.commit();
@@ -187,11 +187,17 @@ class IDPAdapter {
         const oldClaims = await this.getClaims(id, scope);
         const mergedClaims = _.defaultsDeep(claims, oldClaims);
         if (ignoreUndefinedClaims === true) {
+            const ignoredClaims = {};
             for (const key of Object.keys(mergedClaims)) {
                 if (!validClaimsKeys.includes(key)) {
+                    ignoredClaims[key] = mergedClaims[key];
                     delete mergedClaims[key];
                 }
             }
+            this.logger.debug("IDP ignored undefined claims (ignoreUndefinedClaims flag enabled)", {
+                claims: mergedClaims,
+                ignoredClaims,
+            });
         }
         try {
             await this.validate({ id: creating ? undefined : id, scope, claims: mergedClaims });

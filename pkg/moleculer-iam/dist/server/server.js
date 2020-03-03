@@ -5,6 +5,7 @@ const http = tslib_1.__importStar(require("http"));
 const http2 = tslib_1.__importStar(require("http2"));
 const https = tslib_1.__importStar(require("https"));
 const kleur = tslib_1.__importStar(require("kleur"));
+const url = tslib_1.__importStar(require("url"));
 const koa_1 = tslib_1.__importDefault(require("koa"));
 const koa_helmet_1 = tslib_1.__importDefault(require("koa-helmet"));
 const koa_json_1 = tslib_1.__importDefault(require("koa-json"));
@@ -37,10 +38,20 @@ class IAMServer {
             // parsed by precedence of ?locale=ko-KR, Cookie: locale=ko-KR, Accept-Language: ko-KR
             // ref: https://github.com/koa-modules/locale
             // @ts-ignore
-            const request = ctx.getLocaleFromQuery() || ctx.getLocaleFromCookie() || ctx.getLocaleFromHeader();
-            const result = op.parseLocale(request);
-            ctx.locale = result;
-            return next();
+            const locale = op.parseLocale(ctx.getLocaleFromQuery() || ctx.getLocaleFromCookie() || ctx.getLocaleFromHeader());
+            ctx.locale = locale;
+            return next()
+                .then(() => {
+                // reassign locale query for redirection response
+                if (ctx.headerSent || !ctx.query.locale)
+                    return;
+                const redirect = ctx.response.get("Location");
+                if (redirect.startsWith("/") || redirect.startsWith(op.issuer)) {
+                    const { protocol, auth, slashes, host, hash, query, pathname } = url.parse(redirect, true);
+                    query.locale = ctx.query.locale;
+                    ctx.response.set("Location", url.format({ protocol, auth, slashes, host, hash, query, pathname }));
+                }
+            });
         });
     }
     async start() {
@@ -87,10 +98,10 @@ class IAMServer {
     }
     listenCallback(protocol, scheme, hostname, port) {
         const { op } = this.props;
-        const discoveryURL = kleur.blue(`${scheme}://${hostname}:${port}/.well-known/openid-configuration`);
-        const issuerURL = kleur.yellow(op.issuer);
+        const serverURL = kleur.blue(`${scheme}://${hostname}:${port}`);
+        const discoveryURL = kleur.yellow(`${op.issuer}/.well-known/openid-configuration`);
         return () => {
-            this.logger.info(`${kleur.blue(protocol.toUpperCase() + " server")} is listening:\n* OIDC discovery endpoint: ${discoveryURL}\n* OIDC issuer: ${issuerURL}`);
+            this.logger.info(`${kleur.blue(protocol.toUpperCase() + " server")} is listening\n* Web server bound to: ${serverURL}\n* OIDC discovery endpoint: ${discoveryURL}`);
         };
     }
     async stop() {

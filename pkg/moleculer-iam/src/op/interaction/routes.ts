@@ -19,12 +19,57 @@ export const buildInteractionActionEndpoints = (builder: ProviderConfigBuilder, 
     },
   };
 
+  // [verify_phone]
+  const verifyPhone: InteractionActionEndpoints = {
+    "verify_phone.send": {
+      url: url("/verify_phone/send"),
+      method: "POST",
+      payload: {
+        phone_number: "",
+        register: false,
+        login: false,
+      },
+    },
+    "verify_phone.verify": {
+      url: url("/verify_phone/verify"),
+      method: "POST",
+      payload: {
+        phone_number: "",
+        secret: "",
+      },
+    },
+  };
+
+  // [register]
+  const register: InteractionActionEndpoints = {
+    ...verifyPhone,
+    "register.validate": {
+      url: url("/register/validate"),
+      method: "POST",
+      payload: {
+        claims: {
+          email: "",
+          name: "",
+          phone_number: "",
+          birthdate: "",
+          gender: "",
+        },
+        credentials: {
+          password: "",
+          password_confirmation: "",
+        },
+        scope: ["email", "profile", "phone", "birthdate", "gender"],
+      },
+    },
+  };
+
   // [login] can go to [find_email, reset_password, register, verify_phone, verify_email]
   // "can go" means that an interaction route can be changed without server request in client-side
   // in the SPAs like "moleculer-iam-interaction-renderer"
   // so add transitionable interaction's action endpoints information for client-side usage
   const login: InteractionActionEndpoints = {
     ...findEmail,
+    ...register,
     "login.check_email": {
       url: url("/login/check_email"),
       method: "POST",
@@ -82,6 +127,8 @@ export const buildInteractionActionEndpoints = (builder: ProviderConfigBuilder, 
 
   return {
     findEmail,
+    verifyPhone,
+    register,
     login,
     consent,
   };

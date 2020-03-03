@@ -6,18 +6,18 @@ const idp_1 = require("../../idp");
 const passport_google_oauth_1 = require("passport-google-oauth");
 const passport_kakao_1 = require("passport-kakao");
 const passport_facebook_1 = require("passport-facebook");
-exports.defaultIdentityFederationManagerStrategies = {
+exports.defaultIdentityFederationProviderStrategies = {
     kakao: passport_kakao_1.Strategy,
     google: passport_google_oauth_1.OAuth2Strategy,
     facebook: passport_facebook_1.Strategy,
 };
-exports.defaultIdentityFederationManagerOptions = {
+exports.defaultIdentityFederationProviderOptions = {
     kakao: {
         clientID: "",
         clientSecret: "",
         scope: "profile account_email",
-        callback: async (args) => {
-            const { accessToken, idp, profile } = args;
+        callback: async (props) => {
+            const { accessToken, idp, profile } = props;
             const upsertScopes = [...idp.claims.mandatoryScopes];
             const kakao = { id: profile.id };
             const claims = {
@@ -62,7 +62,7 @@ exports.defaultIdentityFederationManagerOptions = {
                     claims,
                     credentials: {},
                     scope: upsertScopes,
-                });
+                }, undefined, true);
             }
         },
     },
@@ -72,8 +72,8 @@ exports.defaultIdentityFederationManagerOptions = {
         scope: "public_profile email",
         profileFields: ["id", "name", "displayName", "photos", "email"],
         enableProof: true,
-        callback: async (args) => {
-            const { accessToken, idp, profile } = args;
+        callback: async (props) => {
+            const { accessToken, idp, profile } = props;
             const upsertScopes = [...idp.claims.mandatoryScopes];
             const facebook = { id: profile.id };
             const claims = {
@@ -115,7 +115,7 @@ exports.defaultIdentityFederationManagerOptions = {
                     claims,
                     credentials: {},
                     scope: upsertScopes,
-                });
+                }, undefined, true);
             }
         },
     },
@@ -125,8 +125,8 @@ exports.defaultIdentityFederationManagerOptions = {
         // approval_prompt: "auto",
         prompt: "select_account",
         scope: "openid profile email",
-        callback: async (args) => {
-            const { accessToken, idp, profile } = args;
+        callback: async (props) => {
+            const { accessToken, idp, profile } = props;
             const upsertScopes = [...idp.claims.mandatoryScopes];
             const claims = profile._json;
             const google = { id: claims.sub, hd: claims.hd || null };
@@ -159,7 +159,7 @@ exports.defaultIdentityFederationManagerOptions = {
                     throw new idp_1.Errors.UnexpectedError("cannot federate a deleted account");
                 }
                 // if phone scope is requested
-                if (args.scope.some((s) => s.includes("phone"))) {
+                if (props.scope.some(s => s.includes("phone"))) {
                     const oldClaims = await identity.claims("userinfo", "phone");
                     if (oldClaims.phone_number) {
                         // already have phone claims
@@ -185,16 +185,16 @@ exports.defaultIdentityFederationManagerOptions = {
                         claims.phone_number_verified = true;
                     }
                     else {
-                        args.logger.error("failed to validate phone_number from google", result);
+                        props.logger.error("failed to validate phone_number from google", result);
                     }
                 }
             }
             catch (response) {
                 if (response.error && response.error.error) {
-                    args.logger.error("failed to fetch phone_number from google", response.error.error);
+                    props.logger.error("failed to fetch phone_number from google", response.error.error);
                 }
                 else {
-                    args.logger.error("failed to fetch phone_number from google", response);
+                    props.logger.error("failed to fetch phone_number from google", response);
                 }
             }
             // 5. update or create
@@ -209,7 +209,7 @@ exports.defaultIdentityFederationManagerOptions = {
                     claims,
                     credentials: {},
                     scope: upsertScopes,
-                });
+                }, undefined, true);
             }
         },
     },

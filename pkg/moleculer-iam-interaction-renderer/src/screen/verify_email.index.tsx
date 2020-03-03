@@ -14,7 +14,7 @@ export const VerifyEmailIndexScreen: React.FunctionComponent = () => {
   const handleSend = withLoading(() => {
     // TODO: ..
     nav.navigate("verify_email", {
-      screen: "verify_email.sent",
+      screen: "verify_email.verify",
       params: { email, ttl: 1800, callback },
     });
   }, [nav, email, callback]);

@@ -2,10 +2,10 @@
 /// <reference types="koa-passport" />
 import * as compose from "koa-compose";
 import { Logger } from "../../logger";
-import { InteractionRouteContext, InteractionRenderState, DiscoveryMetadata } from "../proxy";
+import { InteractionRequestContext, InteractionResponse, DiscoveryMetadata } from "../proxy";
 export interface InteractionRenderer {
-    routes(props: InteractionRendererProps): compose.Middleware<InteractionRouteContext>[];
-    render(ctx: InteractionRouteContext, state: InteractionRenderState, props: InteractionRendererProps): Promise<void>;
+    routes(props: InteractionRendererProps): compose.Middleware<InteractionRequestContext>[];
+    render(ctx: InteractionRequestContext, response: InteractionResponse, props: InteractionRendererProps): Promise<void>;
 }
 export declare type InteractionRendererProps = {
     logger: Logger;
@@ -22,7 +22,7 @@ export declare class InteractionRendererFactory {
     private readonly renderer;
     constructor(props: InteractionRendererProps, renderer?: InteractionRenderer);
     create(): {
-        routes: compose.Middleware<import("koa").ParameterizedContext<any, import("../proxy").InteractionRouteContextProps>>[];
-        render: (ctx: import("koa").ParameterizedContext<any, import("../proxy").InteractionRouteContextProps>, state: InteractionRenderState) => Promise<void>;
+        routes: compose.Middleware<import("koa").ParameterizedContext<any, import("../proxy").InteractionRequestContextProps>>[];
+        render: (ctx: import("koa").ParameterizedContext<any, import("../proxy").InteractionRequestContextProps>, res: InteractionResponse) => Promise<void>;
     };
 }

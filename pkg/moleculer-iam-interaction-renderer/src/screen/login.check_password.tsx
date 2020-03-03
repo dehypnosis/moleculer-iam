@@ -1,16 +1,18 @@
 import React, { useState } from "react";
 import { ScreenLayout } from "./layout";
 import { Link, TextField, TextFieldStyles } from "../styles";
-import { useGlobalState, useServerState, useNavigation, useWithLoading } from "../hook";
+import { useServerState, useNavigation, useWithLoading } from "../hook";
 
 export const LoginCheckPasswordScreen: React.FunctionComponent = () => {
-  const { nav } = useNavigation();
-  const { globalState } = useGlobalState();
-  const { email = "unknown", name = "unknown" } = globalState.user || {};
-  const { loading, errors, setErrors, withLoading } = useWithLoading();
+  // state
   const [password, setPassword] = useState("");
+  const { session, request } = useServerState();
+  const { email, name, picture } = session.login.user;
 
-  const { request } = useServerState();
+  // handlers
+  const { nav } = useNavigation();
+  const { loading, errors, setErrors, withLoading } = useWithLoading();
+
   const handleCheckLoginPassword = withLoading(async () => {
     return request("login.check_password", { email, password })
       .catch((err: any) => setErrors(err));

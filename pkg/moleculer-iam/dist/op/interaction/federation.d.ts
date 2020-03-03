@@ -1,20 +1,21 @@
-import { Context } from "koa";
-import { Identity, IdentityProvider } from "../../idp";
-import { Logger } from "../../logger";
-import { IdentityFederationManagerOptions } from "./federation.preset";
+import { Identity } from "../../idp";
+import { InteractionRequestContext, ProviderConfigBuilder } from "../proxy";
+import { IdentityFederationProviderOptions } from "./federation.preset";
+export declare type IdentityFederationManagerOptions = IdentityFederationProviderOptions & {
+    prefix?: string;
+};
 export declare type IdentityFederationManagerProps = {
-    logger: Logger;
-    idp: IdentityProvider;
-    callbackURL: (provider: string) => string;
+    builder: ProviderConfigBuilder;
 };
 export declare class IdentityFederationManager {
-    protected readonly props: IdentityFederationManagerProps;
-    private readonly logger;
+    protected readonly builder: ProviderConfigBuilder;
     private readonly passport;
     private readonly scopes;
     private readonly callbacks;
-    constructor(props: IdentityFederationManagerProps, opts?: IdentityFederationManagerOptions);
-    get availableProviders(): string[];
-    request(provider: string, ctx: Context, next: () => Promise<void>): Promise<void>;
-    callback(provider: string, ctx: Context, next: () => Promise<void>): Promise<Identity>;
+    readonly callbackURL: (providerName: string) => string;
+    readonly prefix: string;
+    constructor(builder: ProviderConfigBuilder, opts?: IdentityFederationManagerOptions);
+    readonly providerNames: string[];
+    request(ctx: InteractionRequestContext, next: () => Promise<void>, provider: string): Promise<void>;
+    callback(ctx: InteractionRequestContext, next: () => Promise<void>, provider: string): Promise<Identity>;
 }

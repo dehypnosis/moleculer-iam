@@ -1,83 +1,36 @@
 import compose from "koa-compose";
 import Router from "koa-router";
-import { ParameterizedContext } from "koa";
-import Provider, { ClientMetadata, InteractionResults } from "oidc-provider";
-import { IAMServerRequestContextProps } from "../../server";
+import Provider, { ClientMetadata } from "oidc-provider";
+import { InteractionRequestContext } from "./config.interaction.types";
 import { OIDCAccountClaims } from "./identity.types";
-import { ParsedLocale } from "./proxy";
-import { Client, Interaction, Session, DeviceInfo, DiscoveryMetadata } from "./proxy.types";
+import { Client } from "./proxy.types";
 import { Identity, IdentityProvider } from "../../idp";
 import { Logger } from "../../logger";
-export declare type PartialInteractionRenderState = Omit<InteractionRenderState, "metadata" | "locale">;
-export declare type InteractionRouteContextProps = {
-    op: {
-        render: (state: PartialInteractionRenderState) => Promise<void>;
-        provider: Provider;
-        session: Session;
-        setSessionState: (state: any) => Promise<void>;
-        url: (path: string) => string;
-        interaction?: Interaction;
-        setInteractionResult?: (result: InteractionResults) => Promise<string>;
-        namedUrl: (name: "end_session_confirm" | "code_verification") => string;
-        client?: Client;
-        user?: Identity;
-        data: {
-            device?: DeviceInfo;
-            user?: Partial<OIDCAccountClaims>;
-            client?: Partial<ClientMetadata>;
-        };
-        xsrf?: string;
-    };
-    idp: IdentityProvider;
-} & IAMServerRequestContextProps;
-export interface InteractionActionEndpoints {
-    [key: string]: {
-        url: string;
-        method: "POST" | "GET";
-        payload?: any;
-        urlencoded?: boolean;
-        [key: string]: any;
-    };
-}
-export interface InteractionRenderState {
-    interaction?: {
-        name: string;
-        data?: any;
-        actions?: InteractionActionEndpoints;
-    };
-    error?: {
-        error: string;
-        error_description?: string;
-        fields?: {
-            field: string;
-            message: string;
-            type: string;
-            actual: any;
-            expected: any;
-        }[];
-        [key: string]: any;
-    };
-    redirect?: string;
-    locale: ParsedLocale;
-    metadata: DiscoveryMetadata;
-}
-export declare type InteractionRouteContext = ParameterizedContext<any, InteractionRouteContextProps>;
 export declare type ProviderInteractionBuilderProps = {
     logger: Logger;
     getProvider: () => Provider;
     idp: IdentityProvider;
+    issuer: string;
+    dev: boolean;
 };
 export declare class ProviderInteractionBuilder {
     private readonly props;
-    readonly router: Router<any, InteractionRouteContext>;
+    readonly router: Router<any, InteractionRequestContext>;
+    private readonly logger;
     constructor(props: ProviderInteractionBuilderProps);
+    private readonly setRouterPrefix;
+    private _prefix;
+    readonly prefix: string;
+    _dangerouslySetPrefix(prefix: string): void;
+    readonly url: (path: string) => string;
     private readonly parseContext;
+    private readonly errorHandler;
     private readonly commonMiddleware;
-    get op(): Provider;
-    get metadata(): any;
-    get idp(): IdentityProvider;
+    readonly op: Provider;
+    readonly metadata: any;
+    readonly idp: IdentityProvider;
     private readonly composed;
-    use(...middleware: compose.Middleware<InteractionRouteContext>[]): this;
+    use(...middleware: compose.Middleware<InteractionRequestContext>[]): this;
     build(): void;
     setRenderFunction(render: ProviderInteractionBuilder["render"]): void;
     private render;
@@ -93,7 +46,7 @@ export declare class ProviderInteractionBuilder {
     private readonly deviceFlowUserCodeConfirmSourceProxy;
     private renderDeviceFlowEnd;
     private readonly deviceFlowSuccessSourceProxy;
-    get namedRoutesProxy(): {
+    readonly namedRoutesProxy: {
         renderErrorProxy: any;
         logoutSourceProxy: any;
         postLogoutSuccessSourceProxy: any;
@@ -101,6 +54,6 @@ export declare class ProviderInteractionBuilder {
         deviceFlowUserCodeConfirmSourceProxy: any;
         deviceFlowSuccessSourceProxy: any;
     };
-    private getPublicClientProps;
-    private getPublicUserProps;
+    getPublicClientProps(client?: Client): Promise<Partial<ClientMetadata> | undefined>;
+    getPublicUserProps(id?: Identity): Promise<Partial<OIDCAccountClaims> | undefined>;
 }

@@ -9,23 +9,17 @@ class InteractionRendererFactory {
         const { renderer, props } = this;
         return {
             routes: renderer.routes(props),
-            render: async (ctx, state) => {
+            render: async (ctx, res) => {
                 const { JSON, HTML } = InteractionRendererFactory.contentTypes;
                 // response for ajax
                 if (ctx.accepts(JSON, HTML) === JSON) {
                     ctx.type = JSON;
-                    ctx.body = state.error || state; // response error only for xhr request
-                    return;
-                }
-                // response redirection
-                if (state.redirect) {
-                    ctx.status = 302;
-                    ctx.redirect(state.redirect);
+                    ctx.body = res;
                     return;
                 }
                 // response HTML
                 ctx.type = HTML;
-                return renderer.render(ctx, state, props);
+                return renderer.render(ctx, res, props);
             },
         };
     }

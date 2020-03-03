@@ -14,7 +14,7 @@ export const VerifyPhoneIndexScreen: React.FunctionComponent = () => {
   const handleSend = withLoading(() => {
     // TODO: ..
     nav.navigate("verify_phone", {
-      screen: "verify_phone.sent",
+      screen: "verify_phone.verify",
       params: { phoneNumber, ttl: 500, callback },
     });
   }, [nav, phoneNumber, callback]);

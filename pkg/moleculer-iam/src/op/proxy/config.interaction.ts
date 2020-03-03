@@ -1,16 +1,13 @@
-import * as _ from "lodash";
 import bodyParser from "koa-bodyparser";
 import compose from "koa-compose";
 import mount from "koa-mount";
 import Router, { IMiddleware } from "koa-router";
-import { ParameterizedContext } from "koa";
 import noCache from "koajs-nocache";
-import Provider, { ClientMetadata, InteractionResults } from "oidc-provider";
-import { IAMServerRequestContextProps } from "../../server";
+import Provider, { ClientMetadata } from "oidc-provider";
+import { InteractionRequestContext, InteractionResponse } from "./config.interaction.types";
 import { OIDCError } from "./error.types";
 import { OIDCAccountClaims } from "./identity.types";
-import { ParsedLocale } from "./proxy";
-import { Client, Interaction, Session, DeviceInfo, DiscoveryMetadata } from "./proxy.types";
+import { Client, Interaction, DeviceInfo } from "./proxy.types";
 import { Identity, IdentityProvider } from "../../idp";
 import { Logger } from "../../logger";
 import { DeviceFlowConfiguration, DynamicConfiguration } from "./config";
@@ -21,66 +18,6 @@ import getProviderHiddenProps from "oidc-provider/lib/helpers/weak_cache";
 // @ts-ignore : need to hack oidc-provider private methods
 import sessionMiddleware from "oidc-provider/lib/shared/session";
 
-export type PartialInteractionRenderState = Omit<InteractionRenderState, "metadata"|"locale">;
-export type InteractionRouteContextProps = {
-  op: {
-    render: (state: PartialInteractionRenderState) => Promise<void>;
-    provider: Provider;
-    session: Session;
-    setSessionState: (state: any) => Promise<void>;
-    url: (path: string) => string;
-    interaction?: Interaction;
-    setInteractionResult?: (result: InteractionResults) => Promise<string>;
-    namedUrl: (name: "end_session_confirm"|"code_verification") => string;
-    client?: Client;
-    user?: Identity;
-    data: {
-      device?: DeviceInfo;
-      user?: Partial<OIDCAccountClaims>;
-      client?: Partial<ClientMetadata>;
-    };
-    xsrf?: string;
-  };
-  idp: IdentityProvider;
-} & IAMServerRequestContextProps;
-
-export interface InteractionActionEndpoints {
-  [key: string]: {
-    url: string;
-    method: "POST"|"GET";
-    payload?: any;
-    urlencoded?: boolean;
-    [key: string]: any;
-  };
-}
-
-export interface InteractionRenderState {
-  interaction?: {
-    name: string;
-    data?: any;
-    actions?: InteractionActionEndpoints;
-  };
-
-  // global error
-  error?: {
-    error: string;
-    error_description?: string;
-    fields?: {field: string, message: string, type: string, actual: any, expected: any}[];
-    [key: string]: any;
-  };
-
-  // let client be redirected
-  redirect?: string;
-
-  // request locale
-  locale: ParsedLocale;
-
-  // OIDC discovery metadata
-  metadata: DiscoveryMetadata;
-}
-
-export type InteractionRouteContext = ParameterizedContext<any, InteractionRouteContextProps>;
-
 export type ProviderInteractionBuilderProps = {
   logger: Logger;
   getProvider: () => Provider;
@@ -90,13 +27,17 @@ export type ProviderInteractionBuilderProps = {
 }
 
 export class ProviderInteractionBuilder {
-  public readonly router: Router<any, InteractionRouteContext>;
+  public readonly router: Router<any, InteractionRequestContext>;
   private readonly logger: Logger;
+  public static contentTypes = {
+    JSON: "application/json",
+    HTML: "text/html",
+  };
 
   constructor(private readonly props: ProviderInteractionBuilderProps) {
     this.logger = props.logger;
 
-    this.router = new Router<any, InteractionRouteContext>({
+    this.router = new Router<any, InteractionRequestContext>({
       prefix: this.prefix,
       sensitive: true,
       strict: false,
@@ -123,7 +64,7 @@ export class ProviderInteractionBuilder {
 
   public readonly url = (path: string) => `${this.props.issuer}${this.prefix}${path}`;
 
-  private readonly parseContext: IMiddleware<any, InteractionRouteContext> = async (ctx, next) => {
+  private readonly parseContext: IMiddleware<any, InteractionRequestContext> = async (ctx, next) => {
     // @ts-ignore ensure oidc context is created
     if (!ctx.oidc) {
       const OIDCContext = getProviderHiddenProps(this.op).OIDCContext;
@@ -131,48 +72,85 @@ export class ProviderInteractionBuilder {
     }
 
     const session = await this.op.Session.get(ctx as any);
+    // TODO: fix render function to handle XHR by itself
+    // TODO: fix this builder ctx.op mess up as context class
+    // TODO: then rename config.interaction.*
+    // TODO: then remove ../interaction/renderer and checkout this render function...
+    // TODO: also move federation manager here..
+    // TODO: then update client logic to handle three typeof response
+    // TODO: then remove getClientState from client
+    // TODO: then rename useServerState.... as use interaction response
     ctx.op = {
-      provider: this.op,
-      render: (state) => {
-        const mergedState: InteractionRenderState = {
-          ...state,
-          locale: ctx.locale,
-          metadata: this.metadata,
-        };
-        return this.render(ctx, mergedState);
+      response: {
+        render: page => {
+          ctx.type = ProviderInteractionBuilder.contentTypes.HTML;
+          return this.render(ctx, {
+            page,
+            session: session.state && session.state.custom || {},
+            locale: ctx.locale,
+            metadata: this.metadata,
+          });
+        },
+        renderError: error => {
+          const { JSON, HTML } = ProviderInteractionBuilder.contentTypes;
+
+          // response for ajax
+          if (ctx.accepts(JSON, HTML) === JSON) {
+            ctx.type = JSON;
+            ctx.body = { error };
+            return;
+          }
+          return this.render(ctx, { error });
+        },
+        redirect: async url => ctx.redirect(url),
+        updateSessionState: async state => {
+          const sessionState = await ctx.op.setSessionState(prevState => ({
+            ...prevState,
+            ...state,
+          }));
+          const response: InteractionResponse = { session: sessionState };
+          ctx.type = "json";
+          ctx.body = response;
+        },
+        updateInteractionResult: async (partialInteractionResult) => {
+          const mergedResult = {...ctx.op.interaction!.result, ...partialInteractionResult};
+          const redirectURL = await this.op.interactionResult(ctx.req, ctx.res, mergedResult, { mergeWithLastSubmission: true });
+          if (mergedResult.login) { // overwrite session account if need
+            await this.op.setProviderSession(ctx.req, ctx.res, mergedResult.login);
+          }
+          return ctx.op.response.redirect(redirectURL);
+        },
       },
+      provider: this.op,
       session,
-      setSessionState: async (state: any) => {
-        session.state = _.defaultsDeep(state, session.state);
+      setSessionState: async fn => {
+        if (!session.state) {
+          session.state = { custom: {} };
+        } else if (!session.state.custom) {
+          session.state.custom = {};
+        }
+        session.state.custom = fn(session.state.custom);
         await sessionMiddleware(ctx, () => {
-          // @ts-ignore
+          // @ts-ignore to set Set-Cookie response header
           ctx.oidc.session.touched = true;
         });
+        // store/update session in to adapter
         await session.save();
         // @ts-ignore
         delete session.touched;
+        return session.state.custom;
       },
       url: this.url,
       namedUrl: (name: string, opts?: any) => (this.op as any).urlFor(name, opts),
       data: {},
+      xsrf: session.state && session.state.secret || undefined,
     };
-    if (session.state && session.state.secret) {
-      ctx.op.xsrf = session.state.secret;
-    }
     ctx.idp = this.idp;
 
     // fetch interaction details
     try {
       const interaction = await this.op.interactionDetails(ctx.req, ctx.res) as Interaction;
       ctx.op.interaction = interaction;
-      ctx.op.setInteractionResult = async (result) => {
-        const mergedResult = {...ctx.op.interaction, ...result};
-        const redirect = await this.op.interactionResult(ctx.req, ctx.res, mergedResult, { mergeWithLastSubmission: true });
-        if (mergedResult.login) { // overwrite session account if need
-          await this.op.setProviderSession(ctx.req, ctx.res, mergedResult.login);
-        }
-        return redirect;
-      };
       ctx.op.user = interaction.session && typeof interaction.session.accountId === "string" ? (await this.idp.findOrFail({ id: interaction.session.accountId })) : undefined;
       if (ctx.op.user) {
         ctx.op.data.user = await this.getPublicUserProps(ctx.op.user);
@@ -186,7 +164,7 @@ export class ProviderInteractionBuilder {
     return next();
   };
 
-  private readonly errorHandler: IMiddleware<any, InteractionRouteContext> = async (ctx, next) => {
+  private readonly errorHandler: IMiddleware<any, InteractionRequestContext> = async (ctx, next) => {
     try {
       await next();
     } catch (err) {
@@ -205,10 +183,15 @@ export class ProviderInteractionBuilder {
 
       if (!normalizedError.error || normalizedError.error === "InternalServerError") {
         normalizedError.error = "internal_server_error";
+        normalizedError.error_description = "Cannot handle the invalid request.";
+      }
+
+      if (normalizedError.error_description.startsWith("unrecognized route or not allowed method")) {
+        normalizedError.error_description = "Cannot handle the unrecognized route or not allowed method.";
       }
 
       ctx.status = normalizedStatus;
-      return ctx.op.render({ error: normalizedError });
+      return ctx.op.response.renderError(normalizedError);
     }
   };
 
@@ -231,8 +214,8 @@ export class ProviderInteractionBuilder {
     return this.props.idp;
   }
 
-  private readonly composed: compose.Middleware<InteractionRouteContext>[] = [];
-  public use(...middleware: compose.Middleware<InteractionRouteContext>[]) {
+  private readonly composed: compose.Middleware<InteractionRequestContext>[] = [];
+  public use(...middleware: compose.Middleware<InteractionRequestContext>[]) {
     this.composed.push(...middleware);
     return this;
   }
@@ -253,14 +236,16 @@ export class ProviderInteractionBuilder {
   public setRenderFunction(render: ProviderInteractionBuilder["render"]) {
     this.render = render;
   }
-  private render = async (ctx: InteractionRouteContext, state: InteractionRenderState) => {
+  private render = async (ctx: InteractionRequestContext, response: InteractionResponse) => {
     this.logger.warn("interaction render function not configured");
-    ctx.body = state;
+    ctx.body = response;
   };
 
   // internally named routes render default functions
-  private renderError: (ctx: InteractionRouteContext, error: OIDCError) => Promise<void> = async (ctx, error) => {
-    return ctx.op.render({ error });
+  private renderError: (ctx: InteractionRequestContext, error: OIDCError) => Promise<void> = async (ctx, error) => {
+    return this.errorHandler(ctx as any, () => {
+      throw error;
+    });
   };
 
   // ref: https://github.com/panva/node-oidc-provider/blob/74b434c627248c82ca9db5aed3a03f0acd0d7214/lib/shared/error_handler.js#L47
@@ -271,32 +256,29 @@ export class ProviderInteractionBuilder {
     });
   };
 
-  private renderLogout: (ctx: InteractionRouteContext, xsrf: string) => Promise<void> = async (ctx, xsrf) => {
-    return ctx.op.render({
-      interaction: {
-        name: "logout",
-        data: ctx.op.data,
-        actions: {
-          // destroy sessions
-          "logout.confirm": {
-            url: ctx.op.namedUrl("end_session_confirm"),
-            method: "POST",
-            payload: {
-              xsrf,
-              logout: "true",
-            },
-            urlencoded: true,
-            // TODO: set xsrf for each side..
+  private renderLogout: (ctx: InteractionRequestContext, xsrf: string) => Promise<void> = async (ctx, xsrf) => {
+    return ctx.op.response.render({
+      name: "logout",
+      data: ctx.op.data,
+      actions: {
+        // destroy sessions
+        "logout.confirm": {
+          url: ctx.op.namedUrl("end_session_confirm"),
+          method: "POST",
+          payload: {
+            xsrf,
+            logout: "true",
           },
-          // without session destroy
-          "logout.redirect": {
-            url: ctx.op.namedUrl("end_session_confirm"),
-            method: "POST",
-            payload: {
-              xsrf,
-            },
-            urlencoded: true,
+          urlencoded: true,
+        },
+        // without session destroy
+        "logout.redirect": {
+          url: ctx.op.namedUrl("end_session_confirm"),
+          method: "POST",
+          payload: {
+            xsrf,
           },
+          urlencoded: true,
         },
       },
     });
@@ -311,12 +293,10 @@ export class ProviderInteractionBuilder {
     });
   };
 
-  private renderLogoutEnd: (ctx: InteractionRouteContext) => Promise<void> = async (ctx) => {
-    return ctx.op.render({
-      interaction: {
-        name: "logout.end",
-        data: ctx.op.data,
-      },
+  private renderLogoutEnd: (ctx: InteractionRequestContext) => Promise<void> = async (ctx) => {
+    return ctx.op.response.render({
+      name: "logout.end",
+      data: ctx.op.data,
     });
   };
 
@@ -328,19 +308,17 @@ export class ProviderInteractionBuilder {
     });
   };
 
-  private renderDeviceFlow: (ctx: InteractionRouteContext, userCode: string, xsrf: string) => Promise<void> = async (ctx, userCode, xsrf) => {
-    return ctx.op.render({
-      interaction: {
-        name: "device_flow",
-        data: ctx.op.data,
-        actions: {
-          submit: {
-            url: ctx.op.namedUrl("code_verification"),
-            method: "POST",
-            payload: {
-              xsrf,
-              user_code: userCode,
-            },
+  private renderDeviceFlow: (ctx: InteractionRequestContext, userCode: string, xsrf: string) => Promise<void> = async (ctx, userCode, xsrf) => {
+    return ctx.op.response.render({
+      name: "device_flow",
+      data: ctx.op.data,
+      actions: {
+        submit: {
+          url: ctx.op.namedUrl("code_verification"),
+          method: "POST",
+          payload: {
+            xsrf,
+            user_code: userCode,
           },
         },
       },
@@ -360,32 +338,30 @@ export class ProviderInteractionBuilder {
     });
   };
 
-  private renderDeviceFlowConfirm: (ctx: InteractionRouteContext, userCode: string, xsrf: string, device: DeviceInfo) => Promise<void> = async (ctx, userCode, xsrf, device) => {
-    return ctx.op.render({
-      interaction: {
-        name: "device_flow.confirm",
-        data: ctx.op.data,
-        actions: {
-          verify: {
-            url: ctx.op.namedUrl("code_verification"),
-            method: "POST",
-            payload: {
-              xsrf,
-              user_code: userCode,
-              confirm: "true",
-            },
-          },
-          abort: {
-            url: ctx.op.namedUrl("code_verification"),
-            method: "POST",
-            payload: {
-              xsrf,
-              user_code: userCode,
-              abort: "true",
-            },
+  private renderDeviceFlowConfirm: (ctx: InteractionRequestContext, userCode: string, xsrf: string, device: DeviceInfo) => Promise<void> = async (ctx, userCode, xsrf, device) => {
+    return ctx.op.response.render({
+      name: "device_flow.confirm",
+      data: ctx.op.data,
+      actions: {
+        verify: {
+          url: ctx.op.namedUrl("code_verification"),
+          method: "POST",
+          payload: {
+            xsrf,
+            user_code: userCode,
+            confirm: "true",
           },
         },
-      }
+        abort: {
+          url: ctx.op.namedUrl("code_verification"),
+          method: "POST",
+          payload: {
+            xsrf,
+            user_code: userCode,
+            abort: "true",
+          },
+        },
+      },
     });
   };
 
@@ -399,12 +375,10 @@ export class ProviderInteractionBuilder {
     });
   };
 
-  private renderDeviceFlowEnd: (ctx: InteractionRouteContext) => Promise<void> = async (ctx) => {
-    return ctx.op.render({
-      interaction: {
-        name: "device_flow.end",
-        data: ctx.op.data,
-      },
+  private renderDeviceFlowEnd: (ctx: InteractionRequestContext) => Promise<void> = async (ctx) => {
+    return ctx.op.response.render({
+      name: "device_flow.end",
+      data: ctx.op.data,
     });
   };
 
