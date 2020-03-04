@@ -22,7 +22,7 @@ class OIDCProviderProxy {
         // build main logic with options
         interaction_1.buildDefaultInteractions(builder, interaction);
         // create provider and adapter
-        this.provider = builder.build();
+        this.provider = builder._dangerouslyBuild();
         this.adapter = builder.adapter;
     }
     get hidden() {

@@ -3,49 +3,46 @@ Object.defineProperty(exports, "__esModule", { value: true });
 function buildConsentRoutes(builder, opts, actions) {
     builder.interaction.router
         .get("/consent", async (ctx) => {
-        const { client, interaction, setInteractionResult, render } = ctx.op;
-        ctx.assert(interaction && interaction.prompt.name === "consent");
+        const { client, interaction } = ctx.op;
+        ctx.op.assertPrompt(["consent"]);
         // skip consent if client has skip_consent property
         if (client && client.skip_consent) {
-            const redirect = await setInteractionResult({
+            return ctx.op.redirectWithUpdate({
                 consent: {
                     rejectedScopes: [],
                     rejectedClaims: [],
                     replace: true,
                 },
             });
-            return render({
-                redirect,
-            });
         }
+        // set consent data (scopes, claims)
+        await ctx.op.setSessionState(prev => ({
+            ...prev,
+            consent: interaction.prompt.details,
+        }));
         // or render consent form
-        return render({
-            interaction: {
-                name: "consent",
-                data: {
-                    ...ctx.op.data,
-                    // consent data (scopes, claims)
-                    consent: interaction.prompt.details,
-                },
-                actions: actions.consent,
-            },
+        return ctx.op.render({
+            name: "consent",
+            actions: actions.consent,
         });
     })
         // handle consent
         .post("/consent/accept", async (ctx) => {
-        const { interaction, setInteractionResult, render } = ctx.op;
-        ctx.assert(interaction && interaction.prompt.name === "consent");
+        const { interaction } = ctx.op;
+        ctx.op.assertPrompt(["consent"]);
         const { rejected_scopes = [], rejected_claims = [] } = ctx.request.body;
+        // clear consent data (scopes, claims)
+        await ctx.op.setSessionState(prev => ({
+            ...prev,
+            consent: undefined,
+        }));
         // finish consent interaction and give redirection uri
-        const redirect = await setInteractionResult({
+        return ctx.op.redirectWithUpdate({
             consent: {
                 rejectedScopes: rejected_scopes,
                 rejectedClaims: rejected_claims,
                 replace: true,
             },
-        });
-        return render({
-            redirect,
         });
     });
 }

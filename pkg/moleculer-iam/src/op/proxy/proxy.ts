@@ -47,7 +47,7 @@ export class OIDCProviderProxy {
     buildDefaultInteractions(builder, interaction);
 
     // create provider and adapter
-    this.provider = builder.build();
+    this.provider = builder._dangerouslyBuild();
     this.adapter = builder.adapter;
   }
 

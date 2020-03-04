@@ -2,11 +2,11 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.buildInteractionActionEndpoints = (builder, opts, federator) => {
     // internal actions for [logout], [device_code_verification] are not described here
-    const { url } = builder.interaction;
+    const { getURL } = builder.interaction;
     // [find_email]
     const findEmail = {
         "find_email.check_phone": {
-            url: url("/find_email/check_phone"),
+            url: getURL("/find_email/check_phone"),
             method: "POST",
             payload: {
                 phone_number: "",
@@ -16,7 +16,7 @@ exports.buildInteractionActionEndpoints = (builder, opts, federator) => {
     // [verify_phone]
     const verifyPhone = {
         "verify_phone.send": {
-            url: url("/verify_phone/send"),
+            url: getURL("/verify_phone/send"),
             method: "POST",
             payload: {
                 phone_number: "",
@@ -25,7 +25,7 @@ exports.buildInteractionActionEndpoints = (builder, opts, federator) => {
             },
         },
         "verify_phone.verify": {
-            url: url("/verify_phone/verify"),
+            url: getURL("/verify_phone/verify"),
             method: "POST",
             payload: {
                 phone_number: "",
@@ -37,7 +37,7 @@ exports.buildInteractionActionEndpoints = (builder, opts, federator) => {
     const register = {
         ...verifyPhone,
         "register.validate": {
-            url: url("/register/validate"),
+            url: getURL("/register/validate"),
             method: "POST",
             payload: {
                 claims: {
@@ -53,6 +53,7 @@ exports.buildInteractionActionEndpoints = (builder, opts, federator) => {
                 },
                 scope: ["email", "profile", "phone", "birthdate", "gender"],
             },
+            mandatoryScopes: builder.idp.claims.mandatoryScopes,
         },
     };
     // [login] can go to [find_email, reset_password, register, verify_phone, verify_email]
@@ -63,14 +64,14 @@ exports.buildInteractionActionEndpoints = (builder, opts, federator) => {
         ...findEmail,
         ...register,
         "login.check_email": {
-            url: url("/login/check_email"),
+            url: getURL("/login/check_email"),
             method: "POST",
             payload: {
                 email: "",
             },
         },
         "login.check_password": {
-            url: url("/login/check_password"),
+            url: getURL("/login/check_password"),
             method: "POST",
             payload: {
                 email: "",
@@ -78,11 +79,11 @@ exports.buildInteractionActionEndpoints = (builder, opts, federator) => {
             },
         },
         "login.abort": {
-            url: url(`/abort`),
+            url: getURL(`/abort`),
             method: "POST",
         },
         "login.federate": {
-            url: url(`/federate`),
+            url: getURL(`/federate`),
             method: "POST",
             payload: {
                 provider: "",
@@ -95,7 +96,7 @@ exports.buildInteractionActionEndpoints = (builder, opts, federator) => {
     const consent = {
         ...login,
         "consent.accept": {
-            url: url("/consent/accept"),
+            url: getURL("/consent/accept"),
             method: "POST",
             payload: {
                 rejected_scopes: [],
@@ -103,11 +104,11 @@ exports.buildInteractionActionEndpoints = (builder, opts, federator) => {
             },
         },
         "consent.reject": {
-            url: url(`/abort`),
+            url: getURL(`/abort`),
             method: "POST",
         },
         "consent.change_account": {
-            url: url("/login"),
+            url: getURL("/login"),
             method: "GET",
             payload: {
                 change_account: "true",

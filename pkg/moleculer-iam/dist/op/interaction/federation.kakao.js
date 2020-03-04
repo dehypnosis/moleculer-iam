@@ -1,0 +1,251 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const passport_kakao_1 = require("passport-kakao");
+const idp_1 = require("../../idp");
+// Kakao is not a OIDC provider; openid scope not supported
+// phone scope not supported
+exports.kakaoProviderConfiguration = {
+    clientID: "",
+    scope: "profile account_email",
+    strategy: (options, verify) => {
+        return new passport_kakao_1.Strategy(options, verify);
+    },
+    callback: async (args) => {
+        const { accessToken, refreshToken, idp, profile, logger, scope } = args;
+        // federation metadata
+        const metadata = { federation: { kakao: { id: profile.id } } };
+        // gather claims
+        const claims = {
+            name: profile._json.kakao_account.profile.nickname,
+            picture: profile._json.kakao_account.profile.profile_image_url,
+            email: profile._json.kakao_account.email,
+            email_verified: profile._json.kakao_account.is_email_verified,
+        };
+        if (!claims.email) {
+            throw new idp_1.Errors.UnexpectedError("cannot federate without an email address");
+        }
+        if (!claims.email_verified) {
+            delete claims.email_verified;
+        }
+        if (!claims.picture) {
+            delete claims.picture;
+        }
+        // find existing account
+        let identity = await idp.find({ metadata });
+        // connect the identity which has same email address
+        if (!identity && claims.email) {
+            identity = await idp.find({ claims: { email: claims.email } });
+            // if (identity) {
+            //   const oldClaims = await identity.claims("userinfo", "email");
+            //   if (!oldClaims.email_verified) {
+            //     throw new Errors.UnexpectedError("cannot federate an existing account with non-verified email address");
+            //   }
+            // }
+        }
+        // update or create
+        const upsertScopes = idp.claims.mandatoryScopes;
+        if (identity) {
+            if (await identity.isSoftDeleted()) {
+                throw new idp_1.Errors.UnexpectedError("cannot federate a deleted account");
+            }
+            await identity.updateMetadata(metadata);
+            await identity.updateClaims(claims, upsertScopes, undefined, true);
+            return identity;
+        }
+        else {
+            return idp.create({
+                metadata,
+                claims,
+                credentials: {},
+                scope: upsertScopes,
+            }, undefined, true);
+        }
+    },
+};
+// 2. connect the identity which has same email address
+if (!identity && claims.email) {
+    identity = await idp.find({ claims: { email: claims.email } });
+    // if (identity) {
+    //   const oldClaims = await identity.claims("userinfo", "email");
+    //   if (!oldClaims.email_verified) {
+    //     throw new Errors.UnexpectedError("cannot federate an existing account with non-verified email address");
+    //   }
+    // }
+}
+// 4. update or create
+if (identity) {
+    if (await identity.isSoftDeleted()) {
+        throw new idp_1.Errors.UnexpectedError("cannot federate a deleted account");
+    }
+    await identity.updateMetadata({ federation: { kakao } });
+    await identity.updateClaims(claims, upsertScopes, undefined, true);
+    return identity;
+}
+else {
+    return idp.create({
+        metadata: { federation: { kakao } },
+        claims,
+        credentials: {},
+        scope: upsertScopes,
+    }, undefined, true);
+}
+facebook: {
+    clientID: "",
+        clientSecret;
+    "",
+        scope;
+    "public_profile email", // not a oidc provider, phone is not supported (seems only for the whatsapp platform apps)
+        profileFields;
+    ["id", "name", "displayName", "photos", "email"],
+        enableProof;
+    true,
+        callback;
+    async (props) => {
+        const { accessToken, idp, profile } = props;
+        const upsertScopes = [...idp.claims.mandatoryScopes];
+        const facebook = { id: profile.id };
+        const claims = {
+            name: profile.displayName,
+            picture: profile.photos[0] && profile.photos[0].value || null,
+            email: profile.emails[0] && profile.emails[0].value || null,
+            email_verified: true,
+        };
+        if (!claims.email) {
+            throw new idp_1.Errors.UnexpectedError("cannot federate without an email address");
+        }
+        if (!claims.picture) {
+            delete claims.picture;
+        }
+        // 1. find existing account
+        let identity = await idp.find({ metadata: { federation: { facebook } } });
+        // 2. connect the identity which has same email address
+        if (!identity && claims.email) {
+            identity = await idp.find({ claims: { email: claims.email } });
+            // if (identity) {
+            //   const oldClaims = await identity.claims("userinfo", "email");
+            //   if (!oldClaims.email_verified) {
+            //     throw new Errors.UnexpectedError("cannot federate an existing account with non-verified email address");
+            //   }
+            // }
+        }
+        // 3. update or create
+        if (identity) {
+            if (await identity.isSoftDeleted()) {
+                throw new idp_1.Errors.UnexpectedError("cannot federate a deleted account");
+            }
+            await identity.updateMetadata({ federation: { facebook } });
+            await identity.updateClaims(claims, upsertScopes, undefined, true);
+            return identity;
+        }
+        else {
+            return idp.create({
+                metadata: { federation: { facebook } },
+                claims,
+                credentials: {},
+                scope: upsertScopes,
+            }, undefined, true);
+        }
+    },
+    ;
+}
+google: {
+    clientID: "",
+        clientSecret;
+    "",
+        // approval_prompt: "auto",
+        prompt;
+    "select_account",
+        scope;
+    "openid profile email", // add https://www.googleapis.com/auth/user.phonenumbers.read to get phone number with user confirmation
+        callback;
+    async (props) => {
+        const { accessToken, idp, profile } = props;
+        const upsertScopes = [...idp.claims.mandatoryScopes];
+        const claims = profile._json;
+        const google = { id: claims.sub, hd: claims.hd || null };
+        delete claims.sub;
+        delete claims.hd;
+        if (!claims.email) {
+            throw new idp_1.Errors.UnexpectedError("cannot federate without an email address");
+        }
+        if (!claims.email_verified) {
+            delete claims.email_verified;
+        }
+        if (!claims.picture) {
+            delete claims.picture;
+        }
+        // 1. find existing account
+        let identity = await idp.find({ metadata: { federation: { google: { id: google.id } } } });
+        // 2. connect the identity which has same email address
+        if (!identity && claims.email) {
+            identity = await idp.find({ claims: { email: claims.email } });
+            // if (identity) {
+            //   const oldClaims = await identity.claims("userinfo", "email");
+            //   if (!oldClaims.email_verified) {
+            //     throw new Errors.UnexpectedError("cannot federate an existing account with non-verified email address");
+            //   }
+            // }
+        }
+        // 3. if has complete identity
+        if (identity) {
+            if (await identity.isSoftDeleted()) {
+                throw new idp_1.Errors.UnexpectedError("cannot federate a deleted account");
+            }
+            // if phone scope is requested
+            if (props.scope.some(s => s.includes("phone"))) {
+                const oldClaims = await identity.claims("userinfo", "phone");
+                if (oldClaims.phone_number) {
+                    // already have phone claims
+                    return identity;
+                }
+            }
+        }
+        // 4. get phone number if existing claim is empty but having phone scope
+        try {
+            const response = await request.get("https://people.googleapis.com/v1/people/me?personFields=phoneNumbers", {
+                json: true,
+                auth: {
+                    bearer: accessToken,
+                },
+            });
+            if (response.phoneNumbers && response.phoneNumbers[0] && response.phoneNumbers[0].value) {
+                // tslint:disable-next-line:variable-name
+                const phone_number = response.phoneNumbers[0].value;
+                const result = idp.validateEmailOrPhoneNumber({ phone_number });
+                if (result === true) {
+                    upsertScopes.push("phone");
+                    claims.phone_number = phone_number;
+                    claims.phone_number_verified = true;
+                }
+                else {
+                    props.logger.error("failed to validate phone_number from google", result);
+                }
+            }
+        }
+        catch (response) {
+            if (response.error && response.error.error) {
+                props.logger.error("failed to fetch phone_number from google", response.error.error);
+            }
+            else {
+                props.logger.error("failed to fetch phone_number from google", response);
+            }
+        }
+        // 5. update or create
+        if (identity) {
+            await identity.updateMetadata({ federation: { google } });
+            await identity.updateClaims(claims, upsertScopes, undefined, true);
+            return identity;
+        }
+        else {
+            return idp.create({
+                metadata: { federation: { google } },
+                claims,
+                credentials: {},
+                scope: upsertScopes,
+            }, undefined, true);
+        }
+    },
+    ;
+}
+;
+//# sourceMappingURL=federation.kakao.js.map

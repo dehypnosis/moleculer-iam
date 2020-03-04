@@ -23,14 +23,6 @@ function buildDefaultInteractions(builder, opts = {}) {
         oidc_provider_1.interactionPolicy.base().get("login"),
         oidc_provider_1.interactionPolicy.base().get("consent"),
     ])
-        // set default bridge for IDP and OP session and tokens (default)
-        .setFindAccount((ctx, id, token) => {
-        return builder.interaction.idp.findOrFail({ id })
-            .catch(async (err) => {
-            await ctx.oidc.session.destroy();
-            throw err;
-        });
-    })
         // extend client metadata
         .setExtraClientMetadata({
         // skip consent phase for skip_consent feature enabled client

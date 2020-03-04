@@ -6,10 +6,11 @@ const _ = tslib_1.__importStar(require("lodash"));
 const oidc_provider_1 = require("oidc-provider");
 const adapter_1 = require("./adapter");
 const config_default_1 = require("./config.default");
-const config_interaction_1 = require("./config.interaction");
+const interaction_1 = require("./interaction");
 class ProviderConfigBuilder {
     constructor(props, opts = {}) {
         this.props = props;
+        this.built = false;
         const { logger, idp } = props;
         this.logger = logger;
         this.idp = idp;
@@ -37,13 +38,9 @@ class ProviderConfigBuilder {
         this.issuer = issuer;
         this.dev = dev;
         this.adapter = adapter;
-        this.interaction = new config_interaction_1.ProviderInteractionBuilder({
-            logger,
-            idp,
-            dev,
-            issuer,
-            getProvider: () => this.provider,
-        });
+        // create interaction builder
+        this.interaction = new interaction_1.ProviderInteractionBuilder(this);
+        // create static config
         this.staticConfig = _.defaultsDeep({
             // set adapter constructor
             adapter: adapter.adapterConstructorProxy,
@@ -53,37 +50,26 @@ class ProviderConfigBuilder {
             scopes: undefined,
             dynamicScopes: [/.+/],
         }, partialStaticConfig, config_default_1.defaultStaticConfig);
-        // create dynamic options
-        const { deviceFlowUserCodeInputSourceProxy, deviceFlowUserCodeConfirmSourceProxy, deviceFlowSuccessSourceProxy, renderErrorProxy, logoutSourceProxy, postLogoutSuccessSourceProxy, } = this.interaction.namedRoutesProxy;
-        this.dynamicConfig = {
-            findAccount: undefined,
+        // create dynamic config which are linked to interaction builder
+        this.dynamicConfig = _.defaultsDeep(this.interaction._dangerouslyGetDynamicConfiguration(), {
+            // bridge for IDP and OP session
+            findAccount: (ctx, id, token) => {
+                return idp.findOrFail({ id })
+                    .catch(async (err) => {
+                    await ctx.oidc.session.destroy();
+                    throw err;
+                });
+            },
             extraClientMetadata: undefined,
             extraParams: undefined,
-            interactions: undefined,
             routes: undefined,
-            features: {
-                deviceFlow: {
-                    userCodeInputSource: deviceFlowUserCodeInputSourceProxy,
-                    userCodeConfirmSource: deviceFlowUserCodeConfirmSourceProxy,
-                    successSource: deviceFlowSuccessSourceProxy,
-                },
-            },
-            renderError: renderErrorProxy,
-            logoutSource: logoutSourceProxy,
-            postLogoutSuccessSource: postLogoutSuccessSourceProxy,
-        };
+        });
+    }
+    _dagerouslyGetProvider() {
+        return this.provider;
     }
     setPrefix(prefix) {
-        // set interaction url
-        this.dynamicConfig.interactions = {
-            ...this.dynamicConfig.interactions,
-            url: (ctx, interaction) => {
-                return `${prefix}/${interaction.prompt.name}`;
-            },
-        };
-        this.logger.info(`interaction url generation rule configured:`, `${prefix}/:interaction-prompt-name`);
-        // set interaction router prefix
-        this.interaction._dangerouslySetPrefix(prefix);
+        this.assertBuilding();
         // set interaction named url
         this.dynamicConfig.routes = {
             jwks: `${prefix}/jwks`,
@@ -99,29 +85,31 @@ class ProviderConfigBuilder {
             userinfo: `${prefix}/userinfo`,
             registration: `${prefix}/client/register`,
         };
-        this.logger.info(`named routes path configured:`, this.dynamicConfig.routes);
-        return this;
-    }
-    setFindAccount(config) {
-        this.dynamicConfig.findAccount = config;
+        this.logger.info(`named route path configured:`, this.dynamicConfig.routes);
+        // set interaction router prefix
+        this.interaction._dangerouslySetPrefix(prefix);
         return this;
     }
     setExtraParams(config) {
+        this.assertBuilding();
         this.dynamicConfig.extraParams = config;
         return this;
     }
     setExtraClientMetadata(config) {
+        this.assertBuilding();
         this.dynamicConfig.extraClientMetadata = config;
         return this;
     }
-    setInteractionPolicy(config) {
-        this.dynamicConfig.interactions = {
-            ...this.dynamicConfig.interactions,
-            policy: config,
-        };
-        return this;
+    assertBuilding(shouldBuilt = false) {
+        if (!shouldBuilt && this.built) {
+            throw new Error("provider configuration already built");
+        }
+        else if (shouldBuilt && !this.built) {
+            throw new Error("provider configuration has not been built yet");
+        }
     }
-    build() {
+    _dangerouslyBuild() {
+        this.assertBuilding();
         const { logger } = this;
         // create provider with config proxy
         const provider = this.provider = new oidc_provider_1.Provider(this.issuer, _.defaultsDeep(this.dynamicConfig, this.staticConfig));
@@ -149,8 +137,8 @@ class ProviderConfigBuilder {
             });
         }
         // mount interaction routes
-        this.interaction.build();
-        // delegate programmable implementation to OIDCProviderProxy now
+        this.interaction._dangerouslyBuild();
+        this.built = true;
         return provider;
     }
 }

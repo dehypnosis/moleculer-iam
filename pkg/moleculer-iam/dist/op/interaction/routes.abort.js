@@ -2,12 +2,10 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 function buildAbortRoutes(builder, opts, actions) {
     builder.interaction.router.get("/abort", async (ctx) => {
-        ctx.assert(ctx.op.interaction);
-        const redirect = await ctx.op.setInteractionResult({
+        return ctx.op.redirectWithUpdate({
             error: "access_denied",
             error_description: "end-user aborted interaction.",
         });
-        return ctx.op.render({ redirect });
     });
 }
 exports.buildAbortRoutes = buildAbortRoutes;

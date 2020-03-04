@@ -2,7 +2,7 @@ import { Provider, Configuration } from "oidc-provider";
 import { IdentityProvider } from "../../idp";
 import { Logger } from "../../logger";
 import { OIDCAdapterProxy, OIDCAdapterProxyConstructorOptions } from "./adapter";
-import { ProviderInteractionBuilder } from "./config.interaction";
+import { ProviderInteractionBuilder } from "./interaction";
 import { DiscoveryMetadata } from "./proxy.types";
 declare type UnsupportedConfigurationKeys = "clients" | "claims" | "scopes" | "dynamicScopes";
 declare type DynamicConfigurationKeys = "findAccount" | "extraClientMetadata" | "extraParams" | "interactions" | "routes" | "renderError" | "logoutSource" | "postLogoutSuccessSource";
@@ -29,20 +29,21 @@ export declare type ProviderBuilderProps = {
 export declare class ProviderConfigBuilder {
     private readonly props;
     readonly logger: Logger;
-    readonly staticConfig: StaticConfiguration;
-    private readonly dynamicConfig;
-    private readonly issuer;
+    readonly issuer: string;
     readonly dev: boolean;
     readonly adapter: OIDCAdapterProxy;
-    readonly interaction: ProviderInteractionBuilder;
     readonly idp: IdentityProvider;
+    readonly interaction: ProviderInteractionBuilder;
+    private readonly staticConfig;
+    private readonly dynamicConfig;
     private provider?;
     constructor(props: ProviderBuilderProps, opts?: Partial<StaticConfiguration>);
+    _dagerouslyGetProvider(): Provider;
     setPrefix(prefix: string): this;
-    setFindAccount(config: DynamicConfiguration["findAccount"]): this;
     setExtraParams(config: DynamicConfiguration["extraParams"]): this;
     setExtraClientMetadata(config: DynamicConfiguration["extraClientMetadata"]): this;
-    setInteractionPolicy(config: NonNullable<DynamicConfiguration["interactions"]["policy"]>): this;
-    build(): Provider;
+    private built;
+    assertBuilding(shouldBuilt?: boolean): void;
+    _dangerouslyBuild(): Provider;
 }
 export {};

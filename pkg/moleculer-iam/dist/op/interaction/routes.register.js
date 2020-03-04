@@ -38,41 +38,23 @@ function buildRegisterRoutes(builder, opts, actions) {
     builder.interaction.router
         // redirect to initial render page
         .get("/register/:any+", async (ctx) => {
-        return ctx.op.render({
-            redirect: ctx.op.url("/register") + (ctx.search || ""),
-        });
+        return ctx.op.redirect("/register" + (ctx.search || ""));
     })
         // initial render page
         .get("/register", async (ctx) => {
-        const { session, setSessionState } = ctx.op;
-        if (!session.state || !session.state.register) {
-            await setSessionState(prevState => ({
-                ...prevState,
-                register: {},
-            }));
-        }
-        const payload = session.state.register;
         return ctx.op.render({
-            interaction: {
-                name: "register",
-                actions: actions.register,
-                data: {
-                    ...payload,
-                    mandatoryScopes: ctx.idp.claims.mandatoryScopes,
-                },
-            },
+            name: "register",
+            actions: actions.register,
         });
     })
         // validate claims and credentials
         .post("/register/validate", async (ctx) => {
-        const { session, setSessionState } = ctx.op;
-        ctx.assert(session.state && session.state.register);
-        const payload = await validatePayload(ctx);
-        await setSessionState(prevState => ({
+        const register = await validatePayload(ctx);
+        await ctx.op.setSessionState(prevState => ({
             ...prevState,
-            register: payload,
+            register,
         }));
-        ctx.body = payload;
+        return ctx.op.end();
     });
 }
 exports.buildRegisterRoutes = buildRegisterRoutes;
