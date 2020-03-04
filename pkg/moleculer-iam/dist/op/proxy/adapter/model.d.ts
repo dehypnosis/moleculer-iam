@@ -25,7 +25,7 @@ export declare abstract class OIDCModelProxy implements Adapter {
      */
     constructor(props: OIDCModelProxyProps, options?: any);
     protected readonly logger: Logger;
-    readonly name: OIDCModelName;
+    get name(): OIDCModelName;
     /**
      *
      * Query instances of an oidc-provider model.

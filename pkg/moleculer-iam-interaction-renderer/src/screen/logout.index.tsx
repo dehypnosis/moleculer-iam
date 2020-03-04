@@ -1,20 +1,21 @@
 import React from "react";
 import { Text, Link } from "../styles";
-import { useServerState, useWithLoading } from "../hook";
+import { useAppState, useWithLoading } from "../hook";
 import { ScreenLayout } from "./layout";
 
 export const LogoutIndexScreen: React.FunctionComponent = () => {
   // states
   const { loading, withLoading, errors, setErrors } = useWithLoading();
-  const { request, interaction } = useServerState();
-  const { user, client } = (interaction && interaction.data) || {};
+  const [state, dispatch] = useAppState();
+  const user = state.metadata.user!;
+  const client = state.metadata.client;
 
   const handleSignOutAll = withLoading(() => {
-    return request("logout.confirm")
+    return dispatch("logout.confirm")
       .catch((err: any) => setErrors(err));
   });
   const handleJustRedirect = withLoading(() => {
-    return request("logout.redirect")
+    return dispatch("logout.redirect")
       .catch((err: any) => setErrors(err));
   });
 

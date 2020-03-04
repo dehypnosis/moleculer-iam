@@ -1,27 +1,26 @@
 import React, { useEffect, useState } from "react";
 import { ScreenLayout } from "./layout";
 import { TextFieldStyles, Text, TextField, Stack, DatePicker, DatePickerStyles, Dropdown, DropdownStyles, Label, LabelStyles } from "../styles";
-import { useClientState, useNavigation, useServerState, useWithLoading } from "../hook";
+import { useNavigation, useAppState, useWithLoading } from "../hook";
 import moment from "moment";
 
 export const RegisterDetailScreen: React.FunctionComponent = () => {
-  const { nav } = useNavigation();
-  const { clientState, setClientState } = useClientState();
-  const { claims = { email: "unknown" }, scope = [], mandatoryScopes = [] } = clientState.register || {};
-  const phoneNumberIsRequired = mandatoryScopes.includes("phone");
-  const { interaction, request, locale } = useServerState();
+  // state
   const [payload, setPayload] = useState({
     phone_number: "",
     birthdate: "",
     gender: "",
   });
 
+  const [state, dispatch] = useAppState();
+  const phoneNumberIsRequired = state.metadata.mandatoryScopes.includes("phone");
+
   // set payload if claims already saved
   useEffect(() => {
-    const savedScope = interaction && interaction.data.scope;
+    const stored = state.session.register;
 
-    if (savedScope && savedScope.includes("birthdate") && savedScope.includes("gender")) {
-      const { phone_number, birthdate, gender } = interaction!.data.claims;
+    if (stored.scope && stored.scope.includes("birthdate") && stored.scope.includes("gender")) {
+      const { phone_number, birthdate, gender } = stored.claims;
       setPayload({
         phone_number,
         birthdate,
@@ -31,30 +30,31 @@ export const RegisterDetailScreen: React.FunctionComponent = () => {
   }, []);
 
 
+  // handlers
+  const { nav } = useNavigation();
   const {loading, errors, setErrors, withLoading} = useWithLoading();
 
   const handlePayloadSubmit = withLoading(async () => {
-    const saved = interaction && interaction.data;
+    const stored = state.session.register;
     const { phone_number, birthdate, gender } = payload;
-    return request("register.validate", {
+
+    return dispatch("register.validate", {
       claims: {
-        ...saved.claims,
-        phone_number: phone_number ? `${locale.country}|${phone_number}` : undefined,
+        ...stored.claims,
+        phone_number: phone_number ? `${state.metadata.locale.country}|${phone_number}` : undefined,
         birthdate,
         gender,
       },
-      credentials: saved.credentials,
+      credentials: stored.credentials,
       scope: ["email", "profile", "birthdate", "gender"].concat((phoneNumberIsRequired || phone_number) ? "phone" : []),
     })
-      .then((register: any) => {
-        setClientState(s => ({...s, register}));
+      .then(newState => {
         if (payload.phone_number) {
-          return request("verify_phone.send", {
-            phone_number: register.claims.phone_number,
+          return dispatch("verify_phone.send", {
+            phone_number: newState.session.register.claims.phone_number,
             register: true,
           })
-            .then(phoneVerification => {
-              setClientState(s => ({...s, phoneVerification}));
+            .then(() => {
               nav.navigate("verify_phone", {
                 screen: "verify_phone.verify",
                 params: {},
@@ -75,10 +75,11 @@ export const RegisterDetailScreen: React.FunctionComponent = () => {
   }), [nav]);
 
   // render
+  const storedClaims = state.session.register.claims;
   return (
     <ScreenLayout
       title={"Sign up"}
-      subtitle={claims.email}
+      subtitle={storedClaims.email}
       buttons={[
         {
           primary: true,

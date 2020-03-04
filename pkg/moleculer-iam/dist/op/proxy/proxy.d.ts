@@ -23,12 +23,12 @@ export declare class OIDCProviderProxy {
     private readonly provider;
     private readonly adapter;
     constructor(props: OIDCProviderProxyProps, options: OIDCProviderProxyOptions);
-    private readonly hidden;
-    readonly app: import("koa")<Application.DefaultState, Application.DefaultContext>;
-    readonly configuration: Configuration;
-    readonly supportedLocales: string[];
+    private get hidden();
+    get app(): import("koa")<Application.DefaultState, Application.DefaultContext>;
+    get configuration(): Configuration;
+    get supportedLocales(): string[];
     parseLocale(locale: string): ParsedLocale;
-    readonly issuer: string;
+    get issuer(): string;
     start(): Promise<void>;
     stop(): Promise<void>;
     deleteModels(...args: any[]): any;

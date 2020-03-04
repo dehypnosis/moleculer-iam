@@ -6,7 +6,7 @@ import { IAMServiceSchema } from "../../"; // "moleculer-iam";
 
 // import Renderer from "moleculer-iam-interaction-renderer";
 // tslint:disable-next-line:no-var-requires to avoid circular deps in our monorepo workspace
-const Renderer = require("moleculer-iam-interaction-renderer").default;
+const rendererFactory = require("moleculer-iam-interaction-renderer");
 
 // can use any alternative renderer rather than this default one
 
@@ -89,28 +89,31 @@ const serviceSchema = IAMServiceSchema({
         },
         */
       },
-      renderer: new Renderer({
-        logo: {
-          uri: "https://upload.wikimedia.org/wikipedia/commons/a/a2/OpenID_logo_2.svg",
-          align: "left",
-        },
-        login: {
-          federation_options_visible: true,
-        },
-        theme: {
-          palette: {
-            themePrimary: "#ff6500",
-            themeLighterAlt: "#f6f7fe",
-            themeLighter: "#fce1f3",
-            themeLight: "#facfd4",
-            themeTertiary: "#f4909a",
-            themeSecondary: "#ef7551",
-            themeDarkAlt: "#d54627",
-            themeDark: "#bc4014",
-            themeDarker: "#a23414",
+      renderer: {
+        factory: require("moleculer-iam-interaction-renderer"),
+        options: {
+          logo: {
+            uri: "https://upload.wikimedia.org/wikipedia/commons/a/a2/OpenID_logo_2.svg",
+            align: "left",
+          },
+          login: {
+            federation_options_visible: true,
+          },
+          theme: {
+            palette: {
+              themePrimary: "#ff6500",
+              themeLighterAlt: "#f6f7fe",
+              themeLighter: "#fce1f3",
+              themeLight: "#facfd4",
+              themeTertiary: "#f4909a",
+              themeSecondary: "#ef7551",
+              themeDarkAlt: "#d54627",
+              themeDark: "#bc4014",
+              themeDarker: "#a23414",
+            },
           },
         },
-      }),
+      },
     },
     discovery: {
       ui_locales_supported: ["en-US", "ko-KR"],

@@ -55,6 +55,13 @@ export function buildRegisterRoutes(builder: ProviderConfigBuilder, opts: Intera
 
     // initial render page
     .get("/register", async ctx => {
+
+      // create empty object into register state
+      await ctx.op.setSessionState(prevState => ({
+        register: {},
+        ...prevState,
+      }));
+
       return ctx.op.render({
         name: "register",
         actions: actions.register,

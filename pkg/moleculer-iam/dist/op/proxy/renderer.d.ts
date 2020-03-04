@@ -1,16 +1,16 @@
 import * as compose from "koa-compose";
 import { Logger } from "../../logger";
-import { InteractionRequestContext, InteractionResponse } from "./index";
-export declare type InteractionPageRendererProps = {
+import { InteractionState, InteractionRequestContext } from "./index";
+export declare type InteractionStateRendererProps = {
     logger: Logger;
     prefix: string;
     dev: boolean;
 };
-export interface InteractionPageRenderer {
+export interface InteractionStateRenderer {
     routes?(): compose.Middleware<InteractionRequestContext>[];
-    render(ctx: InteractionRequestContext, response: InteractionResponse): Promise<void>;
+    render(ctx: InteractionRequestContext, state: InteractionState): Promise<void>;
 }
-export interface InteractionPageRendererFactoryOptions {
+export interface InteractionStateRendererFactoryOptions {
 }
-export declare type InteractionPageRendererFactory<T extends InteractionPageRendererFactoryOptions = any> = (props: InteractionPageRendererProps, options?: T) => InteractionPageRenderer;
-export declare const dummyInteractionPageRendererFactory: InteractionPageRendererFactory;
+export declare type InteractionStateRendererFactory<T extends InteractionStateRendererFactoryOptions = any> = (props: InteractionStateRendererProps, options?: T) => InteractionStateRenderer;
+export declare const dummyInteractionStateRendererFactory: InteractionStateRendererFactory;

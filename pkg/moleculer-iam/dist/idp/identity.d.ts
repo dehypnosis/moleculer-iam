@@ -9,9 +9,9 @@ export interface IdentityProps {
 export declare class Identity implements OIDCAccount {
     private readonly props;
     constructor(props: IdentityProps);
-    readonly id: Readonly<string>;
-    private readonly adapter;
-    readonly accountId: Readonly<string>;
+    get id(): Readonly<string>;
+    private get adapter();
+    get accountId(): Readonly<string>;
     /**
      * @param use - can either be "id_token" or "userinfo", depending on where the specific claims are intended to be put in.
      * @param scope - the intended scope, while oidc-provider will mask

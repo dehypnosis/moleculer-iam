@@ -1,7 +1,7 @@
 import * as _ from "lodash";
 import { interactionPolicy, errors } from "oidc-provider";
 import { ProviderConfigBuilder } from "../proxy";
-import { InteractionPageRendererFactory, InteractionPageRendererFactoryOptions } from "../proxy";
+import { InteractionStateRendererFactory, InteractionStateRendererFactoryOptions } from "../proxy";
 import { buildInteractionActionEndpoints } from "./actions";
 import { buildAbortRoutes } from "./abort";
 import { IdentityFederationProviderOptions, identityFederationProviderOptionsPreset } from "../federation";
@@ -18,8 +18,8 @@ export interface InteractionBuildOptions {
   prefix?: string;
   federation?: IdentityFederationProviderOptions;
   renderer?: {
-    factory?: InteractionPageRendererFactory;
-    options?: InteractionPageRendererFactoryOptions;
+    factory?: InteractionStateRendererFactory;
+    options?: InteractionStateRendererFactoryOptions;
   };
   register?: IdentityRegisterOptions;
   phoneVerification?: IdentityPhoneVerificationOptions;
@@ -63,7 +63,7 @@ export function buildDefaultInteractions(builder: ProviderConfigBuilder, opts: I
     ])
 
     // set interaction page renderer
-    // .setPageRenderer(renderer.factory || require("moleculer-iam-interaction-renderer"), renderer.options)
+    .setPageRenderer(renderer.factory || require("moleculer-iam-interaction-renderer"), renderer.options)
 
     // configure federation
     .federation

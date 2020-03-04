@@ -1,12 +1,9 @@
 import compose from "koa-compose";
 import Router from "koa-router";
-import { ClientMetadata, interactionPolicy } from "oidc-provider";
+import { interactionPolicy } from "oidc-provider";
 import { IdentityFederationBuilder } from "./federation";
 import { InteractionRequestContext } from "./interaction.types";
-import { OIDCAccountClaims } from "./identity.types";
-import { Client } from "./proxy.types";
-import { Identity } from "../../idp";
-import { InteractionPageRenderer, InteractionPageRendererFactory } from "./renderer";
+import { InteractionStateRenderer, InteractionStateRendererFactory } from "./renderer";
 import { DynamicConfiguration, ProviderConfigBuilder } from "./config";
 export declare class ProviderInteractionBuilder {
     private readonly builder;
@@ -15,19 +12,19 @@ export declare class ProviderInteractionBuilder {
     readonly federation: IdentityFederationBuilder;
     constructor(builder: ProviderConfigBuilder);
     private _prefix;
-    readonly prefix: string;
+    get prefix(): string;
     _dangerouslySetPrefix(prefix: string): void;
-    readonly idp: import("../../idp").IdentityProvider;
-    readonly op: import("oidc-provider").Provider;
+    get idp(): import("../..").IdentityProvider;
+    get op(): import("oidc-provider").Provider;
     readonly getURL: (path: string) => string;
-    private readonly parseContext;
+    private readonly extendContext;
     private readonly errorHandler;
     private readonly commonMiddleware;
     private readonly middleware;
     use(...middleware: compose.Middleware<InteractionRequestContext>[]): this;
-    setPageRenderer<F extends InteractionPageRendererFactory>(factory: F, options?: F extends InteractionPageRendererFactory<infer O> ? O : never): this;
-    private _pageRenderer?;
-    readonly pageRenderer: InteractionPageRenderer;
+    setPageRenderer<F extends InteractionStateRendererFactory>(factory: F, options?: F extends InteractionStateRendererFactory<infer O> ? O : never): this;
+    private _stateRenderer?;
+    get stateRenderer(): InteractionStateRenderer;
     private renderError;
     private readonly renderErrorProxy;
     private renderLogout;
@@ -44,6 +41,4 @@ export declare class ProviderInteractionBuilder {
     setPrompts(prompts: interactionPolicy.Prompt[]): this;
     _dangerouslyGetDynamicConfiguration(): Partial<DynamicConfiguration>;
     _dangerouslyBuild(): void;
-    getPublicClientProps(client?: Client): Promise<Partial<ClientMetadata> | undefined>;
-    getPublicUserProps(id?: Identity): Promise<Partial<OIDCAccountClaims> | undefined>;
 }

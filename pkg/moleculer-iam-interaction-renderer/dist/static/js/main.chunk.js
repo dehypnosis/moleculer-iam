@@ -18,70 +18,52 @@ module.exports = exports;
 
 /***/ }),
 
-/***/ "./inject.js":
-/*!*******************!*\
-  !*** ./inject.js ***!
-  \*******************/
+/***/ "./src/app/index.tsx":
+/*!***************************!*\
+  !*** ./src/app/index.tsx ***!
+  \***************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-"use strict";
-
-
-var __importStar = this && this.__importStar || function (mod) {
-  if (mod && mod.__esModule) return mod;
-  var result = {};
-  if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-  result["default"] = mod;
-  return result;
-};
+var _interopRequireDefault = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireDefault */ "../../node_modules/@babel/runtime/helpers/interopRequireDefault.js");
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.App = void 0;
 
-var _ = __importStar(__webpack_require__(/*! lodash */ "../../node_modules/lodash/lodash.js"));
+var _react = _interopRequireDefault(__webpack_require__(/*! react */ "../../node_modules/react/index.js"));
 
-var defaultServerOptions = {
-  prefix: "/op",
-  logo: {
-    uri: null,
-    align: "left"
-  },
-  login: {
-    federation_options_visible: false
-  }
+var _nav = __webpack_require__(/*! ./nav.state */ "./src/app/nav.state.tsx");
+
+var _state = __webpack_require__(/*! ./state */ "./src/app/state.tsx");
+
+var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-interaction-renderer/src/app/index.tsx";
+
+var App = function App() {
+  return _react.default.createElement(_state.AppStateContainer, {
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 7
+    },
+    __self: this
+  }, _react.default.createElement(_nav.AppNavigationContainer, {
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 8
+    },
+    __self: this
+  }));
 };
 
-exports.getServerState = function () {
-  if (typeof window === "undefined") {
-    throw new Error("cannot call getServerState from server-side");
-  } else {
-    return window.__SERVER_STATE__ || {
-      error: {
-        error: "unexpected_error",
-        error_description: "unrecognized state received from server"
-      }
-    };
-  }
-};
-
-var cachedServerOptions;
-
-exports.getServerOptions = function () {
-  if (typeof window === "undefined") {
-    throw new Error("cannot call getServerState from server-side");
-  } else {
-    return cachedServerOptions || (cachedServerOptions = _.defaultsDeep(window.__SERVER_OPTIONS__, defaultServerOptions));
-  }
-};
+exports.App = App;
 
 /***/ }),
 
-/***/ "./src/app.tsx":
-/*!*********************!*\
-  !*** ./src/app.tsx ***!
-  \*********************/
+/***/ "./src/app/nav.state.tsx":
+/*!*******************************!*\
+  !*** ./src/app/nav.state.tsx ***!
+  \*******************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -92,9 +74,603 @@ var _interopRequireWildcard = __webpack_require__(/*! /Users/dehypnosis/Synced/q
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.App = void 0;
+exports.AppNavigationContainer = void 0;
 
-var _extends2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/extends */ "../../node_modules/@babel/runtime/helpers/esm/extends.js"));
+var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/slicedToArray */ "../../node_modules/@babel/runtime/helpers/esm/slicedToArray.js"));
+
+var _react = _interopRequireWildcard(__webpack_require__(/*! react */ "../../node_modules/react/index.js"));
+
+var _core = __webpack_require__(/*! @react-navigation/core */ "../../node_modules/@react-navigation/core/lib/module/index.js");
+
+var _native = __webpack_require__(/*! @react-navigation/native */ "../../node_modules/@react-navigation/native/lib/module/index.js");
+
+var _nav = __webpack_require__(/*! ./nav */ "./src/app/nav.tsx");
+
+var _hook = __webpack_require__(/*! ../hook */ "./src/hook.ts");
+
+var _loading = __webpack_require__(/*! ../screen/loading */ "./src/screen/loading.tsx");
+
+var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-interaction-renderer/src/app/nav.state.tsx";
+
+var _getAppOptions = (0, _hook.getAppOptions)(),
+    dev = _getAppOptions.dev;
+
+var AppNavigationContainer = function AppNavigationContainer(_ref) {
+  var children = _ref.children;
+
+  var _useAppState = (0, _hook.useAppState)(),
+      _useAppState2 = (0, _slicedToArray2.default)(_useAppState, 1),
+      appState = _useAppState2[0];
+
+  var ref = (0, _react.useRef)();
+  var deepLinking = (0, _native.useLinking)(ref, {
+    prefixes: [window.location.origin],
+    config: _nav.routeConfig,
+    getStateFromPath: (0, _react.useCallback)(function (path, options) {
+      var navState = (0, _core.getStateFromPath)(path, options);
+
+      if (navState) {
+        if (appState.error) {
+          navState.routes[0].name = "error";
+          console.error("appState.error", appState);
+        }
+
+        if (appState.name) {
+          var route = getMatchedRoute(navState);
+
+          if (route && route.name !== appState.name) {
+            console.warn("appState.interaction differs from matched route", appState.name, route);
+          }
+        }
+      }
+
+      dev && console.debug("get nav state from URL", navState);
+      return navState;
+    }, [appState])
+  });
+
+  var _useState = (0, _react.useState)(null),
+      _useState2 = (0, _slicedToArray2.default)(_useState, 2),
+      initialState = _useState2[0],
+      setInitialState = _useState2[1];
+
+  var _useState3 = (0, _react.useState)(true),
+      _useState4 = (0, _slicedToArray2.default)(_useState3, 2),
+      loading = _useState4[0],
+      setLoading = _useState4[1];
+
+  (0, _react.useEffect)(function () {
+    deepLinking.getInitialState().then(function (nav) {
+      return setInitialState(nav);
+    }, function (err) {
+      return console.error(err);
+    }).finally(function () {
+      return setLoading(false);
+    });
+  }, []);
+
+  if (loading) {
+    return _react.default.createElement(_loading.LoadingScreen, {
+      __source: {
+        fileName: _jsxFileName,
+        lineNumber: 51
+      },
+      __self: this
+    });
+  }
+
+  return _react.default.createElement(_native.NavigationContainer, {
+    initialState: initialState,
+    ref: ref,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 55
+    },
+    __self: this
+  }, _react.default.createElement(_nav.AppNavigator, {
+    loading: loading,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 59
+    },
+    __self: this
+  }));
+};
+
+exports.AppNavigationContainer = AppNavigationContainer;
+
+function getMatchedRoute(state) {
+  var route = state.routes && state.routes[0];
+  if (!route) return;
+
+  if (route.state) {
+    return getMatchedRoute(route.state);
+  }
+
+  return route;
+}
+
+/***/ }),
+
+/***/ "./src/app/nav.tsx":
+/*!*************************!*\
+  !*** ./src/app/nav.tsx ***!
+  \*************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+var _interopRequireDefault = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireDefault */ "../../node_modules/@babel/runtime/helpers/interopRequireDefault.js");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.AppNavigator = exports.routeConfig = void 0;
+
+var _react = _interopRequireDefault(__webpack_require__(/*! react */ "../../node_modules/react/index.js"));
+
+var _stack = __webpack_require__(/*! @react-navigation/stack */ "../../node_modules/@react-navigation/stack/lib/module/index.js");
+
+var _hook = __webpack_require__(/*! ../hook */ "./src/hook.ts");
+
+var _error = __webpack_require__(/*! ../screen/error */ "./src/screen/error.tsx");
+
+var _login = __webpack_require__(/*! ../screen/login.index */ "./src/screen/login.index.tsx");
+
+var _login2 = __webpack_require__(/*! ../screen/login.check_password */ "./src/screen/login.check_password.tsx");
+
+var _consent = __webpack_require__(/*! ../screen/consent */ "./src/screen/consent.tsx");
+
+var _logout = __webpack_require__(/*! ../screen/logout.index */ "./src/screen/logout.index.tsx");
+
+var _logout2 = __webpack_require__(/*! ../screen/logout.end */ "./src/screen/logout.end.tsx");
+
+var _find_email = __webpack_require__(/*! ../screen/find_email.index */ "./src/screen/find_email.index.tsx");
+
+var _find_email2 = __webpack_require__(/*! ../screen/find_email.verify */ "./src/screen/find_email.verify.tsx");
+
+var _reset_password = __webpack_require__(/*! ../screen/reset_password.index */ "./src/screen/reset_password.index.tsx");
+
+var _reset_password2 = __webpack_require__(/*! ../screen/reset_password.sent */ "./src/screen/reset_password.sent.tsx");
+
+var _reset_password3 = __webpack_require__(/*! ../screen/reset_password.set */ "./src/screen/reset_password.set.tsx");
+
+var _reset_password4 = __webpack_require__(/*! ../screen/reset_password.end */ "./src/screen/reset_password.end.tsx");
+
+var _register = __webpack_require__(/*! ../screen/register.index */ "./src/screen/register.index.tsx");
+
+var _register2 = __webpack_require__(/*! ../screen/register.detail */ "./src/screen/register.detail.tsx");
+
+var _register3 = __webpack_require__(/*! ../screen/register.end */ "./src/screen/register.end.tsx");
+
+var _verify_phone = __webpack_require__(/*! ../screen/verify_phone.index */ "./src/screen/verify_phone.index.tsx");
+
+var _verify_phone2 = __webpack_require__(/*! ../screen/verify_phone.verify */ "./src/screen/verify_phone.verify.tsx");
+
+var _verify_phone3 = __webpack_require__(/*! ../screen/verify_phone.end */ "./src/screen/verify_phone.end.tsx");
+
+var _verify_email = __webpack_require__(/*! ../screen/verify_email.index */ "./src/screen/verify_email.index.tsx");
+
+var _verify_email2 = __webpack_require__(/*! ../screen/verify_email.verify */ "./src/screen/verify_email.verify.tsx");
+
+var _verify_email3 = __webpack_require__(/*! ../screen/verify_email.end */ "./src/screen/verify_email.end.tsx");
+
+var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-interaction-renderer/src/app/nav.tsx";
+var prefix = (0, _hook.getAppOptions)().prefix;
+if (prefix.startsWith("/")) prefix = prefix.substr(1);
+var routeConfig = {
+  "login": {
+    screens: {
+      "login.check_password": prefix + "/login/check_password",
+      "login.index": prefix + "/login"
+    }
+  },
+  "consent": prefix + "/consent",
+  "logout": {
+    screens: {
+      "logout.end": prefix + "/session/end/success",
+      "logout.index": prefix + "/session/end"
+    }
+  },
+  "find_email": {
+    screens: {
+      "find_email.verify": prefix + "/find_email/verify",
+      "find_email.index": prefix + "/find_email"
+    }
+  },
+  "reset_password": {
+    screens: {
+      "reset_password.end": prefix + "/reset_password/end",
+      "reset_password.set": prefix + "/reset_password/set",
+      "reset_password.sent": prefix + "/reset_password/sent",
+      "reset_password.index": prefix + "/reset_password"
+    }
+  },
+  "register": {
+    screens: {
+      "register.end": prefix + "/register/end",
+      "register.detail": prefix + "/register/detail",
+      "register.index": prefix + "/register"
+    }
+  },
+  "verify_phone": {
+    screens: {
+      "verify_phone.end": prefix + "/verify_phone/end",
+      "verify_phone.verify": prefix + "/verify_phone/verify",
+      "verify_phone.index": prefix + "/verify_phone"
+    }
+  },
+  "verify_email": {
+    screens: {
+      "verify_email.end": prefix + "/verify_email/end",
+      "verify_email.verify": prefix + "/verify_email/verify",
+      "verify_email.index": prefix + "/verify_email"
+    }
+  },
+  "error": ""
+};
+exports.routeConfig = routeConfig;
+var RootStack = (0, _stack.createStackNavigator)();
+var screenOptions = {
+  headerShown: false,
+  cardStyle: {
+    backgroundColor: "#ffffff"
+  }
+};
+var LoginStack = (0, _stack.createStackNavigator)();
+
+var LoginStackScreen = function LoginStackScreen() {
+  return _react.default.createElement(LoginStack.Navigator, {
+    screenOptions: screenOptions,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 112
+    },
+    __self: this
+  }, _react.default.createElement(LoginStack.Screen, {
+    name: "login.index",
+    component: _login.LoginIndexScreen,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 115
+    },
+    __self: this
+  }), _react.default.createElement(LoginStack.Screen, {
+    name: "login.check_password",
+    component: _login2.LoginCheckPasswordScreen,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 119
+    },
+    __self: this
+  }));
+};
+
+var LogoutStack = (0, _stack.createStackNavigator)();
+
+var LogoutStackScreen = function LogoutStackScreen() {
+  return _react.default.createElement(LogoutStack.Navigator, {
+    screenOptions: screenOptions,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 128
+    },
+    __self: this
+  }, _react.default.createElement(LogoutStack.Screen, {
+    name: "logout.index",
+    component: _logout.LogoutIndexScreen,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 131
+    },
+    __self: this
+  }), _react.default.createElement(LogoutStack.Screen, {
+    name: "logout.end",
+    component: _logout2.LogoutEndScreen,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 135
+    },
+    __self: this
+  }));
+};
+
+var FindEmailStack = (0, _stack.createStackNavigator)();
+
+var FindEmailStackScreen = function FindEmailStackScreen() {
+  return _react.default.createElement(FindEmailStack.Navigator, {
+    screenOptions: screenOptions,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 144
+    },
+    __self: this
+  }, _react.default.createElement(FindEmailStack.Screen, {
+    name: "find_email.index",
+    component: _find_email.FindEmailIndexScreen,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 147
+    },
+    __self: this
+  }), _react.default.createElement(FindEmailStack.Screen, {
+    name: "find_email.verify",
+    component: _find_email2.FindEmailVerifyScreen,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 151
+    },
+    __self: this
+  }));
+};
+
+var ResetPasswordStack = (0, _stack.createStackNavigator)();
+
+var ResetPasswordStackScreen = function ResetPasswordStackScreen() {
+  return _react.default.createElement(ResetPasswordStack.Navigator, {
+    screenOptions: screenOptions,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 160
+    },
+    __self: this
+  }, _react.default.createElement(ResetPasswordStack.Screen, {
+    name: "reset_password.index",
+    component: _reset_password.ResetPasswordIndexScreen,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 163
+    },
+    __self: this
+  }), _react.default.createElement(ResetPasswordStack.Screen, {
+    name: "reset_password.sent",
+    component: _reset_password2.ResetPasswordSentScreen,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 167
+    },
+    __self: this
+  }), _react.default.createElement(ResetPasswordStack.Screen, {
+    name: "reset_password.set",
+    component: _reset_password3.ResetPasswordSetScreen,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 171
+    },
+    __self: this
+  }), _react.default.createElement(ResetPasswordStack.Screen, {
+    name: "reset_password.end",
+    component: _reset_password4.ResetPasswordEndScreen,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 175
+    },
+    __self: this
+  }));
+};
+
+var RegisterStack = (0, _stack.createStackNavigator)();
+
+var RegisterStackScreen = function RegisterStackScreen() {
+  return _react.default.createElement(RegisterStack.Navigator, {
+    screenOptions: screenOptions,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 184
+    },
+    __self: this
+  }, _react.default.createElement(RegisterStack.Screen, {
+    name: "register.index",
+    component: _register.RegisterIndexScreen,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 187
+    },
+    __self: this
+  }), _react.default.createElement(RegisterStack.Screen, {
+    name: "register.detail",
+    component: _register2.RegisterDetailScreen,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 191
+    },
+    __self: this
+  }), _react.default.createElement(RegisterStack.Screen, {
+    name: "register.end",
+    component: _register3.RegisterEndScreen,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 195
+    },
+    __self: this
+  }));
+};
+
+var VerifyPhoneStack = (0, _stack.createStackNavigator)();
+
+var VerifyPhoneStackScreen = function VerifyPhoneStackScreen() {
+  return _react.default.createElement(VerifyPhoneStack.Navigator, {
+    screenOptions: screenOptions,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 204
+    },
+    __self: this
+  }, _react.default.createElement(VerifyPhoneStack.Screen, {
+    name: "verify_phone.index",
+    component: _verify_phone.VerifyPhoneIndexScreen,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 207
+    },
+    __self: this
+  }), _react.default.createElement(VerifyPhoneStack.Screen, {
+    name: "verify_phone.verify",
+    component: _verify_phone2.VerifyPhoneVerifyScreen,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 211
+    },
+    __self: this
+  }), _react.default.createElement(VerifyPhoneStack.Screen, {
+    name: "verify_phone.end",
+    component: _verify_phone3.VerifyPhoneEndScreen,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 215
+    },
+    __self: this
+  }));
+};
+
+var VerifyEmailStack = (0, _stack.createStackNavigator)();
+
+var VerifyEmailStackScreen = function VerifyEmailStackScreen() {
+  return _react.default.createElement(VerifyEmailStack.Navigator, {
+    screenOptions: screenOptions,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 224
+    },
+    __self: this
+  }, _react.default.createElement(VerifyEmailStack.Screen, {
+    name: "verify_email.index",
+    component: _verify_email.VerifyEmailIndexScreen,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 227
+    },
+    __self: this
+  }), _react.default.createElement(VerifyEmailStack.Screen, {
+    name: "verify_email.verify",
+    component: _verify_email2.VerifyEmailVerifyScreen,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 231
+    },
+    __self: this
+  }), _react.default.createElement(VerifyEmailStack.Screen, {
+    name: "verify_email.end",
+    component: _verify_email3.VerifyEmailEndScreen,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 235
+    },
+    __self: this
+  }));
+};
+
+var AppNavigator = function AppNavigator(_ref) {
+  var loading = _ref.loading;
+
+  if (loading) {
+    return null;
+  }
+
+  return _react.default.createElement(RootStack.Navigator, {
+    screenOptions: screenOptions,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 249
+    },
+    __self: this
+  }, _react.default.createElement(RootStack.Screen, {
+    name: "error",
+    component: _error.ErrorScreen,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 252
+    },
+    __self: this
+  }), _react.default.createElement(RootStack.Screen, {
+    name: "consent",
+    component: _consent.ConsentScreen,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 256
+    },
+    __self: this
+  }), _react.default.createElement(RootStack.Screen, {
+    name: "login",
+    component: LoginStackScreen,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 260
+    },
+    __self: this
+  }), _react.default.createElement(RootStack.Screen, {
+    name: "find_email",
+    component: FindEmailStackScreen,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 264
+    },
+    __self: this
+  }), _react.default.createElement(RootStack.Screen, {
+    name: "reset_password",
+    component: ResetPasswordStackScreen,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 268
+    },
+    __self: this
+  }), _react.default.createElement(RootStack.Screen, {
+    name: "register",
+    component: RegisterStackScreen,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 272
+    },
+    __self: this
+  }), _react.default.createElement(RootStack.Screen, {
+    name: "logout",
+    component: LogoutStackScreen,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 276
+    },
+    __self: this
+  }), _react.default.createElement(RootStack.Screen, {
+    name: "verify_phone",
+    component: VerifyPhoneStackScreen,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 280
+    },
+    __self: this
+  }), _react.default.createElement(RootStack.Screen, {
+    name: "verify_email",
+    component: VerifyEmailStackScreen,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 284
+    },
+    __self: this
+  }));
+};
+
+exports.AppNavigator = AppNavigator;
+
+/***/ }),
+
+/***/ "./src/app/state.tsx":
+/*!***************************!*\
+  !*** ./src/app/state.tsx ***!
+  \***************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+var _interopRequireDefault = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireDefault */ "../../node_modules/@babel/runtime/helpers/interopRequireDefault.js");
+
+var _interopRequireWildcard = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireWildcard */ "../../node_modules/@babel/runtime/helpers/interopRequireWildcard.js");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.AppStateContainer = exports.AppStateContext = void 0;
+
+var _regenerator = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/regenerator */ "../../node_modules/@babel/runtime/regenerator/index.js"));
+
+var _objectSpread2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/objectSpread2 */ "../../node_modules/@babel/runtime/helpers/esm/objectSpread2.js"));
 
 var _classCallCheck2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/classCallCheck */ "../../node_modules/@babel/runtime/helpers/esm/classCallCheck.js"));
 
@@ -106,189 +682,204 @@ var _getPrototypeOf3 = _interopRequireDefault(__webpack_require__(/*! /Users/deh
 
 var _inherits2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/inherits */ "../../node_modules/@babel/runtime/helpers/esm/inherits.js"));
 
-var _regenerator = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/regenerator */ "../../node_modules/@babel/runtime/regenerator/index.js"));
-
-var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/slicedToArray */ "../../node_modules/@babel/runtime/helpers/esm/slicedToArray.js"));
-
 var _react = _interopRequireWildcard(__webpack_require__(/*! react */ "../../node_modules/react/index.js"));
 
-var _native = __webpack_require__(/*! @react-navigation/native */ "../../node_modules/@react-navigation/native/lib/module/index.js");
+var _error = __webpack_require__(/*! ../screen/error */ "./src/screen/error.tsx");
 
-var _navigator = __webpack_require__(/*! ./navigator */ "./src/navigator.tsx");
+var _state = __webpack_require__(/*! ../../state */ "./state.js");
 
-var _hook = __webpack_require__(/*! ./hook */ "./src/hook.ts");
+var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-interaction-renderer/src/app/state.tsx";
 
-var _error = __webpack_require__(/*! ./screen/error */ "./src/screen/error.tsx");
+var _getAppOptions = (0, _state.getAppOptions)(),
+    dev = _getAppOptions.dev;
 
-var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-interaction-renderer/src/app.tsx";
+var AppStateContext = (0, _react.createContext)([]);
+exports.AppStateContext = AppStateContext;
 
-var getMatchedRoute = function getMatchedRoute(state) {
-  var route = state.routes && state.routes[0];
-  if (!route) return;
+var AppStateContainer = function (_React$Component) {
+  (0, _inherits2.default)(AppStateContainer, _React$Component);
 
-  if (route.state) {
-    return getMatchedRoute(route.state);
-  }
-
-  return route;
-};
-
-var InnerApp = function InnerApp() {
-  var ref = (0, _react.useRef)();
-  var serverState = (0, _hook.useServerState)();
-
-  var _useLinking = (0, _native.useLinking)(ref, {
-    prefixes: [window.location.origin],
-    config: _navigator.routeConfig,
-    getStateFromPath: function getStateFromPath(path, options) {
-      var state = (0, _native.getStateFromPath)(path, options);
-
-      if (state) {
-        if (serverState.error) {
-          state.routes[0].name = "error";
-          console.error("serverState.error", serverState);
-        }
-
-        if (serverState.interaction) {
-          var route = getMatchedRoute(state);
-
-          if (route && route.name !== serverState.interaction.name) {
-            console.warn("serverState.interaction differs from matched route", serverState.interaction, route);
-          }
-        }
-      }
-
-      return state;
-    }
-  }),
-      getInitialState = _useLinking.getInitialState;
-
-  var _useState = (0, _react.useState)(true),
-      _useState2 = (0, _slicedToArray2.default)(_useState, 2),
-      loading = _useState2[0],
-      setLoading = _useState2[1];
-
-  var _useState3 = (0, _react.useState)({}),
-      _useState4 = (0, _slicedToArray2.default)(_useState3, 2),
-      initialState = _useState4[0],
-      setInitialState = _useState4[1];
-
-  (0, _react.useEffect)(function () {
-    (function _callee() {
-      var state;
-      return _regenerator.default.async(function _callee$(_context) {
-        while (1) {
-          switch (_context.prev = _context.next) {
-            case 0:
-              _context.prev = 0;
-              _context.next = 3;
-              return _regenerator.default.awrap(getInitialState());
-
-            case 3:
-              state = _context.sent;
-              setInitialState(state);
-              console.debug("initial state loaded from uri", state);
-              _context.next = 11;
-              break;
-
-            case 8:
-              _context.prev = 8;
-              _context.t0 = _context["catch"](0);
-              console.error(_context.t0);
-
-            case 11:
-              _context.prev = 11;
-              setLoading(false);
-              return _context.finish(11);
-
-            case 14:
-            case "end":
-              return _context.stop();
-          }
-        }
-      }, null, null, [[0, 8, 11, 14]]);
-    })();
-  }, [getInitialState]);
-
-  if (loading) {
-    return null;
-  }
-
-  return _react.default.createElement(_native.NavigationContainer, {
-    initialState: initialState,
-    ref: ref,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 66
-    },
-    __self: this
-  }, _react.default.createElement(_navigator.Navigator, {
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 70
-    },
-    __self: this
-  }));
-};
-
-var App = function (_React$Component) {
-  (0, _inherits2.default)(App, _React$Component);
-
-  function App() {
+  function AppStateContainer() {
     var _getPrototypeOf2;
 
     var _this;
 
-    (0, _classCallCheck2.default)(this, App);
+    (0, _classCallCheck2.default)(this, AppStateContainer);
 
     for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
       args[_key] = arguments[_key];
     }
 
-    _this = (0, _possibleConstructorReturn2.default)(this, (_getPrototypeOf2 = (0, _getPrototypeOf3.default)(App)).call.apply(_getPrototypeOf2, [this].concat(args)));
+    _this = (0, _possibleConstructorReturn2.default)(this, (_getPrototypeOf2 = (0, _getPrototypeOf3.default)(AppStateContainer)).call.apply(_getPrototypeOf2, [this].concat(args)));
     _this.state = {
       error: null,
-      info: null
+      app: (0, _state.getInitialAppState)()
     };
+
+    _this.dispatch = function _callee(name) {
+      var userPayload,
+          actions,
+          action,
+          err,
+          url,
+          _action$urlencoded,
+          urlencoded,
+          method,
+          payload,
+          mergedPayload,
+          form,
+          k,
+          input,
+          _args = arguments;
+
+      return _regenerator.default.async(function _callee$(_context) {
+        while (1) {
+          switch (_context.prev = _context.next) {
+            case 0:
+              userPayload = _args.length > 1 && _args[1] !== undefined ? _args[1] : {};
+              actions = _this.state.app.actions;
+              action = actions && actions[name];
+
+              if (action) {
+                _context.next = 7;
+                break;
+              }
+
+              err = {
+                global: "Cannot call unsupported action."
+              };
+              console.error(err, _this.state);
+              throw err;
+
+            case 7:
+              url = action.url, _action$urlencoded = action.urlencoded, urlencoded = _action$urlencoded === void 0 ? false : _action$urlencoded, method = action.method, payload = action.payload;
+              mergedPayload = (0, _objectSpread2.default)({}, payload, {}, userPayload);
+
+              if (!urlencoded) {
+                _context.next = 18;
+                break;
+              }
+
+              form = document.createElement("form");
+              form.action = url;
+              form.method = method;
+              form.style.display = "none";
+
+              for (k in mergedPayload) {
+                input = document.createElement("input");
+                input.type = "hidden";
+                input.name = k;
+                input.value = mergedPayload[k];
+                form.appendChild(input);
+              }
+
+              document.body.appendChild(form);
+              form.submit();
+              return _context.abrupt("return", new Promise(function () {}));
+
+            case 18:
+              return _context.abrupt("return", fetch(action.url, {
+                headers: {
+                  "Accept": "application/json",
+                  "Content-Type": "application/json;charset=UTF-8"
+                },
+                credentials: "same-origin",
+                method: method,
+                body: method !== "GET" ? JSON.stringify(mergedPayload) : undefined
+              }).then(function (res) {
+                return res.json().then(function (data) {
+                  if (data.error) {
+                    if (res.status === 422 && data.error.fields) {
+                      var _err = data.error.fields.reduce(function (e, item) {
+                        e[item.field] = e[item.field] || item.message;
+                        return e;
+                      }, {});
+
+                      console.error(_err, data);
+                      throw _err;
+                    } else {
+                      var _err2 = {
+                        global: typeof data.error === "object" ? data.error.error_description || data.error.error || JSON.stringify(data.error) : data.error.toString()
+                      };
+                      console.error(_err2, data);
+                      throw _err2;
+                    }
+                  } else if (data.session) {
+                    var newAppState = (0, _objectSpread2.default)({}, _this.state.app, {
+                      session: data.session
+                    });
+
+                    _this.setState(function (prev) {
+                      return (0, _objectSpread2.default)({}, prev, {
+                        app: newAppState
+                      });
+                    });
+
+                    dev && console.debug("app state updated", newAppState);
+                    return newAppState;
+                  } else if (data.state) {
+                    console.error("interaction state response received from XHR", data);
+                  } else {
+                    console.error("unrecognized response structure", data);
+                  }
+
+                  return _this.state.app;
+                });
+              }));
+
+            case 19:
+            case "end":
+              return _context.stop();
+          }
+        }
+      });
+    };
+
     return _this;
   }
 
-  (0, _createClass2.default)(App, [{
+  (0, _createClass2.default)(AppStateContainer, [{
+    key: "render",
+    value: function render() {
+      var _this$state = this.state,
+          error = _this$state.error,
+          app = _this$state.app;
+
+      if (error) {
+        return _react.default.createElement(_error.ClientErrorScreen, {
+          error: error,
+          __source: {
+            fileName: _jsxFileName,
+            lineNumber: 21
+          },
+          __self: this
+        });
+      }
+
+      return _react.default.createElement(AppStateContext.Provider, {
+        value: [app, this.dispatch],
+        __source: {
+          fileName: _jsxFileName,
+          lineNumber: 25
+        },
+        __self: this
+      }, this.props.children);
+    }
+  }, {
     key: "componentDidCatch",
     value: function componentDidCatch(error, info) {
-      this.setState({
-        error: error,
-        info: info
+      this.setState(function (prev) {
+        return (0, _objectSpread2.default)({}, prev, {
+          error: error
+        });
       });
       console.error(error, info);
     }
-  }, {
-    key: "render",
-    value: function render() {
-      if (this.state.error) {
-        return _react.default.createElement(_error.ClientErrorScreen, (0, _extends2.default)({}, this.state, {
-          __source: {
-            fileName: _jsxFileName,
-            lineNumber: 86
-          },
-          __self: this
-        }));
-      }
-
-      return _react.default.createElement(InnerApp, {
-        __source: {
-          fileName: _jsxFileName,
-          lineNumber: 89
-        },
-        __self: this
-      });
-    }
   }]);
-  return App;
+  return AppStateContainer;
 }(_react.default.Component);
 
-exports.App = App;
-;
+exports.AppStateContainer = AppStateContainer;
 
 /***/ }),
 
@@ -304,16 +895,16 @@ var _interopRequireDefault = __webpack_require__(/*! /Users/dehypnosis/Synced/qm
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.useAppState = useAppState;
 exports.useWithLoading = useWithLoading;
 exports.useNavigation = useNavigation;
-exports.useServerOptions = useServerOptions;
-exports.useServerState = useServerState;
 exports.useClose = useClose;
-exports.useClientState = void 0;
-
-var _extends2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/extends */ "../../node_modules/@babel/runtime/helpers/esm/extends.js"));
-
-var _objectSpread2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/objectSpread2 */ "../../node_modules/@babel/runtime/helpers/esm/objectSpread2.js"));
+Object.defineProperty(exports, "getAppOptions", {
+  enumerable: true,
+  get: function get() {
+    return _state2.getAppOptions;
+  }
+});
 
 var _toConsumableArray2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/toConsumableArray */ "../../node_modules/@babel/runtime/helpers/esm/toConsumableArray.js"));
 
@@ -325,7 +916,13 @@ var _react = __webpack_require__(/*! react */ "../../node_modules/react/index.js
 
 var _native = __webpack_require__(/*! @react-navigation/native */ "../../node_modules/@react-navigation/native/lib/module/index.js");
 
-var _inject = __webpack_require__(/*! ../inject */ "./inject.js");
+var _state = __webpack_require__(/*! ./app/state */ "./src/app/state.tsx");
+
+var _state2 = __webpack_require__(/*! ../state */ "./state.js");
+
+function useAppState() {
+  return (0, _react.useContext)(_state.AppStateContext);
+}
 
 function useWithLoading() {
   var _useState = (0, _react.useState)(false),
@@ -412,22 +1009,6 @@ function useWithLoading() {
   };
 }
 
-function includeLocaleQuery(args, route) {
-  if (route.params.locale) {
-    if (!args[1] || !args[1].params || !args[1].params.locale) {
-      if (!args[1]) {
-        args[1] = {};
-      }
-
-      if (!args[1].params) {
-        args[1].params = {};
-      }
-
-      args[1].params.locale = route.params.locale;
-    }
-  }
-}
-
 function useNavigation() {
   var route = (0, _native.useRoute)();
   if (!route.params) route.params = {};
@@ -449,147 +1030,21 @@ function useNavigation() {
   };
 }
 
-function useServerOptions() {
-  return (0, _inject.getServerOptions)();
-}
+function includeLocaleQuery(args, route) {
+  if (route.params.locale) {
+    if (!args[1] || !args[1].params || !args[1].params.locale) {
+      if (!args[1]) {
+        args[1] = {};
+      }
 
-function useServerState() {
-  var state = (0, _inject.getServerState)();
-  return (0, _objectSpread2.default)({}, state, {
-    request: function request(name) {
-      var userPayload,
-          actions,
-          action,
-          url,
-          _action$urlencoded,
-          urlencoded,
-          method,
-          payload,
-          mergedPayload,
-          form,
-          k,
-          input,
-          err,
-          _args2 = arguments;
+      if (!args[1].params) {
+        args[1].params = {};
+      }
 
-      return _regenerator.default.async(function request$(_context2) {
-        while (1) {
-          switch (_context2.prev = _context2.next) {
-            case 0:
-              userPayload = _args2.length > 1 && _args2[1] !== undefined ? _args2[1] : {};
-              actions = state.interaction && state.interaction.actions;
-              action = actions && actions[name];
-
-              if (!action) {
-                _context2.next = 18;
-                break;
-              }
-
-              url = action.url, _action$urlencoded = action.urlencoded, urlencoded = _action$urlencoded === void 0 ? false : _action$urlencoded, method = action.method, payload = action.payload;
-              mergedPayload = (0, _objectSpread2.default)({}, payload, {}, userPayload);
-
-              if (!urlencoded) {
-                _context2.next = 15;
-                break;
-              }
-
-              form = document.createElement("form");
-              form.action = url;
-              form.method = method;
-              form.style.display = "none";
-
-              for (k in mergedPayload) {
-                input = document.createElement("input");
-                input.type = "hidden";
-                input.name = k;
-                input.value = mergedPayload[k];
-                form.appendChild(input);
-              }
-
-              document.body.appendChild(form);
-              form.submit();
-              return _context2.abrupt("return", new Promise(function () {}));
-
-            case 15:
-              return _context2.abrupt("return", fetch(action.url, {
-                headers: {
-                  "Accept": "application/json",
-                  "Content-Type": "application/json;charset=UTF-8"
-                },
-                credentials: "same-origin",
-                method: method,
-                body: method !== "GET" ? JSON.stringify(mergedPayload) : undefined
-              }).then(function (res) {
-                return res.json().then(function (data) {
-                  if (data.error) {
-                    if (res.status === 422 && data.fields) {
-                      var err = data.fields.reduce(function (e, item) {
-                        e[item.field] = e[item.field] || item.message;
-                        return e;
-                      }, {});
-                      console.error(err, state);
-                      throw err;
-                    } else {
-                      var _err = {
-                        global: typeof data === "object" ? data.error_description || data.error || JSON.stringify(data) : data.toString()
-                      };
-                      console.error(_err, state);
-                      throw _err;
-                    }
-                  } else if (data.redirect) {
-                    window.location.assign(data.redirect);
-                    return new Promise(function () {});
-                  } else if (data.session) {
-                    state.session = data.session;
-                    return state.session;
-                  } else {
-                    console.error("unrecognized response structure", state);
-                  }
-                });
-              }, function (err) {
-                console.error(err, state);
-                throw err;
-              }));
-
-            case 18:
-              err = {
-                global: "Cannot call unsupported action."
-              };
-              console.error(err, state);
-              throw err;
-
-            case 21:
-            case "end":
-              return _context2.stop();
-          }
-        }
-      });
+      args[1].params.locale = route.params.locale;
     }
-  });
-}
-
-var clientState = {};
-
-var setClientState = function setClientState(reducer) {
-  if (typeof reducer === "function") {
-    (0, _extends2.default)(clientState, reducer(clientState));
-  } else {
-    (0, _extends2.default)(clientState, reducer);
   }
-
-  console.debug("update client state", clientState);
-};
-
-var clientStateContext = (0, _react.createContext)({
-  clientState: clientState,
-  setClientState: setClientState
-});
-
-var useClientState = function useClientState() {
-  return (0, _react.useContext)(clientStateContext);
-};
-
-exports.useClientState = useClientState;
+}
 
 function useClose() {
   var tryGoBack = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
@@ -680,9 +1135,9 @@ var _react = _interopRequireDefault(__webpack_require__(/*! react */ "../../node
 
 var _reactDom = _interopRequireDefault(__webpack_require__(/*! react-dom */ "../../node_modules/react-dom/index.js"));
 
-var _app = __webpack_require__(/*! ./app */ "./src/app.tsx");
-
 var serviceWorker = _interopRequireWildcard(__webpack_require__(/*! ./service-worker */ "./src/service-worker.ts"));
+
+var _app = __webpack_require__(/*! ./app */ "./src/app/index.tsx");
 
 __webpack_require__(/*! ./styles */ "./src/styles.ts");
 
@@ -700,460 +1155,6 @@ serviceWorker.unregister();
 
 /***/ }),
 
-/***/ "./src/navigator.tsx":
-/*!***************************!*\
-  !*** ./src/navigator.tsx ***!
-  \***************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-var _interopRequireDefault = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireDefault */ "../../node_modules/@babel/runtime/helpers/interopRequireDefault.js");
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.Navigator = exports.routeConfig = void 0;
-
-var _react = _interopRequireDefault(__webpack_require__(/*! react */ "../../node_modules/react/index.js"));
-
-var _stack = __webpack_require__(/*! @react-navigation/stack */ "../../node_modules/@react-navigation/stack/lib/module/index.js");
-
-var _inject = __webpack_require__(/*! ../inject */ "./inject.js");
-
-var _error = __webpack_require__(/*! ./screen/error */ "./src/screen/error.tsx");
-
-var _login = __webpack_require__(/*! ./screen/login.index */ "./src/screen/login.index.tsx");
-
-var _login2 = __webpack_require__(/*! ./screen/login.check_password */ "./src/screen/login.check_password.tsx");
-
-var _consent = __webpack_require__(/*! ./screen/consent */ "./src/screen/consent.tsx");
-
-var _logout = __webpack_require__(/*! ./screen/logout.index */ "./src/screen/logout.index.tsx");
-
-var _logout2 = __webpack_require__(/*! ./screen/logout.end */ "./src/screen/logout.end.tsx");
-
-var _find_email = __webpack_require__(/*! ./screen/find_email.index */ "./src/screen/find_email.index.tsx");
-
-var _find_email2 = __webpack_require__(/*! ./screen/find_email.verify */ "./src/screen/find_email.verify.tsx");
-
-var _reset_password = __webpack_require__(/*! ./screen/reset_password.index */ "./src/screen/reset_password.index.tsx");
-
-var _reset_password2 = __webpack_require__(/*! ./screen/reset_password.sent */ "./src/screen/reset_password.sent.tsx");
-
-var _reset_password3 = __webpack_require__(/*! ./screen/reset_password.set */ "./src/screen/reset_password.set.tsx");
-
-var _reset_password4 = __webpack_require__(/*! ./screen/reset_password.end */ "./src/screen/reset_password.end.tsx");
-
-var _register = __webpack_require__(/*! ./screen/register.index */ "./src/screen/register.index.tsx");
-
-var _register2 = __webpack_require__(/*! ./screen/register.detail */ "./src/screen/register.detail.tsx");
-
-var _register3 = __webpack_require__(/*! ./screen/register.end */ "./src/screen/register.end.tsx");
-
-var _verify_phone = __webpack_require__(/*! ./screen/verify_phone.index */ "./src/screen/verify_phone.index.tsx");
-
-var _verify_phone2 = __webpack_require__(/*! ./screen/verify_phone.verify */ "./src/screen/verify_phone.verify.tsx");
-
-var _verify_phone3 = __webpack_require__(/*! ./screen/verify_phone.end */ "./src/screen/verify_phone.end.tsx");
-
-var _verify_email = __webpack_require__(/*! ./screen/verify_email.index */ "./src/screen/verify_email.index.tsx");
-
-var _verify_email2 = __webpack_require__(/*! ./screen/verify_email.verify */ "./src/screen/verify_email.verify.tsx");
-
-var _verify_email3 = __webpack_require__(/*! ./screen/verify_email.end */ "./src/screen/verify_email.end.tsx");
-
-var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-interaction-renderer/src/navigator.tsx";
-var prefix = (0, _inject.getServerOptions)().prefix;
-if (prefix.startsWith("/")) prefix = prefix.substr(1);
-var routeConfig = {
-  "login": {
-    screens: {
-      "login.check_password": prefix + "/login/check_password",
-      "login.index": prefix + "/login"
-    }
-  },
-  "consent": prefix + "/consent",
-  "logout": {
-    screens: {
-      "logout.end": prefix + "/session/end/success",
-      "logout.index": prefix + "/session/end"
-    }
-  },
-  "find_email": {
-    screens: {
-      "find_email.verify": prefix + "/find_email/verify",
-      "find_email.index": prefix + "/find_email"
-    }
-  },
-  "reset_password": {
-    screens: {
-      "reset_password.end": prefix + "/reset_password/end",
-      "reset_password.set": prefix + "/reset_password/set",
-      "reset_password.sent": prefix + "/reset_password/sent",
-      "reset_password.index": prefix + "/reset_password"
-    }
-  },
-  "register": {
-    screens: {
-      "register.end": prefix + "/register/end",
-      "register.detail": prefix + "/register/detail",
-      "register.index": prefix + "/register"
-    }
-  },
-  "verify_phone": {
-    screens: {
-      "verify_phone.end": prefix + "/verify_phone/end",
-      "verify_phone.verify": prefix + "/verify_phone/verify",
-      "verify_phone.index": prefix + "/verify_phone"
-    }
-  },
-  "verify_email": {
-    screens: {
-      "verify_email.end": prefix + "/verify_email/end",
-      "verify_email.verify": prefix + "/verify_email/verify",
-      "verify_email.index": prefix + "/verify_email"
-    }
-  },
-  "error": ""
-};
-exports.routeConfig = routeConfig;
-var RootStack = (0, _stack.createStackNavigator)();
-var screenOptions = {
-  headerShown: false,
-  cardStyle: {
-    backgroundColor: "#ffffff"
-  }
-};
-var LoginStack = (0, _stack.createStackNavigator)();
-
-var LoginStackScreen = function LoginStackScreen() {
-  return _react.default.createElement(LoginStack.Navigator, {
-    screenOptions: screenOptions,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 111
-    },
-    __self: this
-  }, _react.default.createElement(LoginStack.Screen, {
-    name: "login.index",
-    component: _login.LoginIndexScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 114
-    },
-    __self: this
-  }), _react.default.createElement(LoginStack.Screen, {
-    name: "login.check_password",
-    component: _login2.LoginCheckPasswordScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 118
-    },
-    __self: this
-  }));
-};
-
-var LogoutStack = (0, _stack.createStackNavigator)();
-
-var LogoutStackScreen = function LogoutStackScreen() {
-  return _react.default.createElement(LogoutStack.Navigator, {
-    screenOptions: screenOptions,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 127
-    },
-    __self: this
-  }, _react.default.createElement(LogoutStack.Screen, {
-    name: "logout.index",
-    component: _logout.LogoutIndexScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 130
-    },
-    __self: this
-  }), _react.default.createElement(LogoutStack.Screen, {
-    name: "logout.end",
-    component: _logout2.LogoutEndScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 134
-    },
-    __self: this
-  }));
-};
-
-var FindEmailStack = (0, _stack.createStackNavigator)();
-
-var FindEmailStackScreen = function FindEmailStackScreen() {
-  return _react.default.createElement(FindEmailStack.Navigator, {
-    screenOptions: screenOptions,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 143
-    },
-    __self: this
-  }, _react.default.createElement(FindEmailStack.Screen, {
-    name: "find_email.index",
-    component: _find_email.FindEmailIndexScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 146
-    },
-    __self: this
-  }), _react.default.createElement(FindEmailStack.Screen, {
-    name: "find_email.verify",
-    component: _find_email2.FindEmailVerifyScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 150
-    },
-    __self: this
-  }));
-};
-
-var ResetPasswordStack = (0, _stack.createStackNavigator)();
-
-var ResetPasswordStackScreen = function ResetPasswordStackScreen() {
-  return _react.default.createElement(ResetPasswordStack.Navigator, {
-    screenOptions: screenOptions,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 159
-    },
-    __self: this
-  }, _react.default.createElement(ResetPasswordStack.Screen, {
-    name: "reset_password.index",
-    component: _reset_password.ResetPasswordIndexScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 162
-    },
-    __self: this
-  }), _react.default.createElement(ResetPasswordStack.Screen, {
-    name: "reset_password.sent",
-    component: _reset_password2.ResetPasswordSentScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 166
-    },
-    __self: this
-  }), _react.default.createElement(ResetPasswordStack.Screen, {
-    name: "reset_password.set",
-    component: _reset_password3.ResetPasswordSetScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 170
-    },
-    __self: this
-  }), _react.default.createElement(ResetPasswordStack.Screen, {
-    name: "reset_password.end",
-    component: _reset_password4.ResetPasswordEndScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 174
-    },
-    __self: this
-  }));
-};
-
-var RegisterStack = (0, _stack.createStackNavigator)();
-
-var RegisterStackScreen = function RegisterStackScreen() {
-  return _react.default.createElement(RegisterStack.Navigator, {
-    screenOptions: screenOptions,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 183
-    },
-    __self: this
-  }, _react.default.createElement(RegisterStack.Screen, {
-    name: "register.index",
-    component: _register.RegisterIndexScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 186
-    },
-    __self: this
-  }), _react.default.createElement(RegisterStack.Screen, {
-    name: "register.detail",
-    component: _register2.RegisterDetailScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 190
-    },
-    __self: this
-  }), _react.default.createElement(RegisterStack.Screen, {
-    name: "register.end",
-    component: _register3.RegisterEndScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 194
-    },
-    __self: this
-  }));
-};
-
-var VerifyPhoneStack = (0, _stack.createStackNavigator)();
-
-var VerifyPhoneStackScreen = function VerifyPhoneStackScreen() {
-  return _react.default.createElement(VerifyPhoneStack.Navigator, {
-    screenOptions: screenOptions,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 203
-    },
-    __self: this
-  }, _react.default.createElement(VerifyPhoneStack.Screen, {
-    name: "verify_phone.index",
-    component: _verify_phone.VerifyPhoneIndexScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 206
-    },
-    __self: this
-  }), _react.default.createElement(VerifyPhoneStack.Screen, {
-    name: "verify_phone.verify",
-    component: _verify_phone2.VerifyPhoneVerifyScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 210
-    },
-    __self: this
-  }), _react.default.createElement(VerifyPhoneStack.Screen, {
-    name: "verify_phone.end",
-    component: _verify_phone3.VerifyPhoneEndScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 214
-    },
-    __self: this
-  }));
-};
-
-var VerifyEmailStack = (0, _stack.createStackNavigator)();
-
-var VerifyEmailStackScreen = function VerifyEmailStackScreen() {
-  return _react.default.createElement(VerifyEmailStack.Navigator, {
-    screenOptions: screenOptions,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 223
-    },
-    __self: this
-  }, _react.default.createElement(VerifyEmailStack.Screen, {
-    name: "verify_email.index",
-    component: _verify_email.VerifyEmailIndexScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 226
-    },
-    __self: this
-  }), _react.default.createElement(VerifyEmailStack.Screen, {
-    name: "verify_email.verify",
-    component: _verify_email2.VerifyEmailVerifyScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 230
-    },
-    __self: this
-  }), _react.default.createElement(VerifyEmailStack.Screen, {
-    name: "verify_email.end",
-    component: _verify_email3.VerifyEmailEndScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 234
-    },
-    __self: this
-  }));
-};
-
-var Navigator = function Navigator() {
-  return _react.default.createElement(RootStack.Navigator, {
-    screenOptions: screenOptions,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 243
-    },
-    __self: this
-  }, _react.default.createElement(RootStack.Screen, {
-    name: "error",
-    component: _error.ErrorScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 246
-    },
-    __self: this
-  }), _react.default.createElement(RootStack.Screen, {
-    name: "consent",
-    component: _consent.ConsentScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 250
-    },
-    __self: this
-  }), _react.default.createElement(RootStack.Screen, {
-    name: "login",
-    component: LoginStackScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 254
-    },
-    __self: this
-  }), _react.default.createElement(RootStack.Screen, {
-    name: "find_email",
-    component: FindEmailStackScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 258
-    },
-    __self: this
-  }), _react.default.createElement(RootStack.Screen, {
-    name: "reset_password",
-    component: ResetPasswordStackScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 262
-    },
-    __self: this
-  }), _react.default.createElement(RootStack.Screen, {
-    name: "register",
-    component: RegisterStackScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 266
-    },
-    __self: this
-  }), _react.default.createElement(RootStack.Screen, {
-    name: "logout",
-    component: LogoutStackScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 270
-    },
-    __self: this
-  }), _react.default.createElement(RootStack.Screen, {
-    name: "verify_phone",
-    component: VerifyPhoneStackScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 274
-    },
-    __self: this
-  }), _react.default.createElement(RootStack.Screen, {
-    name: "verify_email",
-    component: VerifyEmailStackScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 278
-    },
-    __self: this
-  }));
-};
-
-exports.Navigator = Navigator;
-
-/***/ }),
-
 /***/ "./src/screen/consent.tsx":
 /*!********************************!*\
   !*** ./src/screen/consent.tsx ***!
@@ -1167,6 +1168,8 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.ConsentScreen = void 0;
+
+var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/slicedToArray */ "../../node_modules/@babel/runtime/helpers/esm/slicedToArray.js"));
 
 var _react = _interopRequireDefault(__webpack_require__(/*! react */ "../../node_modules/react/index.js"));
 
@@ -1188,12 +1191,13 @@ var ConsentScreen = function ConsentScreen() {
   var _useNavigation = (0, _hook.useNavigation)(),
       nav = _useNavigation.nav;
 
-  var _useServerState = (0, _hook.useServerState)(),
-      interaction = _useServerState.interaction,
-      request = _useServerState.request;
+  var _useAppState = (0, _hook.useAppState)(),
+      _useAppState2 = (0, _slicedToArray2.default)(_useAppState, 2),
+      state = _useAppState2[0],
+      dispatch = _useAppState2[1];
 
   var handleAccept = withLoading(function () {
-    return request("consent.accept").catch(function (err) {
+    return dispatch("consent.accept").catch(function (err) {
       return setErrors(err);
     });
   });
@@ -1203,17 +1207,14 @@ var ConsentScreen = function ConsentScreen() {
       params: {}
     });
   });
-
-  var _ref = interaction && interaction.data || {},
-      user = _ref.user,
-      client = _ref.client,
-      consent = _ref.consent;
-
+  var user = state.metadata.user;
+  var client = state.metadata.client;
+  var consent = state.session.consent;
   return _react.default.createElement(_layout.ScreenLayout, {
     title: _react.default.createElement("span", {
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 37
+        lineNumber: 39
       },
       __self: this
     }, "Sign in to ", _react.default.createElement(_styles.Link, {
@@ -1225,7 +1226,7 @@ var ConsentScreen = function ConsentScreen() {
       variant: "xxLarge",
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 37
+        lineNumber: 39
       },
       __self: this
     }, client.name)),
@@ -1245,7 +1246,7 @@ var ConsentScreen = function ConsentScreen() {
     footer: _react.default.createElement(_styles.Text, {
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 61
+        lineNumber: 63
       },
       __self: this
     }, "To continue, you need to offer ", consent.scopes.new.concat(consent.scopes.accepted).join(", "), " information. Before consent this application, you could review the ", _react.default.createElement(_styles.Link, {
@@ -1253,7 +1254,7 @@ var ConsentScreen = function ConsentScreen() {
       target: "_blank",
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 63
+        lineNumber: 65
       },
       __self: this
     }, client.name), "'s ", _react.default.createElement(_styles.Link, {
@@ -1261,7 +1262,7 @@ var ConsentScreen = function ConsentScreen() {
       target: "_blank",
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 63
+        lineNumber: 65
       },
       __self: this
     }, "privacy policy"), " and ", _react.default.createElement(_styles.Link, {
@@ -1269,14 +1270,14 @@ var ConsentScreen = function ConsentScreen() {
       target: "_blank",
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 63
+        lineNumber: 65
       },
       __self: this
     }, "terms of service"), "."),
     error: errors.global,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 36
+      lineNumber: 38
     },
     __self: this
   }, _react.default.createElement(_styles.Persona, {
@@ -1286,7 +1287,7 @@ var ConsentScreen = function ConsentScreen() {
     imageUrl: user.picture,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 69
+      lineNumber: 71
     },
     __self: this
   }));
@@ -1310,6 +1311,8 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.ClientErrorScreen = exports.ErrorScreen = void 0;
 
+var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/slicedToArray */ "../../node_modules/@babel/runtime/helpers/esm/slicedToArray.js"));
+
 var _react = _interopRequireDefault(__webpack_require__(/*! react */ "../../node_modules/react/index.js"));
 
 var _layout = __webpack_require__(/*! ./layout */ "./src/screen/layout.tsx");
@@ -1319,7 +1322,11 @@ var _hook = __webpack_require__(/*! ../hook */ "./src/hook.ts");
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-interaction-renderer/src/screen/error.tsx";
 
 var ErrorScreen = function ErrorScreen() {
-  var state = (0, _hook.useServerState)();
+  var _useAppState = (0, _hook.useAppState)(),
+      _useAppState2 = (0, _slicedToArray2.default)(_useAppState, 2),
+      state = _useAppState2[0],
+      dispatch = _useAppState2[1];
+
   var error = state.error || {
     error: "unexpected_server_error",
     error_description: "unrecognized state received from server."
@@ -1424,12 +1431,13 @@ var FindEmailIndexScreen = function FindEmailIndexScreen() {
       setErrors = _useWithLoading.setErrors,
       withLoading = _useWithLoading.withLoading;
 
-  var _useServerState = (0, _hook.useServerState)(),
-      interaction = _useServerState.interaction,
-      request = _useServerState.request;
+  var _useAppState = (0, _hook.useAppState)(),
+      _useAppState2 = (0, _slicedToArray2.default)(_useAppState, 2),
+      state = _useAppState2[0],
+      dispatch = _useAppState2[1];
 
   var handleCheckPhoneNumber = withLoading(function () {
-    request("find_email.check_phone").then(function (data) {
+    dispatch("find_email.check_phone").then(function (data) {
       console.log(data);
       nav.navigate("find_email", {
         screen: "find_email.verify",
@@ -1440,7 +1448,7 @@ var FindEmailIndexScreen = function FindEmailIndexScreen() {
     }).catch(function (err) {
       return setErrors(err);
     });
-  }, [phoneNumber]);
+  }, [phoneNumber, state]);
   var handleCancel = withLoading(function () {
     return nav.navigate("login", {
       screen: "login.index",
@@ -1461,7 +1469,7 @@ var FindEmailIndexScreen = function FindEmailIndexScreen() {
       onClick: handleCancel,
       loading: loading,
       tabIndex: 23,
-      hidden: !interaction || interaction.name === "find_email"
+      hidden: state.name === "find_email"
     }],
     error: errors.global,
     __source: {
@@ -1621,7 +1629,7 @@ var _logo = _interopRequireDefault(__webpack_require__(/*! ../image/logo.svg */ 
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-interaction-renderer/src/screen/layout.tsx";
 
 var ScreenLayout = function ScreenLayout(props) {
-  var options = (0, _hook.useServerOptions)();
+  var options = (0, _hook.getAppOptions)();
   var _props$title = props.title,
       title = _props$title === void 0 ? "TODO" : _props$title,
       _props$subtitle = props.subtitle,
@@ -1773,6 +1781,62 @@ exports.ScreenLayout = ScreenLayout;
 
 /***/ }),
 
+/***/ "./src/screen/loading.tsx":
+/*!********************************!*\
+  !*** ./src/screen/loading.tsx ***!
+  \********************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+var _interopRequireDefault = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireDefault */ "../../node_modules/@babel/runtime/helpers/interopRequireDefault.js");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.LoadingScreen = void 0;
+
+var _extends2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/extends */ "../../node_modules/@babel/runtime/helpers/esm/extends.js"));
+
+var _objectWithoutProperties2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/objectWithoutProperties */ "../../node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js"));
+
+var _react = _interopRequireDefault(__webpack_require__(/*! react */ "../../node_modules/react/index.js"));
+
+var _styles = __webpack_require__(/*! ../styles */ "./src/styles.ts");
+
+var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-interaction-renderer/src/screen/loading.tsx";
+
+var LoadingScreen = function LoadingScreen(_ref) {
+  var _ref$size = _ref.size,
+      size = _ref$size === void 0 ? _styles.SpinnerSize.large : _ref$size,
+      _ref$label = _ref.label,
+      label = _ref$label === void 0 ? "Loading" : _ref$label,
+      otherProps = (0, _objectWithoutProperties2.default)(_ref, ["size", "label"]);
+  return _react.default.createElement(_styles.Stack, {
+    horizontalAlign: "center",
+    verticalAlign: "center",
+    verticalFill: true,
+    children: _react.default.createElement(_styles.Spinner, (0, _extends2.default)({
+      size: size,
+      label: label
+    }, otherProps, {
+      __source: {
+        fileName: _jsxFileName,
+        lineNumber: 10
+      },
+      __self: this
+    })),
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 6
+    },
+    __self: this
+  });
+};
+
+exports.LoadingScreen = LoadingScreen;
+
+/***/ }),
+
 /***/ "./src/screen/login.check_password.tsx":
 /*!*********************************************!*\
   !*** ./src/screen/login.check_password.tsx ***!
@@ -1809,14 +1873,15 @@ var LoginCheckPasswordScreen = function LoginCheckPasswordScreen() {
       password = _useState2[0],
       setPassword = _useState2[1];
 
-  var _useServerState = (0, _hook.useServerState)(),
-      session = _useServerState.session,
-      request = _useServerState.request;
+  var _useAppState = (0, _hook.useAppState)(),
+      _useAppState2 = (0, _slicedToArray2.default)(_useAppState, 2),
+      state = _useAppState2[0],
+      dispatch = _useAppState2[1];
 
-  var _session$login$user = session.login.user,
-      email = _session$login$user.email,
-      name = _session$login$user.name,
-      picture = _session$login$user.picture;
+  var _state$session$login$ = state.session.login.user,
+      email = _state$session$login$.email,
+      name = _state$session$login$.name,
+      picture = _state$session$login$.picture;
 
   var _useNavigation = (0, _hook.useNavigation)(),
       nav = _useNavigation.nav;
@@ -1832,7 +1897,7 @@ var LoginCheckPasswordScreen = function LoginCheckPasswordScreen() {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
-            return _context.abrupt("return", request("login.check_password", {
+            return _context.abrupt("return", dispatch("login.check_password", {
               email: email,
               password: password
             }).catch(function (err) {
@@ -1991,20 +2056,21 @@ var LoginIndexScreen = function LoginIndexScreen() {
       email = _useState2[0],
       setEmail = _useState2[1];
 
-  var _useServerState = (0, _hook.useServerState)(),
-      request = _useServerState.request,
-      interaction = _useServerState.interaction;
+  var _useAppState = (0, _hook.useAppState)(),
+      _useAppState2 = (0, _slicedToArray2.default)(_useAppState, 2),
+      state = _useAppState2[0],
+      dispatch = _useAppState2[1];
 
-  var options = (0, _hook.useServerOptions)();
-  var federationProviders = interaction && interaction.actions["login.federate"].providers || [];
+  var options = (0, _hook.getAppOptions)();
 
   var _useState3 = (0, _react.useState)(options.login.federation_options_visible === true),
       _useState4 = (0, _slicedToArray2.default)(_useState3, 2),
       federationOptionsVisible = _useState4[0],
       setFederationOptionsVisible = _useState4[1];
 
+  var federationProviders = state.metadata.availableFederationProviders;
   var handleCheckLoginEmail = withLoading(function () {
-    return request("login.check_email", {
+    return dispatch("login.check_email", {
       email: email
     }).then(function () {
       nav.navigate("login", {
@@ -2034,7 +2100,7 @@ var LoginIndexScreen = function LoginIndexScreen() {
     });
   });
   var handleFederation = withLoading(function (provider) {
-    return request("login.federate", {
+    return dispatch("login.federate", {
       provider: provider
     }).catch(function (err) {
       return setErrors(err);
@@ -2223,6 +2289,8 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.LogoutEndScreen = void 0;
 
+var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/slicedToArray */ "../../node_modules/@babel/runtime/helpers/esm/slicedToArray.js"));
+
 var _react = _interopRequireDefault(__webpack_require__(/*! react */ "../../node_modules/react/index.js"));
 
 var _styles = __webpack_require__(/*! ../styles */ "./src/styles.ts");
@@ -2238,12 +2306,11 @@ var LogoutEndScreen = function LogoutEndScreen() {
       closed = _useClose.closed,
       close = _useClose.close;
 
-  var _useServerState = (0, _hook.useServerState)(),
-      interaction = _useServerState.interaction;
+  var _useAppState = (0, _hook.useAppState)(),
+      _useAppState2 = (0, _slicedToArray2.default)(_useAppState, 1),
+      state = _useAppState2[0];
 
-  var _ref = interaction && interaction.data || {},
-      user = _ref.user;
-
+  var user = state.metadata.user;
   return _react.default.createElement(_layout.ScreenLayout, {
     title: "Signed out",
     subtitle: user ? user.email : undefined,
@@ -2287,6 +2354,8 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.LogoutIndexScreen = void 0;
 
+var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/slicedToArray */ "../../node_modules/@babel/runtime/helpers/esm/slicedToArray.js"));
+
 var _react = _interopRequireDefault(__webpack_require__(/*! react */ "../../node_modules/react/index.js"));
 
 var _styles = __webpack_require__(/*! ../styles */ "./src/styles.ts");
@@ -2304,21 +2373,20 @@ var LogoutIndexScreen = function LogoutIndexScreen() {
       errors = _useWithLoading.errors,
       setErrors = _useWithLoading.setErrors;
 
-  var _useServerState = (0, _hook.useServerState)(),
-      request = _useServerState.request,
-      interaction = _useServerState.interaction;
+  var _useAppState = (0, _hook.useAppState)(),
+      _useAppState2 = (0, _slicedToArray2.default)(_useAppState, 2),
+      state = _useAppState2[0],
+      dispatch = _useAppState2[1];
 
-  var _ref = interaction && interaction.data || {},
-      user = _ref.user,
-      client = _ref.client;
-
+  var user = state.metadata.user;
+  var client = state.metadata.client;
   var handleSignOutAll = withLoading(function () {
-    return request("logout.confirm").catch(function (err) {
+    return dispatch("logout.confirm").catch(function (err) {
       return setErrors(err);
     });
   });
   var handleJustRedirect = withLoading(function () {
-    return request("logout.redirect").catch(function (err) {
+    return dispatch("logout.redirect").catch(function (err) {
       return setErrors(err);
     });
   });
@@ -2341,19 +2409,19 @@ var LogoutIndexScreen = function LogoutIndexScreen() {
     error: errors.global,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 23
+      lineNumber: 24
     },
     __self: this
   }, _react.default.createElement(_styles.Text, {
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 44
+      lineNumber: 45
     },
     __self: this
   }, client ? _react.default.createElement("span", {
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 45
+      lineNumber: 46
     },
     __self: this
   }, "Signed out from ", _react.default.createElement(_styles.Link, {
@@ -2361,13 +2429,13 @@ var LogoutIndexScreen = function LogoutIndexScreen() {
     target: "_blank",
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 45
+      lineNumber: 46
     },
     __self: this
   }, client.name), " successfully.", _react.default.createElement("br", {
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 45
+      lineNumber: 46
     },
     __self: this
   })) : null, "Do you want to destroy all the sessions?"));
@@ -2412,30 +2480,6 @@ var _moment = _interopRequireDefault(__webpack_require__(/*! moment */ "../../no
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-interaction-renderer/src/screen/register.detail.tsx";
 
 var RegisterDetailScreen = function RegisterDetailScreen() {
-  var _useNavigation = (0, _hook.useNavigation)(),
-      nav = _useNavigation.nav;
-
-  var _useClientState = (0, _hook.useClientState)(),
-      clientState = _useClientState.clientState,
-      setClientState = _useClientState.setClientState;
-
-  var _ref = clientState.register || {},
-      _ref$claims = _ref.claims,
-      claims = _ref$claims === void 0 ? {
-    email: "unknown"
-  } : _ref$claims,
-      _ref$scope = _ref.scope,
-      scope = _ref$scope === void 0 ? [] : _ref$scope,
-      _ref$mandatoryScopes = _ref.mandatoryScopes,
-      mandatoryScopes = _ref$mandatoryScopes === void 0 ? [] : _ref$mandatoryScopes;
-
-  var phoneNumberIsRequired = mandatoryScopes.includes("phone");
-
-  var _useServerState = (0, _hook.useServerState)(),
-      interaction = _useServerState.interaction,
-      request = _useServerState.request,
-      locale = _useServerState.locale;
-
   var _useState = (0, _react.useState)({
     phone_number: "",
     birthdate: "",
@@ -2445,14 +2489,20 @@ var RegisterDetailScreen = function RegisterDetailScreen() {
       payload = _useState2[0],
       setPayload = _useState2[1];
 
-  (0, _react.useEffect)(function () {
-    var savedScope = interaction && interaction.data.scope;
+  var _useAppState = (0, _hook.useAppState)(),
+      _useAppState2 = (0, _slicedToArray2.default)(_useAppState, 2),
+      state = _useAppState2[0],
+      dispatch = _useAppState2[1];
 
-    if (savedScope && savedScope.includes("birthdate") && savedScope.includes("gender")) {
-      var _data$claims = interaction.data.claims,
-          phone_number = _data$claims.phone_number,
-          birthdate = _data$claims.birthdate,
-          gender = _data$claims.gender;
+  var phoneNumberIsRequired = state.metadata.mandatoryScopes.includes("phone");
+  (0, _react.useEffect)(function () {
+    var stored = state.session.register;
+
+    if (stored.scope && stored.scope.includes("birthdate") && stored.scope.includes("gender")) {
+      var _stored$claims = stored.claims,
+          phone_number = _stored$claims.phone_number,
+          birthdate = _stored$claims.birthdate,
+          gender = _stored$claims.gender;
       setPayload({
         phone_number: phone_number,
         birthdate: birthdate,
@@ -2461,6 +2511,9 @@ var RegisterDetailScreen = function RegisterDetailScreen() {
     }
   }, []);
 
+  var _useNavigation = (0, _hook.useNavigation)(),
+      nav = _useNavigation.nav;
+
   var _useWithLoading = (0, _hook.useWithLoading)(),
       loading = _useWithLoading.loading,
       errors = _useWithLoading.errors,
@@ -2468,38 +2521,27 @@ var RegisterDetailScreen = function RegisterDetailScreen() {
       withLoading = _useWithLoading.withLoading;
 
   var handlePayloadSubmit = withLoading(function _callee() {
-    var saved, phone_number, birthdate, gender;
+    var stored, phone_number, birthdate, gender;
     return _regenerator.default.async(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
-            saved = interaction && interaction.data;
+            stored = state.session.register;
             phone_number = payload.phone_number, birthdate = payload.birthdate, gender = payload.gender;
-            return _context.abrupt("return", request("register.validate", {
-              claims: (0, _objectSpread2.default)({}, saved.claims, {
-                phone_number: phone_number ? locale.country + "|" + phone_number : undefined,
+            return _context.abrupt("return", dispatch("register.validate", {
+              claims: (0, _objectSpread2.default)({}, stored.claims, {
+                phone_number: phone_number ? state.metadata.locale.country + "|" + phone_number : undefined,
                 birthdate: birthdate,
                 gender: gender
               }),
-              credentials: saved.credentials,
+              credentials: stored.credentials,
               scope: ["email", "profile", "birthdate", "gender"].concat(phoneNumberIsRequired || phone_number ? "phone" : [])
-            }).then(function (register) {
-              setClientState(function (s) {
-                return (0, _objectSpread2.default)({}, s, {
-                  register: register
-                });
-              });
-
+            }).then(function (newState) {
               if (payload.phone_number) {
-                return request("verify_phone.send", {
-                  phone_number: register.claims.phone_number,
+                return dispatch("verify_phone.send", {
+                  phone_number: newState.session.register.claims.phone_number,
                   register: true
-                }).then(function (phoneVerification) {
-                  setClientState(function (s) {
-                    return (0, _objectSpread2.default)({}, s, {
-                      phoneVerification: phoneVerification
-                    });
-                  });
+                }).then(function () {
                   nav.navigate("verify_phone", {
                     screen: "verify_phone.verify",
                     params: {}
@@ -2527,9 +2569,10 @@ var RegisterDetailScreen = function RegisterDetailScreen() {
       params: {}
     });
   }, [nav]);
+  var storedClaims = state.session.register.claims;
   return _react.default.createElement(_layout.ScreenLayout, {
     title: "Sign up",
-    subtitle: claims.email,
+    subtitle: storedClaims.email,
     buttons: [{
       primary: true,
       text: "Continue",
@@ -2545,7 +2588,7 @@ var RegisterDetailScreen = function RegisterDetailScreen() {
     error: errors.global,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 79
+      lineNumber: 80
     },
     __self: this
   }, _react.default.createElement("form", {
@@ -2555,7 +2598,7 @@ var RegisterDetailScreen = function RegisterDetailScreen() {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 99
+      lineNumber: 100
     },
     __self: this
   }, _react.default.createElement(_styles.Stack, {
@@ -2564,13 +2607,13 @@ var RegisterDetailScreen = function RegisterDetailScreen() {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 103
+      lineNumber: 104
     },
     __self: this
   }, _react.default.createElement(_styles.Text, {
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 104
+      lineNumber: 105
     },
     __self: this
   }, "Please enter the mobile phone number to find the your account for the case of lost."), _react.default.createElement(_styles.TextField, {
@@ -2595,7 +2638,7 @@ var RegisterDetailScreen = function RegisterDetailScreen() {
     styles: _styles.TextFieldStyles.bold,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 105
+      lineNumber: 106
     },
     __self: this
   }), _react.default.createElement(_styles.DatePicker, {
@@ -2628,14 +2671,14 @@ var RegisterDetailScreen = function RegisterDetailScreen() {
     styles: _styles.DatePickerStyles.bold,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 119
+      lineNumber: 120
     },
     __self: this
   }), errors.birthdate ? _react.default.createElement(_styles.Label, {
     styles: _styles.LabelStyles.fieldErrorMessage,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 138
+      lineNumber: 139
     },
     __self: this
   }, errors.birthdate) : null, _react.default.createElement(_styles.Dropdown, {
@@ -2664,7 +2707,7 @@ var RegisterDetailScreen = function RegisterDetailScreen() {
     styles: _styles.DropdownStyles.bold,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 140
+      lineNumber: 141
     },
     __self: this
   }))));
@@ -2773,9 +2816,9 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.RegisterIndexScreen = void 0;
 
-var _regenerator = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/regenerator */ "../../node_modules/@babel/runtime/regenerator/index.js"));
-
 var _objectSpread2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/objectSpread2 */ "../../node_modules/@babel/runtime/helpers/esm/objectSpread2.js"));
+
+var _regenerator = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/regenerator */ "../../node_modules/@babel/runtime/regenerator/index.js"));
 
 var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/slicedToArray */ "../../node_modules/@babel/runtime/helpers/esm/slicedToArray.js"));
 
@@ -2803,30 +2846,26 @@ var RegisterIndexScreen = function RegisterIndexScreen() {
       payload = _useState2[0],
       setPayload = _useState2[1];
 
-  var _useServerState = (0, _hook.useServerState)(),
-      interaction = _useServerState.interaction,
-      request = _useServerState.request;
-
-  var _useClientState = (0, _hook.useClientState)(),
-      setClientState = _useClientState.setClientState;
+  var _useAppState = (0, _hook.useAppState)(),
+      _useAppState2 = (0, _slicedToArray2.default)(_useAppState, 2),
+      state = _useAppState2[0],
+      dispatch = _useAppState2[1];
 
   (0, _react.useEffect)(function () {
-    var savedScope = interaction && interaction.data.scope;
+    var stored = state.session.register;
 
-    if (savedScope && savedScope.includes("email") && savedScope.includes("profile") && interaction.data.credentials) {
-      var _data$claims = interaction.data.claims,
-          name = _data$claims.name,
-          email = _data$claims.email;
+    if (stored && stored.credentials && stored.scope && stored.scope.includes("email") && stored.scope.includes("profile")) {
+      var _stored$claims = stored.claims,
+          name = _stored$claims.name,
+          email = _stored$claims.email;
+      var _stored$credentials = stored.credentials,
+          password = _stored$credentials.password,
+          password_confirmation = _stored$credentials.password_confirmation;
       setPayload({
         name: name,
         email: email,
-        password: "",
-        password_confirmation: ""
-      });
-      setClientState(function (s) {
-        return (0, _objectSpread2.default)({}, s, {
-          register: interaction.data
-        });
+        password: password,
+        password_confirmation: password_confirmation
       });
       nav.navigate("register", {
         screen: "register.detail",
@@ -2853,7 +2892,7 @@ var RegisterIndexScreen = function RegisterIndexScreen() {
         switch (_context.prev = _context.next) {
           case 0:
             name = payload.name, email = payload.email, password = payload.password, password_confirmation = payload.password_confirmation;
-            return _context.abrupt("return", request("register.validate", {
+            return _context.abrupt("return", dispatch("register.validate", {
               claims: {
                 name: name,
                 email: email
@@ -2863,12 +2902,7 @@ var RegisterIndexScreen = function RegisterIndexScreen() {
                 password_confirmation: password_confirmation
               },
               scope: ["email", "profile"]
-            }).then(function (register) {
-              setClientState(function (s) {
-                return (0, _objectSpread2.default)({}, s, {
-                  register: register
-                });
-              });
+            }).then(function () {
               nav.navigate("register", {
                 screen: "register.detail",
                 params: {}
@@ -2890,10 +2924,7 @@ var RegisterIndexScreen = function RegisterIndexScreen() {
       params: {}
     });
   }, [nav]);
-
-  var _useServerState2 = (0, _hook.useServerState)(),
-      metadata = _useServerState2.metadata;
-
+  var discovery = state.metadata.discovery;
   return _react.default.createElement(_layout.ScreenLayout, {
     title: "Sign up",
     subtitle: "Create account",
@@ -2907,36 +2938,36 @@ var RegisterIndexScreen = function RegisterIndexScreen() {
       text: "Cancel",
       onClick: handleCancel,
       loading: loading,
-      hidden: !interaction || interaction.name === "register",
+      hidden: state.name === "register",
       tabIndex: 56
     }],
     error: errors.global,
     footer: _react.default.createElement(_react.default.Fragment, null, _react.default.createElement(_styles.Text, {
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 95
+        lineNumber: 92
       },
       __self: this
     }, "When you sign up as a member, you agree to the ", _react.default.createElement(_styles.Link, {
-      href: metadata.op_tos_uri,
+      href: discovery.op_tos_uri,
       target: "_blank",
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 95
+        lineNumber: 92
       },
       __self: this
     }, "terms of service"), " and the ", _react.default.createElement(_styles.Link, {
-      href: metadata.op_policy_uri,
+      href: discovery.op_policy_uri,
       target: "_blank",
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 95
+        lineNumber: 92
       },
       __self: this
     }, "privacy policy"), ".")),
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 73
+      lineNumber: 70
     },
     __self: this
   }, _react.default.createElement("form", {
@@ -2946,7 +2977,7 @@ var RegisterIndexScreen = function RegisterIndexScreen() {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 99
+      lineNumber: 96
     },
     __self: this
   }, _react.default.createElement(_styles.Stack, {
@@ -2955,7 +2986,7 @@ var RegisterIndexScreen = function RegisterIndexScreen() {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 103
+      lineNumber: 100
     },
     __self: this
   }, _react.default.createElement(_styles.TextField, {
@@ -2980,7 +3011,7 @@ var RegisterIndexScreen = function RegisterIndexScreen() {
     styles: _styles.TextFieldStyles.bold,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 104
+      lineNumber: 101
     },
     __self: this
   }), _react.default.createElement(_styles.TextField, {
@@ -3005,7 +3036,7 @@ var RegisterIndexScreen = function RegisterIndexScreen() {
     styles: _styles.TextFieldStyles.bold,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 117
+      lineNumber: 114
     },
     __self: this
   }), _react.default.createElement(_styles.TextField, {
@@ -3039,7 +3070,7 @@ var RegisterIndexScreen = function RegisterIndexScreen() {
     styles: _styles.TextFieldStyles.bold,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 130
+      lineNumber: 127
     },
     __self: this
   }), _react.default.createElement(_styles.TextField, {
@@ -3064,7 +3095,7 @@ var RegisterIndexScreen = function RegisterIndexScreen() {
     styles: _styles.TextFieldStyles.bold,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 144
+      lineNumber: 141
     },
     __self: this
   }))));
@@ -3978,12 +4009,6 @@ var _layout = __webpack_require__(/*! ./layout */ "./src/screen/layout.tsx");
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-interaction-renderer/src/screen/verify_phone.verify.tsx";
 
 var VerifyPhoneVerifyScreen = function VerifyPhoneVerifyScreen() {
-  var _useWithLoading = (0, _hook.useWithLoading)(),
-      loading = _useWithLoading.loading,
-      errors = _useWithLoading.errors,
-      setErrors = _useWithLoading.setErrors,
-      withLoading = _useWithLoading.withLoading;
-
   var _useState = (0, _react.useState)(""),
       _useState2 = (0, _slicedToArray2.default)(_useState, 2),
       code = _useState2[0],
@@ -4006,8 +4031,10 @@ var VerifyPhoneVerifyScreen = function VerifyPhoneVerifyScreen() {
       remainingSeconds = _useState4[0],
       setRemainingSeconds = _useState4[1];
 
-  var _useServerState = (0, _hook.useServerState)(),
-      interaction = _useServerState.interaction;
+  var _useAppState = (0, _hook.useAppState)(),
+      _useAppState2 = (0, _slicedToArray2.default)(_useAppState, 2),
+      state = _useAppState2[0],
+      dispatch = _useAppState2[1];
 
   (0, _react.useEffect)(function () {
     var timer = setInterval(function () {
@@ -4019,6 +4046,13 @@ var VerifyPhoneVerifyScreen = function VerifyPhoneVerifyScreen() {
       return clearInterval(timer);
     };
   }, []);
+
+  var _useWithLoading = (0, _hook.useWithLoading)(),
+      loading = _useWithLoading.loading,
+      errors = _useWithLoading.errors,
+      setErrors = _useWithLoading.setErrors,
+      withLoading = _useWithLoading.withLoading;
+
   var handleVerify = withLoading(function () {
     if (callback === "register") {
       nav.navigate("register", {
@@ -4041,12 +4075,12 @@ var VerifyPhoneVerifyScreen = function VerifyPhoneVerifyScreen() {
     setCode("");
   });
   var handleCancel = withLoading(function () {
-    if (interaction && interaction.name === "register") {
+    if (state.name === "register") {
       nav.navigate("register", {
         screen: "register.detail",
         params: {}
       });
-    } else if (interaction && (interaction.name === "login" || interaction.name === "consent")) {
+    } else if (state.name === "login" || state.name === "consent") {
       nav.navigate("login", {
         screen: "login.index",
         params: {}
@@ -4070,7 +4104,7 @@ var VerifyPhoneVerifyScreen = function VerifyPhoneVerifyScreen() {
     }, {
       text: "Cancel",
       onClick: handleCancel,
-      hidden: !interaction || interaction.name === "verify_phone",
+      hidden: state.name === "verify_phone",
       loading: loading,
       tabIndex: 24
     }],
@@ -4274,6 +4308,8 @@ exports.ButtonStyles = exports.LabelStyles = exports.DatePickerStyles = exports.
 
 var _objectSpread2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/objectSpread2 */ "../../node_modules/@babel/runtime/helpers/esm/objectSpread2.js"));
 
+var _ = _interopRequireWildcard(__webpack_require__(/*! lodash */ "../../node_modules/lodash/lodash.js"));
+
 var _lib = __webpack_require__(/*! office-ui-fabric-react/lib */ "../../node_modules/office-ui-fabric-react/lib/index.js");
 
 Object.keys(_lib).forEach(function (key) {
@@ -4289,13 +4325,11 @@ Object.keys(_lib).forEach(function (key) {
 
 var _icons = __webpack_require__(/*! @uifabric/icons */ "../../node_modules/@uifabric/icons/lib/index.js");
 
-var _ = _interopRequireWildcard(__webpack_require__(/*! lodash */ "../../node_modules/lodash/lodash.js"));
-
-var _inject = __webpack_require__(/*! ../inject */ "./inject.js");
+var _state = __webpack_require__(/*! ../state */ "./state.js");
 
 __webpack_require__(/*! ./styles.css */ "./src/styles.css");
 
-(0, _lib.loadTheme)(_.defaultsDeep((0, _inject.getServerOptions)().theme || {}, {
+(0, _lib.loadTheme)(_.defaultsDeep((0, _state.getAppOptions)().theme || {}, {
   palette: {
     themePrimary: "#2a44ec",
     themeLighterAlt: "#f6f7fe",
@@ -4438,6 +4472,74 @@ exports.ButtonStyles = ButtonStyles;
 
 /***/ }),
 
+/***/ "./state.js":
+/*!******************!*\
+  !*** ./state.js ***!
+  \******************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var __importStar = this && this.__importStar || function (mod) {
+  if (mod && mod.__esModule) return mod;
+  var result = {};
+  if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+  result["default"] = mod;
+  return result;
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _ = __importStar(__webpack_require__(/*! lodash */ "../../node_modules/lodash/lodash.js")); // parse app options from html document
+
+
+var cachedAppOptions;
+
+function getAppOptions() {
+  if (cachedAppOptions) {
+    return cachedAppOptions;
+  }
+
+  if (typeof window === "undefined") {
+    throw new Error("cannot call getAppOptions from server-side");
+  } else {
+    return cachedAppOptions = _.defaultsDeep(window.__APP_OPTIONS__ || {}, {
+      prefix: "/op",
+      logo: {
+        uri: null,
+        align: "left"
+      },
+      login: {
+        federation_options_visible: false
+      }
+    });
+  }
+}
+
+exports.getAppOptions = getAppOptions; // parse initial app state from html document
+
+function getInitialAppState() {
+  if (typeof window === "undefined") {
+    throw new Error("cannot call getInitialAppState from server-side");
+  } else {
+    return window.__APP_STATE__ || {
+      name: "error",
+      error: {
+        error: "unexpected_error",
+        error_description: "unrecognized state received from server"
+      }
+    };
+  }
+}
+
+exports.getInitialAppState = getInitialAppState;
+
+/***/ }),
+
 /***/ 1:
 /*!*********************************************************************************************************************************************************!*\
   !*** multi (webpack)/hot/dev-server.js /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/react-dev-utils/webpackHotDevClient.js ./src/index.tsx ***!
@@ -4452,5 +4554,5 @@ module.exports = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer
 
 /***/ })
 
-},[[1,"runtime-main",1]]]);
+},[[1,"runtime-main",0]]]);
 //# sourceMappingURL=main.chunk.js.map

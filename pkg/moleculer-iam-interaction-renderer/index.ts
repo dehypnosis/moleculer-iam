@@ -1,6 +1,7 @@
 /*
   should be recompiled (yarn workspace moleculer-iam-interaction-renderer build-server) on updates
- */
+  yarn build-server
+*/
 
 // @ts-ignore
 import path from "path";
@@ -8,42 +9,44 @@ import path from "path";
 import fs from "fs";
 // @ts-ignore
 import serveStatic from "koa-static-cache";
-import { InteractionRenderer } from "moleculer-iam";
-import { ServerOptions } from "./inject";
-import config from "./config";
-
-const { output } = config;
+import { InteractionStateRendererFactory, InteractionStateRenderer, InteractionStateRendererProps } from "moleculer-iam";
+import { AppOptions } from "./state";
+import webpackConfig from "./config";
 
 type RecursivePartial<T> = {
   [P in keyof T]?: T[P] extends (infer U)[] ? RecursivePartial<U>[] : (T[P] extends object ? RecursivePartial<T[P]> : T[P]);
 };
 
-export default class DefaultInteractionRenderer implements InteractionRenderer {
-  private views?: { header: string; footer: string; };
-  constructor(private readonly options: RecursivePartial<ServerOptions> = {}) {
+
+class SinglePageInteractionRenderer implements InteractionStateRenderer {
+  constructor(private readonly props: InteractionStateRendererProps, private readonly options: RecursivePartial<AppOptions> = {}) {
   }
 
-  private loadViews(prefix: string) {
-    const html = fs.readFileSync(path.join(output.path, "index.html")).toString();
+  private views: { header: string; footer: string; } = this.loadViews();
+
+  private loadViews() {
+    // load index page and split into header and footer with app options data
+    const html = fs.readFileSync(path.join(webpackConfig.output.path, "index.html")).toString();
     const index = html.indexOf("<script");
 
     // inject server-side options, ref ./inject.ts
-    this.options.prefix = prefix;
-    const options = `<script>window.__SERVER_OPTIONS__=${JSON.stringify(this.options)};</script>`
+    this.options.dev = this.props.dev;
+    this.options.prefix = this.props.prefix;
+    const options = `<script>window.__APP_OPTIONS__=${JSON.stringify(this.options)};</script>`
 
-    this.views = {
+    return this.views = {
       header: html.substring(0, index),
       footer: options + html.substring(index),
     };
   }
 
-  public render: InteractionRenderer["render"] = async (ctx, state, props) => {
+  public readonly render: InteractionStateRenderer["render"] = async (ctx, state) => {
     // reload views for each rendering for development mode
-    if (props.dev) {
+    if (this.props.dev) {
       try {
-        this.loadViews(props.prefix);
+        this.loadViews();
       } catch (error) {
-        props.logger.error("failed to reload views", error);
+        this.props.logger.error("failed to reload views", error);
       }
     }
 
@@ -52,22 +55,27 @@ export default class DefaultInteractionRenderer implements InteractionRenderer {
     try {
       serializedState = JSON.stringify(state);
     } catch (error) {
-      props.logger.error("failed to stringify server state", state, error);
+      this.props.logger.error("failed to stringify server state", state, error);
       serializedState = JSON.stringify({ error: { error: error.name, error_description: error.message }});
     }
 
     const { header, footer } = this.views!;
-    ctx.body = `${header}<script>window.__SERVER_STATE__=${serializedState};</script>${footer}`;
+    ctx.body = `${header}<script>window.__APP_STATE__=${serializedState};</script>${footer}`;
   };
 
-  public routes: InteractionRenderer["routes"] = (props) => {
+  public readonly routes: InteractionStateRenderer["routes"] = () => {
     return [
-      serveStatic(output.path, {
-        prefix: output.publicPath,
-        maxAge: props.dev ? 0 : 60 * 60 * 24 * 7,
-        dynamic: props.dev,
-        preload: !props.dev,
+      // serve webpack assets
+      serveStatic(webpackConfig.output.path, {
+        prefix: webpackConfig.output.publicPath,
+        maxAge: this.props.dev ? 0 : 60 * 60 * 24 * 7,
+        dynamic: this.props.dev,
+        preload: !this.props.dev,
       }),
     ];
   };
 }
+
+export = ((props, options) => {
+  return new SinglePageInteractionRenderer(props, options);
+}) as InteractionStateRendererFactory<RecursivePartial<AppOptions>>;

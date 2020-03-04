@@ -7,7 +7,7 @@ export function buildLoginRoutes(builder: ProviderConfigBuilder, opts: Interacti
   builder.interaction.router// redirect to initial render page
 
     .get("/login/:any+", async ctx => {
-      return ctx.op.redirect("login" + (ctx.search || ""));
+      return ctx.op.redirect("/login" + (ctx.search || ""));
     })
 
     // initial render page
@@ -45,7 +45,7 @@ export function buildLoginRoutes(builder: ProviderConfigBuilder, opts: Interacti
       const user = await ctx.idp.findOrFail({claims: {email: ctx.request.body.email || ""}});
 
       // set login data to session state and response
-      const userClaims = await builder.interaction.getPublicUserProps(user);
+      const userClaims = await ctx.op.getPublicUserProps(user);
       await ctx.op.setSessionState(prevState => ({
         ...prevState,
         login: { user: userClaims },

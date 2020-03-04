@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { ScreenLayout } from "./layout";
 import { TextFieldStyles, Text, TextField, Stack, Link } from "../styles";
-import { useClientState, useNavigation, useServerState, useWithLoading } from "../hook";
+import { useNavigation, useAppState, useWithLoading } from "../hook";
 
 export const RegisterIndexScreen: React.FunctionComponent = () => {
   const { nav } = useNavigation();
@@ -11,23 +11,22 @@ export const RegisterIndexScreen: React.FunctionComponent = () => {
     password: "",
     password_confirmation: "",
   });
-  const { interaction, request } = useServerState();
-  const { setClientState } = useClientState();
+  const [state, dispatch] = useAppState();
 
   // skip if claims already saved
   useEffect(() => {
-    const savedScope = interaction && interaction.data.scope;
+    const stored = state.session.register;
 
-    if (savedScope && savedScope.includes("email") && savedScope.includes("profile") && interaction!.data.credentials) {
-      const { name, email } = interaction!.data.claims;
+    if (stored && stored.credentials && stored.scope && stored.scope.includes("email") && stored.scope.includes("profile")) {
+      const { name, email } = stored.claims;
+      const { password, password_confirmation } = stored.credentials;
       setPayload({
         name,
         email,
-        password: "",
-        password_confirmation: "",
+        password,
+        password_confirmation,
       });
 
-      setClientState(s => ({...s, register: interaction!.data}));
       nav.navigate("register", {
         screen: "register.detail",
         params: {},
@@ -40,7 +39,7 @@ export const RegisterIndexScreen: React.FunctionComponent = () => {
 
   const handlePayloadSubmit = withLoading(async () => {
     const { name, email, password, password_confirmation } = payload;
-    return request("register.validate", {
+    return dispatch("register.validate", {
       claims: {
         name,
         email,
@@ -51,8 +50,7 @@ export const RegisterIndexScreen: React.FunctionComponent = () => {
       },
       scope: ["email", "profile"],
     })
-      .then((register: any) => {
-        setClientState(s => ({...s, register}));
+      .then(() => {
         nav.navigate("register", {
           screen: "register.detail",
           params: {},
@@ -66,9 +64,8 @@ export const RegisterIndexScreen: React.FunctionComponent = () => {
     params: {},
   }), [nav]);
 
-  const { metadata } = useServerState();
-
   // render
+  const discovery = state.metadata.discovery;
   return (
     <ScreenLayout
       title={"Sign up"}
@@ -85,14 +82,14 @@ export const RegisterIndexScreen: React.FunctionComponent = () => {
           text: "Cancel",
           onClick: handleCancel,
           loading,
-          hidden: (!interaction || interaction.name === "register"),
+          hidden: state.name === "register",
           tabIndex: 56,
         },
       ]}
       error={errors.global}
       footer={
         <>
-          <Text>When you sign up as a member, you agree to the <Link href={metadata!.op_tos_uri!} target="_blank">terms of service</Link> and the <Link href={metadata!.op_policy_uri!} target="_blank">privacy policy</Link>.</Text>
+          <Text>When you sign up as a member, you agree to the <Link href={discovery.op_tos_uri!} target="_blank">terms of service</Link> and the <Link href={discovery.op_policy_uri!} target="_blank">privacy policy</Link>.</Text>
         </>
       }
     >

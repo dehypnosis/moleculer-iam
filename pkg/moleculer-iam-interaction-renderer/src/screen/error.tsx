@@ -1,9 +1,9 @@
 import React from "react";
 import { ScreenLayout } from "./layout";
-import { useServerState, useClose } from "../hook";
+import { useAppState, useClose } from "../hook";
 
 export const ErrorScreen: React.FunctionComponent = () => {
-  const state = useServerState();
+  const [state, dispatch] = useAppState();
   const error = state.error || { error: "unexpected_server_error", error_description: "unrecognized state received from server." };
   const {closed, close} = useClose();
   return (
@@ -24,7 +24,7 @@ export const ErrorScreen: React.FunctionComponent = () => {
   );
 };
 
-export const ClientErrorScreen: React.FunctionComponent<{ error: any, info: any }> = (props) => {
+export const ClientErrorScreen: React.FunctionComponent<{ error: any }> = (props) => {
   return (
     <ScreenLayout
       title={"Unexpected Client Error"}

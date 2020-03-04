@@ -22,6 +22,6 @@
   },
   "include": [
     "./src",
-    "./inject.ts"
+    "./state.ts"
   ]
 }

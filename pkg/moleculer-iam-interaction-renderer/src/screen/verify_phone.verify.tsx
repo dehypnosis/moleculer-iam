@@ -1,16 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { Text, TextField, TextFieldStyles } from "../styles";
-import { useNavigation, useServerState, useWithLoading } from "../hook";
+import { useNavigation, useAppState, useWithLoading } from "../hook";
 import { ScreenLayout } from "./layout";
 
 export const VerifyPhoneVerifyScreen: React.FunctionComponent = () => {
   // states
-  const {loading, errors, setErrors, withLoading} = useWithLoading();
-  const [code, setCode] = useState("");
+  const [ code, setCode ] = useState("");
   const { nav, route } = useNavigation();
   const { phoneNumber = "", ttl = 0, callback = "" } = route.params;
   const [remainingSeconds, setRemainingSeconds] = useState(ttl as number);
-  const { interaction } = useServerState();
+  const [state, dispatch] = useAppState();
 
   useEffect(() => {
     const timer = setInterval(() => setRemainingSeconds(s => Math.max(0, s - 1)), 1000);
@@ -18,6 +17,7 @@ export const VerifyPhoneVerifyScreen: React.FunctionComponent = () => {
   }, []);
 
   // handlers
+  const { loading, errors, setErrors, withLoading } = useWithLoading();
   const handleVerify = withLoading(() => {
     if (callback === "register") {
       nav.navigate("register", {
@@ -40,12 +40,12 @@ export const VerifyPhoneVerifyScreen: React.FunctionComponent = () => {
     setCode("");
   });
   const handleCancel = withLoading(() => {
-    if (interaction && interaction.name === "register") {
+    if (state.name === "register") {
       nav.navigate("register", {
         screen: "register.detail",
         params: {},
       });
-    } else if (interaction && (interaction.name === "login" || interaction.name === "consent")) {
+    } else if (state.name === "login" || state.name === "consent") {
       nav.navigate("login", {
         screen: "login.index",
         params: {},
@@ -75,7 +75,7 @@ export const VerifyPhoneVerifyScreen: React.FunctionComponent = () => {
         {
           text: "Cancel",
           onClick: handleCancel,
-          hidden: (!interaction || interaction.name === "verify_phone"),
+          hidden: state.name === "verify_phone",
           loading,
           tabIndex: 24,
         },

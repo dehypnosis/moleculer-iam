@@ -1,20 +1,20 @@
 import React, { useState } from "react";
 import { ScreenLayout } from "./layout";
 import { Link, TextField, TextFieldStyles } from "../styles";
-import { useServerState, useNavigation, useWithLoading } from "../hook";
+import { useAppState, useNavigation, useWithLoading } from "../hook";
 
 export const LoginCheckPasswordScreen: React.FunctionComponent = () => {
   // state
   const [password, setPassword] = useState("");
-  const { session, request } = useServerState();
-  const { email, name, picture } = session.login.user;
+  const [state, dispatch] = useAppState();
+  const { email, name, picture } = state.session.login.user;
 
   // handlers
   const { nav } = useNavigation();
   const { loading, errors, setErrors, withLoading } = useWithLoading();
 
   const handleCheckLoginPassword = withLoading(async () => {
-    return request("login.check_password", { email, password })
+    return dispatch("login.check_password", { email, password })
       .catch((err: any) => setErrors(err));
   }, [email, password]);
 

@@ -1,10 +1,10 @@
+import * as _ from "lodash";
 import { loadTheme, getTheme, FontSizes, ITextFieldStyles, IStyleFunctionOrObject, FontWeights, IDatePickerStyles, IButtonStyles, IDropdownStyles, ILabelStyles, IPartialTheme } from "office-ui-fabric-react/lib";
 import { ITextFieldStyleProps } from "office-ui-fabric-react/lib/components/TextField/TextField.types";
 import { IDatePickerStyleProps } from "office-ui-fabric-react/lib/components/DatePicker/DatePicker.types";
 import { IDropdownStyleProps } from "office-ui-fabric-react/lib/components/Dropdown/Dropdown.types";
 import { initializeIcons } from "@uifabric/icons";
-import * as _ from "lodash";
-import { getServerOptions } from "../inject";
+import { getAppOptions } from "../state";
 import "./styles.css";
 
 export * from "office-ui-fabric-react/lib";
@@ -20,7 +20,7 @@ export * from "office-ui-fabric-react/lib";
 //   },
 // });
 
-loadTheme(_.defaultsDeep(getServerOptions().theme || {}, {
+loadTheme(_.defaultsDeep(getAppOptions().theme || {}, {
   palette: {
     themePrimary: "#2a44ec",
     themeLighterAlt: "#f6f7fe",

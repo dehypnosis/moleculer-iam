@@ -1,24 +1,24 @@
 import React, { useEffect, useState } from "react";
 import { ScreenLayout } from "./layout";
 import { PrimaryButton, DefaultButton, Link, TextField, TextFieldStyles, ButtonStyles, Separator, Stack, ThemeStyles } from "../styles";
-import { useNavigation, useServerOptions, useServerState, useWithLoading } from "../hook";
+import { useNavigation, getAppOptions, useAppState, useWithLoading } from "../hook";
 
 export const LoginIndexScreen: React.FunctionComponent = () => {
   const { nav, route } = useNavigation();
   const { loading, errors, setErrors, withLoading } = useWithLoading();
-  const [email, setEmail] = useState(route.params.email || "");
-  const { request, interaction } = useServerState();
-  const options = useServerOptions();
-  const federationProviders = interaction && interaction.actions!["login.federate"]!.providers || [];
+  const [ email, setEmail ] = useState(route.params.email || "");
+  const [state, dispatch] = useAppState();
+  const options = getAppOptions();
   const [federationOptionsVisible, setFederationOptionsVisible] = useState(options.login.federation_options_visible === true);
+  const federationProviders = state.metadata.availableFederationProviders;
 
   // const handleAbort = withLoading(() => {
-  //   return request("login.abort")
+  //   return dispatch("login.abort")
   //     .catch((err: any) => setErrors(err));
   // });
 
   const handleCheckLoginEmail = withLoading(() => {
-    return request("login.check_email", { email })
+    return dispatch("login.check_email", { email })
       .then(() => {
         nav.navigate("login", {
           screen: "login.check_password",
@@ -49,7 +49,7 @@ export const LoginIndexScreen: React.FunctionComponent = () => {
   }));
 
   const handleFederation = withLoading((provider: string) => {
-    return request("login.federate", { provider })
+    return dispatch("login.federate", { provider })
       .catch((err: any) => setErrors(err));
   });
 

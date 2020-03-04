@@ -1,13 +1,13 @@
 import React from "react";
 import { Text } from "../styles";
-import { useClose, useServerState } from "../hook";
+import { useClose, useAppState } from "../hook";
 import { ScreenLayout } from "./layout";
 
 export const LogoutEndScreen: React.FunctionComponent = () => {
   // states
   const { closed, close } = useClose(false);
-  const { interaction } = useServerState();
-  const { user } = (interaction && interaction.data) || {};
+  const [state] = useAppState();
+  const user = state.metadata.user;
 
   // render
   return (

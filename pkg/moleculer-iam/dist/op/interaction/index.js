@@ -46,7 +46,7 @@ function buildDefaultInteractions(builder, opts = {}) {
         oidc_provider_1.interactionPolicy.base().get("consent"),
     ])
         // set interaction page renderer
-        // .setPageRenderer(renderer.factory || require("moleculer-iam-interaction-renderer"), renderer.options)
+        .setPageRenderer(renderer.factory || require("moleculer-iam-interaction-renderer"), renderer.options)
         // configure federation
         .federation
         // callback URL is /op/federate/:providerName

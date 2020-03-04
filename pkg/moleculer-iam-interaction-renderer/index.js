@@ -1,7 +1,8 @@
 "use strict";
 /*
   should be recompiled (yarn workspace moleculer-iam-interaction-renderer build-server) on updates
- */
+  yarn build-server
+*/
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -41,7 +42,6 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-Object.defineProperty(exports, "__esModule", { value: true });
 // @ts-ignore
 var path_1 = __importDefault(require("path"));
 // @ts-ignore
@@ -49,58 +49,64 @@ var fs_1 = __importDefault(require("fs"));
 // @ts-ignore
 var koa_static_cache_1 = __importDefault(require("koa-static-cache"));
 var config_1 = __importDefault(require("./config"));
-var output = config_1.default.output;
-var DefaultInteractionRenderer = /** @class */ (function () {
-    function DefaultInteractionRenderer(options) {
+var SinglePageInteractionRenderer = /** @class */ (function () {
+    function SinglePageInteractionRenderer(props, options) {
         var _this = this;
         if (options === void 0) { options = {}; }
+        this.props = props;
         this.options = options;
-        this.render = function (ctx, state, props) { return __awaiter(_this, void 0, void 0, function () {
+        this.views = this.loadViews();
+        this.render = function (ctx, state) { return __awaiter(_this, void 0, void 0, function () {
             var serializedState, _a, header, footer;
             return __generator(this, function (_b) {
                 // reload views for each rendering for development mode
-                if (props.dev) {
+                if (this.props.dev) {
                     try {
-                        this.loadViews(props.prefix);
+                        this.loadViews();
                     }
                     catch (error) {
-                        props.logger.error("failed to reload views", error);
+                        this.props.logger.error("failed to reload views", error);
                     }
                 }
                 try {
                     serializedState = JSON.stringify(state);
                 }
                 catch (error) {
-                    props.logger.error("failed to stringify server state", state, error);
+                    this.props.logger.error("failed to stringify server state", state, error);
                     serializedState = JSON.stringify({ error: { error: error.name, error_description: error.message } });
                 }
                 _a = this.views, header = _a.header, footer = _a.footer;
-                ctx.body = header + "<script>window.__SERVER_STATE__=" + serializedState + ";</script>" + footer;
+                ctx.body = header + "<script>window.__APP_STATE__=" + serializedState + ";</script>" + footer;
                 return [2 /*return*/];
             });
         }); };
-        this.routes = function (props) {
+        this.routes = function () {
             return [
-                koa_static_cache_1.default(output.path, {
-                    prefix: output.publicPath,
-                    maxAge: props.dev ? 0 : 60 * 60 * 24 * 7,
-                    dynamic: props.dev,
-                    preload: !props.dev,
+                // serve webpack assets
+                koa_static_cache_1.default(config_1.default.output.path, {
+                    prefix: config_1.default.output.publicPath,
+                    maxAge: _this.props.dev ? 0 : 60 * 60 * 24 * 7,
+                    dynamic: _this.props.dev,
+                    preload: !_this.props.dev,
                 }),
             ];
         };
     }
-    DefaultInteractionRenderer.prototype.loadViews = function (prefix) {
-        var html = fs_1.default.readFileSync(path_1.default.join(output.path, "index.html")).toString();
+    SinglePageInteractionRenderer.prototype.loadViews = function () {
+        // load index page and split into header and footer with app options data
+        var html = fs_1.default.readFileSync(path_1.default.join(config_1.default.output.path, "index.html")).toString();
         var index = html.indexOf("<script");
         // inject server-side options, ref ./inject.ts
-        this.options.prefix = prefix;
-        var options = "<script>window.__SERVER_OPTIONS__=" + JSON.stringify(this.options) + ";</script>";
-        this.views = {
+        this.options.dev = this.props.dev;
+        this.options.prefix = this.props.prefix;
+        var options = "<script>window.__APP_OPTIONS__=" + JSON.stringify(this.options) + ";</script>";
+        return this.views = {
             header: html.substring(0, index),
             footer: options + html.substring(index),
         };
     };
-    return DefaultInteractionRenderer;
+    return SinglePageInteractionRenderer;
 }());
-exports.default = DefaultInteractionRenderer;
+module.exports = (function (props, options) {
+    return new SinglePageInteractionRenderer(props, options);
+});

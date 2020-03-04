@@ -1,17 +1,17 @@
 import React from "react";
 import { Text, ThemeStyles, Link, Persona, PersonaSize } from "../styles";
-import { useServerState, useWithLoading, useNavigation } from "../hook";
+import { useAppState, useWithLoading, useNavigation } from "../hook";
 import { ScreenLayout } from "./layout";
 
 export const ConsentScreen: React.FunctionComponent = () => {
   // states
-  const {loading, withLoading, errors, setErrors} = useWithLoading();
+  const { loading, withLoading, errors, setErrors } = useWithLoading();
   const { nav } = useNavigation();
-  const { interaction, request } = useServerState();
+  const [state, dispatch] = useAppState();
 
   // handlers
   const handleAccept = withLoading(() => {
-    return request("consent.accept")
+    return dispatch("consent.accept")
       .catch((err: any) => setErrors(err));
   });
 
@@ -29,7 +29,9 @@ export const ConsentScreen: React.FunctionComponent = () => {
     });
   });
 
-  const {user, client, consent} = (interaction && interaction.data) || {};
+  const user = state.metadata.user!;
+  const client = state.metadata.client!;
+  const consent = state.session.consent;
 
   // render
   return (

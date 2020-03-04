@@ -14,8 +14,8 @@
     "index.js",
     "config.d.ts",
     "config.js",
-    "inject.d.ts",
-    "inject.js"
+    "state.d.ts",
+    "state.js"
   ],
   "dependencies": {
     "koa-static-cache": "^5.1.2",
