@@ -18,6 +18,7 @@ export class AppStateProvider extends React.Component<{}> {
 
   render() {
     const { error, appState } = this.state;
+    console.debug("app state update:", appState);
 
     if (error) {
       return <ClientErrorScreen error={error} />;
@@ -105,8 +106,7 @@ export class AppStateProvider extends React.Component<{}> {
 
             } else if (data.session) { // got session state update
               const appState = {...this.state.appState, session: data.session!};
-              this.setState(prev => ({...prev, app: appState}));
-              console.debug("app state updated", appState);
+              this.setState(prev => ({...prev, appState}));
               return appState;
 
             } else if (data.state) {

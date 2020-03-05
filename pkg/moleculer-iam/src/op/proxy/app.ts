@@ -101,6 +101,7 @@ export class ProviderApplicationBuilder {
       }
 
       ctx.status = normalizedStatus;
+
       return ctx.op.render({
         name: "error",
         error: normalizedError,

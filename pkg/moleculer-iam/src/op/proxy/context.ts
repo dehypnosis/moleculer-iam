@@ -72,7 +72,20 @@ export class OIDCProviderContextProxy {
 
   public async render(stateProps: Pick<ApplicationState, "name"|"actions">|Pick<ApplicationState, "name"|"error">): Promise<void> {
     const { ctx } = this;
+    const isXHR = ctx.accepts(JSON, HTML) === JSON;
 
+    // response { error: {} } when is XHR and stateProps has error
+    if (isXHR) {
+      const statePropsWithError: Pick<ApplicationState, "name"|"error"> = stateProps;
+      if (statePropsWithError.error) {
+        const response: ApplicationResponse = { error: statePropsWithError.error };
+        ctx.type = JSON;
+        ctx.body = response;
+        return;
+      }
+    }
+
+    // else response { state: {...} }
     const state: ApplicationState = {
       name: "undefined",
       actions: {},
@@ -87,13 +100,6 @@ export class OIDCProviderContextProxy {
       user: this.userClaims,
       device: this.device,
     };
-
-    if (ctx.accepts(JSON, HTML) === JSON) {
-      ctx.type = JSON;
-      const response: ApplicationResponse = { state };
-      ctx.body = response;
-      return;
-    }
 
     ctx.type = HTML;
 
@@ -121,7 +127,7 @@ export class OIDCProviderContextProxy {
   };
 
   public end(): void {
-    const response: ApplicationResponse = { session: this.setSessionState };
+    const response: ApplicationResponse = { session: this.sessionAppState };
     this.ctx.type = JSON;
     this.ctx.body = response;
   }

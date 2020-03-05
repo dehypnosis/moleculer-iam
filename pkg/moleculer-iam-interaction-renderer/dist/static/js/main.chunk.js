@@ -611,7 +611,7 @@ var AppNavigationProvider = function AppNavigationProvider(_ref) {
         }
       }
 
-      console.debug("nav state updated", navState);
+      console.debug("nav state update:", navState);
       return navState;
     }, [appState])
   });
@@ -1032,11 +1032,10 @@ var AppStateProvider = function (_React$Component) {
 
                     _this.setState(function (prev) {
                       return (0, _objectSpread2.default)({}, prev, {
-                        app: appState
+                        appState: appState
                       });
                     });
 
-                    console.debug("app state updated", appState);
                     return appState;
                   } else if (data.state) {
                     console.error("interaction state response received from XHR", data);
@@ -1065,13 +1064,14 @@ var AppStateProvider = function (_React$Component) {
       var _this$state = this.state,
           error = _this$state.error,
           appState = _this$state.appState;
+      console.debug("app state update:", appState);
 
       if (error) {
         return _react.default.createElement(_error.ClientErrorScreen, {
           error: error,
           __source: {
             fileName: _jsxFileName,
-            lineNumber: 23
+            lineNumber: 24
           },
           __self: this
         });
@@ -1081,7 +1081,7 @@ var AppStateProvider = function (_React$Component) {
         value: [appState, this.dispatch],
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 27
+          lineNumber: 28
         },
         __self: this
       }, this.props.children);

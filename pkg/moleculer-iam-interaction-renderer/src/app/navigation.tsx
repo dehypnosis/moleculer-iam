@@ -31,7 +31,7 @@ export const AppNavigationProvider: React.FunctionComponent<{
           }
         }
       }
-      console.debug("nav state updated", navState);
+      console.debug("nav state update:", navState);
       return navState;
     }, [appState]),
   });
