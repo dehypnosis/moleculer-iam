@@ -110,6 +110,8 @@ var _state = __webpack_require__(/*! ./state */ "./src/app/state.tsx");
 
 var _navigation = __webpack_require__(/*! ./navigation */ "./src/app/navigation.tsx");
 
+var _style = __webpack_require__(/*! ./style */ "./src/app/style.tsx");
+
 var _find_email = __webpack_require__(/*! ../screen/find_email.index */ "./src/screen/find_email.index.tsx");
 
 var _find_email2 = __webpack_require__(/*! ../screen/find_email.verify */ "./src/screen/find_email.verify.tsx");
@@ -154,27 +156,33 @@ var App = function App() {
   return _react.default.createElement(_options.AppOptionsProvider, {
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 32
+      lineNumber: 33
+    },
+    __self: this
+  }, _react.default.createElement(_style.ApplicationThemeProvider, {
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 34
     },
     __self: this
   }, _react.default.createElement(_state.AppStateProvider, {
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 33
+      lineNumber: 35
     },
     __self: this
   }, _react.default.createElement(_navigation.AppNavigationProvider, {
     routeConfig: _routes.routeConfig,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 34
+      lineNumber: 36
     },
     __self: this
   }, _react.default.createElement(RootStack.Navigator, {
     screenOptions: screenOptions,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 35
+      lineNumber: 37
     },
     __self: this
   }, _react.default.createElement(RootStack.Screen, {
@@ -182,7 +190,7 @@ var App = function App() {
     component: _error.ErrorScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 38
+      lineNumber: 40
     },
     __self: this
   }), _react.default.createElement(RootStack.Screen, {
@@ -190,7 +198,7 @@ var App = function App() {
     component: _consent.ConsentScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 42
+      lineNumber: 44
     },
     __self: this
   }), _react.default.createElement(RootStack.Screen, {
@@ -198,7 +206,7 @@ var App = function App() {
     component: LoginStackScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 46
+      lineNumber: 48
     },
     __self: this
   }), _react.default.createElement(RootStack.Screen, {
@@ -206,7 +214,7 @@ var App = function App() {
     component: FindEmailStackScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 50
+      lineNumber: 52
     },
     __self: this
   }), _react.default.createElement(RootStack.Screen, {
@@ -214,7 +222,7 @@ var App = function App() {
     component: ResetPasswordStackScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 54
+      lineNumber: 56
     },
     __self: this
   }), _react.default.createElement(RootStack.Screen, {
@@ -222,7 +230,7 @@ var App = function App() {
     component: RegisterStackScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 58
+      lineNumber: 60
     },
     __self: this
   }), _react.default.createElement(RootStack.Screen, {
@@ -230,7 +238,7 @@ var App = function App() {
     component: LogoutStackScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 62
+      lineNumber: 64
     },
     __self: this
   }), _react.default.createElement(RootStack.Screen, {
@@ -238,7 +246,7 @@ var App = function App() {
     component: VerifyPhoneStackScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 66
+      lineNumber: 68
     },
     __self: this
   }), _react.default.createElement(RootStack.Screen, {
@@ -246,10 +254,10 @@ var App = function App() {
     component: VerifyEmailStackScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 70
+      lineNumber: 72
     },
     __self: this
-  })))));
+  }))))));
 };
 
 exports.App = App;
@@ -267,7 +275,7 @@ var LoginStackScreen = function LoginStackScreen() {
     screenOptions: screenOptions,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 91
+      lineNumber: 94
     },
     __self: this
   }, _react.default.createElement(LoginStack.Screen, {
@@ -275,7 +283,7 @@ var LoginStackScreen = function LoginStackScreen() {
     component: _login2.LoginIndexScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 94
+      lineNumber: 97
     },
     __self: this
   }), _react.default.createElement(LoginStack.Screen, {
@@ -283,7 +291,7 @@ var LoginStackScreen = function LoginStackScreen() {
     component: _login.LoginCheckPasswordScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 98
+      lineNumber: 101
     },
     __self: this
   }));
@@ -296,7 +304,7 @@ var LogoutStackScreen = function LogoutStackScreen() {
     screenOptions: screenOptions,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 107
+      lineNumber: 110
     },
     __self: this
   }, _react.default.createElement(LogoutStack.Screen, {
@@ -304,7 +312,7 @@ var LogoutStackScreen = function LogoutStackScreen() {
     component: _logout2.LogoutIndexScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 110
+      lineNumber: 113
     },
     __self: this
   }), _react.default.createElement(LogoutStack.Screen, {
@@ -312,7 +320,7 @@ var LogoutStackScreen = function LogoutStackScreen() {
     component: _logout.LogoutEndScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 114
+      lineNumber: 117
     },
     __self: this
   }));
@@ -325,7 +333,7 @@ var FindEmailStackScreen = function FindEmailStackScreen() {
     screenOptions: screenOptions,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 123
+      lineNumber: 126
     },
     __self: this
   }, _react.default.createElement(FindEmailStack.Screen, {
@@ -333,7 +341,7 @@ var FindEmailStackScreen = function FindEmailStackScreen() {
     component: _find_email.FindEmailIndexScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 126
+      lineNumber: 129
     },
     __self: this
   }), _react.default.createElement(FindEmailStack.Screen, {
@@ -341,7 +349,7 @@ var FindEmailStackScreen = function FindEmailStackScreen() {
     component: _find_email2.FindEmailVerifyScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 130
+      lineNumber: 133
     },
     __self: this
   }));
@@ -354,7 +362,7 @@ var ResetPasswordStackScreen = function ResetPasswordStackScreen() {
     screenOptions: screenOptions,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 139
+      lineNumber: 142
     },
     __self: this
   }, _react.default.createElement(ResetPasswordStack.Screen, {
@@ -362,7 +370,7 @@ var ResetPasswordStackScreen = function ResetPasswordStackScreen() {
     component: _reset_password2.ResetPasswordIndexScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 142
+      lineNumber: 145
     },
     __self: this
   }), _react.default.createElement(ResetPasswordStack.Screen, {
@@ -370,7 +378,7 @@ var ResetPasswordStackScreen = function ResetPasswordStackScreen() {
     component: _reset_password3.ResetPasswordSentScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 146
+      lineNumber: 149
     },
     __self: this
   }), _react.default.createElement(ResetPasswordStack.Screen, {
@@ -378,7 +386,7 @@ var ResetPasswordStackScreen = function ResetPasswordStackScreen() {
     component: _reset_password4.ResetPasswordSetScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 150
+      lineNumber: 153
     },
     __self: this
   }), _react.default.createElement(ResetPasswordStack.Screen, {
@@ -386,7 +394,7 @@ var ResetPasswordStackScreen = function ResetPasswordStackScreen() {
     component: _reset_password.ResetPasswordEndScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 154
+      lineNumber: 157
     },
     __self: this
   }));
@@ -399,7 +407,7 @@ var RegisterStackScreen = function RegisterStackScreen() {
     screenOptions: screenOptions,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 163
+      lineNumber: 166
     },
     __self: this
   }, _react.default.createElement(RegisterStack.Screen, {
@@ -407,7 +415,7 @@ var RegisterStackScreen = function RegisterStackScreen() {
     component: _register3.RegisterIndexScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 166
+      lineNumber: 169
     },
     __self: this
   }), _react.default.createElement(RegisterStack.Screen, {
@@ -415,7 +423,7 @@ var RegisterStackScreen = function RegisterStackScreen() {
     component: _register.RegisterDetailScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 170
+      lineNumber: 173
     },
     __self: this
   }), _react.default.createElement(RegisterStack.Screen, {
@@ -423,7 +431,7 @@ var RegisterStackScreen = function RegisterStackScreen() {
     component: _register2.RegisterEndScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 174
+      lineNumber: 177
     },
     __self: this
   }));
@@ -436,7 +444,7 @@ var VerifyPhoneStackScreen = function VerifyPhoneStackScreen() {
     screenOptions: screenOptions,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 183
+      lineNumber: 186
     },
     __self: this
   }, _react.default.createElement(VerifyPhoneStack.Screen, {
@@ -444,7 +452,7 @@ var VerifyPhoneStackScreen = function VerifyPhoneStackScreen() {
     component: _verify_phone2.VerifyPhoneIndexScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 186
+      lineNumber: 189
     },
     __self: this
   }), _react.default.createElement(VerifyPhoneStack.Screen, {
@@ -452,7 +460,7 @@ var VerifyPhoneStackScreen = function VerifyPhoneStackScreen() {
     component: _verify_phone3.VerifyPhoneVerifyScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 190
+      lineNumber: 193
     },
     __self: this
   }), _react.default.createElement(VerifyPhoneStack.Screen, {
@@ -460,7 +468,7 @@ var VerifyPhoneStackScreen = function VerifyPhoneStackScreen() {
     component: _verify_phone.VerifyPhoneEndScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 194
+      lineNumber: 197
     },
     __self: this
   }));
@@ -473,7 +481,7 @@ var VerifyEmailStackScreen = function VerifyEmailStackScreen() {
     screenOptions: screenOptions,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 203
+      lineNumber: 206
     },
     __self: this
   }, _react.default.createElement(VerifyEmailStack.Screen, {
@@ -481,7 +489,7 @@ var VerifyEmailStackScreen = function VerifyEmailStackScreen() {
     component: _verify_email2.VerifyEmailIndexScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 206
+      lineNumber: 209
     },
     __self: this
   }), _react.default.createElement(VerifyEmailStack.Screen, {
@@ -489,7 +497,7 @@ var VerifyEmailStackScreen = function VerifyEmailStackScreen() {
     component: _verify_email3.VerifyEmailVerifyScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 210
+      lineNumber: 213
     },
     __self: this
   }), _react.default.createElement(VerifyEmailStack.Screen, {
@@ -497,7 +505,7 @@ var VerifyEmailStackScreen = function VerifyEmailStackScreen() {
     component: _verify_email.VerifyEmailEndScreen,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 214
+      lineNumber: 217
     },
     __self: this
   }));
@@ -505,10 +513,10 @@ var VerifyEmailStackScreen = function VerifyEmailStackScreen() {
 
 /***/ }),
 
-/***/ "./src/app/index.tsx":
-/*!***************************!*\
-  !*** ./src/app/index.tsx ***!
-  \***************************/
+/***/ "./src/app/index.ts":
+/*!**************************!*\
+  !*** ./src/app/index.ts ***!
+  \**************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -609,9 +617,10 @@ var AppNavigationProvider = function AppNavigationProvider(_ref) {
             console.warn("appState.name differs from matched route", appState.name, route);
           }
         }
+
+        console.debug("nav state update:", navState);
       }
 
-      console.debug("nav state update:", navState);
       return navState;
     }, [appState])
   });
@@ -738,6 +747,8 @@ var _react = _interopRequireWildcard(__webpack_require__(/*! react */ "../../nod
 
 var _inject = __webpack_require__(/*! ../../inject */ "./inject.js");
 
+var _theme = __webpack_require__(/*! ../../theme */ "./theme.js");
+
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-interaction-renderer/src/app/options.tsx";
 var AppOptionsContext = (0, _react.createContext)([]);
 exports.AppOptionsContext = AppOptionsContext;
@@ -771,24 +782,24 @@ var AppOptionsProvider = function (_React$Component) {
       login: {
         federationOptionsVisibleDefault: false
       },
-      theme: {}
+      theme: "light",
+      palette: {
+        light: _theme.lightTheme,
+        dark: _theme.darkTheme
+      }
     });
     return _this;
   }
 
   (0, _createClass2.default)(AppOptionsProvider, [{
-    key: "componentDidUpdate",
-    value: function componentDidUpdate(prevProps, prevState, snapshot) {
-      console.log(prevState);
-    }
-  }, {
     key: "render",
     value: function render() {
+      console.debug("app options update:", this.state);
       return _react.default.createElement(AppOptionsContext.Provider, {
         value: [this.state, this.setState.bind(this)],
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 34
+          lineNumber: 35
         },
         __self: this
       }, this.props.children);
@@ -1104,6 +1115,66 @@ exports.AppStateProvider = AppStateProvider;
 
 /***/ }),
 
+/***/ "./src/app/style.tsx":
+/*!***************************!*\
+  !*** ./src/app/style.tsx ***!
+  \***************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+var _interopRequireDefault = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireDefault */ "../../node_modules/@babel/runtime/helpers/interopRequireDefault.js");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.ApplicationThemeProvider = void 0;
+
+var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/slicedToArray */ "../../node_modules/@babel/runtime/helpers/esm/slicedToArray.js"));
+
+var _react = _interopRequireDefault(__webpack_require__(/*! react */ "../../node_modules/react/index.js"));
+
+var _components = __webpack_require__(/*! @ui-kitten/components */ "../../node_modules/@ui-kitten/components/index.js");
+
+var _evaIcons = __webpack_require__(/*! @ui-kitten/eva-icons */ "../../node_modules/@ui-kitten/eva-icons/index.js");
+
+var _eva = __webpack_require__(/*! @eva-design/eva */ "../../node_modules/@eva-design/eva/index.js");
+
+var _options = __webpack_require__(/*! ./options */ "./src/app/options.tsx");
+
+var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-interaction-renderer/src/app/style.tsx";
+
+var ApplicationThemeProvider = function ApplicationThemeProvider(_ref) {
+  var children = _ref.children;
+
+  var _useAppOptions = (0, _options.useAppOptions)(),
+      _useAppOptions2 = (0, _slicedToArray2.default)(_useAppOptions, 1),
+      appOptions = _useAppOptions2[0];
+
+  var theme = appOptions.theme,
+      palette = appOptions.palette;
+  var currentTheme = palette && theme && palette[theme] || _eva.light;
+  return _react.default.createElement(_react.default.Fragment, null, _react.default.createElement(_components.IconRegistry, {
+    icons: _evaIcons.EvaIconsPack,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 15
+    },
+    __self: this
+  }), _react.default.createElement(_components.ApplicationProvider, {
+    mapping: _eva.mapping,
+    theme: currentTheme,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 16
+    },
+    __self: this
+  }, children));
+};
+
+exports.ApplicationThemeProvider = ApplicationThemeProvider;
+
+/***/ }),
+
 /***/ "./src/hook.ts":
 /*!*********************!*\
   !*** ./src/hook.ts ***!
@@ -1145,7 +1216,7 @@ var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehy
 
 var _react = __webpack_require__(/*! react */ "../../node_modules/react/index.js");
 
-var _app = __webpack_require__(/*! ./app */ "./src/app/index.tsx");
+var _app = __webpack_require__(/*! ./app */ "./src/app/index.ts");
 
 function useWithLoading() {
   var _useState = (0, _react.useState)(false),
@@ -1323,16 +1394,14 @@ var _reactDom = _interopRequireDefault(__webpack_require__(/*! react-dom */ "../
 
 var serviceWorker = _interopRequireWildcard(__webpack_require__(/*! ./service-worker */ "./src/service-worker.ts"));
 
-var _app = __webpack_require__(/*! ./app */ "./src/app/index.tsx");
-
-__webpack_require__(/*! ./styles */ "./src/styles.ts");
+var _app = __webpack_require__(/*! ./app */ "./src/app/index.ts");
 
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-interaction-renderer/src/index.tsx";
 
 _reactDom.default.render(_react.default.createElement(_app.App, {
   __source: {
     fileName: _jsxFileName,
-    lineNumber: 7
+    lineNumber: 6
   },
   __self: this
 }), document.getElementById("root"));
@@ -4426,8 +4495,6 @@ if(true) {
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-var _interopRequireWildcard = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireWildcard */ "../../node_modules/@babel/runtime/helpers/interopRequireWildcard.js");
-
 var _interopRequireDefault = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireDefault */ "../../node_modules/@babel/runtime/helpers/interopRequireDefault.js");
 
 Object.defineProperty(exports, "__esModule", {
@@ -4445,8 +4512,6 @@ exports.ButtonStyles = exports.LabelStyles = exports.DatePickerStyles = exports.
 
 var _objectSpread2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/objectSpread2 */ "../../node_modules/@babel/runtime/helpers/esm/objectSpread2.js"));
 
-var _ = _interopRequireWildcard(__webpack_require__(/*! lodash */ "../../node_modules/lodash/lodash.js"));
-
 var _lib = __webpack_require__(/*! office-ui-fabric-react/lib */ "../../node_modules/office-ui-fabric-react/lib/index.js");
 
 Object.keys(_lib).forEach(function (key) {
@@ -4462,37 +4527,8 @@ Object.keys(_lib).forEach(function (key) {
 
 var _icons = __webpack_require__(/*! @uifabric/icons */ "../../node_modules/@uifabric/icons/lib/index.js");
 
-var _inject = __webpack_require__(/*! ../inject */ "./inject.js");
-
 __webpack_require__(/*! ./styles.css */ "./src/styles.css");
 
-(0, _lib.loadTheme)(_.defaultsDeep((0, _inject.getAppOptions)().theme || {}, {
-  palette: {
-    themePrimary: "#2a44ec",
-    themeLighterAlt: "#f6f7fe",
-    themeLighter: "#dbdffc",
-    themeLight: "#bcc4fa",
-    themeTertiary: "#7c8cf4",
-    themeSecondary: "#435aef",
-    themeDarkAlt: "#263ed5",
-    themeDark: "#2034b4",
-    themeDarker: "#182685",
-    neutralLighterAlt: "#f8f8f8",
-    neutralLighter: "#f4f4f4",
-    neutralLight: "#eaeaea",
-    neutralQuaternaryAlt: "#dadada",
-    neutralQuaternary: "#d0d0d0",
-    neutralTertiaryAlt: "#c8c8c8",
-    neutralTertiary: "#bab8b7",
-    neutralSecondary: "#a3a2a0",
-    neutralPrimaryAlt: "#8d8b8a",
-    neutralPrimary: "#323130",
-    neutralDark: "#605e5d",
-    black: "#494847",
-    white: "#ffffff",
-    orange: "#ffa420"
-  }
-}));
 (0, _icons.initializeIcons)();
 var ThemeStyles = (0, _lib.getTheme)();
 exports.ThemeStyles = ThemeStyles;
@@ -4609,6 +4645,735 @@ exports.ButtonStyles = ButtonStyles;
 
 /***/ }),
 
+/***/ "./theme.js":
+/*!******************!*\
+  !*** ./theme.js ***!
+  \******************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.lightTheme = {
+  "color-primary-100": "#D4DCFE",
+  "color-primary-200": "#A9B8FD",
+  "color-primary-300": "#7E92F9",
+  "color-primary-400": "#5D73F3",
+  "color-primary-500": "#2A44EC",
+  "color-primary-600": "#1E33CA",
+  "color-primary-700": "#1524A9",
+  "color-primary-800": "#0D1888",
+  "color-primary-900": "#081071",
+  "color-primary-transparent-100": "rgba(42, 68, 236, 0.08)",
+  "color-primary-transparent-200": "rgba(42, 68, 236, 0.16)",
+  "color-primary-transparent-300": "rgba(42, 68, 236, 0.24)",
+  "color-primary-transparent-400": "rgba(42, 68, 236, 0.32)",
+  "color-primary-transparent-500": "rgba(42, 68, 236, 0.4)",
+  "color-primary-transparent-600": "rgba(42, 68, 236, 0.48)",
+  "color-success-100": "#F1FDD0",
+  "color-success-200": "#E0FBA1",
+  "color-success-300": "#C7F471",
+  "color-success-400": "#ADEA4D",
+  "color-success-500": "#88DD18",
+  "color-success-600": "#6CBE11",
+  "color-success-700": "#529F0C",
+  "color-success-800": "#3C8007",
+  "color-success-900": "#2C6A04",
+  "color-success-transparent-100": "rgba(136, 221, 24, 0.08)",
+  "color-success-transparent-200": "rgba(136, 221, 24, 0.16)",
+  "color-success-transparent-300": "rgba(136, 221, 24, 0.24)",
+  "color-success-transparent-400": "rgba(136, 221, 24, 0.32)",
+  "color-success-transparent-500": "rgba(136, 221, 24, 0.4)",
+  "color-success-transparent-600": "rgba(136, 221, 24, 0.48)",
+  "color-info-100": "#CCFFFA",
+  "color-info-200": "#99FFFD",
+  "color-info-300": "#66F6FF",
+  "color-info-400": "#3FE6FF",
+  "color-info-500": "#00CBFF",
+  "color-info-600": "#009EDB",
+  "color-info-700": "#0076B7",
+  "color-info-800": "#005493",
+  "color-info-900": "#003D7A",
+  "color-info-transparent-100": "rgba(0, 203, 255, 0.08)",
+  "color-info-transparent-200": "rgba(0, 203, 255, 0.16)",
+  "color-info-transparent-300": "rgba(0, 203, 255, 0.24)",
+  "color-info-transparent-400": "rgba(0, 203, 255, 0.32)",
+  "color-info-transparent-500": "rgba(0, 203, 255, 0.4)",
+  "color-info-transparent-600": "rgba(0, 203, 255, 0.48)",
+  "color-warning-100": "#FFF4CC",
+  "color-warning-200": "#FFE799",
+  "color-warning-300": "#FFD667",
+  "color-warning-400": "#FFC541",
+  "color-warning-500": "#FFAA02",
+  "color-warning-600": "#DB8A01",
+  "color-warning-700": "#B76D01",
+  "color-warning-800": "#935300",
+  "color-warning-900": "#7A4000",
+  "color-warning-transparent-100": "rgba(255, 170, 2, 0.08)",
+  "color-warning-transparent-200": "rgba(255, 170, 2, 0.16)",
+  "color-warning-transparent-300": "rgba(255, 170, 2, 0.24)",
+  "color-warning-transparent-400": "rgba(255, 170, 2, 0.32)",
+  "color-warning-transparent-500": "rgba(255, 170, 2, 0.4)",
+  "color-warning-transparent-600": "rgba(255, 170, 2, 0.48)",
+  "color-danger-100": "#FFE7D6",
+  "color-danger-200": "#FFC9AD",
+  "color-danger-300": "#FFA483",
+  "color-danger-400": "#FF8165",
+  "color-danger-500": "#FF4732",
+  "color-danger-600": "#DB2824",
+  "color-danger-700": "#B71922",
+  "color-danger-800": "#930F22",
+  "color-danger-900": "#7A0922",
+  "color-danger-transparent-100": "rgba(255, 71, 50, 0.08)",
+  "color-danger-transparent-200": "rgba(255, 71, 50, 0.16)",
+  "color-danger-transparent-300": "rgba(255, 71, 50, 0.24)",
+  "color-danger-transparent-400": "rgba(255, 71, 50, 0.32)",
+  "color-danger-transparent-500": "rgba(255, 71, 50, 0.4)",
+  "color-danger-transparent-600": "rgba(255, 71, 50, 0.48)",
+  // default light theme
+  // "color-primary-100": "#F2F6FF",
+  // "color-primary-200": "#D9E4FF",
+  // "color-primary-300": "#A6C1FF",
+  // "color-primary-400": "#598BFF",
+  // "color-primary-500": "#3366FF",
+  // "color-primary-600": "#274BDB",
+  // "color-primary-700": "#1A34B8",
+  // "color-primary-800": "#102694",
+  // "color-primary-900": "#091C7A",
+  //
+  // "color-primary-transparent-100": "rgba(51, 102, 255, 0.08)",
+  // "color-primary-transparent-200": "rgba(51, 102, 255, 0.16)",
+  // "color-primary-transparent-300": "rgba(51, 102, 255, 0.24)",
+  // "color-primary-transparent-400": "rgba(51, 102, 255, 0.32)",
+  // "color-primary-transparent-500": "rgba(51, 102, 255, 0.40)",
+  // "color-primary-transparent-600": "rgba(51, 102, 255, 0.48)",
+  //
+  // "color-success-100": "#EDFFF3",
+  // "color-success-200": "#B3FFD6",
+  // "color-success-300": "#8CFAC7",
+  // "color-success-400": "#51F0B0",
+  // "color-success-500": "#00E096",
+  // "color-success-600": "#00B383",
+  // "color-success-700": "#008F72",
+  // "color-success-800": "#007566",
+  // "color-success-900": "#00524C",
+  //
+  // "color-success-transparent-100": "rgba(0, 224, 150, 0.08)",
+  // "color-success-transparent-200": "rgba(0, 224, 150, 0.16)",
+  // "color-success-transparent-300": "rgba(0, 224, 150, 0.24)",
+  // "color-success-transparent-400": "rgba(0, 224, 150, 0.32)",
+  // "color-success-transparent-500": "rgba(0, 224, 150, 0.40)",
+  // "color-success-transparent-600": "rgba(0, 224, 150, 0.48)",
+  //
+  // "color-info-100": "#F2F8FF",
+  // "color-info-200": "#C7E2FF",
+  // "color-info-300": "#94CBFF",
+  // "color-info-400": "#42AAFF",
+  // "color-info-500": "#0095FF",
+  // "color-info-600": "#006FD6",
+  // "color-info-700": "#0057C2",
+  // "color-info-800": "#0041A8",
+  // "color-info-900": "#002885",
+  //
+  // "color-info-transparent-100": "rgba(0, 149, 255, 0.08)",
+  // "color-info-transparent-200": "rgba(0, 149, 255, 0.16)",
+  // "color-info-transparent-300": "rgba(0, 149, 255, 0.24)",
+  // "color-info-transparent-400": "rgba(0, 149, 255, 0.32)",
+  // "color-info-transparent-500": "rgba(0, 149, 255, 0.40)",
+  // "color-info-transparent-600": "rgba(0, 149, 255, 0.48)",
+  //
+  // "color-warning-100": "#FFFDF2",
+  // "color-warning-200": "#FFF1C2",
+  // "color-warning-300": "#FFE59E",
+  // "color-warning-400": "#FFC94D",
+  // "color-warning-500": "#FFAA00",
+  // "color-warning-600": "#DB8B00",
+  // "color-warning-700": "#B86E00",
+  // "color-warning-800": "#945400",
+  // "color-warning-900": "#703C00",
+  //
+  // "color-warning-transparent-100": "rgba(255, 170, 0, 0.08)",
+  // "color-warning-transparent-200": "rgba(255, 170, 0, 0.16)",
+  // "color-warning-transparent-300": "rgba(255, 170, 0, 0.24)",
+  // "color-warning-transparent-400": "rgba(255, 170, 0, 0.32)",
+  // "color-warning-transparent-500": "rgba(255, 170, 0, 0.40)",
+  // "color-warning-transparent-600": "rgba(255, 170, 0, 0.48)",
+  //
+  // "color-danger-100": "#FFF2F2",
+  // "color-danger-200": "#FFD6D9",
+  // "color-danger-300": "#FFA8B4",
+  // "color-danger-400": "#FF708D",
+  // "color-danger-500": "#FF3D71",
+  // "color-danger-600": "#DB2C66",
+  // "color-danger-700": "#B81D5B",
+  // "color-danger-800": "#94124E",
+  // "color-danger-900": "#700940",
+  //
+  // "color-danger-transparent-100": "rgba(255, 61, 113, 0.08)",
+  // "color-danger-transparent-200": "rgba(255, 61, 113, 0.16)",
+  // "color-danger-transparent-300": "rgba(255, 61, 113, 0.24)",
+  // "color-danger-transparent-400": "rgba(255, 61, 113, 0.32)",
+  // "color-danger-transparent-500": "rgba(255, 61, 113, 0.40)",
+  // "color-danger-transparent-600": "rgba(255, 61, 113, 0.48)",
+  "color-basic-100": "#FFFFFF",
+  "color-basic-200": "#F7F9FC",
+  "color-basic-300": "#EDF1F7",
+  "color-basic-400": "#E4E9F2",
+  "color-basic-500": "#C5CEE0",
+  "color-basic-600": "#8F9BB3",
+  "color-basic-700": "#2E3A59",
+  "color-basic-800": "#222B45",
+  "color-basic-900": "#1A2138",
+  "color-basic-1000": "#151A30",
+  "color-basic-1100": "#101426",
+  "color-basic-transparent-100": "rgba(143, 155, 179, 0.08)",
+  "color-basic-transparent-200": "rgba(143, 155, 179, 0.16)",
+  "color-basic-transparent-300": "rgba(143, 155, 179, 0.24)",
+  "color-basic-transparent-400": "rgba(143, 155, 179, 0.32)",
+  "color-basic-transparent-500": "rgba(143, 155, 179, 0.40)",
+  "color-basic-transparent-600": "rgba(143, 155, 179, 0.48)",
+  "color-basic-control-transparent-100": "rgba(255, 255, 255, 0.08)",
+  "color-basic-control-transparent-200": "rgba(255, 255, 255, 0.16)",
+  "color-basic-control-transparent-300": "rgba(255, 255, 255, 0.24)",
+  "color-basic-control-transparent-400": "rgba(255, 255, 255, 0.32)",
+  "color-basic-control-transparent-500": "rgba(255, 255, 255, 0.40)",
+  "color-basic-control-transparent-600": "rgba(255, 255, 255, 0.48)",
+  "color-basic-focus": "$color-basic-400",
+  "color-basic-hover": "$color-basic-200",
+  "color-basic-default": "$color-basic-300",
+  "color-basic-active": "$color-basic-400",
+  "color-basic-disabled": "$color-basic-transparent-300",
+  "color-basic-focus-border": "$color-basic-500",
+  "color-basic-hover-border": "$color-basic-hover",
+  "color-basic-default-border": "$color-basic-default",
+  "color-basic-active-border": "$color-basic-active",
+  "color-basic-disabled-border": "$color-basic-disabled",
+  "color-basic-transparent-focus": "$color-basic-transparent-300",
+  "color-basic-transparent-hover": "$color-basic-transparent-200",
+  "color-basic-transparent-default": "$color-basic-transparent-100",
+  "color-basic-transparent-active": "$color-basic-transparent-300",
+  "color-basic-transparent-disabled": "$color-basic-transparent-200",
+  "color-basic-transparent-focus-border": "$color-basic-600",
+  "color-basic-transparent-hover-border": "$color-basic-600",
+  "color-basic-transparent-default-border": "$color-basic-600",
+  "color-basic-transparent-active-border": "$color-basic-600",
+  "color-basic-transparent-disabled-border": "$color-basic-transparent-300",
+  "color-primary-focus": "$color-primary-600",
+  "color-primary-hover": "$color-primary-400",
+  "color-primary-default": "$color-primary-500",
+  "color-primary-active": "$color-primary-600",
+  "color-primary-disabled": "$color-basic-transparent-300",
+  "color-primary-focus-border": "$color-primary-700",
+  "color-primary-hover-border": "$color-primary-hover",
+  "color-primary-default-border": "$color-primary-default",
+  "color-primary-active-border": "$color-primary-active",
+  "color-primary-disabled-border": "$color-primary-disabled",
+  "color-primary-transparent-focus": "$color-primary-transparent-300",
+  "color-primary-transparent-hover": "$color-primary-transparent-200",
+  "color-primary-transparent-default": "$color-primary-transparent-100",
+  "color-primary-transparent-active": "$color-primary-transparent-300",
+  "color-primary-transparent-disabled": "$color-basic-transparent-200",
+  "color-primary-transparent-focus-border": "$color-primary-500",
+  "color-primary-transparent-hover-border": "$color-primary-500",
+  "color-primary-transparent-default-border": "$color-primary-500",
+  "color-primary-transparent-active-border": "$color-primary-500",
+  "color-primary-transparent-disabled-border": "$color-basic-transparent-300",
+  "color-success-focus": "$color-success-600",
+  "color-success-hover": "$color-success-400",
+  "color-success-default": "$color-success-500",
+  "color-success-active": "$color-success-600",
+  "color-success-disabled": "$color-basic-transparent-300",
+  "color-success-focus-border": "$color-success-700",
+  "color-success-hover-border": "$color-success-hover",
+  "color-success-default-border": "$color-success-default",
+  "color-success-active-border": "$color-success-active",
+  "color-success-disabled-border": "$color-success-disabled",
+  "color-success-transparent-focus": "$color-success-transparent-300",
+  "color-success-transparent-hover": "$color-success-transparent-200",
+  "color-success-transparent-default": "$color-success-transparent-100",
+  "color-success-transparent-active": "$color-success-transparent-300",
+  "color-success-transparent-disabled": "$color-basic-transparent-200",
+  "color-success-transparent-focus-border": "$color-success-500",
+  "color-success-transparent-hover-border": "$color-success-500",
+  "color-success-transparent-default-border": "$color-success-500",
+  "color-success-transparent-active-border": "$color-success-500",
+  "color-success-transparent-disabled-border": "$color-basic-transparent-300",
+  "color-info-focus": "$color-info-600",
+  "color-info-hover": "$color-info-400",
+  "color-info-default": "$color-info-500",
+  "color-info-active": "$color-info-600",
+  "color-info-disabled": "$color-basic-transparent-300",
+  "color-info-focus-border": "$color-info-700",
+  "color-info-hover-border": "$color-info-hover",
+  "color-info-default-border": "$color-info-default",
+  "color-info-active-border": "$color-info-active",
+  "color-info-disabled-border": "$color-info-disabled",
+  "color-info-transparent-focus": "$color-info-transparent-300",
+  "color-info-transparent-hover": "$color-info-transparent-200",
+  "color-info-transparent-default": "$color-info-transparent-100",
+  "color-info-transparent-active": "$color-info-transparent-300",
+  "color-info-transparent-disabled": "$color-basic-transparent-200",
+  "color-info-transparent-focus-border": "$color-info-500",
+  "color-info-transparent-hover-border": "$color-info-500",
+  "color-info-transparent-default-border": "$color-info-500",
+  "color-info-transparent-active-border": "$color-info-500",
+  "color-info-transparent-disabled-border": "$color-basic-transparent-300",
+  "color-warning-focus": "$color-warning-600",
+  "color-warning-hover": "$color-warning-400",
+  "color-warning-default": "$color-warning-500",
+  "color-warning-active": "$color-warning-600",
+  "color-warning-disabled": "$color-basic-transparent-300",
+  "color-warning-focus-border": "$color-warning-700",
+  "color-warning-hover-border": "$color-warning-hover",
+  "color-warning-default-border": "$color-warning-default",
+  "color-warning-active-border": "$color-warning-active",
+  "color-warning-disabled-border": "$color-warning-disabled",
+  "color-warning-transparent-focus": "$color-warning-transparent-300",
+  "color-warning-transparent-hover": "$color-warning-transparent-200",
+  "color-warning-transparent-default": "$color-warning-transparent-100",
+  "color-warning-transparent-active": "$color-warning-transparent-300",
+  "color-warning-transparent-disabled": "$color-basic-transparent-200",
+  "color-warning-transparent-focus-border": "$color-warning-500",
+  "color-warning-transparent-hover-border": "$color-warning-500",
+  "color-warning-transparent-default-border": "$color-warning-500",
+  "color-warning-transparent-active-border": "$color-warning-500",
+  "color-warning-transparent-disabled-border": "$color-basic-transparent-300",
+  "color-danger-focus": "$color-danger-600",
+  "color-danger-hover": "$color-danger-400",
+  "color-danger-default": "$color-danger-500",
+  "color-danger-active": "$color-danger-600",
+  "color-danger-disabled": "$color-basic-transparent-300",
+  "color-danger-focus-border": "color-danger-700",
+  "color-danger-hover-border": "$color-danger-hover",
+  "color-danger-default-border": "$color-danger-default",
+  "color-danger-active-border": "$color-danger-active",
+  "color-danger-disabled-border": "$color-danger-disabled",
+  "color-danger-transparent-focus": "$color-danger-transparent-300",
+  "color-danger-transparent-hover": "$color-danger-transparent-200",
+  "color-danger-transparent-default": "$color-danger-transparent-100",
+  "color-danger-transparent-active": "$color-danger-transparent-300",
+  "color-danger-transparent-disabled": "$color-basic-transparent-200",
+  "color-danger-transparent-focus-border": "$color-danger-500",
+  "color-danger-transparent-hover-border": "$color-danger-500",
+  "color-danger-transparent-default-border": "$color-danger-500",
+  "color-danger-transparent-active-border": "$color-danger-500",
+  "color-danger-transparent-disabled-border": "$color-basic-transparent-300",
+  "color-control-focus": "$color-basic-300",
+  "color-control-hover": "$color-basic-200",
+  "color-control-default": "$color-basic-100",
+  "color-control-active": "$color-basic-300",
+  "color-control-disabled": "$color-basic-transparent-300",
+  "color-control-focus-border": "$color-basic-500",
+  "color-control-hover-border": "$color-control-hover",
+  "color-control-default-border": "$color-control-default",
+  "color-control-active-border": "$color-control-active",
+  "color-control-disabled-border": "$color-control-disabled",
+  "color-control-transparent-focus": "$color-basic-control-transparent-300",
+  "color-control-transparent-hover": "$color-basic-control-transparent-200",
+  "color-control-transparent-default": "$color-basic-control-transparent-100",
+  "color-control-transparent-active": "$color-basic-control-transparent-300",
+  "color-control-transparent-disabled": "$color-basic-transparent-200",
+  "color-control-transparent-focus-border": "$color-basic-100",
+  "color-control-transparent-hover-border": "$color-basic-100",
+  "color-control-transparent-default-border": "$color-basic-100",
+  "color-control-transparent-active-border": "$color-basic-100",
+  "color-control-transparent-disabled-border": "$color-basic-transparent-300",
+  "background-basic-color-1": "$color-basic-800",
+  "background-basic-color-2": "$color-basic-900",
+  "background-basic-color-3": "$color-basic-1000",
+  "background-basic-color-4": "$color-basic-1100",
+  "background-alternative-color-1": "$color-basic-100",
+  "background-alternative-color-2": "$color-basic-200",
+  "background-alternative-color-3": "$color-basic-300",
+  "background-alternative-color-4": "$color-basic-400",
+  "border-basic-color-1": "$color-basic-800",
+  "border-basic-color-2": "$color-basic-900",
+  "border-basic-color-3": "$color-basic-1000",
+  "border-basic-color-4": "$color-basic-1100",
+  "border-basic-color-5": "$color-basic-1100",
+  "border-alternative-color-1": "$color-basic-100",
+  "border-alternative-color-2": "$color-basic-200",
+  "border-alternative-color-3": "$color-basic-300",
+  "border-alternative-color-4": "$color-basic-400",
+  "border-alternative-color-5": "$color-basic-500",
+  "border-primary-color-1": "$color-primary-500",
+  "border-primary-color-2": "$color-primary-600",
+  "border-primary-color-3": "$color-primary-700",
+  "border-primary-color-4": "$color-primary-800",
+  "border-primary-color-5": "$color-primary-900",
+  "border-success-color-1": "$color-success-500",
+  "border-success-color-2": "$color-success-600",
+  "border-success-color-3": "$color-success-700",
+  "border-success-color-4": "$color-success-800",
+  "border-success-color-5": "$color-success-900",
+  "border-info-color-1": "$color-info-500",
+  "border-info-color-2": "$color-info-600",
+  "border-info-color-3": "$color-info-700",
+  "border-info-color-4": "$color-info-800",
+  "border-info-color-5": "$color-info-900",
+  "border-warning-color-1": "$color-warning-500",
+  "border-warning-color-2": "$color-warning-600",
+  "border-warning-color-3": "$color-warning-700",
+  "border-warning-color-4": "$color-warning-800",
+  "border-warning-color-5": "$color-warning-900",
+  "border-danger-color-1": "$color-danger-500",
+  "border-danger-color-2": "$color-danger-600",
+  "border-danger-color-3": "$color-danger-700",
+  "border-danger-color-4": "$color-danger-800",
+  "border-danger-color-5": "$color-danger-900",
+  "text-basic-color": "$color-basic-100",
+  "text-alternate-color": "$color-basic-900",
+  "text-control-color": "$color-basic-100",
+  "text-disabled-color": "$color-basic-transparent-600",
+  "text-hint-color": "$color-basic-600",
+  "text-primary-color": "$color-primary-default",
+  "text-primary-focus-color": "$color-primary-focus",
+  "text-primary-hover-color": "$color-primary-hover",
+  "text-primary-active-color": "$color-primary-active",
+  "text-primary-disabled-color": "$color-primary-400",
+  "text-success-color": "$color-success-default",
+  "text-success-focus-color": "$color-success-focus",
+  "text-success-hover-color": "$color-success-hover",
+  "text-success-active-color": "$color-success-active",
+  "text-success-disabled-color": "$color-success-400",
+  "text-info-color": "$color-info-default",
+  "text-info-focus-color": "$color-info-focus",
+  "text-info-hover-color": "$color-info-hover",
+  "text-info-active-color": "$color-info-active",
+  "text-info-disabled-color": "$color-info-400",
+  "text-warning-color": "$color-warning-default",
+  "text-warning-focus-color": "$color-warning-focus",
+  "text-warning-hover-color": "$color-warning-hover",
+  "text-warning-active-color": "$color-warning-active",
+  "text-warning-disabled-color": "$color-warning-400",
+  "text-danger-color": "$color-danger-default",
+  "text-danger-focus-color": "$color-danger-focus",
+  "text-danger-hover-color": "$color-danger-hover",
+  "text-danger-active-color": "$color-danger-active",
+  "text-danger-disabled-color": "$color-danger-400",
+  "outline-color": "$color-basic-700"
+};
+exports.darkTheme = {
+  "color-primary-100": "#F2F6FF",
+  "color-primary-200": "#D9E4FF",
+  "color-primary-300": "#A6C1FF",
+  "color-primary-400": "#598BFF",
+  "color-primary-500": "#3366FF",
+  "color-primary-600": "#274BDB",
+  "color-primary-700": "#1A34B8",
+  "color-primary-800": "#102694",
+  "color-primary-900": "#091C7A",
+  "color-primary-transparent-100": "rgba(51, 102, 255, 0.08)",
+  "color-primary-transparent-200": "rgba(51, 102, 255, 0.16)",
+  "color-primary-transparent-300": "rgba(51, 102, 255, 0.24)",
+  "color-primary-transparent-400": "rgba(51, 102, 255, 0.32)",
+  "color-primary-transparent-500": "rgba(51, 102, 255, 0.40)",
+  "color-primary-transparent-600": "rgba(51, 102, 255, 0.48)",
+  "color-success-100": "#EDFFF3",
+  "color-success-200": "#B3FFD6",
+  "color-success-300": "#8CFAC7",
+  "color-success-400": "#51F0B0",
+  "color-success-500": "#00E096",
+  "color-success-600": "#00B383",
+  "color-success-700": "#008F72",
+  "color-success-800": "#007566",
+  "color-success-900": "#00524C",
+  "color-success-transparent-100": "rgba(0, 224, 150, 0.08)",
+  "color-success-transparent-200": "rgba(0, 224, 150, 0.16)",
+  "color-success-transparent-300": "rgba(0, 224, 150, 0.24)",
+  "color-success-transparent-400": "rgba(0, 224, 150, 0.32)",
+  "color-success-transparent-500": "rgba(0, 224, 150, 0.40)",
+  "color-success-transparent-600": "rgba(0, 224, 150, 0.48)",
+  "color-info-100": "#F2F8FF",
+  "color-info-200": "#C7E2FF",
+  "color-info-300": "#94CBFF",
+  "color-info-400": "#42AAFF",
+  "color-info-500": "#0095FF",
+  "color-info-600": "#006FD6",
+  "color-info-700": "#0057C2",
+  "color-info-800": "#0041A8",
+  "color-info-900": "#002885",
+  "color-info-transparent-100": "rgba(0, 149, 255, 0.08)",
+  "color-info-transparent-200": "rgba(0, 149, 255, 0.16)",
+  "color-info-transparent-300": "rgba(0, 149, 255, 0.24)",
+  "color-info-transparent-400": "rgba(0, 149, 255, 0.32)",
+  "color-info-transparent-500": "rgba(0, 149, 255, 0.40)",
+  "color-info-transparent-600": "rgba(0, 149, 255, 0.48)",
+  "color-warning-100": "#FFFDF2",
+  "color-warning-200": "#FFF1C2",
+  "color-warning-300": "#FFE59E",
+  "color-warning-400": "#FFC94D",
+  "color-warning-500": "#FFAA00",
+  "color-warning-600": "#DB8B00",
+  "color-warning-700": "#B86E00",
+  "color-warning-800": "#945400",
+  "color-warning-900": "#703C00",
+  "color-warning-transparent-100": "rgba(255, 170, 0, 0.08)",
+  "color-warning-transparent-200": "rgba(255, 170, 0, 0.16)",
+  "color-warning-transparent-300": "rgba(255, 170, 0, 0.24)",
+  "color-warning-transparent-400": "rgba(255, 170, 0, 0.32)",
+  "color-warning-transparent-500": "rgba(255, 170, 0, 0.40)",
+  "color-warning-transparent-600": "rgba(255, 170, 0, 0.48)",
+  "color-danger-100": "#FFF2F2",
+  "color-danger-200": "#FFD6D9",
+  "color-danger-300": "#FFA8B4",
+  "color-danger-400": "#FF708D",
+  "color-danger-500": "#FF3D71",
+  "color-danger-600": "#DB2C66",
+  "color-danger-700": "#B81D5B",
+  "color-danger-800": "#94124E",
+  "color-danger-900": "#700940",
+  "color-danger-transparent-100": "rgba(255, 61, 113, 0.08)",
+  "color-danger-transparent-200": "rgba(255, 61, 113, 0.16)",
+  "color-danger-transparent-300": "rgba(255, 61, 113, 0.24)",
+  "color-danger-transparent-400": "rgba(255, 61, 113, 0.32)",
+  "color-danger-transparent-500": "rgba(255, 61, 113, 0.40)",
+  "color-danger-transparent-600": "rgba(255, 61, 113, 0.48)",
+  "color-basic-100": "#FFFFFF",
+  "color-basic-200": "#F7F9FC",
+  "color-basic-300": "#EDF1F7",
+  "color-basic-400": "#E4E9F2",
+  "color-basic-500": "#C5CEE0",
+  "color-basic-600": "#8F9BB3",
+  "color-basic-700": "#2E3A59",
+  "color-basic-800": "#222B45",
+  "color-basic-900": "#1A2138",
+  "color-basic-1000": "#151A30",
+  "color-basic-1100": "#101426",
+  "color-basic-transparent-100": "rgba(143, 155, 179, 0.08)",
+  "color-basic-transparent-200": "rgba(143, 155, 179, 0.16)",
+  "color-basic-transparent-300": "rgba(143, 155, 179, 0.24)",
+  "color-basic-transparent-400": "rgba(143, 155, 179, 0.32)",
+  "color-basic-transparent-500": "rgba(143, 155, 179, 0.40)",
+  "color-basic-transparent-600": "rgba(143, 155, 179, 0.48)",
+  "color-basic-control-transparent-100": "rgba(255, 255, 255, 0.08)",
+  "color-basic-control-transparent-200": "rgba(255, 255, 255, 0.16)",
+  "color-basic-control-transparent-300": "rgba(255, 255, 255, 0.24)",
+  "color-basic-control-transparent-400": "rgba(255, 255, 255, 0.32)",
+  "color-basic-control-transparent-500": "rgba(255, 255, 255, 0.40)",
+  "color-basic-control-transparent-600": "rgba(255, 255, 255, 0.48)",
+  "color-basic-focus": "$color-basic-400",
+  "color-basic-hover": "$color-basic-200",
+  "color-basic-default": "$color-basic-300",
+  "color-basic-active": "$color-basic-400",
+  "color-basic-disabled": "$color-basic-transparent-300",
+  "color-basic-focus-border": "$color-basic-500",
+  "color-basic-hover-border": "$color-basic-hover",
+  "color-basic-default-border": "$color-basic-default",
+  "color-basic-active-border": "$color-basic-active",
+  "color-basic-disabled-border": "$color-basic-disabled",
+  "color-basic-transparent-focus": "$color-basic-transparent-300",
+  "color-basic-transparent-hover": "$color-basic-transparent-200",
+  "color-basic-transparent-default": "$color-basic-transparent-100",
+  "color-basic-transparent-active": "$color-basic-transparent-300",
+  "color-basic-transparent-disabled": "$color-basic-transparent-200",
+  "color-basic-transparent-focus-border": "$color-basic-600",
+  "color-basic-transparent-hover-border": "$color-basic-600",
+  "color-basic-transparent-default-border": "$color-basic-600",
+  "color-basic-transparent-active-border": "$color-basic-600",
+  "color-basic-transparent-disabled-border": "$color-basic-transparent-300",
+  "color-primary-focus": "$color-primary-600",
+  "color-primary-hover": "$color-primary-400",
+  "color-primary-default": "$color-primary-500",
+  "color-primary-active": "$color-primary-600",
+  "color-primary-disabled": "$color-basic-transparent-300",
+  "color-primary-focus-border": "$color-primary-700",
+  "color-primary-hover-border": "$color-primary-hover",
+  "color-primary-default-border": "$color-primary-default",
+  "color-primary-active-border": "$color-primary-active",
+  "color-primary-disabled-border": "$color-primary-disabled",
+  "color-primary-transparent-focus": "$color-primary-transparent-300",
+  "color-primary-transparent-hover": "$color-primary-transparent-200",
+  "color-primary-transparent-default": "$color-primary-transparent-100",
+  "color-primary-transparent-active": "$color-primary-transparent-300",
+  "color-primary-transparent-disabled": "$color-basic-transparent-200",
+  "color-primary-transparent-focus-border": "$color-primary-500",
+  "color-primary-transparent-hover-border": "$color-primary-500",
+  "color-primary-transparent-default-border": "$color-primary-500",
+  "color-primary-transparent-active-border": "$color-primary-500",
+  "color-primary-transparent-disabled-border": "$color-basic-transparent-300",
+  "color-success-focus": "$color-success-600",
+  "color-success-hover": "$color-success-400",
+  "color-success-default": "$color-success-500",
+  "color-success-active": "$color-success-600",
+  "color-success-disabled": "$color-basic-transparent-300",
+  "color-success-focus-border": "$color-success-700",
+  "color-success-hover-border": "$color-success-hover",
+  "color-success-default-border": "$color-success-default",
+  "color-success-active-border": "$color-success-active",
+  "color-success-disabled-border": "$color-success-disabled",
+  "color-success-transparent-focus": "$color-success-transparent-300",
+  "color-success-transparent-hover": "$color-success-transparent-200",
+  "color-success-transparent-default": "$color-success-transparent-100",
+  "color-success-transparent-active": "$color-success-transparent-300",
+  "color-success-transparent-disabled": "$color-basic-transparent-200",
+  "color-success-transparent-focus-border": "$color-success-500",
+  "color-success-transparent-hover-border": "$color-success-500",
+  "color-success-transparent-default-border": "$color-success-500",
+  "color-success-transparent-active-border": "$color-success-500",
+  "color-success-transparent-disabled-border": "$color-basic-transparent-300",
+  "color-info-focus": "$color-info-600",
+  "color-info-hover": "$color-info-400",
+  "color-info-default": "$color-info-500",
+  "color-info-active": "$color-info-600",
+  "color-info-disabled": "$color-basic-transparent-300",
+  "color-info-focus-border": "$color-info-700",
+  "color-info-hover-border": "$color-info-hover",
+  "color-info-default-border": "$color-info-default",
+  "color-info-active-border": "$color-info-active",
+  "color-info-disabled-border": "$color-info-disabled",
+  "color-info-transparent-focus": "$color-info-transparent-300",
+  "color-info-transparent-hover": "$color-info-transparent-200",
+  "color-info-transparent-default": "$color-info-transparent-100",
+  "color-info-transparent-active": "$color-info-transparent-300",
+  "color-info-transparent-disabled": "$color-basic-transparent-200",
+  "color-info-transparent-focus-border": "$color-info-500",
+  "color-info-transparent-hover-border": "$color-info-500",
+  "color-info-transparent-default-border": "$color-info-500",
+  "color-info-transparent-active-border": "$color-info-500",
+  "color-info-transparent-disabled-border": "$color-basic-transparent-300",
+  "color-warning-focus": "$color-warning-600",
+  "color-warning-hover": "$color-warning-400",
+  "color-warning-default": "$color-warning-500",
+  "color-warning-active": "$color-warning-600",
+  "color-warning-disabled": "$color-basic-transparent-300",
+  "color-warning-focus-border": "$color-warning-700",
+  "color-warning-hover-border": "$color-warning-hover",
+  "color-warning-default-border": "$color-warning-default",
+  "color-warning-active-border": "$color-warning-active",
+  "color-warning-disabled-border": "$color-warning-disabled",
+  "color-warning-transparent-focus": "$color-warning-transparent-300",
+  "color-warning-transparent-hover": "$color-warning-transparent-200",
+  "color-warning-transparent-default": "$color-warning-transparent-100",
+  "color-warning-transparent-active": "$color-warning-transparent-300",
+  "color-warning-transparent-disabled": "$color-basic-transparent-200",
+  "color-warning-transparent-focus-border": "$color-warning-500",
+  "color-warning-transparent-hover-border": "$color-warning-500",
+  "color-warning-transparent-default-border": "$color-warning-500",
+  "color-warning-transparent-active-border": "$color-warning-500",
+  "color-warning-transparent-disabled-border": "$color-basic-transparent-300",
+  "color-danger-focus": "$color-danger-600",
+  "color-danger-hover": "$color-danger-400",
+  "color-danger-default": "$color-danger-500",
+  "color-danger-active": "$color-danger-600",
+  "color-danger-disabled": "$color-basic-transparent-300",
+  "color-danger-focus-border": "color-danger-700",
+  "color-danger-hover-border": "$color-danger-hover",
+  "color-danger-default-border": "$color-danger-default",
+  "color-danger-active-border": "$color-danger-active",
+  "color-danger-disabled-border": "$color-danger-disabled",
+  "color-danger-transparent-focus": "$color-danger-transparent-300",
+  "color-danger-transparent-hover": "$color-danger-transparent-200",
+  "color-danger-transparent-default": "$color-danger-transparent-100",
+  "color-danger-transparent-active": "$color-danger-transparent-300",
+  "color-danger-transparent-disabled": "$color-basic-transparent-200",
+  "color-danger-transparent-focus-border": "$color-danger-500",
+  "color-danger-transparent-hover-border": "$color-danger-500",
+  "color-danger-transparent-default-border": "$color-danger-500",
+  "color-danger-transparent-active-border": "$color-danger-500",
+  "color-danger-transparent-disabled-border": "$color-basic-transparent-300",
+  "color-control-focus": "$color-basic-300",
+  "color-control-hover": "$color-basic-200",
+  "color-control-default": "$color-basic-100",
+  "color-control-active": "$color-basic-300",
+  "color-control-disabled": "$color-basic-transparent-300",
+  "color-control-focus-border": "$color-basic-500",
+  "color-control-hover-border": "$color-control-hover",
+  "color-control-default-border": "$color-control-default",
+  "color-control-active-border": "$color-control-active",
+  "color-control-disabled-border": "$color-control-disabled",
+  "color-control-transparent-focus": "$color-basic-control-transparent-300",
+  "color-control-transparent-hover": "$color-basic-control-transparent-200",
+  "color-control-transparent-default": "$color-basic-control-transparent-100",
+  "color-control-transparent-active": "$color-basic-control-transparent-300",
+  "color-control-transparent-disabled": "$color-basic-transparent-200",
+  "color-control-transparent-focus-border": "$color-basic-100",
+  "color-control-transparent-hover-border": "$color-basic-100",
+  "color-control-transparent-default-border": "$color-basic-100",
+  "color-control-transparent-active-border": "$color-basic-100",
+  "color-control-transparent-disabled-border": "$color-basic-transparent-300",
+  "background-basic-color-1": "$color-basic-800",
+  "background-basic-color-2": "$color-basic-900",
+  "background-basic-color-3": "$color-basic-1000",
+  "background-basic-color-4": "$color-basic-1100",
+  "background-alternative-color-1": "$color-basic-100",
+  "background-alternative-color-2": "$color-basic-200",
+  "background-alternative-color-3": "$color-basic-300",
+  "background-alternative-color-4": "$color-basic-400",
+  "border-basic-color-1": "$color-basic-800",
+  "border-basic-color-2": "$color-basic-900",
+  "border-basic-color-3": "$color-basic-1000",
+  "border-basic-color-4": "$color-basic-1100",
+  "border-basic-color-5": "$color-basic-1100",
+  "border-alternative-color-1": "$color-basic-100",
+  "border-alternative-color-2": "$color-basic-200",
+  "border-alternative-color-3": "$color-basic-300",
+  "border-alternative-color-4": "$color-basic-400",
+  "border-alternative-color-5": "$color-basic-500",
+  "border-primary-color-1": "$color-primary-500",
+  "border-primary-color-2": "$color-primary-600",
+  "border-primary-color-3": "$color-primary-700",
+  "border-primary-color-4": "$color-primary-800",
+  "border-primary-color-5": "$color-primary-900",
+  "border-success-color-1": "$color-success-500",
+  "border-success-color-2": "$color-success-600",
+  "border-success-color-3": "$color-success-700",
+  "border-success-color-4": "$color-success-800",
+  "border-success-color-5": "$color-success-900",
+  "border-info-color-1": "$color-info-500",
+  "border-info-color-2": "$color-info-600",
+  "border-info-color-3": "$color-info-700",
+  "border-info-color-4": "$color-info-800",
+  "border-info-color-5": "$color-info-900",
+  "border-warning-color-1": "$color-warning-500",
+  "border-warning-color-2": "$color-warning-600",
+  "border-warning-color-3": "$color-warning-700",
+  "border-warning-color-4": "$color-warning-800",
+  "border-warning-color-5": "$color-warning-900",
+  "border-danger-color-1": "$color-danger-500",
+  "border-danger-color-2": "$color-danger-600",
+  "border-danger-color-3": "$color-danger-700",
+  "border-danger-color-4": "$color-danger-800",
+  "border-danger-color-5": "$color-danger-900",
+  "text-basic-color": "$color-basic-100",
+  "text-alternate-color": "$color-basic-900",
+  "text-control-color": "$color-basic-100",
+  "text-disabled-color": "$color-basic-transparent-600",
+  "text-hint-color": "$color-basic-600",
+  "text-primary-color": "$color-primary-default",
+  "text-primary-focus-color": "$color-primary-focus",
+  "text-primary-hover-color": "$color-primary-hover",
+  "text-primary-active-color": "$color-primary-active",
+  "text-primary-disabled-color": "$color-primary-400",
+  "text-success-color": "$color-success-default",
+  "text-success-focus-color": "$color-success-focus",
+  "text-success-hover-color": "$color-success-hover",
+  "text-success-active-color": "$color-success-active",
+  "text-success-disabled-color": "$color-success-400",
+  "text-info-color": "$color-info-default",
+  "text-info-focus-color": "$color-info-focus",
+  "text-info-hover-color": "$color-info-hover",
+  "text-info-active-color": "$color-info-active",
+  "text-info-disabled-color": "$color-info-400",
+  "text-warning-color": "$color-warning-default",
+  "text-warning-focus-color": "$color-warning-focus",
+  "text-warning-hover-color": "$color-warning-hover",
+  "text-warning-active-color": "$color-warning-active",
+  "text-warning-disabled-color": "$color-warning-400",
+  "text-danger-color": "$color-danger-default",
+  "text-danger-focus-color": "$color-danger-focus",
+  "text-danger-hover-color": "$color-danger-hover",
+  "text-danger-active-color": "$color-danger-active",
+  "text-danger-disabled-color": "$color-danger-400",
+  "outline-color": "$color-basic-700"
+};
+
+/***/ }),
+
 /***/ 1:
 /*!*********************************************************************************************************************************************************!*\
   !*** multi (webpack)/hot/dev-server.js /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/react-dev-utils/webpackHotDevClient.js ./src/index.tsx ***!
@@ -4623,5 +5388,5 @@ module.exports = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer
 
 /***/ })
 
-},[[1,"runtime-main",0]]]);
+},[[1,"runtime-main",1]]]);
 //# sourceMappingURL=main.chunk.js.map

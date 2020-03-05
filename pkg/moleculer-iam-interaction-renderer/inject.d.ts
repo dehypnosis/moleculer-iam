@@ -1,5 +1,5 @@
 import { ApplicationState } from "moleculer-iam";
-import { IPartialTheme } from "office-ui-fabric-react/lib";
+import { ApplicationThemePalette } from "./theme";
 export declare type ApplicationOptions = {
     logo: {
         uri: string | null;
@@ -8,9 +8,12 @@ export declare type ApplicationOptions = {
     login: {
         federationOptionsVisibleDefault: boolean;
     };
-    theme?: IPartialTheme;
+    theme: string;
+    palette: {
+        [theme: string]: ApplicationThemePalette;
+    };
 };
-export declare function getAppOptions(): ApplicationOptions;
+export declare function getAppOptions(): Partial<ApplicationOptions>;
 export declare function getInitialAppState(): ApplicationState;
 export declare function getAppPrefix(): any;
 export declare function getAppDev(): boolean;

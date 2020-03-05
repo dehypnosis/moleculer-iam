@@ -21,6 +21,7 @@
   "include": [
     "./index.ts",
     "./config.ts",
-    "./inject.ts"
+    "./inject.ts",
+    "./theme.ts"
   ]
 }

@@ -1,6 +1,5 @@
-import * as _ from "lodash";
 import { ApplicationState } from "moleculer-iam";
-import { IPartialTheme } from "office-ui-fabric-react/lib";
+import { ApplicationThemePalette } from "./theme";
 
 export type ApplicationOptions = {
   logo: {
@@ -10,11 +9,14 @@ export type ApplicationOptions = {
   login: {
     federationOptionsVisibleDefault: boolean,
   },
-  theme?: IPartialTheme;
+  theme: string;
+  palette: {
+    [theme: string]: ApplicationThemePalette;
+  };
 };
 
 // parse app options from html document
-export function getAppOptions(): ApplicationOptions {
+export function getAppOptions(): Partial<ApplicationOptions> {
   if (typeof window === "undefined") {
     throw new Error("cannot call getAppOptions from server-side");
   }

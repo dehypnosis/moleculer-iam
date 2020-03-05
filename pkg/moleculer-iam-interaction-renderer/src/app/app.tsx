@@ -6,6 +6,7 @@ import { routeConfig } from "./routes";
 import { AppOptionsProvider } from "./options";
 import { AppStateProvider } from "./state";
 import { AppNavigationProvider } from "./navigation";
+import { ApplicationThemeProvider } from "./style";
 
 import { FindEmailIndexScreen } from "../screen/find_email.index";
 import { FindEmailVerifyScreen } from "../screen/find_email.verify";
@@ -30,50 +31,52 @@ import { VerifyPhoneVerifyScreen } from "../screen/verify_phone.verify";
 export const App: React.FunctionComponent = () => {
   return (
     <AppOptionsProvider>
-      <AppStateProvider>
-        <AppNavigationProvider routeConfig={routeConfig}>
-          <RootStack.Navigator
-            screenOptions={screenOptions}
-          >
-            <RootStack.Screen
-              name={"error"}
-              component={ErrorScreen}
-            />
-            <RootStack.Screen
-              name={"consent"}
-              component={ConsentScreen}
-            />
-            <RootStack.Screen
-              name={"login"}
-              component={LoginStackScreen}
-            />
-            <RootStack.Screen
-              name={"find_email"}
-              component={FindEmailStackScreen}
-            />
-            <RootStack.Screen
-              name={"reset_password"}
-              component={ResetPasswordStackScreen}
-            />
-            <RootStack.Screen
-              name={"register"}
-              component={RegisterStackScreen}
-            />
-            <RootStack.Screen
-              name={"logout"}
-              component={LogoutStackScreen}
-            />
-            <RootStack.Screen
-              name={"verify_phone"}
-              component={VerifyPhoneStackScreen}
-            />
-            <RootStack.Screen
-              name={"verify_email"}
-              component={VerifyEmailStackScreen}
-            />
-          </RootStack.Navigator>
-        </AppNavigationProvider>
-      </AppStateProvider>
+      <ApplicationThemeProvider>
+        <AppStateProvider>
+          <AppNavigationProvider routeConfig={routeConfig}>
+            <RootStack.Navigator
+              screenOptions={screenOptions}
+            >
+              <RootStack.Screen
+                name={"error"}
+                component={ErrorScreen}
+              />
+              <RootStack.Screen
+                name={"consent"}
+                component={ConsentScreen}
+              />
+              <RootStack.Screen
+                name={"login"}
+                component={LoginStackScreen}
+              />
+              <RootStack.Screen
+                name={"find_email"}
+                component={FindEmailStackScreen}
+              />
+              <RootStack.Screen
+                name={"reset_password"}
+                component={ResetPasswordStackScreen}
+              />
+              <RootStack.Screen
+                name={"register"}
+                component={RegisterStackScreen}
+              />
+              <RootStack.Screen
+                name={"logout"}
+                component={LogoutStackScreen}
+              />
+              <RootStack.Screen
+                name={"verify_phone"}
+                component={VerifyPhoneStackScreen}
+              />
+              <RootStack.Screen
+                name={"verify_email"}
+                component={VerifyEmailStackScreen}
+              />
+            </RootStack.Navigator>
+          </AppNavigationProvider>
+        </AppStateProvider>
+      </ApplicationThemeProvider>
     </AppOptionsProvider>
   )
 };

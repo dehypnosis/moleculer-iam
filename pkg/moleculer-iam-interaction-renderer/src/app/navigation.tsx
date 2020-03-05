@@ -30,8 +30,8 @@ export const AppNavigationProvider: React.FunctionComponent<{
             console.warn(`appState.name differs from matched route`, appState.name, route);
           }
         }
+        console.debug("nav state update:", navState);
       }
-      console.debug("nav state update:", navState);
       return navState;
     }, [appState]),
   });

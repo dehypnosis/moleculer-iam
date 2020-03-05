@@ -28,6 +28,7 @@ module.exports = {
       path.join(require.resolve("react-native-screens/src/screens.web.js")),
       path.join(require.resolve("react-native-reanimated"), ".."),
       path.join(require.resolve("react-native-gesture-handler"), ".."),
+      path.join(require.resolve("react-native-eva-icons"), ".."),
     ];
     babelRule.options.presets.push(require.resolve("metro-react-native-babel-preset"));
     // process.exit();

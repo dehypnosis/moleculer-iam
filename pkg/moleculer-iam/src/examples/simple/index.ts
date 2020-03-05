@@ -108,8 +108,8 @@ const serviceSchema = IAMServiceSchema({
           login: {
             federationOptionsVisibleDefault: false,
           },
-          theme: {
-            palette: {
+          themes: {
+            default: {
               themePrimary: "#ff6500",
               themeLighterAlt: "#f6f7fe",
               themeLighter: "#fce1f3",

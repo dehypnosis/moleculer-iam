@@ -1,6 +1,7 @@
 import * as _ from "lodash";
 import React, { createContext, useContext } from "react";
 import { ApplicationOptions, getAppDev, getAppOptions } from "../../inject";
+import { darkTheme, lightTheme } from "../../theme";
 
 export const AppOptionsContext = createContext<[ApplicationOptions & { dev: boolean }, AppOptionsProvider["setState"]]>([] as any);
 
@@ -20,16 +21,16 @@ export class AppOptionsProvider extends React.Component<{}, ApplicationOptions &
     login: {
       federationOptionsVisibleDefault: false,
     },
-    theme: {
-
+    theme: "light",
+    palette: {
+      light: lightTheme,
+      dark: darkTheme,
     },
   } as ApplicationOptions);
 
-  componentDidUpdate(prevProps: Readonly<any>, prevState: Readonly<ApplicationOptions & { dev: boolean }>, snapshot?: any): void {
-    console.log(prevState);
-  }
-
   render() {
+    console.debug("app options update:", this.state);
+
     return (
       <AppOptionsContext.Provider value={[this.state, this.setState.bind(this)]}>
         {this.props.children}
