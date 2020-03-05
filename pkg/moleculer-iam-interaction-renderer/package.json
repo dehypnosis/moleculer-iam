@@ -14,8 +14,8 @@
     "index.js",
     "config.d.ts",
     "config.js",
-    "state.d.ts",
-    "state.js"
+    "inject.d.ts",
+    "inject.js"
   ],
   "dependencies": {
     "koa-static-cache": "^5.1.2",
@@ -38,6 +38,7 @@
     "test": "react-app-rewired test",
     "eject": "react-scripts eject"
   },
+  "config-overrides-path": "build.js",
   "eslintConfig": {
     "extends": "react-app"
   },

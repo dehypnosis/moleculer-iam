@@ -1,17 +1,16 @@
 /// <reference types="koa-bodyparser" />
 /// <reference types="koa-passport" />
-import * as Application from "koa";
 import { Configuration } from "oidc-provider";
 import { IdentityProvider } from "../../idp";
 import { Logger } from "../../logger";
-import { InteractionBuildOptions } from "../interaction";
+import { ApplicationBuildOptions } from "../app";
 import { StaticConfiguration } from "./config";
 export declare type OIDCProviderProxyProps = {
     logger: Logger;
     idp: IdentityProvider;
 };
 export declare type OIDCProviderProxyOptions = StaticConfiguration & {
-    interaction?: InteractionBuildOptions;
+    app?: ApplicationBuildOptions;
 };
 export declare type ParsedLocale = {
     language: string;
@@ -24,7 +23,7 @@ export declare class OIDCProviderProxy {
     private readonly adapter;
     constructor(props: OIDCProviderProxyProps, options: OIDCProviderProxyOptions);
     private get hidden();
-    get app(): import("koa")<Application.DefaultState, Application.DefaultContext>;
+    get app(): import("koa")<import("koa").DefaultState, import("koa").DefaultContext>;
     get configuration(): Configuration;
     get supportedLocales(): string[];
     parseLocale(locale: string): ParsedLocale;

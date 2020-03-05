@@ -7,7 +7,7 @@ export const LogoutEndScreen: React.FunctionComponent = () => {
   // states
   const { closed, close } = useClose(false);
   const [state] = useAppState();
-  const user = state.metadata.user;
+  const user = state.user;
 
   // render
   return (

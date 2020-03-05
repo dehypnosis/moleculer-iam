@@ -12,11 +12,14 @@ const options_1 = require("./options");
 class IdentityClaimsManager {
     constructor(props, opts) {
         this.props = props;
+        this.mandatoryScopes = [];
+        this._supportedScopes = {};
         this.logger = props.logger || console;
         // compile payload validation functions
         this.validatePayload = validator_1.validator.compile(types_1.IdentityClaimsSchemaPayloadValidationSchema);
         // prepare base claims
         this.options = _.defaultsDeep(opts || {}, options_1.defaultIdentityClaimsManagerOptions);
+        this.mandatoryScopes = [...new Set(this.options.mandatoryScopes.concat(["openid"]))];
     }
     get adapter() {
         return this.props.adapter;
@@ -38,6 +41,7 @@ class IdentityClaimsManager {
         for (const payload of payloads) {
             await this.defineClaimsSchema(payload);
         }
+        await this.syncSupportedScopes();
         this.logger.info("identity claims manager has been started");
     }
     async stop() {
@@ -101,11 +105,21 @@ class IdentityClaimsManager {
             throw new error_1.Errors.ValidationError([], { migration: schema.migration, error });
         }
     }
-    get mandatoryScopes() {
-        return [...new Set(this.options.mandatoryScopes.concat(["openid"]))];
+    get supportedScopes() {
+        return this._supportedScopes;
+    }
+    async syncSupportedScopes() {
+        // update supported scope information
+        this._supportedScopes = await this.getActiveClaimsSchemata()
+            .then(schemata => schemata.reduce((scopes, schema) => {
+            scopes[schema.scope] = (scopes[schema.scope] || []).concat(schema.key);
+            return scopes;
+        }, {}));
     }
     async onClaimsSchemaUpdated() {
-        return this.adapter.onClaimsSchemaUpdated();
+        await this.adapter.onClaimsSchemaUpdated();
+        await this.syncSupportedScopes();
+        return;
     }
     async getActiveClaimsSchemata() {
         return this.adapter.getClaimsSchemata({ scope: [], active: true });

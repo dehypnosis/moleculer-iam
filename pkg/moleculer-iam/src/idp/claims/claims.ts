@@ -35,6 +35,7 @@ export class IdentityClaimsManager {
 
     // prepare base claims
     this.options = _.defaultsDeep(opts || {}, defaultIdentityClaimsManagerOptions);
+    this.mandatoryScopes = [...new Set(this.options.mandatoryScopes!.concat(["openid"]))];
   }
 
   private get adapter() {
@@ -59,6 +60,8 @@ export class IdentityClaimsManager {
     for (const payload of payloads) {
       await this.defineClaimsSchema(payload);
     }
+
+    await this.syncSupportedScopes();
 
     this.logger.info("identity claims manager has been started");
   }
@@ -134,12 +137,27 @@ export class IdentityClaimsManager {
     }
   }
 
-  public get mandatoryScopes(): ReadonlyArray<string> {
-    return [...new Set(this.options.mandatoryScopes!.concat(["openid"]))];
+  public readonly mandatoryScopes: ReadonlyArray<string> = [];
+
+  private _supportedScopes: {[scope: string]: string[]} = {};
+  public get supportedScopes(): {[scope: string]: string[]} {
+    return this._supportedScopes;
+  }
+  private async syncSupportedScopes() {
+    // update supported scope information
+    this._supportedScopes = await this.getActiveClaimsSchemata()
+      .then(schemata =>
+        schemata.reduce((scopes, schema) => {
+          scopes[schema.scope] = (scopes[schema.scope] || []).concat(schema.key);
+          return scopes;
+        }, {} as any)
+      );
   }
 
   public async onClaimsSchemaUpdated() {
-    return this.adapter.onClaimsSchemaUpdated();
+    await this.adapter.onClaimsSchemaUpdated();
+    await this.syncSupportedScopes();
+    return;
   }
 
   public async getActiveClaimsSchemata() {

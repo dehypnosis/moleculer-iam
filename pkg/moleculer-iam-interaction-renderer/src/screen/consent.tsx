@@ -29,8 +29,8 @@ export const ConsentScreen: React.FunctionComponent = () => {
     });
   });
 
-  const user = state.metadata.user!;
-  const client = state.metadata.client!;
+  const user = state.user!;
+  const client = state.client!;
   const consent = state.session.consent;
 
   // render

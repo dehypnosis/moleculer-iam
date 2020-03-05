@@ -1,24 +1,25 @@
-import * as compose from "koa-compose";
+import Koa from "koa";
 import { Logger } from "../../logger";
-import { InteractionState, InteractionRequestContext } from "./index";
+import { ApplicationState } from "./index";
 
-export type InteractionStateRendererProps = {
+export type ApplicationRendererProps = {
   logger: Logger;
   prefix: string;
   dev: boolean;
 }
 
-export interface InteractionStateRenderer {
-  routes?(): compose.Middleware<InteractionRequestContext>[];
-  render(ctx: InteractionRequestContext, state: InteractionState): Promise<void>;
+// enhanced request context will be unwrapped to pure koa context before render
+export interface ApplicationRenderer {
+  routes?(): Koa.Middleware[];
+  render(ctx: Koa.BaseContext, state: ApplicationState): Promise<void>;
 }
 
-export interface InteractionStateRendererFactoryOptions {}
+export interface ApplicationRendererFactoryFactoryOptions {}
 
-export type InteractionStateRendererFactory<T extends InteractionStateRendererFactoryOptions = any> = (props: InteractionStateRendererProps, options?: T) => InteractionStateRenderer;
+export type ApplicationRendererFactory<T extends ApplicationRendererFactoryFactoryOptions = any> = (props: ApplicationRendererProps, options?: T) => ApplicationRenderer;
 
-export const dummyInteractionStateRendererFactory: InteractionStateRendererFactory = ({ logger }) => {
-  logger.error(`set dummy interaction state renderer`);
+export const dummyAppStateRendererFactory: ApplicationRendererFactory = ({ logger }) => {
+  logger.error(`set dummy application renderer`);
 
   return {
     routes() {

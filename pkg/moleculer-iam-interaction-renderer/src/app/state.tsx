@@ -1,28 +1,30 @@
-import { InteractionResponse, InteractionState } from "moleculer-iam";
-import React, { createContext } from "react";
+import { ApplicationResponse, ApplicationState } from "moleculer-iam";
+import React, { createContext, useContext } from "react";
 import { ClientErrorScreen } from "../screen/error";
-import { getAppOptions, getInitialAppState } from "../../state";
-
-const { dev } = getAppOptions();
+import { getInitialAppState } from "../../inject";
 
 // read server state and create endpoint request helper
-export const AppStateContext = createContext<[InteractionState, AppStateContainer["dispatch"]]>([] as any);
+export const AppStateContext = createContext<[ApplicationState, AppStateProvider["dispatch"]]>([] as any);
 
-export class AppStateContainer extends React.Component {
+export function useAppState() {
+  return useContext(AppStateContext);
+}
+
+export class AppStateProvider extends React.Component<{}> {
   state = {
     error: null as any,
-    app: getInitialAppState(),
+    appState: getInitialAppState(),
   };
 
   render() {
-    const { error, app } = this.state;
+    const { error, appState } = this.state;
 
     if (error) {
       return <ClientErrorScreen error={error} />;
     }
 
     return (
-      <AppStateContext.Provider value={[app, this.dispatch]}>
+      <AppStateContext.Provider value={[appState, this.dispatch]}>
         {this.props.children}
       </AppStateContext.Provider>
     )
@@ -36,8 +38,8 @@ export class AppStateContainer extends React.Component {
   }
 
   // call xhr request and update app state
-  dispatch = async (name: string, userPayload: any = {}): Promise<InteractionState> => {
-    const actions = this.state.app.actions;
+  dispatch = async (name: string, userPayload: any = {}): Promise<ApplicationState> => {
+    const actions = this.state.appState.actions;
     const action = actions && actions[name];
 
     if (!action) {
@@ -83,7 +85,7 @@ export class AppStateContainer extends React.Component {
     })
       .then(res => {
         return res.json()
-          .then((data: InteractionResponse): InteractionState => {
+          .then((data: ApplicationResponse): ApplicationState => {
             if (data.error) { // XHR error response
               // organize field error descriptor for form components on validation error
               if (res.status === 422 && data.error.fields) {
@@ -102,10 +104,10 @@ export class AppStateContainer extends React.Component {
               }
 
             } else if (data.session) { // got session state update
-              const newAppState = {...this.state.app, session: data.session!};
-              this.setState(prev => ({...prev, app: newAppState}));
-              dev && console.debug("app state updated", newAppState);
-              return newAppState;
+              const appState = {...this.state.appState, session: data.session!};
+              this.setState(prev => ({...prev, app: appState}));
+              console.debug("app state updated", appState);
+              return appState;
 
             } else if (data.state) {
               console.error("interaction state response received from XHR", data);
@@ -114,7 +116,7 @@ export class AppStateContainer extends React.Component {
               console.error("unrecognized response structure", data);
             }
 
-            return this.state.app;
+            return this.state.appState;
           });
       });
   };

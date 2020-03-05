@@ -3,36 +3,31 @@
   yarn build-server
 */
 
-// @ts-ignore
 import path from "path";
-// @ts-ignore
 import fs from "fs";
-// @ts-ignore
 import serveStatic from "koa-static-cache";
-import { InteractionStateRendererFactory, InteractionStateRenderer, InteractionStateRendererProps } from "moleculer-iam";
-import { AppOptions } from "./state";
-import webpackConfig from "./config";
+import { ApplicationRendererFactory, ApplicationRenderer, ApplicationRendererProps } from "moleculer-iam";
+import { ApplicationOptions } from "./inject";
+import { default as buildConfig } from "./build.config";
 
 type RecursivePartial<T> = {
   [P in keyof T]?: T[P] extends (infer U)[] ? RecursivePartial<U>[] : (T[P] extends object ? RecursivePartial<T[P]> : T[P]);
 };
 
 
-class SinglePageInteractionRenderer implements InteractionStateRenderer {
-  constructor(private readonly props: InteractionStateRendererProps, private readonly options: RecursivePartial<AppOptions> = {}) {
+class SinglePageApplicationRenderer implements ApplicationRenderer {
+  constructor(private readonly props: ApplicationRendererProps, private readonly options: RecursivePartial<ApplicationOptions> = {}) {
   }
 
   private views: { header: string; footer: string; } = this.loadViews();
 
   private loadViews() {
     // load index page and split into header and footer with app options data
-    const html = fs.readFileSync(path.join(webpackConfig.output.path, "index.html")).toString();
+    const html = fs.readFileSync(path.join(buildConfig.webpack.output.path, "index.html")).toString();
     const index = html.indexOf("<script");
 
     // inject server-side options, ref ./inject.ts
-    this.options.dev = this.props.dev;
-    this.options.prefix = this.props.prefix;
-    const options = `<script>window.__APP_OPTIONS__=${JSON.stringify(this.options)};</script>`
+    const options = `<script>window.__APP_DEV__=${JSON.stringify(this.props.dev)};window.__APP_PREFIX__=${JSON.stringify(this.props.prefix)};window.__APP_OPTIONS__=${JSON.stringify(this.options)};</script>`
 
     return this.views = {
       header: html.substring(0, index),
@@ -40,7 +35,7 @@ class SinglePageInteractionRenderer implements InteractionStateRenderer {
     };
   }
 
-  public readonly render: InteractionStateRenderer["render"] = async (ctx, state) => {
+  public readonly render: ApplicationRenderer["render"] = async (ctx, state) => {
     // reload views for each rendering for development mode
     if (this.props.dev) {
       try {
@@ -63,11 +58,11 @@ class SinglePageInteractionRenderer implements InteractionStateRenderer {
     ctx.body = `${header}<script>window.__APP_STATE__=${serializedState};</script>${footer}`;
   };
 
-  public readonly routes: InteractionStateRenderer["routes"] = () => {
+  public readonly routes: ApplicationRenderer["routes"] = () => {
     return [
       // serve webpack assets
-      serveStatic(webpackConfig.output.path, {
-        prefix: webpackConfig.output.publicPath,
+      serveStatic(buildConfig.webpack.output.path, {
+        prefix: buildConfig.webpack.output.publicPath,
         maxAge: this.props.dev ? 0 : 60 * 60 * 24 * 7,
         dynamic: this.props.dev,
         preload: !this.props.dev,
@@ -77,5 +72,5 @@ class SinglePageInteractionRenderer implements InteractionStateRenderer {
 }
 
 export = ((props, options) => {
-  return new SinglePageInteractionRenderer(props, options);
-}) as InteractionStateRendererFactory<RecursivePartial<AppOptions>>;
+  return new SinglePageApplicationRenderer(props, options);
+}) as ApplicationRendererFactory<RecursivePartial<ApplicationOptions>>;

@@ -27,10 +27,10 @@ export const ErrorScreen: React.FunctionComponent = () => {
 export const ClientErrorScreen: React.FunctionComponent<{ error: any }> = (props) => {
   return (
     <ScreenLayout
-      title={"Unexpected Client Error"}
-      subtitle={props.error.name}
+      title={props.error.name}
+      subtitle={props.error.message}
     >
-      <pre style={{fontSize: "0.8em", color: "gray", wordBreak: "break-all", whiteSpace: "pre-wrap"}}>{props.error.message}</pre>
+      <pre style={{fontSize: "0.8em", color: "gray", wordBreak: "break-all", whiteSpace: "pre-wrap"}}>{props.error.stack}</pre>
     </ScreenLayout>
   );
 };

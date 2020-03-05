@@ -16,16 +16,37 @@ class OIDCProviderContextProxy {
         this.metadata = {};
     }
     get idp() {
-        return this.builder.interaction.idp;
+        return this.builder.app.idp;
     }
     get provider() {
-        return this.builder.interaction.op;
+        return this.builder.app.op;
     }
     get getURL() {
-        return this.builder.interaction.getURL;
+        return this.builder.app.getURL;
     }
     get getNamedURL() {
         return this.provider.urlFor;
+    }
+    get sessionAppState() {
+        return this.session.state && this.session.state[OIDCProviderContextProxy.sessionAppStateField] || {};
+    }
+    async setSessionState(update) {
+        const { ctx, session } = this;
+        const field = OIDCProviderContextProxy.sessionAppStateField;
+        if (!session.state) {
+            session.state = { custom: {} };
+        }
+        else if (!session.state[field]) {
+            session.state[field] = {};
+        }
+        session.state[field] = update(session.state[field]);
+        await session_1.default(ctx, () => {
+            // @ts-ignore to set Set-Cookie response header
+            session.touched = true;
+        });
+        // @ts-ignore store/update session in to adapter
+        await session.save();
+        return session.state[field];
     }
     async render(stateProps) {
         const { ctx } = this;
@@ -34,7 +55,13 @@ class OIDCProviderContextProxy {
             actions: {},
             ...stateProps,
             metadata: this.metadata,
-            session: this.session.state && this.session.state.custom || {},
+            locale: ctx.locale,
+            session: this.sessionAppState,
+            interaction: this.interaction,
+            // current op interaction information (login, consent)
+            client: this.clientMetadata,
+            user: this.userClaims,
+            device: this.device,
         };
         if (ctx.accepts(JSON, HTML) === JSON) {
             ctx.type = JSON;
@@ -43,7 +70,8 @@ class OIDCProviderContextProxy {
             return;
         }
         ctx.type = HTML;
-        return this.builder.interaction.stateRenderer.render(ctx, state);
+        // unwrap enhanced context and delegate render to secure vulnerability
+        return this.builder.app.appRenderer.render(ctx.app.context, state);
     }
     async redirectWithUpdate(promptUpdate, allowedPromptNames) {
         const { ctx, interaction, provider } = this;
@@ -62,31 +90,13 @@ class OIDCProviderContextProxy {
     }
     ;
     end() {
-        const { ctx, session } = this;
-        const response = { session: session.state && session.state.custom || {} };
-        ctx.type = JSON;
-        ctx.body = response;
+        const response = { session: this.setSessionState };
+        this.ctx.type = JSON;
+        this.ctx.body = response;
     }
     assertPrompt(allowedPromptNames) {
         const { ctx, interaction } = this;
         ctx.assert(interaction && (!allowedPromptNames || allowedPromptNames.includes(interaction.prompt.name)));
-    }
-    async setSessionState(update) {
-        const { ctx, session } = this;
-        if (!session.state) {
-            session.state = { custom: {} };
-        }
-        else if (!session.state.custom) {
-            session.state.custom = {};
-        }
-        session.state.custom = update(session.state.custom);
-        await session_1.default(ctx, () => {
-            // @ts-ignore to set Set-Cookie response header
-            session.touched = true;
-        });
-        // @ts-ignore store/update session in to adapter
-        await session.save();
-        return session.state.custom;
     }
     // utility
     async getPublicClientProps(client) {
@@ -121,19 +131,10 @@ class OIDCProviderContextProxy {
         const configuration = hiddenProvider.configuration();
         this.session = await provider.Session.get(ctx);
         this.metadata = {
-            availableFederationProviders: this.builder.interaction.federation.providerNames,
-            // availableScopes: await this.idp.claims.getActiveClaimsSchemata()
-            //   .then(schemata =>
-            //     schemata.reduce((scopes, schema) => {
-            //       scopes[schema.scope] = scopes[schema.scope] || {};
-            //       scopes[schema.scope][schema.key] = schema.validation;
-            //       return scopes;
-            //     }, {} as any)
-            //   ),
+            federationProviders: this.builder.app.federation.providerNames,
             mandatoryScopes: idp.claims.mandatoryScopes,
-            locale: ctx.locale,
+            supportedScopes: idp.claims.supportedScopes,
             discovery: configuration.discovery,
-            xsrf: this.session.state && this.session.state.secret || undefined,
         };
         await this._parseInteractionState();
         return this;
@@ -145,15 +146,16 @@ class OIDCProviderContextProxy {
             this.interaction = interaction;
             this.user = interaction.session && typeof interaction.session.accountId === "string" ? (await idp.findOrFail({ id: interaction.session.accountId })) : undefined;
             if (this.user) {
-                this.metadata.user = await this.getPublicUserProps(this.user);
+                this.userClaims = await this.getPublicUserProps(this.user);
             }
             this.client = interaction.params.client_id ? await provider.Client.find(interaction.params.client_id) : undefined;
             if (this.client) {
-                this.metadata.client = await this.getPublicClientProps(this.client);
+                this.clientMetadata = await this.getPublicClientProps(this.client);
             }
         }
         catch (err) { }
     }
 }
 exports.OIDCProviderContextProxy = OIDCProviderContextProxy;
+OIDCProviderContextProxy.sessionAppStateField = "__app__";
 //# sourceMappingURL=context.js.map

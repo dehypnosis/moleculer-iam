@@ -4,7 +4,7 @@ import { ITextFieldStyleProps } from "office-ui-fabric-react/lib/components/Text
 import { IDatePickerStyleProps } from "office-ui-fabric-react/lib/components/DatePicker/DatePicker.types";
 import { IDropdownStyleProps } from "office-ui-fabric-react/lib/components/Dropdown/Dropdown.types";
 import { initializeIcons } from "@uifabric/icons";
-import { getAppOptions } from "../state";
+import { getAppOptions } from "../inject";
 import "./styles.css";
 
 export * from "office-ui-fabric-react/lib";

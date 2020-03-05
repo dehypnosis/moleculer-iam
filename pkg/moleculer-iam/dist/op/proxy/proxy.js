@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
 const kleur = tslib_1.__importStar(require("kleur"));
 const accept_language_parser_1 = require("accept-language-parser");
-const interaction_1 = require("../interaction");
+const app_1 = require("../app");
 const config_1 = require("./config");
 // ref: https://github.com/panva/node-oidc-provider/blob/9306f66bdbcdff01400773f26539cf35951b9ce8/lib/models/client.js#L385
 // @ts-ignore : need to hack oidc-provider private methods
@@ -14,13 +14,13 @@ class OIDCProviderProxy {
         const { logger, idp } = props;
         this.logger = logger;
         // apply static options and get the provider instance and proxy config which can be set dynamically
-        const { interaction, ...staticConfig } = options;
+        const { app, ...staticConfig } = options;
         const builder = new config_1.ProviderConfigBuilder({
             logger,
             idp,
         }, staticConfig);
         // build main logic with options
-        interaction_1.buildDefaultInteractions(builder, interaction);
+        app_1.buildApplication(builder, app);
         // create provider and adapter
         this.provider = builder._dangerouslyBuild();
         this.adapter = builder.adapter;

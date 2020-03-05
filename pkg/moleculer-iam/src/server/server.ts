@@ -56,6 +56,8 @@ export interface IAMServerRequestContextProps {
   locale: ParsedLocale;
 }
 
+export type IAMServerRequestContext = Koa.ParameterizedContext<IAMServerRequestContextProps>;
+
 export class IAMServer {
   private readonly logger: Logger;
   private readonly app: Koa<any, IAMServerRequestContextProps>;

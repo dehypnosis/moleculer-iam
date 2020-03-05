@@ -1,10 +1,9 @@
 import * as kleur from "kleur";
-import * as Application from "koa";
 import { pick as pickLanguage } from "accept-language-parser";
 import { Configuration, Provider } from "oidc-provider";
 import { IdentityProvider } from "../../idp";
 import { Logger } from "../../logger";
-import { buildDefaultInteractions, InteractionBuildOptions } from "../interaction";
+import { buildApplication, ApplicationBuildOptions } from "../app";
 import { OIDCAdapterProxy } from "./adapter";
 import { ProviderConfigBuilder, StaticConfiguration } from "./config";
 
@@ -19,7 +18,7 @@ export type OIDCProviderProxyProps = {
 };
 
 export type OIDCProviderProxyOptions = StaticConfiguration & {
-  interaction?: InteractionBuildOptions;
+  app?: ApplicationBuildOptions;
 };
 
 export type ParsedLocale  = {
@@ -37,14 +36,14 @@ export class OIDCProviderProxy {
     this.logger = logger;
 
     // apply static options and get the provider instance and proxy config which can be set dynamically
-    const { interaction, ...staticConfig } = options;
+    const { app, ...staticConfig } = options;
     const builder = new ProviderConfigBuilder({
       logger,
       idp,
     }, staticConfig);
 
     // build main logic with options
-    buildDefaultInteractions(builder, interaction);
+    buildApplication(builder, app);
 
     // create provider and adapter
     this.provider = builder._dangerouslyBuild();

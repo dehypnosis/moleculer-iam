@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const moleculer_1 = require("moleculer");
 const app_1 = require("./app");
 const __1 = require("../../"); // "moleculer-iam";
-// import Renderer from "moleculer-iam-interaction-renderer";
+// import Renderer from "moleculer-iam-app-renderer";
 // tslint:disable-next-line:no-var-requires to avoid circular deps in our monorepo workspace
 const rendererFactory = require("moleculer-iam-interaction-renderer");
 // can use any alternative renderer rather than this default one
@@ -62,33 +62,31 @@ const serviceSchema = __1.IAMServiceSchema({
         },
         // required and should be shared between processes in production
         jwks: require("./jwks.json"),
-        interaction: {
+        app: {
             // federation
             federation: {
-            /*
-            kakao: {
-              clientID: "XXX",
-              clientSecret: "YYY",
-            },
-            google: {
-              clientID: "XXX",
-              clientSecret: "YYY",
-            },
-            facebook: {
-              clientID: "XXX",
-              clientSecret: "YYY",
-            },
-            */
+                google: {
+                    clientID: "XXX",
+                    clientSecret: "YYY",
+                },
+                facebook: {
+                    clientID: "XXX",
+                    clientSecret: "YYY",
+                },
+                kakao: {
+                    clientID: "XXX",
+                    clientSecret: "YYY",
+                },
             },
             renderer: {
-                factory: require("moleculer-iam-interaction-renderer"),
+                // factory: require("moleculer-iam-interaction-renderer"), // this is default behavior
                 options: {
                     logo: {
                         uri: "https://upload.wikimedia.org/wikipedia/commons/a/a2/OpenID_logo_2.svg",
                         align: "left",
                     },
                     login: {
-                        federation_options_visible: true,
+                        federationOptionsVisibleDefault: false,
                     },
                     theme: {
                         palette: {

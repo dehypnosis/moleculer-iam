@@ -1,12 +1,6 @@
-import { DependencyList, useCallback, useContext, useEffect, useRef, useState } from "react";
-import { useNavigation as useOriginalNavigation, useRoute } from "@react-navigation/native";
-import { AppStateContext } from "./app/state";
-export { getAppOptions } from "../state";
-
-// get global app state
-export function useAppState() {
-  return useContext(AppStateContext);
-}
+import { DependencyList, useCallback, useEffect, useRef, useState } from "react";
+import { useNavigation, useAppState, useAppOptions } from "./app";
+export { useNavigation, useAppState, useAppOptions };
 
 // do async job with loading state
 export function useWithLoading() {
@@ -46,37 +40,6 @@ export function useWithLoading() {
     errors,
     setErrors,
   };
-}
-
-// enhance navigation instance methods
-export function useNavigation() {
-  // set undefined params as empty object
-  const route = useRoute() as ReturnType<typeof useRoute> & { params: {[key: string]: any} };
-  if (!route.params) route.params = {};
-
-  // override nav methods to include locale query for navigation
-  const nav = useOriginalNavigation();
-  const navigate = nav.navigate;
-  nav.navigate = (...args: any[]) => {
-    includeLocaleQuery(args, route);
-    return navigate(...args as any);
-  };
-
-  return { nav, route };
-}
-
-function includeLocaleQuery(args: any, route: any) {
-  if (route.params.locale) {
-    if (!args[1] || !args[1].params || !args[1].params.locale) {
-      if (!args[1]) {
-        args[1] = {};
-      }
-      if (!args[1].params) {
-        args[1].params = {};
-      }
-      args[1].params.locale = route.params.locale;
-    }
-  }
 }
 
 // close screen

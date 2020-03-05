@@ -137,16 +137,16 @@ export declare abstract class OIDCModelProxy implements Adapter {
      *     form submissions
      *
      * Short-lived Interaction model data contains the following properties:
-     * - jti {string} - unique identifier of the interaction session
+     * - jti {string} - unique identifier of the app session
      * - kind {string} - "Interaction" fixed string value
-     * - exp {number} - timestamp of the interaction's expiration
-     * - iat {number} - timestamp of the interaction's creation
+     * - exp {number} - timestamp of the app's expiration
+     * - iat {number} - timestamp of the app's creation
      * - uid {string} - the uid of the authorizing client's established session
      * - returnTo {string} - after resolving interactions send the user-agent to this url
      * - params {object} - parsed recognized parameters object
-     * - lastSubmission {object} - previous interaction result submission
+     * - lastSubmission {object} - previous app result submission
      * - signed {string[]} - parameter names that come from a trusted source
-     * - result {object} - interaction results object is expected here
+     * - result {object} - app results object is expected here
      * - session {object}
      * - session.uid {string} - uid of the session this Interaction belongs to
      * - session.cookie {string} - jti of the session this Interaction belongs to

@@ -42,15 +42,12 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-// @ts-ignore
 var path_1 = __importDefault(require("path"));
-// @ts-ignore
 var fs_1 = __importDefault(require("fs"));
-// @ts-ignore
 var koa_static_cache_1 = __importDefault(require("koa-static-cache"));
-var config_1 = __importDefault(require("./config"));
-var SinglePageInteractionRenderer = /** @class */ (function () {
-    function SinglePageInteractionRenderer(props, options) {
+var build_config_1 = __importDefault(require("./build.config"));
+var SinglePageApplicationRenderer = /** @class */ (function () {
+    function SinglePageApplicationRenderer(props, options) {
         var _this = this;
         if (options === void 0) { options = {}; }
         this.props = props;
@@ -83,8 +80,8 @@ var SinglePageInteractionRenderer = /** @class */ (function () {
         this.routes = function () {
             return [
                 // serve webpack assets
-                koa_static_cache_1.default(config_1.default.output.path, {
-                    prefix: config_1.default.output.publicPath,
+                koa_static_cache_1.default(build_config_1.default.webpack.output.path, {
+                    prefix: build_config_1.default.webpack.output.publicPath,
                     maxAge: _this.props.dev ? 0 : 60 * 60 * 24 * 7,
                     dynamic: _this.props.dev,
                     preload: !_this.props.dev,
@@ -92,21 +89,19 @@ var SinglePageInteractionRenderer = /** @class */ (function () {
             ];
         };
     }
-    SinglePageInteractionRenderer.prototype.loadViews = function () {
+    SinglePageApplicationRenderer.prototype.loadViews = function () {
         // load index page and split into header and footer with app options data
-        var html = fs_1.default.readFileSync(path_1.default.join(config_1.default.output.path, "index.html")).toString();
+        var html = fs_1.default.readFileSync(path_1.default.join(build_config_1.default.webpack.output.path, "index.html")).toString();
         var index = html.indexOf("<script");
         // inject server-side options, ref ./inject.ts
-        this.options.dev = this.props.dev;
-        this.options.prefix = this.props.prefix;
-        var options = "<script>window.__APP_OPTIONS__=" + JSON.stringify(this.options) + ";</script>";
+        var options = "<script>window.__APP_DEV__=" + JSON.stringify(this.props.dev) + ";window.__APP_PREFIX__=" + JSON.stringify(this.props.prefix) + ";window.__APP_OPTIONS__=" + JSON.stringify(this.options) + ";</script>";
         return this.views = {
             header: html.substring(0, index),
             footer: options + html.substring(index),
         };
     };
-    return SinglePageInteractionRenderer;
+    return SinglePageApplicationRenderer;
 }());
 module.exports = (function (props, options) {
-    return new SinglePageInteractionRenderer(props, options);
+    return new SinglePageApplicationRenderer(props, options);
 });

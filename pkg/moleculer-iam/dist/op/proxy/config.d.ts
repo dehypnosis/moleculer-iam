@@ -2,7 +2,7 @@ import { Provider, Configuration } from "oidc-provider";
 import { IdentityProvider } from "../../idp";
 import { Logger } from "../../logger";
 import { OIDCAdapterProxy, OIDCAdapterProxyConstructorOptions } from "./adapter";
-import { ProviderInteractionBuilder } from "./interaction";
+import { ProviderApplicationBuilder } from "./app";
 import { DiscoveryMetadata } from "./proxy.types";
 declare type UnsupportedConfigurationKeys = "clients" | "claims" | "scopes" | "dynamicScopes";
 declare type DynamicConfigurationKeys = "findAccount" | "extraClientMetadata" | "extraParams" | "interactions" | "routes" | "renderError" | "logoutSource" | "postLogoutSuccessSource";
@@ -33,7 +33,7 @@ export declare class ProviderConfigBuilder {
     readonly dev: boolean;
     readonly adapter: OIDCAdapterProxy;
     readonly idp: IdentityProvider;
-    readonly interaction: ProviderInteractionBuilder;
+    readonly app: ProviderApplicationBuilder;
     private readonly staticConfig;
     private readonly dynamicConfig;
     private provider?;

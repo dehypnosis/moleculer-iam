@@ -18,10 +18,72 @@ module.exports = exports;
 
 /***/ }),
 
-/***/ "./src/app/index.tsx":
-/*!***************************!*\
-  !*** ./src/app/index.tsx ***!
-  \***************************/
+/***/ "./inject.js":
+/*!*******************!*\
+  !*** ./inject.js ***!
+  \*******************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+}); // parse app options from html document
+
+function getAppOptions() {
+  if (typeof window === "undefined") {
+    throw new Error("cannot call getAppOptions from server-side");
+  }
+
+  return window.__APP_OPTIONS__ || {};
+}
+
+exports.getAppOptions = getAppOptions; // parse initial app state from html document
+
+function getInitialAppState() {
+  if (typeof window === "undefined") {
+    throw new Error("cannot call getInitialAppState from server-side");
+  }
+
+  return window.__APP_STATE__ || {
+    name: "error",
+    error: {
+      error: "unexpected_error",
+      error_description: "unrecognized state received from server"
+    }
+  };
+}
+
+exports.getInitialAppState = getInitialAppState;
+
+function getAppPrefix() {
+  if (typeof window === "undefined") {
+    throw new Error("cannot call getAppPrefix from server-side");
+  }
+
+  return window.__APP_PREFIX__ || "/op";
+}
+
+exports.getAppPrefix = getAppPrefix;
+
+function getAppDev() {
+  if (typeof window === "undefined") {
+    throw new Error("cannot call getAppDev from server-side");
+  }
+
+  return window.__APP_DEV__ !== false;
+}
+
+exports.getAppDev = getAppDev;
+
+/***/ }),
+
+/***/ "./src/app/app.tsx":
+/*!*************************!*\
+  !*** ./src/app/app.tsx ***!
+  \*************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -34,36 +96,464 @@ exports.App = void 0;
 
 var _react = _interopRequireDefault(__webpack_require__(/*! react */ "../../node_modules/react/index.js"));
 
-var _nav = __webpack_require__(/*! ./nav.state */ "./src/app/nav.state.tsx");
+var _stack = __webpack_require__(/*! @react-navigation/stack */ "../../node_modules/@react-navigation/stack/lib/module/index.js");
+
+var _consent = __webpack_require__(/*! ../screen/consent */ "./src/screen/consent.tsx");
+
+var _error = __webpack_require__(/*! ../screen/error */ "./src/screen/error.tsx");
+
+var _routes = __webpack_require__(/*! ./routes */ "./src/app/routes.ts");
+
+var _options = __webpack_require__(/*! ./options */ "./src/app/options.tsx");
 
 var _state = __webpack_require__(/*! ./state */ "./src/app/state.tsx");
 
-var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-interaction-renderer/src/app/index.tsx";
+var _navigation = __webpack_require__(/*! ./navigation */ "./src/app/navigation.tsx");
+
+var _find_email = __webpack_require__(/*! ../screen/find_email.index */ "./src/screen/find_email.index.tsx");
+
+var _find_email2 = __webpack_require__(/*! ../screen/find_email.verify */ "./src/screen/find_email.verify.tsx");
+
+var _login = __webpack_require__(/*! ../screen/login.check_password */ "./src/screen/login.check_password.tsx");
+
+var _login2 = __webpack_require__(/*! ../screen/login.index */ "./src/screen/login.index.tsx");
+
+var _logout = __webpack_require__(/*! ../screen/logout.end */ "./src/screen/logout.end.tsx");
+
+var _logout2 = __webpack_require__(/*! ../screen/logout.index */ "./src/screen/logout.index.tsx");
+
+var _register = __webpack_require__(/*! ../screen/register.detail */ "./src/screen/register.detail.tsx");
+
+var _register2 = __webpack_require__(/*! ../screen/register.end */ "./src/screen/register.end.tsx");
+
+var _register3 = __webpack_require__(/*! ../screen/register.index */ "./src/screen/register.index.tsx");
+
+var _reset_password = __webpack_require__(/*! ../screen/reset_password.end */ "./src/screen/reset_password.end.tsx");
+
+var _reset_password2 = __webpack_require__(/*! ../screen/reset_password.index */ "./src/screen/reset_password.index.tsx");
+
+var _reset_password3 = __webpack_require__(/*! ../screen/reset_password.sent */ "./src/screen/reset_password.sent.tsx");
+
+var _reset_password4 = __webpack_require__(/*! ../screen/reset_password.set */ "./src/screen/reset_password.set.tsx");
+
+var _verify_email = __webpack_require__(/*! ../screen/verify_email.end */ "./src/screen/verify_email.end.tsx");
+
+var _verify_email2 = __webpack_require__(/*! ../screen/verify_email.index */ "./src/screen/verify_email.index.tsx");
+
+var _verify_email3 = __webpack_require__(/*! ../screen/verify_email.verify */ "./src/screen/verify_email.verify.tsx");
+
+var _verify_phone = __webpack_require__(/*! ../screen/verify_phone.end */ "./src/screen/verify_phone.end.tsx");
+
+var _verify_phone2 = __webpack_require__(/*! ../screen/verify_phone.index */ "./src/screen/verify_phone.index.tsx");
+
+var _verify_phone3 = __webpack_require__(/*! ../screen/verify_phone.verify */ "./src/screen/verify_phone.verify.tsx");
+
+var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-interaction-renderer/src/app/app.tsx";
 
 var App = function App() {
-  return _react.default.createElement(_state.AppStateContainer, {
+  return _react.default.createElement(_options.AppOptionsProvider, {
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 7
+      lineNumber: 32
     },
     __self: this
-  }, _react.default.createElement(_nav.AppNavigationContainer, {
+  }, _react.default.createElement(_state.AppStateProvider, {
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 8
+      lineNumber: 33
+    },
+    __self: this
+  }, _react.default.createElement(_navigation.AppNavigationProvider, {
+    routeConfig: _routes.routeConfig,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 34
+    },
+    __self: this
+  }, _react.default.createElement(RootStack.Navigator, {
+    screenOptions: screenOptions,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 35
+    },
+    __self: this
+  }, _react.default.createElement(RootStack.Screen, {
+    name: "error",
+    component: _error.ErrorScreen,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 38
+    },
+    __self: this
+  }), _react.default.createElement(RootStack.Screen, {
+    name: "consent",
+    component: _consent.ConsentScreen,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 42
+    },
+    __self: this
+  }), _react.default.createElement(RootStack.Screen, {
+    name: "login",
+    component: LoginStackScreen,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 46
+    },
+    __self: this
+  }), _react.default.createElement(RootStack.Screen, {
+    name: "find_email",
+    component: FindEmailStackScreen,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 50
+    },
+    __self: this
+  }), _react.default.createElement(RootStack.Screen, {
+    name: "reset_password",
+    component: ResetPasswordStackScreen,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 54
+    },
+    __self: this
+  }), _react.default.createElement(RootStack.Screen, {
+    name: "register",
+    component: RegisterStackScreen,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 58
+    },
+    __self: this
+  }), _react.default.createElement(RootStack.Screen, {
+    name: "logout",
+    component: LogoutStackScreen,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 62
+    },
+    __self: this
+  }), _react.default.createElement(RootStack.Screen, {
+    name: "verify_phone",
+    component: VerifyPhoneStackScreen,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 66
+    },
+    __self: this
+  }), _react.default.createElement(RootStack.Screen, {
+    name: "verify_email",
+    component: VerifyEmailStackScreen,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 70
+    },
+    __self: this
+  })))));
+};
+
+exports.App = App;
+var RootStack = (0, _stack.createStackNavigator)();
+var screenOptions = {
+  headerShown: false,
+  cardStyle: {
+    backgroundColor: "#ffffff"
+  }
+};
+var LoginStack = (0, _stack.createStackNavigator)();
+
+var LoginStackScreen = function LoginStackScreen() {
+  return _react.default.createElement(LoginStack.Navigator, {
+    screenOptions: screenOptions,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 91
+    },
+    __self: this
+  }, _react.default.createElement(LoginStack.Screen, {
+    name: "login.index",
+    component: _login2.LoginIndexScreen,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 94
+    },
+    __self: this
+  }), _react.default.createElement(LoginStack.Screen, {
+    name: "login.check_password",
+    component: _login.LoginCheckPasswordScreen,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 98
     },
     __self: this
   }));
 };
 
-exports.App = App;
+var LogoutStack = (0, _stack.createStackNavigator)();
+
+var LogoutStackScreen = function LogoutStackScreen() {
+  return _react.default.createElement(LogoutStack.Navigator, {
+    screenOptions: screenOptions,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 107
+    },
+    __self: this
+  }, _react.default.createElement(LogoutStack.Screen, {
+    name: "logout.index",
+    component: _logout2.LogoutIndexScreen,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 110
+    },
+    __self: this
+  }), _react.default.createElement(LogoutStack.Screen, {
+    name: "logout.end",
+    component: _logout.LogoutEndScreen,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 114
+    },
+    __self: this
+  }));
+};
+
+var FindEmailStack = (0, _stack.createStackNavigator)();
+
+var FindEmailStackScreen = function FindEmailStackScreen() {
+  return _react.default.createElement(FindEmailStack.Navigator, {
+    screenOptions: screenOptions,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 123
+    },
+    __self: this
+  }, _react.default.createElement(FindEmailStack.Screen, {
+    name: "find_email.index",
+    component: _find_email.FindEmailIndexScreen,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 126
+    },
+    __self: this
+  }), _react.default.createElement(FindEmailStack.Screen, {
+    name: "find_email.verify",
+    component: _find_email2.FindEmailVerifyScreen,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 130
+    },
+    __self: this
+  }));
+};
+
+var ResetPasswordStack = (0, _stack.createStackNavigator)();
+
+var ResetPasswordStackScreen = function ResetPasswordStackScreen() {
+  return _react.default.createElement(ResetPasswordStack.Navigator, {
+    screenOptions: screenOptions,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 139
+    },
+    __self: this
+  }, _react.default.createElement(ResetPasswordStack.Screen, {
+    name: "reset_password.index",
+    component: _reset_password2.ResetPasswordIndexScreen,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 142
+    },
+    __self: this
+  }), _react.default.createElement(ResetPasswordStack.Screen, {
+    name: "reset_password.sent",
+    component: _reset_password3.ResetPasswordSentScreen,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 146
+    },
+    __self: this
+  }), _react.default.createElement(ResetPasswordStack.Screen, {
+    name: "reset_password.set",
+    component: _reset_password4.ResetPasswordSetScreen,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 150
+    },
+    __self: this
+  }), _react.default.createElement(ResetPasswordStack.Screen, {
+    name: "reset_password.end",
+    component: _reset_password.ResetPasswordEndScreen,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 154
+    },
+    __self: this
+  }));
+};
+
+var RegisterStack = (0, _stack.createStackNavigator)();
+
+var RegisterStackScreen = function RegisterStackScreen() {
+  return _react.default.createElement(RegisterStack.Navigator, {
+    screenOptions: screenOptions,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 163
+    },
+    __self: this
+  }, _react.default.createElement(RegisterStack.Screen, {
+    name: "register.index",
+    component: _register3.RegisterIndexScreen,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 166
+    },
+    __self: this
+  }), _react.default.createElement(RegisterStack.Screen, {
+    name: "register.detail",
+    component: _register.RegisterDetailScreen,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 170
+    },
+    __self: this
+  }), _react.default.createElement(RegisterStack.Screen, {
+    name: "register.end",
+    component: _register2.RegisterEndScreen,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 174
+    },
+    __self: this
+  }));
+};
+
+var VerifyPhoneStack = (0, _stack.createStackNavigator)();
+
+var VerifyPhoneStackScreen = function VerifyPhoneStackScreen() {
+  return _react.default.createElement(VerifyPhoneStack.Navigator, {
+    screenOptions: screenOptions,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 183
+    },
+    __self: this
+  }, _react.default.createElement(VerifyPhoneStack.Screen, {
+    name: "verify_phone.index",
+    component: _verify_phone2.VerifyPhoneIndexScreen,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 186
+    },
+    __self: this
+  }), _react.default.createElement(VerifyPhoneStack.Screen, {
+    name: "verify_phone.verify",
+    component: _verify_phone3.VerifyPhoneVerifyScreen,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 190
+    },
+    __self: this
+  }), _react.default.createElement(VerifyPhoneStack.Screen, {
+    name: "verify_phone.end",
+    component: _verify_phone.VerifyPhoneEndScreen,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 194
+    },
+    __self: this
+  }));
+};
+
+var VerifyEmailStack = (0, _stack.createStackNavigator)();
+
+var VerifyEmailStackScreen = function VerifyEmailStackScreen() {
+  return _react.default.createElement(VerifyEmailStack.Navigator, {
+    screenOptions: screenOptions,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 203
+    },
+    __self: this
+  }, _react.default.createElement(VerifyEmailStack.Screen, {
+    name: "verify_email.index",
+    component: _verify_email2.VerifyEmailIndexScreen,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 206
+    },
+    __self: this
+  }), _react.default.createElement(VerifyEmailStack.Screen, {
+    name: "verify_email.verify",
+    component: _verify_email3.VerifyEmailVerifyScreen,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 210
+    },
+    __self: this
+  }), _react.default.createElement(VerifyEmailStack.Screen, {
+    name: "verify_email.end",
+    component: _verify_email.VerifyEmailEndScreen,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 214
+    },
+    __self: this
+  }));
+};
 
 /***/ }),
 
-/***/ "./src/app/nav.state.tsx":
-/*!*******************************!*\
-  !*** ./src/app/nav.state.tsx ***!
-  \*******************************/
+/***/ "./src/app/index.tsx":
+/*!***************************!*\
+  !*** ./src/app/index.tsx ***!
+  \***************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+Object.defineProperty(exports, "useAppOptions", {
+  enumerable: true,
+  get: function get() {
+    return _options.useAppOptions;
+  }
+});
+Object.defineProperty(exports, "useAppState", {
+  enumerable: true,
+  get: function get() {
+    return _state.useAppState;
+  }
+});
+Object.defineProperty(exports, "useNavigation", {
+  enumerable: true,
+  get: function get() {
+    return _navigation.useNavigation;
+  }
+});
+Object.defineProperty(exports, "App", {
+  enumerable: true,
+  get: function get() {
+    return _app.App;
+  }
+});
+
+var _options = __webpack_require__(/*! ./options */ "./src/app/options.tsx");
+
+var _state = __webpack_require__(/*! ./state */ "./src/app/state.tsx");
+
+var _navigation = __webpack_require__(/*! ./navigation */ "./src/app/navigation.tsx");
+
+var _app = __webpack_require__(/*! ./app */ "./src/app/app.tsx");
+
+/***/ }),
+
+/***/ "./src/app/navigation.tsx":
+/*!********************************!*\
+  !*** ./src/app/navigation.tsx ***!
+  \********************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -74,7 +564,10 @@ var _interopRequireWildcard = __webpack_require__(/*! /Users/dehypnosis/Synced/q
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.AppNavigationContainer = void 0;
+exports.useNavigation = useNavigation;
+exports.AppNavigationProvider = void 0;
+
+var _toConsumableArray2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/toConsumableArray */ "../../node_modules/@babel/runtime/helpers/esm/toConsumableArray.js"));
 
 var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/slicedToArray */ "../../node_modules/@babel/runtime/helpers/esm/slicedToArray.js"));
 
@@ -84,28 +577,22 @@ var _core = __webpack_require__(/*! @react-navigation/core */ "../../node_module
 
 var _native = __webpack_require__(/*! @react-navigation/native */ "../../node_modules/@react-navigation/native/lib/module/index.js");
 
-var _nav = __webpack_require__(/*! ./nav */ "./src/app/nav.tsx");
+var _state = __webpack_require__(/*! ./state */ "./src/app/state.tsx");
 
-var _hook = __webpack_require__(/*! ../hook */ "./src/hook.ts");
+var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-interaction-renderer/src/app/navigation.tsx";
 
-var _loading = __webpack_require__(/*! ../screen/loading */ "./src/screen/loading.tsx");
+var AppNavigationProvider = function AppNavigationProvider(_ref) {
+  var routeConfig = _ref.routeConfig,
+      children = _ref.children;
 
-var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-interaction-renderer/src/app/nav.state.tsx";
-
-var _getAppOptions = (0, _hook.getAppOptions)(),
-    dev = _getAppOptions.dev;
-
-var AppNavigationContainer = function AppNavigationContainer(_ref) {
-  var children = _ref.children;
-
-  var _useAppState = (0, _hook.useAppState)(),
+  var _useAppState = (0, _state.useAppState)(),
       _useAppState2 = (0, _slicedToArray2.default)(_useAppState, 1),
       appState = _useAppState2[0];
 
   var ref = (0, _react.useRef)();
   var deepLinking = (0, _native.useLinking)(ref, {
     prefixes: [window.location.origin],
-    config: _nav.routeConfig,
+    config: routeConfig,
     getStateFromPath: (0, _react.useCallback)(function (path, options) {
       var navState = (0, _core.getStateFromPath)(path, options);
 
@@ -119,12 +606,12 @@ var AppNavigationContainer = function AppNavigationContainer(_ref) {
           var route = getMatchedRoute(navState);
 
           if (route && route.name !== appState.name) {
-            console.warn("appState.interaction differs from matched route", appState.name, route);
+            console.warn("appState.name differs from matched route", appState.name, route);
           }
         }
       }
 
-      dev && console.debug("get nav state from URL", navState);
+      console.debug("nav state updated", navState);
       return navState;
     }, [appState])
   });
@@ -150,13 +637,7 @@ var AppNavigationContainer = function AppNavigationContainer(_ref) {
   }, []);
 
   if (loading) {
-    return _react.default.createElement(_loading.LoadingScreen, {
-      __source: {
-        fileName: _jsxFileName,
-        lineNumber: 51
-      },
-      __self: this
-    });
+    return null;
   }
 
   return _react.default.createElement(_native.NavigationContainer, {
@@ -164,20 +645,13 @@ var AppNavigationContainer = function AppNavigationContainer(_ref) {
     ref: ref,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 55
+      lineNumber: 54
     },
     __self: this
-  }, _react.default.createElement(_nav.AppNavigator, {
-    loading: loading,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 59
-    },
-    __self: this
-  }));
+  }, children);
 };
 
-exports.AppNavigationContainer = AppNavigationContainer;
+exports.AppNavigationProvider = AppNavigationProvider;
 
 function getMatchedRoute(state) {
   var route = state.routes && state.routes[0];
@@ -190,73 +664,162 @@ function getMatchedRoute(state) {
   return route;
 }
 
+function useNavigation() {
+  var route = (0, _native.useRoute)();
+  if (!route.params) route.params = {};
+  var nav = (0, _core.useNavigation)();
+  var navigate = nav.navigate;
+
+  nav.navigate = function () {
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    includeLocaleQuery(args, route);
+    return navigate.apply(void 0, (0, _toConsumableArray2.default)(args));
+  };
+
+  return {
+    nav: nav,
+    route: route
+  };
+}
+
+function includeLocaleQuery(args, route) {
+  if (route.params.locale) {
+    if (!args[1] || !args[1].params || !args[1].params.locale) {
+      if (!args[1]) {
+        args[1] = {};
+      }
+
+      if (!args[1].params) {
+        args[1].params = {};
+      }
+
+      args[1].params.locale = route.params.locale;
+    }
+  }
+}
+
 /***/ }),
 
-/***/ "./src/app/nav.tsx":
-/*!*************************!*\
-  !*** ./src/app/nav.tsx ***!
-  \*************************/
+/***/ "./src/app/options.tsx":
+/*!*****************************!*\
+  !*** ./src/app/options.tsx ***!
+  \*****************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 var _interopRequireDefault = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireDefault */ "../../node_modules/@babel/runtime/helpers/interopRequireDefault.js");
 
+var _interopRequireWildcard = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireWildcard */ "../../node_modules/@babel/runtime/helpers/interopRequireWildcard.js");
+
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.AppNavigator = exports.routeConfig = void 0;
+exports.useAppOptions = useAppOptions;
+exports.AppOptionsProvider = exports.AppOptionsContext = void 0;
 
-var _react = _interopRequireDefault(__webpack_require__(/*! react */ "../../node_modules/react/index.js"));
+var _objectSpread2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/objectSpread2 */ "../../node_modules/@babel/runtime/helpers/esm/objectSpread2.js"));
 
-var _stack = __webpack_require__(/*! @react-navigation/stack */ "../../node_modules/@react-navigation/stack/lib/module/index.js");
+var _classCallCheck2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/classCallCheck */ "../../node_modules/@babel/runtime/helpers/esm/classCallCheck.js"));
 
-var _hook = __webpack_require__(/*! ../hook */ "./src/hook.ts");
+var _createClass2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/createClass */ "../../node_modules/@babel/runtime/helpers/esm/createClass.js"));
 
-var _error = __webpack_require__(/*! ../screen/error */ "./src/screen/error.tsx");
+var _possibleConstructorReturn2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/possibleConstructorReturn */ "../../node_modules/@babel/runtime/helpers/esm/possibleConstructorReturn.js"));
 
-var _login = __webpack_require__(/*! ../screen/login.index */ "./src/screen/login.index.tsx");
+var _getPrototypeOf3 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/getPrototypeOf */ "../../node_modules/@babel/runtime/helpers/esm/getPrototypeOf.js"));
 
-var _login2 = __webpack_require__(/*! ../screen/login.check_password */ "./src/screen/login.check_password.tsx");
+var _assertThisInitialized2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/assertThisInitialized */ "../../node_modules/@babel/runtime/helpers/esm/assertThisInitialized.js"));
 
-var _consent = __webpack_require__(/*! ../screen/consent */ "./src/screen/consent.tsx");
+var _inherits2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/inherits */ "../../node_modules/@babel/runtime/helpers/esm/inherits.js"));
 
-var _logout = __webpack_require__(/*! ../screen/logout.index */ "./src/screen/logout.index.tsx");
+var _ = _interopRequireWildcard(__webpack_require__(/*! lodash */ "../../node_modules/lodash/lodash.js"));
 
-var _logout2 = __webpack_require__(/*! ../screen/logout.end */ "./src/screen/logout.end.tsx");
+var _react = _interopRequireWildcard(__webpack_require__(/*! react */ "../../node_modules/react/index.js"));
 
-var _find_email = __webpack_require__(/*! ../screen/find_email.index */ "./src/screen/find_email.index.tsx");
+var _inject = __webpack_require__(/*! ../../inject */ "./inject.js");
 
-var _find_email2 = __webpack_require__(/*! ../screen/find_email.verify */ "./src/screen/find_email.verify.tsx");
+var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-interaction-renderer/src/app/options.tsx";
+var AppOptionsContext = (0, _react.createContext)({});
+exports.AppOptionsContext = AppOptionsContext;
 
-var _reset_password = __webpack_require__(/*! ../screen/reset_password.index */ "./src/screen/reset_password.index.tsx");
+function useAppOptions() {
+  return (0, _react.useContext)(AppOptionsContext);
+}
 
-var _reset_password2 = __webpack_require__(/*! ../screen/reset_password.sent */ "./src/screen/reset_password.sent.tsx");
+var AppOptionsProvider = function (_React$Component) {
+  (0, _inherits2.default)(AppOptionsProvider, _React$Component);
 
-var _reset_password3 = __webpack_require__(/*! ../screen/reset_password.set */ "./src/screen/reset_password.set.tsx");
+  function AppOptionsProvider() {
+    var _getPrototypeOf2;
 
-var _reset_password4 = __webpack_require__(/*! ../screen/reset_password.end */ "./src/screen/reset_password.end.tsx");
+    var _this;
 
-var _register = __webpack_require__(/*! ../screen/register.index */ "./src/screen/register.index.tsx");
+    (0, _classCallCheck2.default)(this, AppOptionsProvider);
 
-var _register2 = __webpack_require__(/*! ../screen/register.detail */ "./src/screen/register.detail.tsx");
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
 
-var _register3 = __webpack_require__(/*! ../screen/register.end */ "./src/screen/register.end.tsx");
+    _this = (0, _possibleConstructorReturn2.default)(this, (_getPrototypeOf2 = (0, _getPrototypeOf3.default)(AppOptionsProvider)).call.apply(_getPrototypeOf2, [this].concat(args)));
+    _this.state = _.defaultsDeep((0, _objectSpread2.default)({}, (0, _inject.getAppOptions)(), {
+      dev: (0, _inject.getAppDev)()
+    }), {
+      logo: {
+        uri: null,
+        align: "left"
+      },
+      login: {
+        federationOptionsVisibleDefault: false
+      },
+      theme: {}
+    });
+    _this.setOptions = _this.setState.bind((0, _assertThisInitialized2.default)(_this));
+    return _this;
+  }
 
-var _verify_phone = __webpack_require__(/*! ../screen/verify_phone.index */ "./src/screen/verify_phone.index.tsx");
+  (0, _createClass2.default)(AppOptionsProvider, [{
+    key: "componentDidUpdate",
+    value: function componentDidUpdate(prevProps, prevState, snapshot) {
+      console.log(prevState);
+    }
+  }, {
+    key: "render",
+    value: function render() {
+      return _react.default.createElement(AppOptionsContext.Provider, {
+        value: this.state,
+        __source: {
+          fileName: _jsxFileName,
+          lineNumber: 36
+        },
+        __self: this
+      }, this.props.children);
+    }
+  }]);
+  return AppOptionsProvider;
+}(_react.default.Component);
 
-var _verify_phone2 = __webpack_require__(/*! ../screen/verify_phone.verify */ "./src/screen/verify_phone.verify.tsx");
+exports.AppOptionsProvider = AppOptionsProvider;
 
-var _verify_phone3 = __webpack_require__(/*! ../screen/verify_phone.end */ "./src/screen/verify_phone.end.tsx");
+/***/ }),
 
-var _verify_email = __webpack_require__(/*! ../screen/verify_email.index */ "./src/screen/verify_email.index.tsx");
+/***/ "./src/app/routes.ts":
+/*!***************************!*\
+  !*** ./src/app/routes.ts ***!
+  \***************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
 
-var _verify_email2 = __webpack_require__(/*! ../screen/verify_email.verify */ "./src/screen/verify_email.verify.tsx");
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.routeConfig = void 0;
 
-var _verify_email3 = __webpack_require__(/*! ../screen/verify_email.end */ "./src/screen/verify_email.end.tsx");
+var _inject = __webpack_require__(/*! ../../inject */ "./inject.js");
 
-var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-interaction-renderer/src/app/nav.tsx";
-var prefix = (0, _hook.getAppOptions)().prefix;
-if (prefix.startsWith("/")) prefix = prefix.substr(1);
+var prefix = (0, _inject.getAppPrefix)();
+prefix = prefix.startsWith("/") ? prefix.substr(1) : prefix;
 var routeConfig = {
   "login": {
     screens: {
@@ -309,346 +872,6 @@ var routeConfig = {
   "error": ""
 };
 exports.routeConfig = routeConfig;
-var RootStack = (0, _stack.createStackNavigator)();
-var screenOptions = {
-  headerShown: false,
-  cardStyle: {
-    backgroundColor: "#ffffff"
-  }
-};
-var LoginStack = (0, _stack.createStackNavigator)();
-
-var LoginStackScreen = function LoginStackScreen() {
-  return _react.default.createElement(LoginStack.Navigator, {
-    screenOptions: screenOptions,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 112
-    },
-    __self: this
-  }, _react.default.createElement(LoginStack.Screen, {
-    name: "login.index",
-    component: _login.LoginIndexScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 115
-    },
-    __self: this
-  }), _react.default.createElement(LoginStack.Screen, {
-    name: "login.check_password",
-    component: _login2.LoginCheckPasswordScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 119
-    },
-    __self: this
-  }));
-};
-
-var LogoutStack = (0, _stack.createStackNavigator)();
-
-var LogoutStackScreen = function LogoutStackScreen() {
-  return _react.default.createElement(LogoutStack.Navigator, {
-    screenOptions: screenOptions,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 128
-    },
-    __self: this
-  }, _react.default.createElement(LogoutStack.Screen, {
-    name: "logout.index",
-    component: _logout.LogoutIndexScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 131
-    },
-    __self: this
-  }), _react.default.createElement(LogoutStack.Screen, {
-    name: "logout.end",
-    component: _logout2.LogoutEndScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 135
-    },
-    __self: this
-  }));
-};
-
-var FindEmailStack = (0, _stack.createStackNavigator)();
-
-var FindEmailStackScreen = function FindEmailStackScreen() {
-  return _react.default.createElement(FindEmailStack.Navigator, {
-    screenOptions: screenOptions,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 144
-    },
-    __self: this
-  }, _react.default.createElement(FindEmailStack.Screen, {
-    name: "find_email.index",
-    component: _find_email.FindEmailIndexScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 147
-    },
-    __self: this
-  }), _react.default.createElement(FindEmailStack.Screen, {
-    name: "find_email.verify",
-    component: _find_email2.FindEmailVerifyScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 151
-    },
-    __self: this
-  }));
-};
-
-var ResetPasswordStack = (0, _stack.createStackNavigator)();
-
-var ResetPasswordStackScreen = function ResetPasswordStackScreen() {
-  return _react.default.createElement(ResetPasswordStack.Navigator, {
-    screenOptions: screenOptions,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 160
-    },
-    __self: this
-  }, _react.default.createElement(ResetPasswordStack.Screen, {
-    name: "reset_password.index",
-    component: _reset_password.ResetPasswordIndexScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 163
-    },
-    __self: this
-  }), _react.default.createElement(ResetPasswordStack.Screen, {
-    name: "reset_password.sent",
-    component: _reset_password2.ResetPasswordSentScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 167
-    },
-    __self: this
-  }), _react.default.createElement(ResetPasswordStack.Screen, {
-    name: "reset_password.set",
-    component: _reset_password3.ResetPasswordSetScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 171
-    },
-    __self: this
-  }), _react.default.createElement(ResetPasswordStack.Screen, {
-    name: "reset_password.end",
-    component: _reset_password4.ResetPasswordEndScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 175
-    },
-    __self: this
-  }));
-};
-
-var RegisterStack = (0, _stack.createStackNavigator)();
-
-var RegisterStackScreen = function RegisterStackScreen() {
-  return _react.default.createElement(RegisterStack.Navigator, {
-    screenOptions: screenOptions,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 184
-    },
-    __self: this
-  }, _react.default.createElement(RegisterStack.Screen, {
-    name: "register.index",
-    component: _register.RegisterIndexScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 187
-    },
-    __self: this
-  }), _react.default.createElement(RegisterStack.Screen, {
-    name: "register.detail",
-    component: _register2.RegisterDetailScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 191
-    },
-    __self: this
-  }), _react.default.createElement(RegisterStack.Screen, {
-    name: "register.end",
-    component: _register3.RegisterEndScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 195
-    },
-    __self: this
-  }));
-};
-
-var VerifyPhoneStack = (0, _stack.createStackNavigator)();
-
-var VerifyPhoneStackScreen = function VerifyPhoneStackScreen() {
-  return _react.default.createElement(VerifyPhoneStack.Navigator, {
-    screenOptions: screenOptions,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 204
-    },
-    __self: this
-  }, _react.default.createElement(VerifyPhoneStack.Screen, {
-    name: "verify_phone.index",
-    component: _verify_phone.VerifyPhoneIndexScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 207
-    },
-    __self: this
-  }), _react.default.createElement(VerifyPhoneStack.Screen, {
-    name: "verify_phone.verify",
-    component: _verify_phone2.VerifyPhoneVerifyScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 211
-    },
-    __self: this
-  }), _react.default.createElement(VerifyPhoneStack.Screen, {
-    name: "verify_phone.end",
-    component: _verify_phone3.VerifyPhoneEndScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 215
-    },
-    __self: this
-  }));
-};
-
-var VerifyEmailStack = (0, _stack.createStackNavigator)();
-
-var VerifyEmailStackScreen = function VerifyEmailStackScreen() {
-  return _react.default.createElement(VerifyEmailStack.Navigator, {
-    screenOptions: screenOptions,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 224
-    },
-    __self: this
-  }, _react.default.createElement(VerifyEmailStack.Screen, {
-    name: "verify_email.index",
-    component: _verify_email.VerifyEmailIndexScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 227
-    },
-    __self: this
-  }), _react.default.createElement(VerifyEmailStack.Screen, {
-    name: "verify_email.verify",
-    component: _verify_email2.VerifyEmailVerifyScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 231
-    },
-    __self: this
-  }), _react.default.createElement(VerifyEmailStack.Screen, {
-    name: "verify_email.end",
-    component: _verify_email3.VerifyEmailEndScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 235
-    },
-    __self: this
-  }));
-};
-
-var AppNavigator = function AppNavigator(_ref) {
-  var loading = _ref.loading;
-
-  if (loading) {
-    return null;
-  }
-
-  return _react.default.createElement(RootStack.Navigator, {
-    screenOptions: screenOptions,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 249
-    },
-    __self: this
-  }, _react.default.createElement(RootStack.Screen, {
-    name: "error",
-    component: _error.ErrorScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 252
-    },
-    __self: this
-  }), _react.default.createElement(RootStack.Screen, {
-    name: "consent",
-    component: _consent.ConsentScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 256
-    },
-    __self: this
-  }), _react.default.createElement(RootStack.Screen, {
-    name: "login",
-    component: LoginStackScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 260
-    },
-    __self: this
-  }), _react.default.createElement(RootStack.Screen, {
-    name: "find_email",
-    component: FindEmailStackScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 264
-    },
-    __self: this
-  }), _react.default.createElement(RootStack.Screen, {
-    name: "reset_password",
-    component: ResetPasswordStackScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 268
-    },
-    __self: this
-  }), _react.default.createElement(RootStack.Screen, {
-    name: "register",
-    component: RegisterStackScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 272
-    },
-    __self: this
-  }), _react.default.createElement(RootStack.Screen, {
-    name: "logout",
-    component: LogoutStackScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 276
-    },
-    __self: this
-  }), _react.default.createElement(RootStack.Screen, {
-    name: "verify_phone",
-    component: VerifyPhoneStackScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 280
-    },
-    __self: this
-  }), _react.default.createElement(RootStack.Screen, {
-    name: "verify_email",
-    component: VerifyEmailStackScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 284
-    },
-    __self: this
-  }));
-};
-
-exports.AppNavigator = AppNavigator;
 
 /***/ }),
 
@@ -666,7 +889,8 @@ var _interopRequireWildcard = __webpack_require__(/*! /Users/dehypnosis/Synced/q
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.AppStateContainer = exports.AppStateContext = void 0;
+exports.useAppState = useAppState;
+exports.AppStateProvider = exports.AppStateContext = void 0;
 
 var _regenerator = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/regenerator */ "../../node_modules/@babel/runtime/regenerator/index.js"));
 
@@ -686,34 +910,34 @@ var _react = _interopRequireWildcard(__webpack_require__(/*! react */ "../../nod
 
 var _error = __webpack_require__(/*! ../screen/error */ "./src/screen/error.tsx");
 
-var _state = __webpack_require__(/*! ../../state */ "./state.js");
+var _inject = __webpack_require__(/*! ../../inject */ "./inject.js");
 
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-interaction-renderer/src/app/state.tsx";
-
-var _getAppOptions = (0, _state.getAppOptions)(),
-    dev = _getAppOptions.dev;
-
 var AppStateContext = (0, _react.createContext)([]);
 exports.AppStateContext = AppStateContext;
 
-var AppStateContainer = function (_React$Component) {
-  (0, _inherits2.default)(AppStateContainer, _React$Component);
+function useAppState() {
+  return (0, _react.useContext)(AppStateContext);
+}
 
-  function AppStateContainer() {
+var AppStateProvider = function (_React$Component) {
+  (0, _inherits2.default)(AppStateProvider, _React$Component);
+
+  function AppStateProvider() {
     var _getPrototypeOf2;
 
     var _this;
 
-    (0, _classCallCheck2.default)(this, AppStateContainer);
+    (0, _classCallCheck2.default)(this, AppStateProvider);
 
     for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
       args[_key] = arguments[_key];
     }
 
-    _this = (0, _possibleConstructorReturn2.default)(this, (_getPrototypeOf2 = (0, _getPrototypeOf3.default)(AppStateContainer)).call.apply(_getPrototypeOf2, [this].concat(args)));
+    _this = (0, _possibleConstructorReturn2.default)(this, (_getPrototypeOf2 = (0, _getPrototypeOf3.default)(AppStateProvider)).call.apply(_getPrototypeOf2, [this].concat(args)));
     _this.state = {
       error: null,
-      app: (0, _state.getInitialAppState)()
+      appState: (0, _inject.getInitialAppState)()
     };
 
     _this.dispatch = function _callee(name) {
@@ -737,7 +961,7 @@ var AppStateContainer = function (_React$Component) {
           switch (_context.prev = _context.next) {
             case 0:
               userPayload = _args.length > 1 && _args[1] !== undefined ? _args[1] : {};
-              actions = _this.state.app.actions;
+              actions = _this.state.appState.actions;
               action = actions && actions[name];
 
               if (action) {
@@ -805,25 +1029,25 @@ var AppStateContainer = function (_React$Component) {
                       throw _err2;
                     }
                   } else if (data.session) {
-                    var newAppState = (0, _objectSpread2.default)({}, _this.state.app, {
+                    var appState = (0, _objectSpread2.default)({}, _this.state.appState, {
                       session: data.session
                     });
 
                     _this.setState(function (prev) {
                       return (0, _objectSpread2.default)({}, prev, {
-                        app: newAppState
+                        app: appState
                       });
                     });
 
-                    dev && console.debug("app state updated", newAppState);
-                    return newAppState;
+                    console.debug("app state updated", appState);
+                    return appState;
                   } else if (data.state) {
                     console.error("interaction state response received from XHR", data);
                   } else {
                     console.error("unrecognized response structure", data);
                   }
 
-                  return _this.state.app;
+                  return _this.state.appState;
                 });
               }));
 
@@ -838,29 +1062,29 @@ var AppStateContainer = function (_React$Component) {
     return _this;
   }
 
-  (0, _createClass2.default)(AppStateContainer, [{
+  (0, _createClass2.default)(AppStateProvider, [{
     key: "render",
     value: function render() {
       var _this$state = this.state,
           error = _this$state.error,
-          app = _this$state.app;
+          appState = _this$state.appState;
 
       if (error) {
         return _react.default.createElement(_error.ClientErrorScreen, {
           error: error,
           __source: {
             fileName: _jsxFileName,
-            lineNumber: 21
+            lineNumber: 23
           },
           __self: this
         });
       }
 
       return _react.default.createElement(AppStateContext.Provider, {
-        value: [app, this.dispatch],
+        value: [appState, this.dispatch],
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 25
+          lineNumber: 27
         },
         __self: this
       }, this.props.children);
@@ -876,10 +1100,10 @@ var AppStateContainer = function (_React$Component) {
       console.error(error, info);
     }
   }]);
-  return AppStateContainer;
+  return AppStateProvider;
 }(_react.default.Component);
 
-exports.AppStateContainer = AppStateContainer;
+exports.AppStateProvider = AppStateProvider;
 
 /***/ }),
 
@@ -895,14 +1119,24 @@ var _interopRequireDefault = __webpack_require__(/*! /Users/dehypnosis/Synced/qm
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.useAppState = useAppState;
 exports.useWithLoading = useWithLoading;
-exports.useNavigation = useNavigation;
 exports.useClose = useClose;
-Object.defineProperty(exports, "getAppOptions", {
+Object.defineProperty(exports, "useNavigation", {
   enumerable: true,
   get: function get() {
-    return _state2.getAppOptions;
+    return _app.useNavigation;
+  }
+});
+Object.defineProperty(exports, "useAppState", {
+  enumerable: true,
+  get: function get() {
+    return _app.useAppState;
+  }
+});
+Object.defineProperty(exports, "useAppOptions", {
+  enumerable: true,
+  get: function get() {
+    return _app.useAppOptions;
   }
 });
 
@@ -914,15 +1148,7 @@ var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehy
 
 var _react = __webpack_require__(/*! react */ "../../node_modules/react/index.js");
 
-var _native = __webpack_require__(/*! @react-navigation/native */ "../../node_modules/@react-navigation/native/lib/module/index.js");
-
-var _state = __webpack_require__(/*! ./app/state */ "./src/app/state.tsx");
-
-var _state2 = __webpack_require__(/*! ../state */ "./state.js");
-
-function useAppState() {
-  return (0, _react.useContext)(_state.AppStateContext);
-}
+var _app = __webpack_require__(/*! ./app */ "./src/app/index.tsx");
 
 function useWithLoading() {
   var _useState = (0, _react.useState)(false),
@@ -1009,43 +1235,6 @@ function useWithLoading() {
   };
 }
 
-function useNavigation() {
-  var route = (0, _native.useRoute)();
-  if (!route.params) route.params = {};
-  var nav = (0, _native.useNavigation)();
-  var navigate = nav.navigate;
-
-  nav.navigate = function () {
-    for (var _len2 = arguments.length, args = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
-      args[_key2] = arguments[_key2];
-    }
-
-    includeLocaleQuery(args, route);
-    return navigate.apply(void 0, (0, _toConsumableArray2.default)(args));
-  };
-
-  return {
-    nav: nav,
-    route: route
-  };
-}
-
-function includeLocaleQuery(args, route) {
-  if (route.params.locale) {
-    if (!args[1] || !args[1].params || !args[1].params.locale) {
-      if (!args[1]) {
-        args[1] = {};
-      }
-
-      if (!args[1].params) {
-        args[1].params = {};
-      }
-
-      args[1].params.locale = route.params.locale;
-    }
-  }
-}
-
 function useClose() {
   var tryGoBack = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
 
@@ -1054,7 +1243,7 @@ function useClose() {
       closed = _useState6[0],
       setClosed = _useState6[1];
 
-  var _useNavigation = useNavigation(),
+  var _useNavigation = (0, _app.useNavigation)(),
       nav = _useNavigation.nav;
 
   var close = (0, _react.useCallback)(function () {
@@ -1207,8 +1396,8 @@ var ConsentScreen = function ConsentScreen() {
       params: {}
     });
   });
-  var user = state.metadata.user;
-  var client = state.metadata.client;
+  var user = state.user;
+  var client = state.client;
   var consent = state.session.consent;
   return _react.default.createElement(_layout.ScreenLayout, {
     title: _react.default.createElement("span", {
@@ -1361,8 +1550,8 @@ exports.ErrorScreen = ErrorScreen;
 
 var ClientErrorScreen = function ClientErrorScreen(props) {
   return _react.default.createElement(_layout.ScreenLayout, {
-    title: "Unexpected Client Error",
-    subtitle: props.error.name,
+    title: props.error.name,
+    subtitle: props.error.message,
     __source: {
       fileName: _jsxFileName,
       lineNumber: 29
@@ -1380,7 +1569,7 @@ var ClientErrorScreen = function ClientErrorScreen(props) {
       lineNumber: 33
     },
     __self: this
-  }, props.error.message));
+  }, props.error.stack));
 };
 
 exports.ClientErrorScreen = ClientErrorScreen;
@@ -1629,7 +1818,7 @@ var _logo = _interopRequireDefault(__webpack_require__(/*! ../image/logo.svg */ 
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-interaction-renderer/src/screen/layout.tsx";
 
 var ScreenLayout = function ScreenLayout(props) {
-  var options = (0, _hook.getAppOptions)();
+  var options = (0, _hook.useAppOptions)();
   var _props$title = props.title,
       title = _props$title === void 0 ? "TODO" : _props$title,
       _props$subtitle = props.subtitle,
@@ -1778,62 +1967,6 @@ var ScreenLayout = function ScreenLayout(props) {
 };
 
 exports.ScreenLayout = ScreenLayout;
-
-/***/ }),
-
-/***/ "./src/screen/loading.tsx":
-/*!********************************!*\
-  !*** ./src/screen/loading.tsx ***!
-  \********************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-var _interopRequireDefault = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireDefault */ "../../node_modules/@babel/runtime/helpers/interopRequireDefault.js");
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.LoadingScreen = void 0;
-
-var _extends2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/extends */ "../../node_modules/@babel/runtime/helpers/esm/extends.js"));
-
-var _objectWithoutProperties2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/objectWithoutProperties */ "../../node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js"));
-
-var _react = _interopRequireDefault(__webpack_require__(/*! react */ "../../node_modules/react/index.js"));
-
-var _styles = __webpack_require__(/*! ../styles */ "./src/styles.ts");
-
-var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-interaction-renderer/src/screen/loading.tsx";
-
-var LoadingScreen = function LoadingScreen(_ref) {
-  var _ref$size = _ref.size,
-      size = _ref$size === void 0 ? _styles.SpinnerSize.large : _ref$size,
-      _ref$label = _ref.label,
-      label = _ref$label === void 0 ? "Loading" : _ref$label,
-      otherProps = (0, _objectWithoutProperties2.default)(_ref, ["size", "label"]);
-  return _react.default.createElement(_styles.Stack, {
-    horizontalAlign: "center",
-    verticalAlign: "center",
-    verticalFill: true,
-    children: _react.default.createElement(_styles.Spinner, (0, _extends2.default)({
-      size: size,
-      label: label
-    }, otherProps, {
-      __source: {
-        fileName: _jsxFileName,
-        lineNumber: 10
-      },
-      __self: this
-    })),
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 6
-    },
-    __self: this
-  });
-};
-
-exports.LoadingScreen = LoadingScreen;
 
 /***/ }),
 
@@ -2061,14 +2194,14 @@ var LoginIndexScreen = function LoginIndexScreen() {
       state = _useAppState2[0],
       dispatch = _useAppState2[1];
 
-  var options = (0, _hook.getAppOptions)();
+  var options = (0, _hook.useAppOptions)();
 
-  var _useState3 = (0, _react.useState)(options.login.federation_options_visible === true),
+  var _useState3 = (0, _react.useState)(options.login.federationOptionsVisibleDefault === true),
       _useState4 = (0, _slicedToArray2.default)(_useState3, 2),
       federationOptionsVisible = _useState4[0],
       setFederationOptionsVisible = _useState4[1];
 
-  var federationProviders = state.metadata.availableFederationProviders;
+  var federationProviders = state.metadata.federationProviders;
   var handleCheckLoginEmail = withLoading(function () {
     return dispatch("login.check_email", {
       email: email
@@ -2310,7 +2443,7 @@ var LogoutEndScreen = function LogoutEndScreen() {
       _useAppState2 = (0, _slicedToArray2.default)(_useAppState, 1),
       state = _useAppState2[0];
 
-  var user = state.metadata.user;
+  var user = state.user;
   return _react.default.createElement(_layout.ScreenLayout, {
     title: "Signed out",
     subtitle: user ? user.email : undefined,
@@ -2378,8 +2511,8 @@ var LogoutIndexScreen = function LogoutIndexScreen() {
       state = _useAppState2[0],
       dispatch = _useAppState2[1];
 
-  var user = state.metadata.user;
-  var client = state.metadata.client;
+  var user = state.user;
+  var client = state.client;
   var handleSignOutAll = withLoading(function () {
     return dispatch("logout.confirm").catch(function (err) {
       return setErrors(err);
@@ -2530,7 +2663,7 @@ var RegisterDetailScreen = function RegisterDetailScreen() {
             phone_number = payload.phone_number, birthdate = payload.birthdate, gender = payload.gender;
             return _context.abrupt("return", dispatch("register.validate", {
               claims: (0, _objectSpread2.default)({}, stored.claims, {
-                phone_number: phone_number ? state.metadata.locale.country + "|" + phone_number : undefined,
+                phone_number: phone_number ? state.locale.country + "|" + phone_number : undefined,
                 birthdate: birthdate,
                 gender: gender
               }),
@@ -4325,11 +4458,11 @@ Object.keys(_lib).forEach(function (key) {
 
 var _icons = __webpack_require__(/*! @uifabric/icons */ "../../node_modules/@uifabric/icons/lib/index.js");
 
-var _state = __webpack_require__(/*! ../state */ "./state.js");
+var _inject = __webpack_require__(/*! ../inject */ "./inject.js");
 
 __webpack_require__(/*! ./styles.css */ "./src/styles.css");
 
-(0, _lib.loadTheme)(_.defaultsDeep((0, _state.getAppOptions)().theme || {}, {
+(0, _lib.loadTheme)(_.defaultsDeep((0, _inject.getAppOptions)().theme || {}, {
   palette: {
     themePrimary: "#2a44ec",
     themeLighterAlt: "#f6f7fe",
@@ -4472,74 +4605,6 @@ exports.ButtonStyles = ButtonStyles;
 
 /***/ }),
 
-/***/ "./state.js":
-/*!******************!*\
-  !*** ./state.js ***!
-  \******************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var __importStar = this && this.__importStar || function (mod) {
-  if (mod && mod.__esModule) return mod;
-  var result = {};
-  if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-  result["default"] = mod;
-  return result;
-};
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _ = __importStar(__webpack_require__(/*! lodash */ "../../node_modules/lodash/lodash.js")); // parse app options from html document
-
-
-var cachedAppOptions;
-
-function getAppOptions() {
-  if (cachedAppOptions) {
-    return cachedAppOptions;
-  }
-
-  if (typeof window === "undefined") {
-    throw new Error("cannot call getAppOptions from server-side");
-  } else {
-    return cachedAppOptions = _.defaultsDeep(window.__APP_OPTIONS__ || {}, {
-      prefix: "/op",
-      logo: {
-        uri: null,
-        align: "left"
-      },
-      login: {
-        federation_options_visible: false
-      }
-    });
-  }
-}
-
-exports.getAppOptions = getAppOptions; // parse initial app state from html document
-
-function getInitialAppState() {
-  if (typeof window === "undefined") {
-    throw new Error("cannot call getInitialAppState from server-side");
-  } else {
-    return window.__APP_STATE__ || {
-      name: "error",
-      error: {
-        error: "unexpected_error",
-        error_description: "unrecognized state received from server"
-      }
-    };
-  }
-}
-
-exports.getInitialAppState = getInitialAppState;
-
-/***/ }),
-
 /***/ 1:
 /*!*********************************************************************************************************************************************************!*\
   !*** multi (webpack)/hot/dev-server.js /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/react-dev-utils/webpackHotDevClient.js ./src/index.tsx ***!
@@ -4554,5 +4619,5 @@ module.exports = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer
 
 /***/ })
 
-},[[1,"runtime-main",0]]]);
+},[[1,"runtime-main",1]]]);
 //# sourceMappingURL=main.chunk.js.map

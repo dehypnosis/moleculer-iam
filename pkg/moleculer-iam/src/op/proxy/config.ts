@@ -5,7 +5,7 @@ import { IdentityProvider } from "../../idp";
 import { Logger } from "../../logger";
 import { OIDCAdapterProxy, OIDCAdapterProxyConstructorOptions, OIDCAdapterProxyConstructors } from "./adapter";
 import { defaultStaticConfig } from "./config.default";
-import { ProviderInteractionBuilder } from "./interaction";
+import { ProviderApplicationBuilder } from "./app";
 import { DiscoveryMetadata } from "./proxy.types";
 
 // not support static clients, claims, scopes definition to support distributed environment
@@ -21,13 +21,13 @@ type DynamicConfigurationKeys =
   |"extraClientMetadata"
   |"extraParams"
   |"interactions"
-  // set by interaction builder
+  // set by app builder
   |"routes"
   |"renderError"
   |"logoutSource"
   |"postLogoutSuccessSource"
 
-// set by interaction builder
+// set by app builder
 type DeviceFlowConfigurationKeys = "userCodeInputSource" | "userCodeConfirmSource" | "successSource";
 export type DeviceFlowConfiguration = Required<Required<Configuration>["features"]>["deviceFlow"];
 type DynamicFeaturesConfiguration = {
@@ -65,7 +65,7 @@ export class ProviderConfigBuilder {
   public readonly dev: boolean;
   public readonly adapter: OIDCAdapterProxy;
   public readonly idp: IdentityProvider;
-  public readonly interaction: ProviderInteractionBuilder;
+  public readonly app: ProviderApplicationBuilder;
   private readonly staticConfig: StaticConfiguration;
   private readonly dynamicConfig: DynamicConfiguration;
   private provider?: Provider;
@@ -103,8 +103,8 @@ export class ProviderConfigBuilder {
     this.dev = dev;
     this.adapter = adapter;
 
-    // create interaction builder
-    this.interaction = new ProviderInteractionBuilder(this);
+    // create app builder
+    this.app = new ProviderApplicationBuilder(this);
 
     // create static config
     this.staticConfig = _.defaultsDeep({
@@ -117,8 +117,8 @@ export class ProviderConfigBuilder {
       dynamicScopes: [/.+/],
     }, partialStaticConfig, defaultStaticConfig) as StaticConfiguration;
 
-    // create dynamic config which are linked to interaction builder
-    this.dynamicConfig = _.defaultsDeep(this.interaction._dangerouslyGetDynamicConfiguration(), {
+    // create dynamic config which are linked to app builder
+    this.dynamicConfig = _.defaultsDeep(this.app._dangerouslyGetDynamicConfiguration(), {
       // bridge for IDP and OP session
       findAccount: (ctx, id, token) => {
         return idp.findOrFail({id})
@@ -140,7 +140,7 @@ export class ProviderConfigBuilder {
   public setPrefix(prefix: string) {
     this.assertBuilding();
 
-    // set interaction named url
+    // set app named url
     this.dynamicConfig.routes = {
       jwks: `${prefix}/jwks`,
       authorization: `${prefix}/auth`,
@@ -155,10 +155,10 @@ export class ProviderConfigBuilder {
       userinfo: `${prefix}/userinfo`,
       registration: `${prefix}/client/register`,
     };
-    this.logger.info(`named route path configured:`, this.dynamicConfig.routes);
+    this.logger.info(`OIDC named route path configured:`, this.dynamicConfig.routes);
 
-    // set interaction router prefix
-    this.interaction._dangerouslySetPrefix(prefix);
+    // set app router prefix
+    this.app._dangerouslySetPrefix(prefix);
 
     return this;
   }
@@ -219,8 +219,8 @@ export class ProviderConfigBuilder {
       });
     }
 
-    // mount interaction routes
-    this.interaction._dangerouslyBuild();
+    // mount app routes
+    this.app._dangerouslyBuild();
 
     this.built = true;
     return provider;

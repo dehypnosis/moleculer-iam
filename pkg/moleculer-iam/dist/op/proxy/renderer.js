@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.dummyInteractionStateRendererFactory = ({ logger }) => {
-    logger.error(`set dummy interaction state renderer`);
+exports.dummyAppStateRendererFactory = ({ logger }) => {
+    logger.error(`set dummy application renderer`);
     return {
         routes() {
             return [];

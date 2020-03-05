@@ -7,8 +7,8 @@ export const LogoutIndexScreen: React.FunctionComponent = () => {
   // states
   const { loading, withLoading, errors, setErrors } = useWithLoading();
   const [state, dispatch] = useAppState();
-  const user = state.metadata.user!;
-  const client = state.metadata.client;
+  const user = state.user!;
+  const client = state.client;
 
   const handleSignOutAll = withLoading(() => {
     return dispatch("logout.confirm")

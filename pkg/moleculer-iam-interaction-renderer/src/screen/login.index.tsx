@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { ScreenLayout } from "./layout";
 import { PrimaryButton, DefaultButton, Link, TextField, TextFieldStyles, ButtonStyles, Separator, Stack, ThemeStyles } from "../styles";
-import { useNavigation, getAppOptions, useAppState, useWithLoading } from "../hook";
+import { useNavigation, useAppState, useWithLoading, useAppOptions } from "../hook";
 
 export const LoginIndexScreen: React.FunctionComponent = () => {
   const { nav, route } = useNavigation();
   const { loading, errors, setErrors, withLoading } = useWithLoading();
   const [ email, setEmail ] = useState(route.params.email || "");
   const [state, dispatch] = useAppState();
-  const options = getAppOptions();
-  const [federationOptionsVisible, setFederationOptionsVisible] = useState(options.login.federation_options_visible === true);
-  const federationProviders = state.metadata.availableFederationProviders;
+  const options = useAppOptions();
+  const [federationOptionsVisible, setFederationOptionsVisible] = useState(options.login.federationOptionsVisibleDefault === true);
+  const federationProviders = state.metadata.federationProviders;
 
   // const handleAbort = withLoading(() => {
   //   return dispatch("login.abort")

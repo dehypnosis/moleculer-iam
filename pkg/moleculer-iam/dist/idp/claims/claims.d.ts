@@ -23,7 +23,12 @@ export declare class IdentityClaimsManager {
     private createClaimsSchema;
     private compileClaimsValidator;
     private compileClaimsMigrationStrategy;
-    get mandatoryScopes(): ReadonlyArray<string>;
+    readonly mandatoryScopes: ReadonlyArray<string>;
+    private _supportedScopes;
+    get supportedScopes(): {
+        [scope: string]: string[];
+    };
+    private syncSupportedScopes;
     onClaimsSchemaUpdated(): Promise<void>;
     getActiveClaimsSchemata(): Promise<IdentityClaimsSchema[]>;
     getClaimsSchemata(args: {

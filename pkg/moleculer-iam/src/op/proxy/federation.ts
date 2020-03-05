@@ -1,25 +1,26 @@
 import { Authenticator, Strategy } from "passport";
 import { KoaPassport } from "koa-passport";
 import { ProviderConfigBuilder } from "./config";
-import { InteractionRequestContext } from "./interaction.types";
+import { ApplicationRequestContext } from "./app.types";
 import { Logger } from "../../logger";
 import { Identity, Errors, IdentityProvider } from "../../idp";
 
 export interface IdentityFederationProviderConfigurationMap {
-  [providerName: string]: IdentityFederationProviderConfiguration<any, any>,
+  [provider: string]: IdentityFederationProviderConfiguration<any, any>;
 }
 
-type ForbiddenCustomOptions = "clientID"|"scope"|"callback"|"strategy"|"scopes"|"clientId"|"client"|"callbackURL"|"callbackUrl";
+type ForbiddenCustomOptions = "clientID"|"clientSecret"|"secret"|"scope"|"callback"|"strategy"|"scopes"|"clientId"|"client"|"callbackURL"|"callbackUrl";
 
 export type IdentityFederationProviderConfiguration<CustomProfile extends {}, CustomOptions extends {}> = {
   clientID: string;
+  clientSecret: string;
   scope: string;
   callback: IdentityFederationCallbackHandler<CustomProfile>;
   strategy: IdentityFederationStrategyFactory<CustomProfile, CustomOptions>;
 } & Partial<Omit<CustomOptions, ForbiddenCustomOptions>>;
 
 export type IdentityFederationStrategyFactory<CustomProfile extends {}, CustomOptions extends {}> = (
-  options: Omit<CustomOptions, ForbiddenCustomOptions> & { clientID: string, scope: string, callbackURL: string },
+  options: Omit<CustomOptions, ForbiddenCustomOptions> & { clientID: string, clientSecret: string, scope: string, callbackURL: string },
   verify: IdentityFederationCallbackVerifyFunction<CustomProfile>,
 ) => Strategy;
 
@@ -59,21 +60,15 @@ export class IdentityFederationBuilder {
   public setCallbackPrefix(prefix: string) {
     this.builder.assertBuilding();
     this._prefix = prefix;
-    this.builder.logger.info(`federation route path configured:`, `${this.builder.interaction.prefix}${prefix}/:path`);
+    this.builder.logger.info(`OIDC federation route path configured:`, `${this.builder.app.prefix}${prefix}/:path`);
     return this;
   }
 
-  public readonly getCallbackURL = (providerName: string) => this.builder.interaction.getURL(`${this._prefix}/${providerName}`);
+  public readonly getCallbackURL = (providerName: string) => this.builder.app.getURL(`${this._prefix}/${providerName}`);
 
   public get providerNames(): string[] {
     this.builder.assertBuilding(true);
     return Object.keys(this.callbacks);
-  }
-
-  public setProviderConfiguration(providerName: string, config: IdentityFederationProviderConfiguration<any, any>) {
-    this.builder.assertBuilding();
-    this.config[providerName] = config;
-    return this;
   }
 
   public setProviderConfigurationMap(configMap: IdentityFederationProviderConfigurationMap) {
@@ -91,7 +86,7 @@ export class IdentityFederationBuilder {
       }
 
       // create strategy and apply
-      const { clientID, scope, strategy, callback, ...customOptions} = options!;
+      const { scope, callback, strategy, ...restOptions} = options!;
       this.scopes[provider] = typeof scope === "string" ? scope.split(" ").map(s => s.trim()).filter(s => !!s) : scope as string[];
       this.callbacks[provider] = callback;
 
@@ -105,8 +100,7 @@ export class IdentityFederationBuilder {
       this.passport.use(
         strategy(
           {
-            ...customOptions,
-            clientID,
+            ...restOptions,
             scope,
             callbackURL,
           },
@@ -130,7 +124,7 @@ export class IdentityFederationBuilder {
     }
   }
 
-  public async handleRequest(ctx: InteractionRequestContext, next: () => Promise<void>, provider: string): Promise<void> {
+  public async handleRequest(ctx: ApplicationRequestContext, next: () => Promise<void>, provider: string): Promise<void> {
     return new Promise((resolve, reject) => {
       this.passport.authenticate(provider, {
         scope: this.scopes[provider],
@@ -143,7 +137,7 @@ export class IdentityFederationBuilder {
     });
   }
 
-  public async handleCallback(ctx: InteractionRequestContext, next: () => Promise<void>, provider: string): Promise<Identity> {
+  public async handleCallback(ctx: ApplicationRequestContext, next: () => Promise<void>, provider: string): Promise<Identity> {
     return new Promise((resolve, reject) => {
       this.passport.authenticate(provider, {
         scope: this.scopes[provider],

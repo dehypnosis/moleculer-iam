@@ -9,7 +9,7 @@ class IdentityFederationBuilder {
         this.callbacks = {};
         this.config = {};
         this._prefix = "/federate";
-        this.getCallbackURL = (providerName) => this.builder.interaction.getURL(`${this._prefix}/${providerName}`);
+        this.getCallbackURL = (providerName) => this.builder.app.getURL(`${this._prefix}/${providerName}`);
         this.passport = new koa_passport_1.KoaPassport();
     }
     get prefix() {
@@ -18,17 +18,12 @@ class IdentityFederationBuilder {
     setCallbackPrefix(prefix) {
         this.builder.assertBuilding();
         this._prefix = prefix;
-        this.builder.logger.info(`federation route path configured:`, `${this.builder.interaction.prefix}${prefix}/:path`);
+        this.builder.logger.info(`OIDC federation route path configured:`, `${this.builder.app.prefix}${prefix}/:path`);
         return this;
     }
     get providerNames() {
         this.builder.assertBuilding(true);
         return Object.keys(this.callbacks);
-    }
-    setProviderConfiguration(providerName, config) {
-        this.builder.assertBuilding();
-        this.config[providerName] = config;
-        return this;
     }
     setProviderConfigurationMap(configMap) {
         this.builder.assertBuilding();
@@ -42,7 +37,7 @@ class IdentityFederationBuilder {
                 continue;
             }
             // create strategy and apply
-            const { clientID, scope, strategy, callback, ...customOptions } = options;
+            const { scope, callback, strategy, ...restOptions } = options;
             this.scopes[provider] = typeof scope === "string" ? scope.split(" ").map(s => s.trim()).filter(s => !!s) : scope;
             this.callbacks[provider] = callback;
             const commonCallbackArgs = {
@@ -52,8 +47,7 @@ class IdentityFederationBuilder {
             };
             const callbackURL = this.getCallbackURL(provider);
             this.passport.use(strategy({
-                ...customOptions,
-                clientID,
+                ...restOptions,
                 scope,
                 callbackURL,
             }, async (accessToken, refreshToken, profile, next) => {

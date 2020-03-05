@@ -6,7 +6,7 @@ const _ = tslib_1.__importStar(require("lodash"));
 const oidc_provider_1 = require("oidc-provider");
 const adapter_1 = require("./adapter");
 const config_default_1 = require("./config.default");
-const interaction_1 = require("./interaction");
+const app_1 = require("./app");
 class ProviderConfigBuilder {
     constructor(props, opts = {}) {
         this.props = props;
@@ -38,8 +38,8 @@ class ProviderConfigBuilder {
         this.issuer = issuer;
         this.dev = dev;
         this.adapter = adapter;
-        // create interaction builder
-        this.interaction = new interaction_1.ProviderInteractionBuilder(this);
+        // create app builder
+        this.app = new app_1.ProviderApplicationBuilder(this);
         // create static config
         this.staticConfig = _.defaultsDeep({
             // set adapter constructor
@@ -50,8 +50,8 @@ class ProviderConfigBuilder {
             scopes: undefined,
             dynamicScopes: [/.+/],
         }, partialStaticConfig, config_default_1.defaultStaticConfig);
-        // create dynamic config which are linked to interaction builder
-        this.dynamicConfig = _.defaultsDeep(this.interaction._dangerouslyGetDynamicConfiguration(), {
+        // create dynamic config which are linked to app builder
+        this.dynamicConfig = _.defaultsDeep(this.app._dangerouslyGetDynamicConfiguration(), {
             // bridge for IDP and OP session
             findAccount: (ctx, id, token) => {
                 return idp.findOrFail({ id })
@@ -70,7 +70,7 @@ class ProviderConfigBuilder {
     }
     setPrefix(prefix) {
         this.assertBuilding();
-        // set interaction named url
+        // set app named url
         this.dynamicConfig.routes = {
             jwks: `${prefix}/jwks`,
             authorization: `${prefix}/auth`,
@@ -85,9 +85,9 @@ class ProviderConfigBuilder {
             userinfo: `${prefix}/userinfo`,
             registration: `${prefix}/client/register`,
         };
-        this.logger.info(`named route path configured:`, this.dynamicConfig.routes);
-        // set interaction router prefix
-        this.interaction._dangerouslySetPrefix(prefix);
+        this.logger.info(`OIDC named route path configured:`, this.dynamicConfig.routes);
+        // set app router prefix
+        this.app._dangerouslySetPrefix(prefix);
         return this;
     }
     setExtraParams(config) {
@@ -136,8 +136,8 @@ class ProviderConfigBuilder {
                 "disable-implicit-force-https": true,
             });
         }
-        // mount interaction routes
-        this.interaction._dangerouslyBuild();
+        // mount app routes
+        this.app._dangerouslyBuild();
         this.built = true;
         return provider;
     }

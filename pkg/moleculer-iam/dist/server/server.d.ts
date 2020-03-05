@@ -2,6 +2,7 @@
 import * as http from "http";
 import * as http2 from "http2";
 import * as https from "https";
+import Koa from "koa";
 import { IHelmetConfiguration } from "helmet";
 import { Logger } from "../logger";
 import { OIDCProvider, ParsedLocale } from "../op";
@@ -40,6 +41,7 @@ export declare type IAMServerOptions = {
 export interface IAMServerRequestContextProps {
     locale: ParsedLocale;
 }
+export declare type IAMServerRequestContext = Koa.ParameterizedContext<IAMServerRequestContextProps>;
 export declare class IAMServer {
     private readonly props;
     private readonly logger;

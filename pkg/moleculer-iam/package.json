@@ -39,6 +39,7 @@
     "accept-language-parser": "^1.5.0",
     "awesome-phonenumber": "^2.23.0",
     "bcrypt": "^3.0.7",
+    "change-case": "^4.1.1",
     "dataloader": "^2.0.0",
     "fastest-validator": "^1.0.0-beta4",
     "jose": "latest",

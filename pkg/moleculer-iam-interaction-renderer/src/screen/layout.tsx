@@ -1,6 +1,6 @@
 import React, { ReactElement } from "react";
 import { ScrollView } from "react-native";
-import { getAppOptions } from "../hook";
+import { useAppOptions } from "../hook";
 import { FontWeights, Image, Stack, Text, AnimationStyles, ButtonStyles, DefaultButton, PrimaryButton, LabelStyles } from "../styles";
 import logo from "../image/logo.svg";
 
@@ -19,7 +19,7 @@ export const ScreenLayout: React.FunctionComponent<{
   footer?: ReactElement,
   error?: string,
 }> = (props) => {
-  const options = getAppOptions();
+  const options = useAppOptions();
   const {title = "TODO", subtitle = null, children = null, buttons = [], error = null, footer = null} = props;
   return (
     <ScrollView contentContainerStyle={{marginTop: "auto", marginBottom: "auto"}}>

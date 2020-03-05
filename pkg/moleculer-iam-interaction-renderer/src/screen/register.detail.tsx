@@ -41,7 +41,7 @@ export const RegisterDetailScreen: React.FunctionComponent = () => {
     return dispatch("register.validate", {
       claims: {
         ...stored.claims,
-        phone_number: phone_number ? `${state.metadata.locale.country}|${phone_number}` : undefined,
+        phone_number: phone_number ? `${state.locale.country}|${phone_number}` : undefined,
         birthdate,
         gender,
       },

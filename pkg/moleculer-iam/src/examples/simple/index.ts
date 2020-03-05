@@ -4,7 +4,7 @@ import { ServiceBroker } from "moleculer";
 import { app } from "./app";
 import { IAMServiceSchema } from "../../"; // "moleculer-iam";
 
-// import Renderer from "moleculer-iam-interaction-renderer";
+// import Renderer from "moleculer-iam-app-renderer";
 // tslint:disable-next-line:no-var-requires to avoid circular deps in our monorepo workspace
 const rendererFactory = require("moleculer-iam-interaction-renderer");
 
@@ -71,14 +71,9 @@ const serviceSchema = IAMServiceSchema({
     // required and should be shared between processes in production
     jwks: require("./jwks.json"),
 
-    interaction: {
+    app: {
       // federation
       federation: {
-        /*
-        kakao: {
-          clientID: "XXX",
-          clientSecret: "YYY",
-        },
         google: {
           clientID: "XXX",
           clientSecret: "YYY",
@@ -87,17 +82,31 @@ const serviceSchema = IAMServiceSchema({
           clientID: "XXX",
           clientSecret: "YYY",
         },
-        */
+        kakao: {
+          clientID: "XXX",
+          clientSecret: "YYY",
+        },
+        // custom: {
+        //   clientID: "XXX",
+        //   clientSecret: "YYY",
+        //   callback: ({ accessToken, refreshToken, profile, idp, logger }) => {
+        //     throw new Error("not implemented");
+        //   },
+        //   scope: "openid",
+        //   strategy: () => {
+        //     throw new Error("not implemented");
+        //   },
+        // },
       },
       renderer: {
-        factory: require("moleculer-iam-interaction-renderer"),
+        // factory: require("moleculer-iam-interaction-renderer"), // this is default behavior
         options: {
           logo: {
             uri: "https://upload.wikimedia.org/wikipedia/commons/a/a2/OpenID_logo_2.svg",
             align: "left",
           },
           login: {
-            federation_options_visible: true,
+            federationOptionsVisibleDefault: false,
           },
           theme: {
             palette: {
