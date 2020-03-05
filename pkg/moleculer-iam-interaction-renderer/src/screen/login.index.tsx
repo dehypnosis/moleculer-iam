@@ -8,7 +8,7 @@ export const LoginIndexScreen: React.FunctionComponent = () => {
   const { loading, errors, setErrors, withLoading } = useWithLoading();
   const [ email, setEmail ] = useState(route.params.email || "");
   const [state, dispatch] = useAppState();
-  const options = useAppOptions();
+  const [options] = useAppOptions();
   const [federationOptionsVisible, setFederationOptionsVisible] = useState(options.login.federationOptionsVisibleDefault === true);
   const federationProviders = state.metadata.federationProviders;
 

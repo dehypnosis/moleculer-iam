@@ -19,7 +19,7 @@ export const ScreenLayout: React.FunctionComponent<{
   footer?: ReactElement,
   error?: string,
 }> = (props) => {
-  const options = useAppOptions();
+  const [options] = useAppOptions();
   const {title = "TODO", subtitle = null, children = null, buttons = [], error = null, footer = null} = props;
   return (
     <ScrollView contentContainerStyle={{marginTop: "auto", marginBottom: "auto"}}>

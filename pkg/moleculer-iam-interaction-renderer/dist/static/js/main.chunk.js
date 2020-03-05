@@ -730,8 +730,6 @@ var _possibleConstructorReturn2 = _interopRequireDefault(__webpack_require__(/*!
 
 var _getPrototypeOf3 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/getPrototypeOf */ "../../node_modules/@babel/runtime/helpers/esm/getPrototypeOf.js"));
 
-var _assertThisInitialized2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/assertThisInitialized */ "../../node_modules/@babel/runtime/helpers/esm/assertThisInitialized.js"));
-
 var _inherits2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/inherits */ "../../node_modules/@babel/runtime/helpers/esm/inherits.js"));
 
 var _ = _interopRequireWildcard(__webpack_require__(/*! lodash */ "../../node_modules/lodash/lodash.js"));
@@ -741,7 +739,7 @@ var _react = _interopRequireWildcard(__webpack_require__(/*! react */ "../../nod
 var _inject = __webpack_require__(/*! ../../inject */ "./inject.js");
 
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-interaction-renderer/src/app/options.tsx";
-var AppOptionsContext = (0, _react.createContext)({});
+var AppOptionsContext = (0, _react.createContext)([]);
 exports.AppOptionsContext = AppOptionsContext;
 
 function useAppOptions() {
@@ -775,7 +773,6 @@ var AppOptionsProvider = function (_React$Component) {
       },
       theme: {}
     });
-    _this.setOptions = _this.setState.bind((0, _assertThisInitialized2.default)(_this));
     return _this;
   }
 
@@ -788,10 +785,10 @@ var AppOptionsProvider = function (_React$Component) {
     key: "render",
     value: function render() {
       return _react.default.createElement(AppOptionsContext.Provider, {
-        value: this.state,
+        value: [this.state, this.setState.bind(this)],
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 36
+          lineNumber: 34
         },
         __self: this
       }, this.props.children);
@@ -1805,6 +1802,8 @@ exports.ScreenLayout = void 0;
 
 var _objectSpread2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/objectSpread2 */ "../../node_modules/@babel/runtime/helpers/esm/objectSpread2.js"));
 
+var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/slicedToArray */ "../../node_modules/@babel/runtime/helpers/esm/slicedToArray.js"));
+
 var _react = _interopRequireDefault(__webpack_require__(/*! react */ "../../node_modules/react/index.js"));
 
 var _reactNative = __webpack_require__(/*! react-native */ "../../node_modules/react-native-web/dist/index.js");
@@ -1818,7 +1817,10 @@ var _logo = _interopRequireDefault(__webpack_require__(/*! ../image/logo.svg */ 
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-interaction-renderer/src/screen/layout.tsx";
 
 var ScreenLayout = function ScreenLayout(props) {
-  var options = (0, _hook.useAppOptions)();
+  var _useAppOptions = (0, _hook.useAppOptions)(),
+      _useAppOptions2 = (0, _slicedToArray2.default)(_useAppOptions, 1),
+      options = _useAppOptions2[0];
+
   var _props$title = props.title,
       title = _props$title === void 0 ? "TODO" : _props$title,
       _props$subtitle = props.subtitle,
@@ -2194,7 +2196,9 @@ var LoginIndexScreen = function LoginIndexScreen() {
       state = _useAppState2[0],
       dispatch = _useAppState2[1];
 
-  var options = (0, _hook.useAppOptions)();
+  var _useAppOptions = (0, _hook.useAppOptions)(),
+      _useAppOptions2 = (0, _slicedToArray2.default)(_useAppOptions, 1),
+      options = _useAppOptions2[0];
 
   var _useState3 = (0, _react.useState)(options.login.federationOptionsVisibleDefault === true),
       _useState4 = (0, _slicedToArray2.default)(_useState3, 2),
@@ -4619,5 +4623,5 @@ module.exports = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer
 
 /***/ })
 
-},[[1,"runtime-main",1]]]);
+},[[1,"runtime-main",0]]]);
 //# sourceMappingURL=main.chunk.js.map
