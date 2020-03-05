@@ -27,11 +27,11 @@ export const ResetPasswordEndScreen: React.FunctionComponent = () => {
           primary: true,
           text: "Done",
           onClick: handleDone,
-          loading,
           tabIndex: 21,
         },
       ]}
       error={errors.global}
+      loading={loading}
     >
       <Text>
         Account credential has been updated successfully.

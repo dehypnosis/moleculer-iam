@@ -15,9 +15,15 @@ class ProviderApplicationBuilder {
         this.builder = builder;
         this._prefix = "/op";
         this.getURL = (path) => `${this.builder.issuer}${this.prefix}${path}`;
-        this.extendContext = async (ctx, next) => {
+        this.wrapContext = async (ctx, next) => {
             ctx.idp = this.idp;
             ctx.op = await new context_1.OIDCProviderContextProxy(ctx, this.builder)._dangerouslyCreate();
+            ctx.unwrap = () => {
+                delete ctx.idp;
+                delete ctx.op;
+                delete ctx.locale;
+                return ctx;
+            };
             return next();
         };
         this.errorHandler = async (ctx, next) => {
@@ -53,7 +59,7 @@ class ProviderApplicationBuilder {
         this.routerMiddleware = [
             koajs_nocache_1.default(),
             koa_bodyparser_1.default(),
-            this.extendContext,
+            this.wrapContext,
             this.errorHandler,
         ];
         // internally named routes render default functions
@@ -64,7 +70,7 @@ class ProviderApplicationBuilder {
         };
         // ref: https://github.com/panva/node-oidc-provider/blob/74b434c627248c82ca9db5aed3a03f0acd0d7214/lib/shared/error_handler.js#L47
         this.renderErrorProxy = (ctx, out, error) => {
-            return this.extendContext(ctx, () => {
+            return this.wrapContext(ctx, () => {
                 this.logger.error("internal render error", error);
                 return this.renderError(ctx, out);
             });
@@ -98,7 +104,7 @@ class ProviderApplicationBuilder {
         // ref: https://github.com/panva/node-oidc-provider/blob/e5ecd85c346761f1ac7a89b8bf174b873be09239/lib/actions/end_session.js#L89
         this.logoutSourceProxy = (ctx) => {
             const op = ctx.op;
-            return this.extendContext(ctx, () => {
+            return this.wrapContext(ctx, () => {
                 ctx.assert(op.user);
                 const xsrf = op.session.state.secret;
                 return this.renderLogout(ctx, xsrf);
@@ -111,7 +117,7 @@ class ProviderApplicationBuilder {
         };
         // ref: https://github.com/panva/node-oidc-provider/blob/e5ecd85c346761f1ac7a89b8bf174b873be09239/lib/actions/end_session.js#L272
         this.postLogoutSuccessSourceProxy = async (ctx) => {
-            return this.extendContext(ctx, async () => {
+            return this.wrapContext(ctx, async () => {
                 const op = ctx.op;
                 op.clientMetadata = await op.getPublicClientProps(ctx.oidc.client);
                 return this.renderLogoutEnd(ctx);
@@ -134,7 +140,7 @@ class ProviderApplicationBuilder {
         };
         // ref: https://github.com/panva/node-oidc-provider/blob/74b434c627248c82ca9db5aed3a03f0acd0d7214/lib/actions/code_verification.js#L38
         this.deviceFlowUserCodeInputSourceProxy = (ctx, formHTML, out, error) => {
-            return this.extendContext(ctx, () => {
+            return this.wrapContext(ctx, () => {
                 const op = ctx.op;
                 ctx.assert(op.user && op.client);
                 if (error || out) {
@@ -172,7 +178,7 @@ class ProviderApplicationBuilder {
         };
         // ref: https://github.com/panva/node-oidc-provider/blob/74b434c627248c82ca9db5aed3a03f0acd0d7214/lib/actions/code_verification.js#L54
         this.deviceFlowUserCodeConfirmSourceProxy = (ctx, formHTML, client, device, userCode) => {
-            return this.extendContext(ctx, () => {
+            return this.wrapContext(ctx, () => {
                 const op = ctx.op;
                 ctx.assert(op.user && op.client);
                 op.device = device;
@@ -188,7 +194,7 @@ class ProviderApplicationBuilder {
         };
         // ref: https://github.com/panva/node-oidc-provider/blob/ae8a4589c582b96f4e9ca0432307da15792ac29d/lib/actions/authorization/device_user_flow_response.js#L42
         this.deviceFlowSuccessSourceProxy = (ctx) => {
-            return this.extendContext(ctx, () => {
+            return this.wrapContext(ctx, () => {
                 return this.renderDeviceFlowEnd(ctx);
             });
         };

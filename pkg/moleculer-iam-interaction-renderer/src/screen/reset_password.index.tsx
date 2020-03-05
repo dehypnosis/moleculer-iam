@@ -2,7 +2,7 @@ import React  from "react";
 import { Text, Image } from "../styles";
 import { useWithLoading, useNavigation } from "../hook";
 import { ScreenLayout } from "./layout";
-import svg from "../image/screen_password.svg";
+import svg from "../assets/screen_password.svg";
 
 export const ResetPasswordIndexScreen: React.FunctionComponent = () => {
   // states
@@ -36,16 +36,15 @@ export const ResetPasswordIndexScreen: React.FunctionComponent = () => {
           primary: true,
           text: "Send",
           onClick: handleSend,
-          loading,
           tabIndex: 31,
         },
         {
           text: "Cancel",
           onClick: handleCancel,
-          loading,
           tabIndex: 32,
         },
       ]}
+      loading={loading}
       error={errors.global}
     >
       <Text>

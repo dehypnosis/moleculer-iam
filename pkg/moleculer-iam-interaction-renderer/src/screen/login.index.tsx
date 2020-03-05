@@ -1,16 +1,21 @@
 import React, { useEffect, useState } from "react";
+import { ViewStyle, TextStyle } from "react-native";
 import { ScreenLayout } from "./layout";
-import { PrimaryButton, DefaultButton, Link, TextField, TextFieldStyles, ButtonStyles, Separator, Stack, ThemeStyles } from "../styles";
+import { Separator, Button, Input, Spinner, withAttrs } from "./component";
 import { useNavigation, useAppState, useWithLoading, useAppOptions } from "../hook";
 
+
 export const LoginIndexScreen: React.FunctionComponent = () => {
+  // state
   const { nav, route } = useNavigation();
-  const { loading, errors, setErrors, withLoading } = useWithLoading();
-  const [ email, setEmail ] = useState(route.params.email || "");
+  const [email, setEmail] = useState(route.params.email || "");
   const [state, dispatch] = useAppState();
   const [options] = useAppOptions();
   const [federationOptionsVisible, setFederationOptionsVisible] = useState(options.login.federationOptionsVisibleDefault === true);
   const federationProviders = state.metadata.federationProviders;
+
+  // handlers
+  const { loading, errors, setErrors, withLoading } = useWithLoading();
 
   // const handleAbort = withLoading(() => {
   //   return dispatch("login.abort")
@@ -27,7 +32,10 @@ export const LoginIndexScreen: React.FunctionComponent = () => {
           },
         });
       })
-      .catch((err: any) => setErrors(err));
+      .catch((err: any) => {
+        console.log(err);
+        setErrors(err)
+      });
   }, [email]);
 
   useEffect(() => {
@@ -64,86 +72,126 @@ export const LoginIndexScreen: React.FunctionComponent = () => {
       title={"Sign In"}
       subtitle={"Enter your account"}
       error={errors.global}
+      loading={loading}
       buttons={[
         {
           primary: true,
           text: "Continue",
           onClick: handleCheckLoginEmail,
-          loading,
           tabIndex: 12,
         },
         {
           text: "Sign up",
           onClick: handleSignUp,
-          loading,
           tabIndex: 13,
         },
       ]}
-      footer={
-        federationProviders.length > 0 ? (
-          <>
-            <Separator><span style={{color: ThemeStyles.palette.neutralTertiary}}>OR</span></Separator>
-            {federationOptionsVisible ? (
-              <Stack tokens={{childrenGap: 15}}>
-                {federationProviders.includes("kakao") ? (
-                  <PrimaryButton
-                    onClick={() => handleFederation("kakao")}
-                    styles={ButtonStyles.largeThin}
-                    text={"Login with Kakao"}
-                    style={{flex: "1 1 auto", backgroundColor: "#ffdc00", borderColor: "#ffb700", color: "black"}}
+      footer={(
+        <>
+          {federationProviders.length > 0 ? (
+            <>
+              <Separator text={"OR"}/>
+              {federationOptionsVisible ? federationProviders.map(provider => {
+                const { style, textStyle } = getFederationStyle(provider);
+                return (
+                  <Button
+                    key={provider}
+                    onPressOut={() => handleFederation(provider)}
+                    children={getFederationText(provider)}
+                    status={"basic"}
+                    size={"medium"}
+                    style={{marginBottom: 15, ...style}}
+                    textStyle={textStyle}
                   />
-                ) : null}
-                {federationProviders.includes("facebook") ? (
-                  <PrimaryButton
-                    onClick={() => handleFederation("facebook")}
-                    styles={ButtonStyles.largeThin}
-                    text={"Login with Facebook"}
-                    style={{flex: "1 1 auto", backgroundColor: "#1876f2", color: "white"}}
-                  />
-                ): null}
-                {federationProviders.includes("google") ? (
-                  <DefaultButton
-                    onClick={() => handleFederation("google")}
-                    styles={ButtonStyles.largeThin}
-                    text={"Login with Google"}
-                    style={{flex: "1 1 auto", backgroundColor: "#ffffff", borderWidth: 1, color: "black"}}
-                  />
-                  /*
-                    <Link
-                      onClick={() => handleFederation("google")}
-                      variant="small"
-                      style={{marginTop: "10px", color: ThemeStyles.palette.neutralTertiary}}
-                    >Login with Google</Link>
-                 */
-                ) : null}
-              </Stack>
-            ) : (
-              <Link style={{color: ThemeStyles.palette.neutralTertiary}} onClick={() => setFederationOptionsVisible(true)}>Find more login options?</Link>
-            )}
-          </>
-        ) : undefined
-      }
+                )
+              }) : (
+                <Button
+                  onPressOut={() => setFederationOptionsVisible(true)}
+                  appearance={"ghost"} size={"small"} status={"basic"}
+                  style={{marginBottom: 15}}
+                >Find more login options?</Button>
+              )}
+            </>
+          ) : null}
+          <Button
+            onPressOut={handleFindEmail}
+            appearance={"ghost"} size={"small"} status={"basic"}
+          >Forgot email?</Button>
+        </>
+      )}
     >
-      <form onSubmit={(e) => { e.preventDefault(); handleCheckLoginEmail(); }}>
-        <TextField
+      <form noValidate onSubmit={(e) => { e.preventDefault(); handleCheckLoginEmail(); }}>
+        <Input
+          ref={withAttrs({ tabindex: 11, autofocus: true }, "input")}
           label="Email"
-          name="username"
-          type="text"
-          inputMode="email"
-          autoComplete="username"
-          autoCapitalize="off"
-          autoCorrect="off"
-          autoFocus
+          autoCapitalize={"none"}
+          autoCorrect={false}
+          autoFocus={true}
+          blurOnSubmit={false}
+          keyboardType={"email-address"}
+          returnKeyType={"next"}
+          autoCompleteType={"username"}
           placeholder="Enter your email"
-          tabIndex={11}
           value={email}
-          errorMessage={errors.email}
-          onChange={(e, v) => setEmail(v || "")}
-          onKeyUp={e => e.key === "Enter" && handleCheckLoginEmail()}
-          styles={TextFieldStyles.bold}
+          caption={errors.email}
+          status={errors.email ? "danger" : "basic"}
+          onChangeText={v => setEmail(v || "")}
+          clearButtonMode={"while-editing"}
+          onKeyPress={e => e.nativeEvent.key === "Enter" && handleCheckLoginEmail()}
+          size={"large"}
         />
       </form>
-      <Link onClick={handleFindEmail} tabIndex={14} variant="small" style={{marginTop: "10px"}}>Forgot email?</Link>
     </ScreenLayout>
   );
 };
+
+
+const federationText: {[provider: string]: string} = {
+  google: "Login with Google",
+  facebook: "Login with Facebook",
+  kakao: "Login with Kakao",
+  default: "Login with {provider}",
+};
+
+const federationStyle: {[provider: string]: {style?: ViewStyle, textStyle?: TextStyle}} = {
+  google: {
+    style: {
+      backgroundColor: "#f5f5f5",
+    },
+    textStyle: {
+      color: "#222b45",
+    },
+  },
+  facebook: {
+    style: {
+      backgroundColor: "#1876f2",
+    },
+    textStyle: {
+      color: "#ffffff",
+    },
+  },
+  kakao: {
+    style: {
+      backgroundColor: "#ffdc00",
+    },
+    textStyle: {
+      color: "#222b45",
+    },
+  },
+  default: {
+    style: {
+      backgroundColor: "#f5f5f5",
+    },
+    textStyle: {
+      color: "#222b45",
+    },
+  },
+};
+
+function getFederationText(provider: string) {
+  return federationText[provider] || federationText.default.replace("{provider}", provider.toLocaleUpperCase());
+}
+
+function getFederationStyle(provider: string) {
+  return federationStyle[provider] || federationStyle.default;
+}

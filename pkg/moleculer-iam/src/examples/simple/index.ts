@@ -103,7 +103,9 @@ const serviceSchema = IAMServiceSchema({
         options: {
           logo: {
             uri: "https://upload.wikimedia.org/wikipedia/commons/a/a2/OpenID_logo_2.svg",
-            align: "left",
+            align: "flex-start",
+            height: "50px",
+            width: "133px",
           },
           login: {
             federationOptionsVisibleDefault: false,

@@ -37,14 +37,13 @@ export const ConsentScreen: React.FunctionComponent = () => {
   return (
     <ScreenLayout
       title={<span>Sign in to <Link href={client.client_uri} target={"_blank"} style={{color: ThemeStyles.palette.orange}} variant="xxLarge">{client.name}</Link></span>}
+      loading={loading}
       buttons={[
         {
           primary: true,
           text: "Continue",
           onClick: handleAccept,
-          loading,
           tabIndex: 1,
-          autoFocus: true,
         },
         // {
         //   text: "Cancel",
@@ -55,7 +54,6 @@ export const ConsentScreen: React.FunctionComponent = () => {
         {
           text: "Change account",
           onClick: handleChangeAccount,
-          loading,
           tabIndex: 3,
         },
       ]}

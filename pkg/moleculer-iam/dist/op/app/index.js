@@ -36,8 +36,10 @@ function buildApplication(builder, opts = {}) {
             }
         },
     })
-        // support extra params for /auth?change_account=true&blabla to not auto-fill signed in session account
-        .setExtraParams(["change_account"])
+        .setExtraParams([
+        // support extra params for /login?change_account=true to not auto-fill signed in session account
+        "change_account",
+    ])
         // configure app
         .app
         // set supported prompts (), custom policies like: MFA, captcha, rate limit can be added

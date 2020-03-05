@@ -4,7 +4,9 @@ import { ApplicationThemePalette } from "./theme";
 export type ApplicationOptions = {
   logo: {
     uri: string | null,
-    align: "center" | "left" | "right",
+    align: "center" | "flex-start" | "flex-end",
+    height: string,
+    width: string,
   },
   login: {
     federationOptionsVisibleDefault: boolean,

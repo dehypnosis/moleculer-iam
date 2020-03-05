@@ -91,7 +91,11 @@ var SinglePageApplicationRenderer = /** @class */ (function () {
     }
     SinglePageApplicationRenderer.prototype.loadViews = function () {
         // load index page and split into header and footer with app options data
-        var html = fs_1.default.readFileSync(path_1.default.join(build_config_1.default.webpack.output.path, "index.html")).toString();
+        var html = fs_1.default
+            .readFileSync(path_1.default.join(build_config_1.default.webpack.output.path, "index.html"))
+            .toString()
+            // "index.html" template uses %PUBLIC_URL% rather %PUBLIC_URL% which is for webpack itself to support assets path with dynamic prefix
+            .replace(/%PUBLIC_PATH%/g, build_config_1.default.webpack.output.publicPath);
         var index = html.indexOf("<script");
         // inject server-side options, ref ./inject.ts
         var options = "<script>window.__APP_DEV__=" + JSON.stringify(this.props.dev) + ";window.__APP_PREFIX__=" + JSON.stringify(this.props.prefix) + ";window.__APP_OPTIONS__=" + JSON.stringify(this.options) + ";</script>";

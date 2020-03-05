@@ -16,7 +16,9 @@ export class AppOptionsProvider extends React.Component<{}, ApplicationOptions &
   }, {
     logo: {
       uri: null,
-      align: "left",
+      align: "flex-start",
+      height: "50px",
+      width: "92px",
     },
     login: {
       federationOptionsVisibleDefault: false,

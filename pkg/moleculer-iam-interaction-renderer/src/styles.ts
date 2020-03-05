@@ -1,11 +1,9 @@
-import * as _ from "lodash";
 import { loadTheme, getTheme, FontSizes, ITextFieldStyles, IStyleFunctionOrObject, FontWeights, IDatePickerStyles, IButtonStyles, IDropdownStyles, ILabelStyles, IPartialTheme } from "office-ui-fabric-react/lib";
 import { ITextFieldStyleProps } from "office-ui-fabric-react/lib/components/TextField/TextField.types";
 import { IDatePickerStyleProps } from "office-ui-fabric-react/lib/components/DatePicker/DatePicker.types";
 import { IDropdownStyleProps } from "office-ui-fabric-react/lib/components/Dropdown/Dropdown.types";
 import { initializeIcons } from "@uifabric/icons";
-import { getAppOptions } from "../inject";
-import "./styles.css";
+// import "./styles.css";
 
 export * from "office-ui-fabric-react/lib";
 

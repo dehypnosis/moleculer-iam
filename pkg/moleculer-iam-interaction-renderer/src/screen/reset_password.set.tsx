@@ -31,11 +31,11 @@ export const ResetPasswordSetScreen: React.FunctionComponent = () => {
           primary: true,
           text: "Continue",
           onClick: handlePayloadSubmit,
-          loading,
           tabIndex: 43,
         },
       ]}
       error={errors.global}
+      loading={loading}
     >
       <Text>
         Set a new password for your account.

@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { Text, Image } from "../styles";
 import { useNavigation, useWithLoading } from "../hook";
 import { ScreenLayout } from "./layout";
-import svg from "../image/screen_sent.svg";
+import svg from "../assets/screen_sent.svg";
 
 export const ResetPasswordSentScreen: React.FunctionComponent = () => {
   // states
@@ -26,11 +26,11 @@ export const ResetPasswordSentScreen: React.FunctionComponent = () => {
           primary: true,
           text: "Done",
           onClick: handleDone,
-          loading,
           tabIndex: 41,
         },
       ]}
       error={errors.global}
+      loading={loading}
     >
       <Text>
         You could check the email to set a new password within {Math.floor(ttl/60)} minutes.

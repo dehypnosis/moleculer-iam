@@ -1,4 +1,4 @@
-import { ParameterizedContext } from "koa";
+import { ParameterizedContext, BaseContext } from "koa";
 import { ClientMetadata } from "oidc-provider";
 import { IAMServerRequestContextProps } from "../../server";
 import { OIDCProviderContextProxy } from "./context";
@@ -10,6 +10,7 @@ import { IdentityProvider } from "../../idp";
 export declare type ApplicationRequestContextProps = {
     op: OIDCProviderContextProxy;
     idp: IdentityProvider;
+    unwrap(): BaseContext;
 } & IAMServerRequestContextProps;
 export interface ApplicationActionEndpoints {
     [key: string]: {
@@ -47,5 +48,6 @@ export declare type ApplicationResponse = {
     state?: ApplicationState;
     session?: ApplicationSessionState;
     error?: OIDCError;
+    redirect?: string;
 };
 export declare type ApplicationRequestContext = ParameterizedContext<any, ApplicationRequestContextProps>;

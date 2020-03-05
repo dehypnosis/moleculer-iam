@@ -80,18 +80,17 @@ export const RegisterDetailScreen: React.FunctionComponent = () => {
     <ScreenLayout
       title={"Sign up"}
       subtitle={storedClaims.email}
+      loading={loading}
       buttons={[
         {
           primary: true,
           text: "Continue",
           onClick: handlePayloadSubmit,
-          loading,
           tabIndex: 64,
         },
         {
           text: "Cancel",
           onClick: handleCancel,
-          loading,
           tabIndex: 65,
         },
       ]}

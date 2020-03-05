@@ -70,18 +70,17 @@ export const RegisterIndexScreen: React.FunctionComponent = () => {
     <ScreenLayout
       title={"Sign up"}
       subtitle={"Create account"}
+      loading={loading}
       buttons={[
         {
           primary: true,
           text: "Continue",
           onClick: handlePayloadSubmit,
-          loading,
           tabIndex: 55,
         },
         {
           text: "Cancel",
           onClick: handleCancel,
-          loading,
           hidden: state.name === "register",
           tabIndex: 56,
         },

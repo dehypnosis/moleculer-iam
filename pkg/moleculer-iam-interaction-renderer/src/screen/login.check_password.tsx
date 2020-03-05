@@ -37,12 +37,12 @@ export const LoginCheckPasswordScreen: React.FunctionComponent = () => {
     <ScreenLayout
       title={`Hi, ${name}`}
       subtitle={email}
+      loading={loading}
       buttons={[
         {
           primary: true,
           text: "Sign in",
           onClick: handleCheckLoginPassword,
-          loading,
           tabIndex: 22,
         },
         {

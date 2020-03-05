@@ -8,16 +8,17 @@ export function buildFederateRoutes(builder: ProviderConfigBuilder, opts: Applic
   builder.app.router
     .post("/federate", async (ctx, next) => {
       ctx.op.assertPrompt();
-      ctx.assert(builder.app.federation.providerNames.includes(ctx.params.provider));
-      return federation.handleRequest(ctx, next, ctx.request.body.provider);
+      const provider = ctx.request.body.provider;
+      ctx.assert(builder.app.federation.providerNames.includes(provider));
+      return federation.handleRequest(ctx, next, provider);
     })
 
     // handle federation callback
     .get("/federate/:provider", async (ctx, next) => {
       ctx.op.assertPrompt();
-      ctx.assert(builder.app.federation.providerNames.includes(ctx.params.provider));
-
-      const user = await federation.handleCallback(ctx, next, ctx.params.provider);
+      const provider = ctx.params.provider;
+      ctx.assert(builder.app.federation.providerNames.includes(provider));
+      const user = await federation.handleCallback(ctx, next, provider);
       if (!user) {
         throw new Errors.IdentityNotExistsError();
       }

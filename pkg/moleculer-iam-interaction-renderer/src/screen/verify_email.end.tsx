@@ -31,11 +31,11 @@ export const VerifyEmailEndScreen: React.FunctionComponent = () => {
           primary: true,
           text: "Done",
           onClick: handleDone,
-          loading,
           tabIndex: 31,
         },
       ]}
       error={errors.global}
+      loading={loading}
     >
       <Text>
         Account email address has been verified successfully.

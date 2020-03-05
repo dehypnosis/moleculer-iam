@@ -3,7 +3,7 @@ import { ScreenLayout } from "./layout";
 import { useAppState, useClose } from "../hook";
 
 export const ErrorScreen: React.FunctionComponent = () => {
-  const [state, dispatch] = useAppState();
+  const [state] = useAppState();
   const error = state.error || { error: "unexpected_server_error", error_description: "unrecognized state received from server." };
   const {closed, close} = useClose();
   return (
@@ -11,11 +11,11 @@ export const ErrorScreen: React.FunctionComponent = () => {
       title={error.error.split("_").map((w: string) => w[0].toUpperCase()+w.substr(1)).join(" ")}
       subtitle={error.error_description}
       error={closed ? "Please close the window manually." : undefined}
+      loading={closed}
       buttons={[
         {
           primary: false,
           text: "Close",
-          loading: closed,
           tabIndex: 1,
           onClick: close,
         },

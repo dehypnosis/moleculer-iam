@@ -70,8 +70,7 @@ export class AppStateProvider extends React.Component<{}> {
       }
       document.body.appendChild(form);
       form.submit();
-      return new Promise<any>(() => {
-      });
+      return new Promise(() => {}) as any;
     }
 
     // as xhr
@@ -85,6 +84,7 @@ export class AppStateProvider extends React.Component<{}> {
       body: method !== "GET" ? JSON.stringify(mergedPayload) : undefined,
     })
       .then(res => {
+        // parse json response
         return res.json()
           .then((data: ApplicationResponse): ApplicationState => {
             if (data.error) { // XHR error response
@@ -94,12 +94,12 @@ export class AppStateProvider extends React.Component<{}> {
                   e[item.field] = e[item.field] || item.message;
                   return e;
                 }, {});
-                console.error(err, data);
+                console.error("validation error", err, data);
                 // eslint-disable-next-line no-throw-literal
                 throw err;
               } else {
                 const err = {global: typeof data.error === "object" ? (data.error.error_description || data.error.error || JSON.stringify(data.error)) : (data.error as any).toString()};
-                console.error(err, data);
+                console.error("global error", err, data);
                 // eslint-disable-next-line no-throw-literal
                 throw err;
               }
@@ -112,12 +112,22 @@ export class AppStateProvider extends React.Component<{}> {
             } else if (data.state) {
               console.error("interaction state response received from XHR", data);
 
+            } else if (data.redirect) {
+              window.location.assign(data.redirect);
+              return new Promise(() => {}) as any;
+
             } else {
               console.error("unrecognized response structure", data);
             }
 
             return this.state.appState;
+          }, err => {
+            console.error("failed to parse xhr response", err);
+            throw {global: err.message || err.name};
           });
+      }, err => {
+        console.error("failed to get response", err);
+        throw {global: err.message || err.name};
       });
   };
 }

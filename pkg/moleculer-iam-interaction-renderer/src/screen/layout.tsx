@@ -1,63 +1,83 @@
 import React, { ReactElement } from "react";
-import { ScrollView } from "react-native";
+import { ScrollView, Image, View } from "react-native";
 import { useAppOptions } from "../hook";
-import { FontWeights, Image, Stack, Text, AnimationStyles, ButtonStyles, DefaultButton, PrimaryButton, LabelStyles } from "../styles";
-import logo from "../image/logo.svg";
+import { Layout, Text, Button, Spinner, withAttrs, withElement } from "./component";
+import logo from "../assets/logo.svg";
+
+
+// workaround to make autofocus works
+const autofocus = (ref: any) => withElement(elem => (elem as any).focus && setTimeout(() => elem && (elem as any).focus(), 50), "[autofocus]")(ref && ref.getInnerViewNode());
 
 export const ScreenLayout: React.FunctionComponent<{
   title?: string | ReactElement,
   subtitle?: string | ReactElement,
+  loading?: boolean;
   buttons?: {
     text: string,
-    autoFocus?: boolean,
-    onClick?: () => void|Promise<void>,
+    onClick?: () => void | Promise<void>,
     primary?: boolean,
-    loading?: boolean,
     tabIndex?: number,
     hidden?: boolean,
   }[],
   footer?: ReactElement,
   error?: string,
-}> = (props) => {
+}> = ({title = "undefined", subtitle = null, loading = false, children = null, buttons = [], error = null, footer = null}) => {
+
   const [options] = useAppOptions();
-  const {title = "TODO", subtitle = null, children = null, buttons = [], error = null, footer = null} = props;
   return (
-    <ScrollView contentContainerStyle={{marginTop: "auto", marginBottom: "auto"}}>
-        <Stack
-          horizontalAlign="stretch"
-          verticalAlign="center"
-          verticalFill
-          styles={{
-            root: {
-              width: "100%",
-              padding: "30px",
-            },
+    <>
+      <ScrollView
+        contentContainerStyle={{marginTop: "auto", marginBottom: "auto"}}
+        ref={autofocus}
+      >
+        {/*<View style={{
+          top: 0, right: 0, zIndex: 1000, alignItems: "flex-end", flex: 0,
+          ...({
+            position: "sticky",
+            transition: "opacity 1s",
+            opacity: loading ? 0.3 : 0,
+          } as unknown as ViewStyle)
+        }}>
+          <View style={{margin: 20}}>
+            <Spinner size={"tiny"} status={"primary"} />
+          </View>
+        </View>*/}
+        <Layout
+          style={{
+            padding: "30px",
           }}
-          tokens={{childrenGap: 30}}
         >
-          <Image src={options.logo.uri || logo} styles={{root: {height: "47px", textAlign: options.logo.align}, image: {maxWidth: "100%", maxHeight: "100%", display: "inline-block"}}} shouldFadeIn={false}/>
+          <View style={{alignItems: options.logo.align, marginBottom: 20}}>
+            <Image source={{uri: options.logo.uri || logo}} style={{height: options.logo.height, width: options.logo.width, resizeMode: "contain"}}/>
+          </View>
 
-          <Stack tokens={{childrenGap: 5}}>
-            <Text
-              variant="xLargePlus"
-              styles={{root: {fontWeight: FontWeights.regular}}}
-              children={title}
-            />
-            <Text variant="large" children={subtitle}/>
-          </Stack>
+          <View style={{marginBottom: "30px"}}>
+            <Text category={"h4"}>{title}</Text>
+            {subtitle && <Text category={"s1"} style={{marginTop: 10}}>{subtitle}</Text>}
+          </View>
 
-          <Stack tokens={{childrenGap: 15}} children={children} />
+          { children ? <View style={{marginBottom: "15px"}}>{children}</View> : null }
 
-          <Stack tokens={{childrenGap: 15}} verticalAlign="end">
-            { error ? <Text styles={{root: {...AnimationStyles.slideDownIn20, ...(LabelStyles.fieldErrorMessage.root as any) }}} children={typeof error === "string" ? error : JSON.stringify(error || "Unknown Error.")}/> : null }
-            {buttons.map(({ hidden, primary, text, onClick, autoFocus, loading, tabIndex }, index) => {
-              if (hidden === true) return null;
-              const Button = primary ? PrimaryButton : DefaultButton;
-              return <Button key={index} tabIndex={tabIndex} autoFocus={autoFocus} checked={loading === true} allowDisabledFocus text={text} styles={ButtonStyles.large} onClick={loading ? undefined : onClick} />;
+          <View style={{justifyContent: "flex-end"}}>
+            {error ? <Text status={"danger"} category={"c2"} style={{marginTop: 10}}>{error}</Text> : null}
+            {buttons.map(({hidden, primary, text, onClick, tabIndex}, index) => {
+              if (hidden === true) {
+                return null;
+              }
+              return (
+                <Button ref={withAttrs({tabindex: tabIndex || null})}
+                        key={index}
+                        status={primary ? "primary" : "basic"} size={"large"}
+                        style={{marginTop: 15}}
+                        onPressOut={loading ? undefined : onClick}
+                        appearance={"filled"}
+                >{text}</Button>
+              );
             })}
             {footer}
-          </Stack>
-        </Stack>
-    </ScrollView>
+          </View>
+        </Layout>
+      </ScrollView>
+    </>
   );
 };

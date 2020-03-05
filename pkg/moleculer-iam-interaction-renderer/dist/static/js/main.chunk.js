@@ -1,17 +1,18 @@
 (this["webpackJsonpmoleculer-iam-interaction-renderer"] = this["webpackJsonpmoleculer-iam-interaction-renderer"] || []).push([["main"],{
 
-/***/ "../../node_modules/css-loader/dist/cjs.js?!../../node_modules/postcss-loader/src/index.js?!./src/styles.css":
-/*!***************************************************************************************************************************************************************************************************************!*\
-  !*** /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/css-loader/dist/cjs.js??ref--6-oneOf-3-1!/Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/postcss-loader/src??postcss!./src/styles.css ***!
-  \***************************************************************************************************************************************************************************************************************/
+/***/ "../../node_modules/css-loader/dist/cjs.js?!../../node_modules/postcss-loader/src/index.js?!./src/app/theme.css":
+/*!******************************************************************************************************************************************************************************************************************!*\
+  !*** /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/css-loader/dist/cjs.js??ref--6-oneOf-3-1!/Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/postcss-loader/src??postcss!./src/app/theme.css ***!
+  \******************************************************************************************************************************************************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 // Imports
-var ___CSS_LOADER_API_IMPORT___ = __webpack_require__(/*! ../../../node_modules/css-loader/dist/runtime/api.js */ "../../node_modules/css-loader/dist/runtime/api.js");
+var ___CSS_LOADER_API_IMPORT___ = __webpack_require__(/*! ../../../../node_modules/css-loader/dist/runtime/api.js */ "../../node_modules/css-loader/dist/runtime/api.js");
 exports = ___CSS_LOADER_API_IMPORT___(false);
+exports.push([module.i, "@import url(https://fonts.googleapis.com/css?family=Noto+Sans+KR:400,500,700&display=swap&subset=korean);"]);
 // Module
-exports.push([module.i, "body {\n  margin: 0;\n  padding: 0;\n  font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", \"Roboto\", \"Oxygen\",\n    \"Ubuntu\", \"Cantarell\", \"Fira Sans\", \"Droid Sans\", \"Helvetica Neue\",\n    sans-serif;\n  -webkit-font-smoothing: antialiased;\n  -moz-osx-font-smoothing: grayscale;\n}\n\ncode {\n  font-family: source-code-pro, Menlo, Monaco, Consolas, \"Courier New\",\n    monospace;\n}\n\n@font-face {\n  font-family: SegoeUI;\n  src:\n    local(\"Segoe UI Light\"),\n    url(//c.s-microsoft.com/static/fonts/segoe-ui/west-european/light/latest.woff2) format(\"woff2\"),\n    url(//c.s-microsoft.com/static/fonts/segoe-ui/west-european/light/latest.woff) format(\"woff\"),\n    url(//c.s-microsoft.com/static/fonts/segoe-ui/west-european/light/latest.ttf) format(\"truetype\");\n  font-weight: 100;\n}\n\n@font-face {\n  font-family: SegoeUI;\n  src:\n    local(\"Segoe UI Semilight\"),\n    url(//c.s-microsoft.com/static/fonts/segoe-ui/west-european/semilight/latest.woff2) format(\"woff2\"),\n    url(//c.s-microsoft.com/static/fonts/segoe-ui/west-european/semilight/latest.woff) format(\"woff\"),\n    url(//c.s-microsoft.com/static/fonts/segoe-ui/west-european/semilight/latest.ttf) format(\"truetype\");\n  font-weight: 200;\n}\n\n@font-face {\n  font-family: SegoeUI;\n  src:\n    local(\"Segoe UI\"),\n    url(//c.s-microsoft.com/static/fonts/segoe-ui/west-european/normal/latest.woff2) format(\"woff2\"),\n    url(//c.s-microsoft.com/static/fonts/segoe-ui/west-european/normal/latest.woff) format(\"woff\"),\n    url(//c.s-microsoft.com/static/fonts/segoe-ui/west-european/normal/latest.ttf) format(\"truetype\");\n  font-weight: 400;\n}\n\n@font-face {\n  font-family: SegoeUI;\n  src:\n    local(\"Segoe UI Bold\"),\n    url(//c.s-microsoft.com/static/fonts/segoe-ui/west-european/bold/latest.woff2) format(\"woff2\"),\n    url(//c.s-microsoft.com/static/fonts/segoe-ui/west-european/bold/latest.woff) format(\"woff\"),\n    url(//c.s-microsoft.com/static/fonts/segoe-ui/west-european/bold/latest.ttf) format(\"truetype\");\n  font-weight: 600;\n}\n\n@font-face {\n  font-family: SegoeUI;\n  src:\n    local(\"Segoe UI Semibold\"),\n    url(//c.s-microsoft.com/static/fonts/segoe-ui/west-european/semibold/latest.woff2) format(\"woff2\"),\n    url(//c.s-microsoft.com/static/fonts/segoe-ui/west-european/semibold/latest.woff) format(\"woff\"),\n    url(//c.s-microsoft.com/static/fonts/segoe-ui/west-european/semibold/latest.ttf) format(\"truetype\");\n  font-weight: 700;\n}\n\n#root {\n  height: 100vh;\n}\n\n#root > div {\n  height: 100%;\n  max-width: 100vw;\n  margin: 0 auto;\n}\n\n/* set small width size for non-mobile devices */\n@media (min-width: 640px) {\n  #root > div {\n    width: 375px;\n  }\n}\n", ""]);
+exports.push([module.i, "body {\n  margin: 0;\n  padding: 0;\n  -webkit-font-smoothing: antialiased;\n  -moz-osx-font-smoothing: grayscale;\n  font-family: 'Noto Sans KR', sans-serif;\n}\n\n#root {\n  height: 100vh;\n}\n\n#root > div {\n  height: 100%;\n  max-width: 100vw;\n  min-width: 320px;\n  margin: 0 auto;\n}\n\n@media (min-width: 640px) {\n  #root > div {\n    width: 375px;\n  }\n}\n", ""]);
 // Exports
 module.exports = exports;
 
@@ -110,7 +111,7 @@ var _state = __webpack_require__(/*! ./state */ "./src/app/state.tsx");
 
 var _navigation = __webpack_require__(/*! ./navigation */ "./src/app/navigation.tsx");
 
-var _style = __webpack_require__(/*! ./style */ "./src/app/style.tsx");
+var _theme = __webpack_require__(/*! ./theme */ "./src/app/theme.tsx");
 
 var _find_email = __webpack_require__(/*! ../screen/find_email.index */ "./src/screen/find_email.index.tsx");
 
@@ -159,7 +160,7 @@ var App = function App() {
       lineNumber: 33
     },
     __self: this
-  }, _react.default.createElement(_style.ApplicationThemeProvider, {
+  }, _react.default.createElement(_theme.ApplicationThemeProvider, {
     __source: {
       fileName: _jsxFileName,
       lineNumber: 34
@@ -777,7 +778,9 @@ var AppOptionsProvider = function (_React$Component) {
     }), {
       logo: {
         uri: null,
-        align: "left"
+        align: "flex-start",
+        height: "50px",
+        width: "92px"
       },
       login: {
         federationOptionsVisibleDefault: false
@@ -799,7 +802,7 @@ var AppOptionsProvider = function (_React$Component) {
         value: [this.state, this.setState.bind(this)],
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 35
+          lineNumber: 37
         },
         __self: this
       }, this.props.children);
@@ -1027,13 +1030,13 @@ var AppStateProvider = function (_React$Component) {
                         return e;
                       }, {});
 
-                      console.error(_err, data);
+                      console.error("validation error", _err, data);
                       throw _err;
                     } else {
                       var _err2 = {
                         global: typeof data.error === "object" ? data.error.error_description || data.error.error || JSON.stringify(data.error) : data.error.toString()
                       };
-                      console.error(_err2, data);
+                      console.error("global error", _err2, data);
                       throw _err2;
                     }
                   } else if (data.session) {
@@ -1050,12 +1053,25 @@ var AppStateProvider = function (_React$Component) {
                     return appState;
                   } else if (data.state) {
                     console.error("interaction state response received from XHR", data);
+                  } else if (data.redirect) {
+                    window.location.assign(data.redirect);
+                    return new Promise(function () {});
                   } else {
                     console.error("unrecognized response structure", data);
                   }
 
                   return _this.state.appState;
+                }, function (err) {
+                  console.error("failed to parse xhr response", err);
+                  throw {
+                    global: err.message || err.name
+                  };
                 });
+              }, function (err) {
+                console.error("failed to get response", err);
+                throw {
+                  global: err.message || err.name
+                };
               }));
 
             case 19:
@@ -1115,9 +1131,64 @@ exports.AppStateProvider = AppStateProvider;
 
 /***/ }),
 
-/***/ "./src/app/style.tsx":
+/***/ "./src/app/theme.css":
 /*!***************************!*\
-  !*** ./src/app/style.tsx ***!
+  !*** ./src/app/theme.css ***!
+  \***************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+
+var content = __webpack_require__(/*! !../../../../node_modules/css-loader/dist/cjs.js??ref--6-oneOf-3-1!../../../../node_modules/postcss-loader/src??postcss!./theme.css */ "../../node_modules/css-loader/dist/cjs.js?!../../node_modules/postcss-loader/src/index.js?!./src/app/theme.css");
+
+if(typeof content === 'string') content = [[module.i, content, '']];
+
+var transform;
+var insertInto;
+
+
+
+var options = {"hmr":true}
+
+options.transform = transform
+options.insertInto = undefined;
+
+var update = __webpack_require__(/*! ../../../../node_modules/style-loader/lib/addStyles.js */ "../../node_modules/style-loader/lib/addStyles.js")(content, options);
+
+if(content.locals) module.exports = content.locals;
+
+if(true) {
+	module.hot.accept(/*! !../../../../node_modules/css-loader/dist/cjs.js??ref--6-oneOf-3-1!../../../../node_modules/postcss-loader/src??postcss!./theme.css */ "../../node_modules/css-loader/dist/cjs.js?!../../node_modules/postcss-loader/src/index.js?!./src/app/theme.css", function() {
+		var newContent = __webpack_require__(/*! !../../../../node_modules/css-loader/dist/cjs.js??ref--6-oneOf-3-1!../../../../node_modules/postcss-loader/src??postcss!./theme.css */ "../../node_modules/css-loader/dist/cjs.js?!../../node_modules/postcss-loader/src/index.js?!./src/app/theme.css");
+
+		if(typeof newContent === 'string') newContent = [[module.i, newContent, '']];
+
+		var locals = (function(a, b) {
+			var key, idx = 0;
+
+			for(key in a) {
+				if(!b || a[key] !== b[key]) return false;
+				idx++;
+			}
+
+			for(key in b) idx--;
+
+			return idx === 0;
+		}(content.locals, newContent.locals));
+
+		if(!locals) throw new Error('Aborting CSS HMR due to changed css-modules locals.');
+
+		update(newContent);
+	});
+
+	module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+
+/***/ "./src/app/theme.tsx":
+/*!***************************!*\
+  !*** ./src/app/theme.tsx ***!
   \***************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
@@ -1141,7 +1212,16 @@ var _eva = __webpack_require__(/*! @eva-design/eva */ "../../node_modules/@eva-d
 
 var _options = __webpack_require__(/*! ./options */ "./src/app/options.tsx");
 
-var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-interaction-renderer/src/app/style.tsx";
+__webpack_require__(/*! ./theme.css */ "./src/app/theme.css");
+
+var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-interaction-renderer/src/app/theme.tsx";
+var customMapping = {
+  "strict": {
+    "text-font-family": "'Noto Sans KR', sans-serif"
+  },
+  components: {},
+  version: 1
+};
 
 var ApplicationThemeProvider = function ApplicationThemeProvider(_ref) {
   var children = _ref.children;
@@ -1152,26 +1232,71 @@ var ApplicationThemeProvider = function ApplicationThemeProvider(_ref) {
 
   var theme = appOptions.theme,
       palette = appOptions.palette;
-  var currentTheme = palette && theme && palette[theme] || _eva.light;
+  var currentTheme = palette && theme && palette[theme] || _eva.light || _eva.dark;
   return _react.default.createElement(_react.default.Fragment, null, _react.default.createElement(_components.IconRegistry, {
     icons: _evaIcons.EvaIconsPack,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 15
+      lineNumber: 25
     },
     __self: this
   }), _react.default.createElement(_components.ApplicationProvider, {
     mapping: _eva.mapping,
+    customMapping: customMapping,
     theme: currentTheme,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 16
+      lineNumber: 26
     },
     __self: this
   }, children));
 };
 
 exports.ApplicationThemeProvider = ApplicationThemeProvider;
+
+/***/ }),
+
+/***/ "./src/assets/logo.svg":
+/*!*****************************!*\
+  !*** ./src/assets/logo.svg ***!
+  \*****************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__.p + "static/media/logo.060b0e6c.svg";
+
+/***/ }),
+
+/***/ "./src/assets/screen_password.svg":
+/*!****************************************!*\
+  !*** ./src/assets/screen_password.svg ***!
+  \****************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__.p + "static/media/screen_password.8f6c6a92.svg";
+
+/***/ }),
+
+/***/ "./src/assets/screen_sent.svg":
+/*!************************************!*\
+  !*** ./src/assets/screen_sent.svg ***!
+  \************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__.p + "static/media/screen_sent.1ae0604c.svg";
+
+/***/ }),
+
+/***/ "./src/assets/screen_verify.svg":
+/*!**************************************!*\
+  !*** ./src/assets/screen_verify.svg ***!
+  \**************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__.p + "static/media/screen_verify.465fe378.svg";
 
 /***/ }),
 
@@ -1333,50 +1458,6 @@ function useClose() {
 
 /***/ }),
 
-/***/ "./src/image/logo.svg":
-/*!****************************!*\
-  !*** ./src/image/logo.svg ***!
-  \****************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = __webpack_require__.p + "static/media/logo.060b0e6c.svg";
-
-/***/ }),
-
-/***/ "./src/image/screen_password.svg":
-/*!***************************************!*\
-  !*** ./src/image/screen_password.svg ***!
-  \***************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = __webpack_require__.p + "static/media/screen_password.8f6c6a92.svg";
-
-/***/ }),
-
-/***/ "./src/image/screen_sent.svg":
-/*!***********************************!*\
-  !*** ./src/image/screen_sent.svg ***!
-  \***********************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = __webpack_require__.p + "static/media/screen_sent.1ae0604c.svg";
-
-/***/ }),
-
-/***/ "./src/image/screen_verify.svg":
-/*!*************************************!*\
-  !*** ./src/image/screen_verify.svg ***!
-  \*************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = __webpack_require__.p + "static/media/screen_verify.465fe378.svg";
-
-/***/ }),
-
 /***/ "./src/index.tsx":
 /*!***********************!*\
   !*** ./src/index.tsx ***!
@@ -1407,6 +1488,219 @@ _reactDom.default.render(_react.default.createElement(_app.App, {
 }), document.getElementById("root"));
 
 serviceWorker.unregister();
+
+/***/ }),
+
+/***/ "./src/screen/component/index.ts":
+/*!***************************************!*\
+  !*** ./src/screen/component/index.ts ***!
+  \***************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+var _interopRequireDefault = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireDefault */ "../../node_modules/@babel/runtime/helpers/interopRequireDefault.js");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+var _exportNames = {
+  withElement: true,
+  withAttrs: true,
+  useThemePalette: true,
+  Separator: true
+};
+exports.withElement = withElement;
+exports.withAttrs = withAttrs;
+exports.useThemePalette = useThemePalette;
+Object.defineProperty(exports, "Separator", {
+  enumerable: true,
+  get: function get() {
+    return _separator.Separator;
+  }
+});
+
+var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/slicedToArray */ "../../node_modules/@babel/runtime/helpers/esm/slicedToArray.js"));
+
+var _reactDom = _interopRequireDefault(__webpack_require__(/*! react-dom */ "../../node_modules/react-dom/index.js"));
+
+var _components = __webpack_require__(/*! @ui-kitten/components */ "../../node_modules/@ui-kitten/components/index.js");
+
+Object.keys(_components).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function get() {
+      return _components[key];
+    }
+  });
+});
+
+var _separator = __webpack_require__(/*! ./separator */ "./src/screen/component/separator.tsx");
+
+function withElement(update, selector) {
+  return function (ref) {
+    var node = _reactDom.default.findDOMNode(ref);
+
+    if (typeof node === "object" && node !== null) {
+      var _elem = node;
+
+      if (selector) {
+        var childElem = _elem.parentElement && _elem.parentElement.querySelector(selector);
+
+        if (childElem) {
+          update(childElem);
+        } else {
+          console.warn("cannot find closest " + selector + " from parent elem of", _elem);
+        }
+      } else {
+        update(_elem);
+      }
+    }
+  };
+}
+
+function withAttrs() {
+  var attrs = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  var selector = arguments.length > 1 ? arguments[1] : undefined;
+  return withElement(function (elem) {
+    for (var _i = 0, _Object$entries = Object.entries(attrs); _i < _Object$entries.length; _i++) {
+      var _ref = _Object$entries[_i];
+
+      var _ref2 = (0, _slicedToArray2.default)(_ref, 2);
+
+      var k = _ref2[0];
+      var v = _ref2[1];
+
+      if (k === "class" && typeof v === "string") {
+        elem.classList.add(v);
+      } else if (typeof v === "string") {
+        elem.setAttribute(k, v);
+      } else if (typeof v === "number") {
+        elem.setAttribute(k, v.toString());
+      } else if (typeof v === "boolean") {
+        elem.setAttribute(k, v ? "true" : "false");
+      } else {
+        elem.removeAttribute(k);
+      }
+    }
+  }, selector);
+}
+
+function useThemePalette() {
+  return (0, _components.useTheme)();
+}
+
+/***/ }),
+
+/***/ "./src/screen/component/separator.tsx":
+/*!********************************************!*\
+  !*** ./src/screen/component/separator.tsx ***!
+  \********************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+var _interopRequireDefault = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireDefault */ "../../node_modules/@babel/runtime/helpers/interopRequireDefault.js");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Separator = void 0;
+
+var _react = _interopRequireDefault(__webpack_require__(/*! react */ "../../node_modules/react/index.js"));
+
+var _reactNative = __webpack_require__(/*! react-native */ "../../node_modules/react-native-web/dist/index.js");
+
+var _index = __webpack_require__(/*! ./index */ "./src/screen/component/index.ts");
+
+var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-interaction-renderer/src/screen/component/separator.tsx";
+
+var Separator = function Separator(_ref) {
+  var text = _ref.text,
+      _ref$marginTop = _ref.marginTop,
+      marginTop = _ref$marginTop === void 0 ? 30 : _ref$marginTop,
+      _ref$marginBottom = _ref.marginBottom,
+      marginBottom = _ref$marginBottom === void 0 ? 30 : _ref$marginBottom;
+  var palette = (0, _index.useThemePalette)();
+  return _react.default.createElement(_reactNative.View, {
+    style: {
+      position: "relative",
+      marginTop: marginTop,
+      marginBottom: marginBottom
+    },
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 9
+    },
+    __self: this
+  }, _react.default.createElement(_reactNative.View, {
+    style: {
+      borderTopWidth: 1,
+      borderTopColor: palette["text-disabled-color"],
+      position: "absolute",
+      top: "50%",
+      width: "100%",
+      left: "0%",
+      height: 1
+    },
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 10
+    },
+    __self: this
+  }), text ? _react.default.createElement(_reactNative.View, {
+    style: {
+      flexDirection: "row"
+    },
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 12
+    },
+    __self: this
+  }, _react.default.createElement(_reactNative.View, {
+    style: {
+      flexGrow: 1
+    },
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 13
+    },
+    __self: this
+  }), _react.default.createElement(_index.Text, {
+    category: "c1",
+    appearance: "hint",
+    style: {
+      textAlign: "center",
+      flexGrow: 0,
+      paddingLeft: 10,
+      paddingRight: 10,
+      backgroundColor: palette["background-basic-color-1"]
+    },
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 14
+    },
+    __self: this
+  }, text), _react.default.createElement(_reactNative.View, {
+    style: {
+      flexGrow: 1
+    },
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 17
+    },
+    __self: this
+  })) : _react.default.createElement(_index.Text, {
+    category: "c1",
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 20
+    },
+    __self: this
+  }, " "));
+};
+
+exports.Separator = Separator;
 
 /***/ }),
 
@@ -1485,23 +1779,21 @@ var ConsentScreen = function ConsentScreen() {
       },
       __self: this
     }, client.name)),
+    loading: loading,
     buttons: [{
       primary: true,
       text: "Continue",
       onClick: handleAccept,
-      loading: loading,
-      tabIndex: 1,
-      autoFocus: true
+      tabIndex: 1
     }, {
       text: "Change account",
       onClick: handleChangeAccount,
-      loading: loading,
       tabIndex: 3
     }],
     footer: _react.default.createElement(_styles.Text, {
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 63
+        lineNumber: 61
       },
       __self: this
     }, "To continue, you need to offer ", consent.scopes.new.concat(consent.scopes.accepted).join(", "), " information. Before consent this application, you could review the ", _react.default.createElement(_styles.Link, {
@@ -1509,7 +1801,7 @@ var ConsentScreen = function ConsentScreen() {
       target: "_blank",
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 65
+        lineNumber: 63
       },
       __self: this
     }, client.name), "'s ", _react.default.createElement(_styles.Link, {
@@ -1517,7 +1809,7 @@ var ConsentScreen = function ConsentScreen() {
       target: "_blank",
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 65
+        lineNumber: 63
       },
       __self: this
     }, "privacy policy"), " and ", _react.default.createElement(_styles.Link, {
@@ -1525,7 +1817,7 @@ var ConsentScreen = function ConsentScreen() {
       target: "_blank",
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 65
+        lineNumber: 63
       },
       __self: this
     }, "terms of service"), "."),
@@ -1542,7 +1834,7 @@ var ConsentScreen = function ConsentScreen() {
     imageUrl: user.picture,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 71
+      lineNumber: 69
     },
     __self: this
   }));
@@ -1578,9 +1870,8 @@ var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-ia
 
 var ErrorScreen = function ErrorScreen() {
   var _useAppState = (0, _hook.useAppState)(),
-      _useAppState2 = (0, _slicedToArray2.default)(_useAppState, 2),
-      state = _useAppState2[0],
-      dispatch = _useAppState2[1];
+      _useAppState2 = (0, _slicedToArray2.default)(_useAppState, 1),
+      state = _useAppState2[0];
 
   var error = state.error || {
     error: "unexpected_server_error",
@@ -1597,10 +1888,10 @@ var ErrorScreen = function ErrorScreen() {
     }).join(" "),
     subtitle: error.error_description,
     error: closed ? "Please close the window manually." : undefined,
+    loading: closed,
     buttons: [{
       primary: false,
       text: "Close",
-      loading: closed,
       tabIndex: 1,
       onClick: close
     }],
@@ -1713,16 +2004,15 @@ var FindEmailIndexScreen = function FindEmailIndexScreen() {
   return _react.default.createElement(_layout.ScreenLayout, {
     title: "Find email",
     subtitle: "Enter your phone number",
+    loading: loading,
     buttons: [{
       primary: true,
       text: "Continue",
       onClick: handleCheckPhoneNumber,
-      loading: loading,
       tabIndex: 22
     }, {
       text: "Cancel",
       onClick: handleCancel,
-      loading: loading,
       tabIndex: 23,
       hidden: state.name === "find_email"
     }],
@@ -1735,7 +2025,7 @@ var FindEmailIndexScreen = function FindEmailIndexScreen() {
   }, _react.default.createElement(_styles.Text, {
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 54
+      lineNumber: 53
     },
     __self: this
   }, "Have a registered phone number? Can find the ID only if have one."), _react.default.createElement(_styles.TextField, {
@@ -1756,7 +2046,7 @@ var FindEmailIndexScreen = function FindEmailIndexScreen() {
     styles: _styles.TextFieldStyles.bold,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 57
+      lineNumber: 56
     },
     __self: this
   }));
@@ -1788,7 +2078,7 @@ var _styles = __webpack_require__(/*! ../styles */ "./src/styles.ts");
 
 var _hook = __webpack_require__(/*! ../hook */ "./src/hook.ts");
 
-var _screen_sent = _interopRequireDefault(__webpack_require__(/*! ../image/screen_sent.svg */ "./src/image/screen_sent.svg"));
+var _screen_sent = _interopRequireDefault(__webpack_require__(/*! ../assets/screen_sent.svg */ "./src/assets/screen_sent.svg"));
 
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-interaction-renderer/src/screen/find_email.verify.tsx";
 
@@ -1818,10 +2108,10 @@ var FindEmailVerifyScreen = function FindEmailVerifyScreen() {
       primary: true,
       text: "Done",
       onClick: handleDone,
-      loading: loading,
       tabIndex: 31
     }],
     error: errors.global,
+    loading: loading,
     __source: {
       fileName: _jsxFileName,
       lineNumber: 21
@@ -1869,8 +2159,6 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.ScreenLayout = void 0;
 
-var _objectSpread2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/objectSpread2 */ "../../node_modules/@babel/runtime/helpers/esm/objectSpread2.js"));
-
 var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/slicedToArray */ "../../node_modules/@babel/runtime/helpers/esm/slicedToArray.js"));
 
 var _react = _interopRequireDefault(__webpack_require__(/*! react */ "../../node_modules/react/index.js"));
@@ -1879,162 +2167,169 @@ var _reactNative = __webpack_require__(/*! react-native */ "../../node_modules/r
 
 var _hook = __webpack_require__(/*! ../hook */ "./src/hook.ts");
 
-var _styles = __webpack_require__(/*! ../styles */ "./src/styles.ts");
+var _component = __webpack_require__(/*! ./component */ "./src/screen/component/index.ts");
 
-var _logo = _interopRequireDefault(__webpack_require__(/*! ../image/logo.svg */ "./src/image/logo.svg"));
+var _logo = _interopRequireDefault(__webpack_require__(/*! ../assets/logo.svg */ "./src/assets/logo.svg"));
 
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-interaction-renderer/src/screen/layout.tsx";
 
-var ScreenLayout = function ScreenLayout(props) {
+var autofocus = function autofocus(ref) {
+  return (0, _component.withElement)(function (elem) {
+    return elem.focus && setTimeout(function () {
+      return elem && elem.focus();
+    }, 50);
+  }, "[autofocus]")(ref && ref.getInnerViewNode());
+};
+
+var ScreenLayout = function ScreenLayout(_ref) {
+  var _ref$title = _ref.title,
+      title = _ref$title === void 0 ? "undefined" : _ref$title,
+      _ref$subtitle = _ref.subtitle,
+      subtitle = _ref$subtitle === void 0 ? null : _ref$subtitle,
+      _ref$loading = _ref.loading,
+      loading = _ref$loading === void 0 ? false : _ref$loading,
+      _ref$children = _ref.children,
+      children = _ref$children === void 0 ? null : _ref$children,
+      _ref$buttons = _ref.buttons,
+      buttons = _ref$buttons === void 0 ? [] : _ref$buttons,
+      _ref$error = _ref.error,
+      error = _ref$error === void 0 ? null : _ref$error,
+      _ref$footer = _ref.footer,
+      footer = _ref$footer === void 0 ? null : _ref$footer;
+
   var _useAppOptions = (0, _hook.useAppOptions)(),
       _useAppOptions2 = (0, _slicedToArray2.default)(_useAppOptions, 1),
       options = _useAppOptions2[0];
 
-  var _props$title = props.title,
-      title = _props$title === void 0 ? "TODO" : _props$title,
-      _props$subtitle = props.subtitle,
-      subtitle = _props$subtitle === void 0 ? null : _props$subtitle,
-      _props$children = props.children,
-      children = _props$children === void 0 ? null : _props$children,
-      _props$buttons = props.buttons,
-      buttons = _props$buttons === void 0 ? [] : _props$buttons,
-      _props$error = props.error,
-      error = _props$error === void 0 ? null : _props$error,
-      _props$footer = props.footer,
-      footer = _props$footer === void 0 ? null : _props$footer;
-  return _react.default.createElement(_reactNative.ScrollView, {
+  return _react.default.createElement(_react.default.Fragment, null, _react.default.createElement(_reactNative.ScrollView, {
     contentContainerStyle: {
       marginTop: "auto",
       marginBottom: "auto"
     },
+    ref: autofocus,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 25
+      lineNumber: 29
     },
     __self: this
-  }, _react.default.createElement(_styles.Stack, {
-    horizontalAlign: "stretch",
-    verticalAlign: "center",
-    verticalFill: true,
-    styles: {
-      root: {
-        width: "100%",
-        padding: "30px"
-      }
-    },
-    tokens: {
-      childrenGap: 30
+  }, _react.default.createElement(_component.Layout, {
+    style: {
+      padding: "30px"
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 26
+      lineNumber: 45
     },
     __self: this
-  }, _react.default.createElement(_styles.Image, {
-    src: options.logo.uri || _logo.default,
-    styles: {
-      root: {
-        height: "47px",
-        textAlign: options.logo.align
-      },
-      image: {
-        maxWidth: "100%",
-        maxHeight: "100%",
-        display: "inline-block"
-      }
-    },
-    shouldFadeIn: false,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 38
-    },
-    __self: this
-  }), _react.default.createElement(_styles.Stack, {
-    tokens: {
-      childrenGap: 5
+  }, _react.default.createElement(_reactNative.View, {
+    style: {
+      alignItems: options.logo.align,
+      marginBottom: 20
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 40
+      lineNumber: 50
     },
     __self: this
-  }, _react.default.createElement(_styles.Text, {
-    variant: "xLargePlus",
-    styles: {
-      root: {
-        fontWeight: _styles.FontWeights.regular
-      }
+  }, _react.default.createElement(_reactNative.Image, {
+    source: {
+      uri: options.logo.uri || _logo.default
     },
-    children: title,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 41
+    style: {
+      height: options.logo.height,
+      width: options.logo.width,
+      resizeMode: "contain"
     },
-    __self: this
-  }), _react.default.createElement(_styles.Text, {
-    variant: "large",
-    children: subtitle,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 46
-    },
-    __self: this
-  })), _react.default.createElement(_styles.Stack, {
-    tokens: {
-      childrenGap: 15
-    },
-    children: children,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 49
-    },
-    __self: this
-  }), _react.default.createElement(_styles.Stack, {
-    tokens: {
-      childrenGap: 15
-    },
-    verticalAlign: "end",
     __source: {
       fileName: _jsxFileName,
       lineNumber: 51
     },
     __self: this
-  }, error ? _react.default.createElement(_styles.Text, {
-    styles: {
-      root: (0, _objectSpread2.default)({}, _styles.AnimationStyles.slideDownIn20, {}, _styles.LabelStyles.fieldErrorMessage.root)
+  })), _react.default.createElement(_reactNative.View, {
+    style: {
+      marginBottom: "30px"
     },
-    children: typeof error === "string" ? error : JSON.stringify(error || "Unknown Error."),
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 52
+      lineNumber: 54
     },
     __self: this
-  }) : null, buttons.map(function (_ref, index) {
-    var hidden = _ref.hidden,
-        primary = _ref.primary,
-        text = _ref.text,
-        onClick = _ref.onClick,
-        autoFocus = _ref.autoFocus,
-        loading = _ref.loading,
-        tabIndex = _ref.tabIndex;
-    if (hidden === true) return null;
-    var Button = primary ? _styles.PrimaryButton : _styles.DefaultButton;
-    return _react.default.createElement(Button, {
+  }, _react.default.createElement(_component.Text, {
+    category: "h4",
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 55
+    },
+    __self: this
+  }, title), subtitle && _react.default.createElement(_component.Text, {
+    category: "s1",
+    style: {
+      marginTop: 10
+    },
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 56
+    },
+    __self: this
+  }, subtitle)), children ? _react.default.createElement(_reactNative.View, {
+    style: {
+      marginBottom: "15px"
+    },
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 59
+    },
+    __self: this
+  }, children) : null, _react.default.createElement(_reactNative.View, {
+    style: {
+      justifyContent: "flex-end"
+    },
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 61
+    },
+    __self: this
+  }, error ? _react.default.createElement(_component.Text, {
+    status: "danger",
+    category: "c2",
+    style: {
+      marginTop: 10
+    },
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 62
+    },
+    __self: this
+  }, error) : null, buttons.map(function (_ref2, index) {
+    var hidden = _ref2.hidden,
+        primary = _ref2.primary,
+        text = _ref2.text,
+        onClick = _ref2.onClick,
+        tabIndex = _ref2.tabIndex;
+
+    if (hidden === true) {
+      return null;
+    }
+
+    return _react.default.createElement(_component.Button, {
+      ref: (0, _component.withAttrs)({
+        tabindex: tabIndex || null
+      }),
       key: index,
-      tabIndex: tabIndex,
-      autoFocus: autoFocus,
-      checked: loading === true,
-      allowDisabledFocus: true,
-      text: text,
-      styles: _styles.ButtonStyles.large,
-      onClick: loading ? undefined : onClick,
+      status: primary ? "primary" : "basic",
+      size: "large",
+      style: {
+        marginTop: 15
+      },
+      onPressOut: loading ? undefined : onClick,
+      appearance: "filled",
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 56
+        lineNumber: 68
       },
       __self: this
-    });
-  }), footer)));
+    }, text);
+  }), footer))));
 };
 
 exports.ScreenLayout = ScreenLayout;
@@ -2134,11 +2429,11 @@ var LoginCheckPasswordScreen = function LoginCheckPasswordScreen() {
   return _react.default.createElement(_layout.ScreenLayout, {
     title: "Hi, " + name,
     subtitle: email,
+    loading: loading,
     buttons: [{
       primary: true,
       text: "Sign in",
       onClick: handleCheckLoginPassword,
-      loading: loading,
       tabIndex: 22
     }, {
       text: "Cancel",
@@ -2232,13 +2527,15 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.LoginIndexScreen = void 0;
 
+var _objectSpread2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/objectSpread2 */ "../../node_modules/@babel/runtime/helpers/esm/objectSpread2.js"));
+
 var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/slicedToArray */ "../../node_modules/@babel/runtime/helpers/esm/slicedToArray.js"));
 
 var _react = _interopRequireWildcard(__webpack_require__(/*! react */ "../../node_modules/react/index.js"));
 
 var _layout = __webpack_require__(/*! ./layout */ "./src/screen/layout.tsx");
 
-var _styles = __webpack_require__(/*! ../styles */ "./src/styles.ts");
+var _component = __webpack_require__(/*! ./component */ "./src/screen/component/index.ts");
 
 var _hook = __webpack_require__(/*! ../hook */ "./src/hook.ts");
 
@@ -2248,12 +2545,6 @@ var LoginIndexScreen = function LoginIndexScreen() {
   var _useNavigation = (0, _hook.useNavigation)(),
       nav = _useNavigation.nav,
       route = _useNavigation.route;
-
-  var _useWithLoading = (0, _hook.useWithLoading)(),
-      loading = _useWithLoading.loading,
-      errors = _useWithLoading.errors,
-      setErrors = _useWithLoading.setErrors,
-      withLoading = _useWithLoading.withLoading;
 
   var _useState = (0, _react.useState)(route.params.email || ""),
       _useState2 = (0, _slicedToArray2.default)(_useState, 2),
@@ -2275,6 +2566,13 @@ var LoginIndexScreen = function LoginIndexScreen() {
       setFederationOptionsVisible = _useState4[1];
 
   var federationProviders = state.metadata.federationProviders;
+
+  var _useWithLoading = (0, _hook.useWithLoading)(),
+      loading = _useWithLoading.loading,
+      errors = _useWithLoading.errors,
+      setErrors = _useWithLoading.setErrors,
+      withLoading = _useWithLoading.withLoading;
+
   var handleCheckLoginEmail = withLoading(function () {
     return dispatch("login.check_email", {
       email: email
@@ -2286,7 +2584,8 @@ var LoginIndexScreen = function LoginIndexScreen() {
         }
       });
     }).catch(function (err) {
-      return setErrors(err);
+      console.log(err);
+      setErrors(err);
     });
   }, [email]);
   (0, _react.useEffect)(function () {
@@ -2323,161 +2622,171 @@ var LoginIndexScreen = function LoginIndexScreen() {
     title: "Sign In",
     subtitle: "Enter your account",
     error: errors.global,
+    loading: loading,
     buttons: [{
       primary: true,
       text: "Continue",
       onClick: handleCheckLoginEmail,
-      loading: loading,
       tabIndex: 12
     }, {
       text: "Sign up",
       onClick: handleSignUp,
-      loading: loading,
       tabIndex: 13
     }],
-    footer: federationProviders.length > 0 ? _react.default.createElement(_react.default.Fragment, null, _react.default.createElement(_styles.Separator, {
+    footer: _react.default.createElement(_react.default.Fragment, null, federationProviders.length > 0 ? _react.default.createElement(_react.default.Fragment, null, _react.default.createElement(_component.Separator, {
+      text: "OR",
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 85
+        lineNumber: 93
       },
       __self: this
-    }, _react.default.createElement("span", {
-      style: {
-        color: _styles.ThemeStyles.palette.neutralTertiary
-      },
-      __source: {
-        fileName: _jsxFileName,
-        lineNumber: 85
-      },
-      __self: this
-    }, "OR")), federationOptionsVisible ? _react.default.createElement(_styles.Stack, {
-      tokens: {
-        childrenGap: 15
-      },
-      __source: {
-        fileName: _jsxFileName,
-        lineNumber: 87
-      },
-      __self: this
-    }, federationProviders.includes("kakao") ? _react.default.createElement(_styles.PrimaryButton, {
-      onClick: function onClick() {
-        return handleFederation("kakao");
-      },
-      styles: _styles.ButtonStyles.largeThin,
-      text: "Login with Kakao",
-      style: {
-        flex: "1 1 auto",
-        backgroundColor: "#ffdc00",
-        borderColor: "#ffb700",
-        color: "black"
-      },
-      __source: {
-        fileName: _jsxFileName,
-        lineNumber: 89
-      },
-      __self: this
-    }) : null, federationProviders.includes("facebook") ? _react.default.createElement(_styles.PrimaryButton, {
-      onClick: function onClick() {
-        return handleFederation("facebook");
-      },
-      styles: _styles.ButtonStyles.largeThin,
-      text: "Login with Facebook",
-      style: {
-        flex: "1 1 auto",
-        backgroundColor: "#1876f2",
-        color: "white"
-      },
-      __source: {
-        fileName: _jsxFileName,
-        lineNumber: 97
-      },
-      __self: this
-    }) : null, federationProviders.includes("google") ? _react.default.createElement(_styles.DefaultButton, {
-      onClick: function onClick() {
-        return handleFederation("google");
-      },
-      styles: _styles.ButtonStyles.largeThin,
-      text: "Login with Google",
-      style: {
-        flex: "1 1 auto",
-        backgroundColor: "#ffffff",
-        borderWidth: 1,
-        color: "black"
-      },
-      __source: {
-        fileName: _jsxFileName,
-        lineNumber: 105
-      },
-      __self: this
-    }) : null) : _react.default.createElement(_styles.Link, {
-      style: {
-        color: _styles.ThemeStyles.palette.neutralTertiary
-      },
-      onClick: function onClick() {
+    }), federationOptionsVisible ? federationProviders.map(function (provider) {
+      var _getFederationStyle = getFederationStyle(provider),
+          style = _getFederationStyle.style,
+          textStyle = _getFederationStyle.textStyle;
+
+      return _react.default.createElement(_component.Button, {
+        key: provider,
+        onPressOut: function onPressOut() {
+          return handleFederation(provider);
+        },
+        children: getFederationText(provider),
+        status: "basic",
+        size: "medium",
+        style: (0, _objectSpread2.default)({
+          marginBottom: 15
+        }, style),
+        textStyle: textStyle,
+        __source: {
+          fileName: _jsxFileName,
+          lineNumber: 97
+        },
+        __self: this
+      });
+    }) : _react.default.createElement(_component.Button, {
+      onPressOut: function onPressOut() {
         return setFederationOptionsVisible(true);
       },
+      appearance: "ghost",
+      size: "small",
+      status: "basic",
+      style: {
+        marginBottom: 15
+      },
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 121
+        lineNumber: 108
       },
       __self: this
-    }, "Find more login options?")) : undefined,
+    }, "Find more login options?")) : null, _react.default.createElement(_component.Button, {
+      onPressOut: handleFindEmail,
+      appearance: "ghost",
+      size: "small",
+      status: "basic",
+      __source: {
+        fileName: _jsxFileName,
+        lineNumber: 116
+      },
+      __self: this
+    }, "Forgot email?")),
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 63
+      lineNumber: 71
     },
     __self: this
   }, _react.default.createElement("form", {
+    noValidate: true,
     onSubmit: function onSubmit(e) {
       e.preventDefault();
       handleCheckLoginEmail();
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 127
+      lineNumber: 123
     },
     __self: this
-  }, _react.default.createElement(_styles.TextField, {
+  }, _react.default.createElement(_component.Input, {
+    ref: (0, _component.withAttrs)({
+      tabindex: 11,
+      autofocus: true
+    }, "input"),
     label: "Email",
-    name: "username",
-    type: "text",
-    inputMode: "email",
-    autoComplete: "username",
-    autoCapitalize: "off",
-    autoCorrect: "off",
+    autoCapitalize: "none",
+    autoCorrect: false,
     autoFocus: true,
+    blurOnSubmit: false,
+    keyboardType: "email-address",
+    returnKeyType: "next",
+    autoCompleteType: "username",
     placeholder: "Enter your email",
-    tabIndex: 11,
     value: email,
-    errorMessage: errors.email,
-    onChange: function onChange(e, v) {
+    caption: errors.email,
+    status: errors.email ? "danger" : "basic",
+    onChangeText: function onChangeText(v) {
       return setEmail(v || "");
     },
-    onKeyUp: function onKeyUp(e) {
-      return e.key === "Enter" && handleCheckLoginEmail();
+    clearButtonMode: "while-editing",
+    onKeyPress: function onKeyPress(e) {
+      return e.nativeEvent.key === "Enter" && handleCheckLoginEmail();
     },
-    styles: _styles.TextFieldStyles.bold,
+    size: "large",
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 128
+      lineNumber: 124
     },
     __self: this
-  })), _react.default.createElement(_styles.Link, {
-    onClick: handleFindEmail,
-    tabIndex: 14,
-    variant: "small",
-    style: {
-      marginTop: "10px"
-    },
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 146
-    },
-    __self: this
-  }, "Forgot email?"));
+  })));
 };
 
 exports.LoginIndexScreen = LoginIndexScreen;
+var federationText = {
+  google: "Login with Google",
+  facebook: "Login with Facebook",
+  kakao: "Login with Kakao",
+  default: "Login with {provider}"
+};
+var federationStyle = {
+  google: {
+    style: {
+      backgroundColor: "#f5f5f5"
+    },
+    textStyle: {
+      color: "#222b45"
+    }
+  },
+  facebook: {
+    style: {
+      backgroundColor: "#1876f2"
+    },
+    textStyle: {
+      color: "#ffffff"
+    }
+  },
+  kakao: {
+    style: {
+      backgroundColor: "#ffdc00"
+    },
+    textStyle: {
+      color: "#222b45"
+    }
+  },
+  default: {
+    style: {
+      backgroundColor: "#f5f5f5"
+    },
+    textStyle: {
+      color: "#222b45"
+    }
+  }
+};
+
+function getFederationText(provider) {
+  return federationText[provider] || federationText.default.replace("{provider}", provider.toLocaleUpperCase());
+}
+
+function getFederationStyle(provider) {
+  return federationStyle[provider] || federationStyle.default;
+}
 
 /***/ }),
 
@@ -2524,9 +2833,9 @@ var LogoutEndScreen = function LogoutEndScreen() {
       primary: false,
       text: "Close",
       onClick: close,
-      loading: closed,
       tabIndex: 21
     }],
+    loading: closed,
     error: closed ? "Please close the window manually." : undefined,
     __source: {
       fileName: _jsxFileName,
@@ -2599,17 +2908,16 @@ var LogoutIndexScreen = function LogoutIndexScreen() {
   return _react.default.createElement(_layout.ScreenLayout, {
     title: client ? "Signed out" : "Sign out",
     subtitle: user.email,
+    loading: loading,
     buttons: [{
       primary: true,
       text: "Done",
       onClick: handleJustRedirect,
-      loading: loading,
       tabIndex: 1
     }, {
       primary: false,
       text: "Sign out all",
       onClick: handleSignOutAll,
-      loading: loading,
       tabIndex: 2
     }],
     error: errors.global,
@@ -2621,13 +2929,13 @@ var LogoutIndexScreen = function LogoutIndexScreen() {
   }, _react.default.createElement(_styles.Text, {
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 45
+      lineNumber: 44
     },
     __self: this
   }, client ? _react.default.createElement("span", {
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 46
+      lineNumber: 45
     },
     __self: this
   }, "Signed out from ", _react.default.createElement(_styles.Link, {
@@ -2635,13 +2943,13 @@ var LogoutIndexScreen = function LogoutIndexScreen() {
     target: "_blank",
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 46
+      lineNumber: 45
     },
     __self: this
   }, client.name), " successfully.", _react.default.createElement("br", {
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 46
+      lineNumber: 45
     },
     __self: this
   })) : null, "Do you want to destroy all the sessions?"));
@@ -2779,16 +3087,15 @@ var RegisterDetailScreen = function RegisterDetailScreen() {
   return _react.default.createElement(_layout.ScreenLayout, {
     title: "Sign up",
     subtitle: storedClaims.email,
+    loading: loading,
     buttons: [{
       primary: true,
       text: "Continue",
       onClick: handlePayloadSubmit,
-      loading: loading,
       tabIndex: 64
     }, {
       text: "Cancel",
       onClick: handleCancel,
-      loading: loading,
       tabIndex: 65
     }],
     error: errors.global,
@@ -2804,7 +3111,7 @@ var RegisterDetailScreen = function RegisterDetailScreen() {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 100
+      lineNumber: 99
     },
     __self: this
   }, _react.default.createElement(_styles.Stack, {
@@ -2813,13 +3120,13 @@ var RegisterDetailScreen = function RegisterDetailScreen() {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 104
+      lineNumber: 103
     },
     __self: this
   }, _react.default.createElement(_styles.Text, {
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 105
+      lineNumber: 104
     },
     __self: this
   }, "Please enter the mobile phone number to find the your account for the case of lost."), _react.default.createElement(_styles.TextField, {
@@ -2844,7 +3151,7 @@ var RegisterDetailScreen = function RegisterDetailScreen() {
     styles: _styles.TextFieldStyles.bold,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 106
+      lineNumber: 105
     },
     __self: this
   }), _react.default.createElement(_styles.DatePicker, {
@@ -2877,14 +3184,14 @@ var RegisterDetailScreen = function RegisterDetailScreen() {
     styles: _styles.DatePickerStyles.bold,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 120
+      lineNumber: 119
     },
     __self: this
   }), errors.birthdate ? _react.default.createElement(_styles.Label, {
     styles: _styles.LabelStyles.fieldErrorMessage,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 139
+      lineNumber: 138
     },
     __self: this
   }, errors.birthdate) : null, _react.default.createElement(_styles.Dropdown, {
@@ -2913,7 +3220,7 @@ var RegisterDetailScreen = function RegisterDetailScreen() {
     styles: _styles.DropdownStyles.bold,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 141
+      lineNumber: 140
     },
     __self: this
   }))));
@@ -2975,11 +3282,10 @@ var RegisterEndScreen = function RegisterEndScreen() {
       primary: true,
       text: "Done",
       onClick: handleContinue,
-      loading: loading,
-      autoFocus: true,
       tabIndex: 1
     }],
     error: errors.global,
+    loading: loading,
     __source: {
       fileName: _jsxFileName,
       lineNumber: 25
@@ -2988,7 +3294,7 @@ var RegisterEndScreen = function RegisterEndScreen() {
   }, _react.default.createElement(_styles.Text, {
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 40
+      lineNumber: 39
     },
     __self: this
   }, "Congratulations! The account has been registered. This email account can be used to sign in to multiple services. So don't forget it please. ", _react.default.createElement("span", {
@@ -2996,7 +3302,7 @@ var RegisterEndScreen = function RegisterEndScreen() {
     "aria-label": "smile",
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 40
+      lineNumber: 39
     },
     __self: this
   }, "\uD83D\uDE42")));
@@ -3134,16 +3440,15 @@ var RegisterIndexScreen = function RegisterIndexScreen() {
   return _react.default.createElement(_layout.ScreenLayout, {
     title: "Sign up",
     subtitle: "Create account",
+    loading: loading,
     buttons: [{
       primary: true,
       text: "Continue",
       onClick: handlePayloadSubmit,
-      loading: loading,
       tabIndex: 55
     }, {
       text: "Cancel",
       onClick: handleCancel,
-      loading: loading,
       hidden: state.name === "register",
       tabIndex: 56
     }],
@@ -3151,7 +3456,7 @@ var RegisterIndexScreen = function RegisterIndexScreen() {
     footer: _react.default.createElement(_react.default.Fragment, null, _react.default.createElement(_styles.Text, {
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 92
+        lineNumber: 91
       },
       __self: this
     }, "When you sign up as a member, you agree to the ", _react.default.createElement(_styles.Link, {
@@ -3159,7 +3464,7 @@ var RegisterIndexScreen = function RegisterIndexScreen() {
       target: "_blank",
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 92
+        lineNumber: 91
       },
       __self: this
     }, "terms of service"), " and the ", _react.default.createElement(_styles.Link, {
@@ -3167,7 +3472,7 @@ var RegisterIndexScreen = function RegisterIndexScreen() {
       target: "_blank",
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 92
+        lineNumber: 91
       },
       __self: this
     }, "privacy policy"), ".")),
@@ -3183,7 +3488,7 @@ var RegisterIndexScreen = function RegisterIndexScreen() {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 96
+      lineNumber: 95
     },
     __self: this
   }, _react.default.createElement(_styles.Stack, {
@@ -3192,7 +3497,7 @@ var RegisterIndexScreen = function RegisterIndexScreen() {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 100
+      lineNumber: 99
     },
     __self: this
   }, _react.default.createElement(_styles.TextField, {
@@ -3217,7 +3522,7 @@ var RegisterIndexScreen = function RegisterIndexScreen() {
     styles: _styles.TextFieldStyles.bold,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 101
+      lineNumber: 100
     },
     __self: this
   }), _react.default.createElement(_styles.TextField, {
@@ -3242,7 +3547,7 @@ var RegisterIndexScreen = function RegisterIndexScreen() {
     styles: _styles.TextFieldStyles.bold,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 114
+      lineNumber: 113
     },
     __self: this
   }), _react.default.createElement(_styles.TextField, {
@@ -3276,7 +3581,7 @@ var RegisterIndexScreen = function RegisterIndexScreen() {
     styles: _styles.TextFieldStyles.bold,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 127
+      lineNumber: 126
     },
     __self: this
   }), _react.default.createElement(_styles.TextField, {
@@ -3301,7 +3606,7 @@ var RegisterIndexScreen = function RegisterIndexScreen() {
     styles: _styles.TextFieldStyles.bold,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 141
+      lineNumber: 140
     },
     __self: this
   }))));
@@ -3361,10 +3666,10 @@ var ResetPasswordEndScreen = function ResetPasswordEndScreen() {
       primary: true,
       text: "Done",
       onClick: handleDone,
-      loading: loading,
       tabIndex: 21
     }],
     error: errors.global,
+    loading: loading,
     __source: {
       fileName: _jsxFileName,
       lineNumber: 22
@@ -3407,7 +3712,7 @@ var _hook = __webpack_require__(/*! ../hook */ "./src/hook.ts");
 
 var _layout = __webpack_require__(/*! ./layout */ "./src/screen/layout.tsx");
 
-var _screen_password = _interopRequireDefault(__webpack_require__(/*! ../image/screen_password.svg */ "./src/image/screen_password.svg"));
+var _screen_password = _interopRequireDefault(__webpack_require__(/*! ../assets/screen_password.svg */ "./src/assets/screen_password.svg"));
 
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-interaction-renderer/src/screen/reset_password.index.tsx";
 
@@ -3457,14 +3762,13 @@ var ResetPasswordIndexScreen = function ResetPasswordIndexScreen() {
       primary: true,
       text: "Send",
       onClick: handleSend,
-      loading: loading,
       tabIndex: 31
     }, {
       text: "Cancel",
       onClick: handleCancel,
-      loading: loading,
       tabIndex: 32
     }],
+    loading: loading,
     error: errors.global,
     __source: {
       fileName: _jsxFileName,
@@ -3474,7 +3778,7 @@ var ResetPasswordIndexScreen = function ResetPasswordIndexScreen() {
   }, _react.default.createElement(_styles.Text, {
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 51
+      lineNumber: 50
     },
     __self: this
   }, "An email with a link will be sent to help you to reset password."), _react.default.createElement(_styles.Image, {
@@ -3489,7 +3793,7 @@ var ResetPasswordIndexScreen = function ResetPasswordIndexScreen() {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 54
+      lineNumber: 53
     },
     __self: this
   }));
@@ -3521,7 +3825,7 @@ var _hook = __webpack_require__(/*! ../hook */ "./src/hook.ts");
 
 var _layout = __webpack_require__(/*! ./layout */ "./src/screen/layout.tsx");
 
-var _screen_sent = _interopRequireDefault(__webpack_require__(/*! ../image/screen_sent.svg */ "./src/image/screen_sent.svg"));
+var _screen_sent = _interopRequireDefault(__webpack_require__(/*! ../assets/screen_sent.svg */ "./src/assets/screen_sent.svg"));
 
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-interaction-renderer/src/screen/reset_password.sent.tsx";
 
@@ -3556,10 +3860,10 @@ var ResetPasswordSentScreen = function ResetPasswordSentScreen() {
       primary: true,
       text: "Done",
       onClick: handleDone,
-      loading: loading,
       tabIndex: 41
     }],
     error: errors.global,
+    loading: loading,
     __source: {
       fileName: _jsxFileName,
       lineNumber: 21
@@ -3660,10 +3964,10 @@ var ResetPasswordSetScreen = function ResetPasswordSetScreen() {
       primary: true,
       text: "Continue",
       onClick: handlePayloadSubmit,
-      loading: loading,
       tabIndex: 43
     }],
     error: errors.global,
+    loading: loading,
     __source: {
       fileName: _jsxFileName,
       lineNumber: 26
@@ -3784,10 +4088,10 @@ var VerifyEmailEndScreen = function VerifyEmailEndScreen() {
       primary: true,
       text: "Done",
       onClick: handleDone,
-      loading: loading,
       tabIndex: 31
     }],
     error: errors.global,
+    loading: loading,
     __source: {
       fileName: _jsxFileName,
       lineNumber: 26
@@ -3828,7 +4132,7 @@ var _hook = __webpack_require__(/*! ../hook */ "./src/hook.ts");
 
 var _layout = __webpack_require__(/*! ./layout */ "./src/screen/layout.tsx");
 
-var _screen_verify = _interopRequireDefault(__webpack_require__(/*! ../image/screen_verify.svg */ "./src/image/screen_verify.svg"));
+var _screen_verify = _interopRequireDefault(__webpack_require__(/*! ../assets/screen_verify.svg */ "./src/assets/screen_verify.svg"));
 
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-interaction-renderer/src/screen/verify_email.index.tsx";
 
@@ -3876,14 +4180,13 @@ var VerifyEmailIndexScreen = function VerifyEmailIndexScreen() {
       primary: true,
       text: "Send",
       onClick: handleSend,
-      loading: loading,
       tabIndex: 1
     }, {
       text: "Cancel",
       onClick: handleCancel,
-      loading: loading,
       tabIndex: 2
     }],
+    loading: loading,
     error: errors.global,
     __source: {
       fileName: _jsxFileName,
@@ -3893,7 +4196,7 @@ var VerifyEmailIndexScreen = function VerifyEmailIndexScreen() {
   }, _react.default.createElement(_styles.Text, {
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 56
+      lineNumber: 55
     },
     __self: this
   }, "An email with a verification link will be sent to verify the email address."), _react.default.createElement(_styles.Image, {
@@ -3908,7 +4211,7 @@ var VerifyEmailIndexScreen = function VerifyEmailIndexScreen() {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 59
+      lineNumber: 58
     },
     __self: this
   }));
@@ -3982,10 +4285,10 @@ var VerifyEmailVerifyScreen = function VerifyEmailVerifyScreen() {
       primary: true,
       text: "Done",
       onClick: handleDone,
-      loading: loading,
       tabIndex: 21
     }],
     error: errors.global,
+    loading: loading,
     __source: {
       fileName: _jsxFileName,
       lineNumber: 31
@@ -4054,10 +4357,10 @@ var VerifyPhoneEndScreen = function VerifyPhoneEndScreen() {
       primary: true,
       text: "Done",
       onClick: handleDone,
-      loading: loading,
       tabIndex: 31
     }],
     error: errors.global,
+    loading: loading,
     __source: {
       fileName: _jsxFileName,
       lineNumber: 22
@@ -4098,7 +4401,7 @@ var _hook = __webpack_require__(/*! ../hook */ "./src/hook.ts");
 
 var _layout = __webpack_require__(/*! ./layout */ "./src/screen/layout.tsx");
 
-var _screen_verify = _interopRequireDefault(__webpack_require__(/*! ../image/screen_verify.svg */ "./src/image/screen_verify.svg"));
+var _screen_verify = _interopRequireDefault(__webpack_require__(/*! ../assets/screen_verify.svg */ "./src/assets/screen_verify.svg"));
 
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-interaction-renderer/src/screen/verify_phone.index.tsx";
 
@@ -4144,14 +4447,13 @@ var VerifyPhoneIndexScreen = function VerifyPhoneIndexScreen() {
       primary: true,
       text: "Send",
       onClick: handleSend,
-      loading: loading,
       tabIndex: 1
     }, {
       text: "Cancel",
       onClick: handleCancel,
-      loading: loading,
       tabIndex: 2
     }],
+    loading: loading,
     error: errors.global,
     __source: {
       fileName: _jsxFileName,
@@ -4161,7 +4463,7 @@ var VerifyPhoneIndexScreen = function VerifyPhoneIndexScreen() {
   }, _react.default.createElement(_styles.Text, {
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 54
+      lineNumber: 53
     },
     __self: this
   }, "A text message with a verification code will be sent to verify the phone number."), _react.default.createElement(_styles.Image, {
@@ -4176,7 +4478,7 @@ var VerifyPhoneIndexScreen = function VerifyPhoneIndexScreen() {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 57
+      lineNumber: 56
     },
     __self: this
   }));
@@ -4300,20 +4602,18 @@ var VerifyPhoneVerifyScreen = function VerifyPhoneVerifyScreen() {
       primary: true,
       text: "Continue",
       onClick: handleVerify,
-      loading: loading,
       tabIndex: 22
     }, {
       text: "Resend",
       onClick: handleResend,
-      loading: loading,
       tabIndex: 23
     }, {
       text: "Cancel",
       onClick: handleCancel,
       hidden: state.name === "verify_phone",
-      loading: loading,
       tabIndex: 24
     }],
+    loading: loading,
     error: errors.global,
     __source: {
       fileName: _jsxFileName,
@@ -4323,7 +4623,7 @@ var VerifyPhoneVerifyScreen = function VerifyPhoneVerifyScreen() {
   }, _react.default.createElement(_styles.Text, {
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 85
+      lineNumber: 83
     },
     __self: this
   }, "Enter the received 6-digit verification code."), _react.default.createElement(_styles.TextField, {
@@ -4345,7 +4645,7 @@ var VerifyPhoneVerifyScreen = function VerifyPhoneVerifyScreen() {
     styles: _styles.TextFieldStyles.bold,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 88
+      lineNumber: 86
     },
     __self: this
   }));
@@ -4433,61 +4733,6 @@ function unregister() {
 
 /***/ }),
 
-/***/ "./src/styles.css":
-/*!************************!*\
-  !*** ./src/styles.css ***!
-  \************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-
-var content = __webpack_require__(/*! !../../../node_modules/css-loader/dist/cjs.js??ref--6-oneOf-3-1!../../../node_modules/postcss-loader/src??postcss!./styles.css */ "../../node_modules/css-loader/dist/cjs.js?!../../node_modules/postcss-loader/src/index.js?!./src/styles.css");
-
-if(typeof content === 'string') content = [[module.i, content, '']];
-
-var transform;
-var insertInto;
-
-
-
-var options = {"hmr":true}
-
-options.transform = transform
-options.insertInto = undefined;
-
-var update = __webpack_require__(/*! ../../../node_modules/style-loader/lib/addStyles.js */ "../../node_modules/style-loader/lib/addStyles.js")(content, options);
-
-if(content.locals) module.exports = content.locals;
-
-if(true) {
-	module.hot.accept(/*! !../../../node_modules/css-loader/dist/cjs.js??ref--6-oneOf-3-1!../../../node_modules/postcss-loader/src??postcss!./styles.css */ "../../node_modules/css-loader/dist/cjs.js?!../../node_modules/postcss-loader/src/index.js?!./src/styles.css", function() {
-		var newContent = __webpack_require__(/*! !../../../node_modules/css-loader/dist/cjs.js??ref--6-oneOf-3-1!../../../node_modules/postcss-loader/src??postcss!./styles.css */ "../../node_modules/css-loader/dist/cjs.js?!../../node_modules/postcss-loader/src/index.js?!./src/styles.css");
-
-		if(typeof newContent === 'string') newContent = [[module.i, newContent, '']];
-
-		var locals = (function(a, b) {
-			var key, idx = 0;
-
-			for(key in a) {
-				if(!b || a[key] !== b[key]) return false;
-				idx++;
-			}
-
-			for(key in b) idx--;
-
-			return idx === 0;
-		}(content.locals, newContent.locals));
-
-		if(!locals) throw new Error('Aborting CSS HMR due to changed css-modules locals.');
-
-		update(newContent);
-	});
-
-	module.hot.dispose(function() { update(); });
-}
-
-/***/ }),
-
 /***/ "./src/styles.ts":
 /*!***********************!*\
   !*** ./src/styles.ts ***!
@@ -4526,8 +4771,6 @@ Object.keys(_lib).forEach(function (key) {
 });
 
 var _icons = __webpack_require__(/*! @uifabric/icons */ "../../node_modules/@uifabric/icons/lib/index.js");
-
-__webpack_require__(/*! ./styles.css */ "./src/styles.css");
 
 (0, _icons.initializeIcons)();
 var ThemeStyles = (0, _lib.getTheme)();
@@ -4734,7 +4977,6 @@ exports.lightTheme = {
   "color-danger-transparent-400": "rgba(255, 71, 50, 0.32)",
   "color-danger-transparent-500": "rgba(255, 71, 50, 0.4)",
   "color-danger-transparent-600": "rgba(255, 71, 50, 0.48)",
-  // default light theme
   // "color-primary-100": "#F2F6FF",
   // "color-primary-200": "#D9E4FF",
   // "color-primary-300": "#A6C1FF",
@@ -4744,14 +4986,12 @@ exports.lightTheme = {
   // "color-primary-700": "#1A34B8",
   // "color-primary-800": "#102694",
   // "color-primary-900": "#091C7A",
-  //
   // "color-primary-transparent-100": "rgba(51, 102, 255, 0.08)",
   // "color-primary-transparent-200": "rgba(51, 102, 255, 0.16)",
   // "color-primary-transparent-300": "rgba(51, 102, 255, 0.24)",
   // "color-primary-transparent-400": "rgba(51, 102, 255, 0.32)",
   // "color-primary-transparent-500": "rgba(51, 102, 255, 0.40)",
   // "color-primary-transparent-600": "rgba(51, 102, 255, 0.48)",
-  //
   // "color-success-100": "#EDFFF3",
   // "color-success-200": "#B3FFD6",
   // "color-success-300": "#8CFAC7",
@@ -4761,14 +5001,12 @@ exports.lightTheme = {
   // "color-success-700": "#008F72",
   // "color-success-800": "#007566",
   // "color-success-900": "#00524C",
-  //
   // "color-success-transparent-100": "rgba(0, 224, 150, 0.08)",
   // "color-success-transparent-200": "rgba(0, 224, 150, 0.16)",
   // "color-success-transparent-300": "rgba(0, 224, 150, 0.24)",
   // "color-success-transparent-400": "rgba(0, 224, 150, 0.32)",
   // "color-success-transparent-500": "rgba(0, 224, 150, 0.40)",
   // "color-success-transparent-600": "rgba(0, 224, 150, 0.48)",
-  //
   // "color-info-100": "#F2F8FF",
   // "color-info-200": "#C7E2FF",
   // "color-info-300": "#94CBFF",
@@ -4778,14 +5016,12 @@ exports.lightTheme = {
   // "color-info-700": "#0057C2",
   // "color-info-800": "#0041A8",
   // "color-info-900": "#002885",
-  //
   // "color-info-transparent-100": "rgba(0, 149, 255, 0.08)",
   // "color-info-transparent-200": "rgba(0, 149, 255, 0.16)",
   // "color-info-transparent-300": "rgba(0, 149, 255, 0.24)",
   // "color-info-transparent-400": "rgba(0, 149, 255, 0.32)",
   // "color-info-transparent-500": "rgba(0, 149, 255, 0.40)",
   // "color-info-transparent-600": "rgba(0, 149, 255, 0.48)",
-  //
   // "color-warning-100": "#FFFDF2",
   // "color-warning-200": "#FFF1C2",
   // "color-warning-300": "#FFE59E",
@@ -4795,14 +5031,12 @@ exports.lightTheme = {
   // "color-warning-700": "#B86E00",
   // "color-warning-800": "#945400",
   // "color-warning-900": "#703C00",
-  //
   // "color-warning-transparent-100": "rgba(255, 170, 0, 0.08)",
   // "color-warning-transparent-200": "rgba(255, 170, 0, 0.16)",
   // "color-warning-transparent-300": "rgba(255, 170, 0, 0.24)",
   // "color-warning-transparent-400": "rgba(255, 170, 0, 0.32)",
   // "color-warning-transparent-500": "rgba(255, 170, 0, 0.40)",
   // "color-warning-transparent-600": "rgba(255, 170, 0, 0.48)",
-  //
   // "color-danger-100": "#FFF2F2",
   // "color-danger-200": "#FFD6D9",
   // "color-danger-300": "#FFA8B4",
@@ -4812,7 +5046,6 @@ exports.lightTheme = {
   // "color-danger-700": "#B81D5B",
   // "color-danger-800": "#94124E",
   // "color-danger-900": "#700940",
-  //
   // "color-danger-transparent-100": "rgba(255, 61, 113, 0.08)",
   // "color-danger-transparent-200": "rgba(255, 61, 113, 0.16)",
   // "color-danger-transparent-300": "rgba(255, 61, 113, 0.24)",
@@ -4982,24 +5215,24 @@ exports.lightTheme = {
   "color-control-transparent-default-border": "$color-basic-100",
   "color-control-transparent-active-border": "$color-basic-100",
   "color-control-transparent-disabled-border": "$color-basic-transparent-300",
-  "background-basic-color-1": "$color-basic-800",
-  "background-basic-color-2": "$color-basic-900",
-  "background-basic-color-3": "$color-basic-1000",
-  "background-basic-color-4": "$color-basic-1100",
-  "background-alternative-color-1": "$color-basic-100",
-  "background-alternative-color-2": "$color-basic-200",
-  "background-alternative-color-3": "$color-basic-300",
-  "background-alternative-color-4": "$color-basic-400",
-  "border-basic-color-1": "$color-basic-800",
-  "border-basic-color-2": "$color-basic-900",
-  "border-basic-color-3": "$color-basic-1000",
-  "border-basic-color-4": "$color-basic-1100",
-  "border-basic-color-5": "$color-basic-1100",
-  "border-alternative-color-1": "$color-basic-100",
-  "border-alternative-color-2": "$color-basic-200",
-  "border-alternative-color-3": "$color-basic-300",
-  "border-alternative-color-4": "$color-basic-400",
-  "border-alternative-color-5": "$color-basic-500",
+  "background-basic-color-1": "$color-basic-100",
+  "background-basic-color-2": "$color-basic-200",
+  "background-basic-color-3": "$color-basic-300",
+  "background-basic-color-4": "$color-basic-400",
+  "background-alternative-color-1": "$color-basic-800",
+  "background-alternative-color-2": "$color-basic-900",
+  "background-alternative-color-3": "$color-basic-1000",
+  "background-alternative-color-4": "$color-basic-1100",
+  "border-basic-color-1": "$color-basic-100",
+  "border-basic-color-2": "$color-basic-200",
+  "border-basic-color-3": "$color-basic-300",
+  "border-basic-color-4": "$color-basic-400",
+  "border-basic-color-5": "$color-basic-500",
+  "border-alternative-color-1": "$color-basic-800",
+  "border-alternative-color-2": "$color-basic-900",
+  "border-alternative-color-3": "$color-basic-1000",
+  "border-alternative-color-4": "$color-basic-1100",
+  "border-alternative-color-5": "$color-basic-1100",
   "border-primary-color-1": "$color-primary-500",
   "border-primary-color-2": "$color-primary-600",
   "border-primary-color-3": "$color-primary-700",
@@ -5025,8 +5258,8 @@ exports.lightTheme = {
   "border-danger-color-3": "$color-danger-700",
   "border-danger-color-4": "$color-danger-800",
   "border-danger-color-5": "$color-danger-900",
-  "text-basic-color": "$color-basic-100",
-  "text-alternate-color": "$color-basic-900",
+  "text-basic-color": "$color-basic-800",
+  "text-alternate-color": "$color-basic-100",
   "text-control-color": "$color-basic-100",
   "text-disabled-color": "$color-basic-transparent-600",
   "text-hint-color": "$color-basic-600",
@@ -5055,7 +5288,7 @@ exports.lightTheme = {
   "text-danger-hover-color": "$color-danger-hover",
   "text-danger-active-color": "$color-danger-active",
   "text-danger-disabled-color": "$color-danger-400",
-  "outline-color": "$color-basic-700"
+  "outline-color": "$color-basic-transparent-200"
 };
 exports.darkTheme = {
   "color-primary-100": "#F2F6FF",
@@ -5388,5 +5621,5 @@ module.exports = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer
 
 /***/ })
 
-},[[1,"runtime-main",1]]]);
+},[[1,"runtime-main",0]]]);
 //# sourceMappingURL=main.chunk.js.map

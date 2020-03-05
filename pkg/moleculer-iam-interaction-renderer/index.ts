@@ -23,7 +23,12 @@ class SinglePageApplicationRenderer implements ApplicationRenderer {
 
   private loadViews() {
     // load index page and split into header and footer with app options data
-    const html = fs.readFileSync(path.join(buildConfig.webpack.output.path, "index.html")).toString();
+    const html = fs
+      .readFileSync(path.join(buildConfig.webpack.output.path, "index.html"))
+      .toString()
+      // "index.html" template uses %PUBLIC_URL% rather %PUBLIC_URL% which is for webpack itself to support assets path with dynamic prefix
+      .replace(/%PUBLIC_PATH%/g, buildConfig.webpack.output.publicPath);
+
     const index = html.indexOf("<script");
 
     // inject server-side options, ref ./inject.ts

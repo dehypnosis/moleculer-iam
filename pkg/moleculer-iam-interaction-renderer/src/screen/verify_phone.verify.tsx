@@ -63,23 +63,21 @@ export const VerifyPhoneVerifyScreen: React.FunctionComponent = () => {
           primary: true,
           text: "Continue",
           onClick: handleVerify,
-          loading,
           tabIndex: 22,
         },
         {
           text: "Resend",
           onClick: handleResend,
-          loading,
           tabIndex: 23,
         },
         {
           text: "Cancel",
           onClick: handleCancel,
           hidden: state.name === "verify_phone",
-          loading,
           tabIndex: 24,
         },
       ]}
+      loading={loading}
       error={errors.global}
     >
       <Text>

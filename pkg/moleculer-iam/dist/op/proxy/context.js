@@ -48,8 +48,22 @@ class OIDCProviderContextProxy {
         await session.save();
         return session.state[field];
     }
+    get isXHR() {
+        return this.ctx.accepts(JSON, HTML) === JSON;
+    }
     async render(stateProps) {
         const { ctx } = this;
+        // response { error: {} } when is XHR and stateProps has error
+        if (this.isXHR) {
+            const statePropsWithError = stateProps;
+            if (statePropsWithError.error) {
+                const response = { error: statePropsWithError.error };
+                ctx.type = JSON;
+                ctx.body = response;
+                return;
+            }
+        }
+        // else response { state: {...} }
         const state = {
             name: "undefined",
             actions: {},
@@ -63,15 +77,9 @@ class OIDCProviderContextProxy {
             user: this.userClaims,
             device: this.device,
         };
-        if (ctx.accepts(JSON, HTML) === JSON) {
-            ctx.type = JSON;
-            const response = { state };
-            ctx.body = response;
-            return;
-        }
         ctx.type = HTML;
         // unwrap enhanced context and delegate render to secure vulnerability
-        return this.builder.app.appRenderer.render(ctx.app.context, state);
+        return this.builder.app.appRenderer.render(ctx.unwrap(), state);
     }
     async redirectWithUpdate(promptUpdate, allowedPromptNames) {
         const { ctx, interaction, provider } = this;
@@ -83,14 +91,19 @@ class OIDCProviderContextProxy {
             await provider.setProviderSession(ctx.req, ctx.res, mergedResult.login);
             await this._parseInteractionState();
         }
-        return ctx.redirect(redirectURL);
+        return this.redirect(redirectURL);
     }
     redirect(url) {
-        return this.ctx.redirect(url.startsWith("/") ? this.getURL(url) : url);
+        const redirectURL = url.startsWith("/") ? this.getURL(url) : url;
+        if (this.isXHR) {
+            const response = { redirect: redirectURL };
+            this.ctx.body = response;
+            return;
+        }
+        this.ctx.redirect(redirectURL);
     }
-    ;
     end() {
-        const response = { session: this.setSessionState };
+        const response = { session: this.sessionAppState };
         this.ctx.type = JSON;
         this.ctx.body = response;
     }

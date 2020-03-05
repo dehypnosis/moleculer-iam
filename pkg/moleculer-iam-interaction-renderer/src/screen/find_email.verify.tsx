@@ -2,7 +2,7 @@ import React from "react";
 import { ScreenLayout } from "./layout";
 import { Text, Image } from "../styles";
 import { useWithLoading, useNavigation } from "../hook";
-import svg from "../image/screen_sent.svg";
+import svg from "../assets/screen_sent.svg";
 
 export const FindEmailVerifyScreen: React.FunctionComponent = () => {
   const {loading, errors, setErrors, withLoading} = useWithLoading();
@@ -26,11 +26,11 @@ export const FindEmailVerifyScreen: React.FunctionComponent = () => {
           primary: true,
           text: "Done",
           onClick: handleDone,
-          loading,
           tabIndex: 31,
         },
       ]}
       error={errors.global}
+      loading={loading}
     >
       <Text>
         Account email address has been sent to your mobile device.

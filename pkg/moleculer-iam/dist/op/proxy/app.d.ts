@@ -16,7 +16,7 @@ export declare class ProviderApplicationBuilder {
     get idp(): import("../..").IdentityProvider;
     get op(): import("oidc-provider").Provider;
     readonly getURL: (path: string) => string;
-    private readonly extendContext;
+    private readonly wrapContext;
     private readonly errorHandler;
     private readonly routerMiddleware;
     setRendererFactory<F extends ApplicationRendererFactory>(factory: F, options?: F extends ApplicationRendererFactory<infer O> ? O : never): this;

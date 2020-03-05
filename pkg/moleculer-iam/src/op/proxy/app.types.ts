@@ -64,6 +64,9 @@ export type ApplicationResponse = {
 
   // xhr error response
   error?: OIDCError;
+
+  // xhr redirect response
+  redirect?: string;
 };
 
 export type ApplicationRequestContext = ParameterizedContext<any, ApplicationRequestContextProps>;

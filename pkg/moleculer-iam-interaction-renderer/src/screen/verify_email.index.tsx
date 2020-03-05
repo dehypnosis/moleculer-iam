@@ -2,7 +2,7 @@ import React  from "react";
 import { Text, Image } from "../styles";
 import { useNavigation, useWithLoading } from "../hook";
 import { ScreenLayout } from "./layout";
-import svg from "../image/screen_verify.svg";
+import svg from "../assets/screen_verify.svg";
 
 export const VerifyEmailIndexScreen: React.FunctionComponent = () => {
   // states
@@ -41,16 +41,15 @@ export const VerifyEmailIndexScreen: React.FunctionComponent = () => {
           primary: true,
           text: "Send",
           onClick: handleSend,
-          loading,
           tabIndex: 1,
         },
         {
           text: "Cancel",
           onClick: handleCancel,
-          loading,
           tabIndex: 2,
         },
       ]}
+      loading={loading}
       error={errors.global}
     >
       <Text>

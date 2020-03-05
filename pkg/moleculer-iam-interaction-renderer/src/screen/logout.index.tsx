@@ -24,19 +24,18 @@ export const LogoutIndexScreen: React.FunctionComponent = () => {
     <ScreenLayout
       title={client ? `Signed out` : `Sign out`}
       subtitle={user.email}
+      loading={loading}
       buttons={[
         {
           primary: true,
           text: "Done",
           onClick: handleJustRedirect,
-          loading,
           tabIndex: 1,
         },
         {
           primary: false,
           text: "Sign out all",
           onClick: handleSignOutAll,
-          loading,
           tabIndex: 2,
         },
       ]}

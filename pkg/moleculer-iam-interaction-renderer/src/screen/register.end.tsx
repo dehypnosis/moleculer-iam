@@ -30,12 +30,11 @@ export const RegisterEndScreen: React.FunctionComponent = () => {
           primary: true,
           text: "Done",
           onClick: handleContinue,
-          loading,
-          autoFocus: true,
           tabIndex: 1,
         },
       ]}
       error={errors.global}
+      loading={loading}
     >
       <Text>Congratulations! The account has been registered. This email account can be used to sign in to multiple services. So don't forget it please. <span role="img" aria-label="smile">🙂</span></Text>
     </ScreenLayout>

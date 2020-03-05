@@ -1,12 +1,12 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { createStackNavigator, StackNavigationOptions } from "@react-navigation/stack";
 import { ConsentScreen } from "../screen/consent";
 import { ErrorScreen } from "../screen/error";
 import { routeConfig } from "./routes";
-import { AppOptionsProvider } from "./options";
+import { AppOptionsProvider, useAppOptions } from "./options";
 import { AppStateProvider } from "./state";
 import { AppNavigationProvider } from "./navigation";
-import { ApplicationThemeProvider } from "./style";
+import { ApplicationThemeProvider } from "./theme";
 
 import { FindEmailIndexScreen } from "../screen/find_email.index";
 import { FindEmailVerifyScreen } from "../screen/find_email.verify";

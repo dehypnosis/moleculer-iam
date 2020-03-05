@@ -70,12 +70,15 @@ export class OIDCProviderContextProxy {
     return session.state[field];
   }
 
+  private get isXHR() {
+    return this.ctx.accepts(JSON, HTML) === JSON;
+  }
+
   public async render(stateProps: Pick<ApplicationState, "name"|"actions">|Pick<ApplicationState, "name"|"error">): Promise<void> {
     const { ctx } = this;
-    const isXHR = ctx.accepts(JSON, HTML) === JSON;
 
     // response { error: {} } when is XHR and stateProps has error
-    if (isXHR) {
+    if (this.isXHR) {
       const statePropsWithError: Pick<ApplicationState, "name"|"error"> = stateProps;
       if (statePropsWithError.error) {
         const response: ApplicationResponse = { error: statePropsWithError.error };
@@ -119,12 +122,21 @@ export class OIDCProviderContextProxy {
       await provider.setProviderSession(ctx.req, ctx.res, mergedResult.login);
       await this._parseInteractionState();
     }
-    return ctx.redirect(redirectURL);
+
+    return this.redirect(redirectURL);
   }
 
   public redirect(url: string): void {
-    return this.ctx.redirect(url.startsWith("/") ? this.getURL(url) : url);
-  };
+    const redirectURL = url.startsWith("/") ? this.getURL(url) : url;
+
+    if (this.isXHR) {
+      const response: ApplicationResponse = { redirect: redirectURL };
+      this.ctx.body = response;
+      return;
+    }
+
+    this.ctx.redirect(redirectURL);
+  }
 
   public end(): void {
     const response: ApplicationResponse = { session: this.sessionAppState };

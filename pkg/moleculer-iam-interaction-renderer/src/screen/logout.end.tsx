@@ -19,10 +19,10 @@ export const LogoutEndScreen: React.FunctionComponent = () => {
           primary: false,
           text: "Close",
           onClick: close,
-          loading: closed,
           tabIndex: 21,
         },
       ]}
+      loading={closed}
       error={closed ? "Please close the window manually." : undefined}
     >
       <Text>

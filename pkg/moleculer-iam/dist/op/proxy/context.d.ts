@@ -25,6 +25,7 @@ export declare class OIDCProviderContextProxy {
     get getNamedURL(): any;
     private get sessionAppState();
     setSessionState(update: (prevState: ApplicationSessionState) => ApplicationSessionState): Promise<ApplicationSessionState>;
+    private get isXHR();
     render(stateProps: Pick<ApplicationState, "name" | "actions"> | Pick<ApplicationState, "name" | "error">): Promise<void>;
     redirectWithUpdate(promptUpdate: Partial<InteractionResults> | {
         error: string;

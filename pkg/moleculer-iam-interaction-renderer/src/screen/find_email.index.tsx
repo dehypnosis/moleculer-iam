@@ -33,18 +33,17 @@ export const FindEmailIndexScreen: React.FunctionComponent = () => {
     <ScreenLayout
       title={`Find email`}
       subtitle={`Enter your phone number`}
+      loading={loading}
       buttons={[
         {
           primary: true,
           text: "Continue",
           onClick: handleCheckPhoneNumber,
-          loading,
           tabIndex: 22,
         },
         {
           text: "Cancel",
           onClick: handleCancel,
-          loading,
           tabIndex: 23,
           hidden: state.name === "find_email",
         },
