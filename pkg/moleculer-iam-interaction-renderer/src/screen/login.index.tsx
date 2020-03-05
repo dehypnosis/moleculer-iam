@@ -32,10 +32,7 @@ export const LoginIndexScreen: React.FunctionComponent = () => {
           },
         });
       })
-      .catch((err: any) => {
-        console.log(err);
-        setErrors(err)
-      });
+      .catch((err: any) => setErrors(err));
   }, [email]);
 
   useEffect(() => {
@@ -96,7 +93,7 @@ export const LoginIndexScreen: React.FunctionComponent = () => {
                 return (
                   <Button
                     key={provider}
-                    onPressOut={() => handleFederation(provider)}
+                    onPress={() => handleFederation(provider)}
                     children={getFederationText(provider)}
                     status={"basic"}
                     size={"medium"}
@@ -106,7 +103,7 @@ export const LoginIndexScreen: React.FunctionComponent = () => {
                 )
               }) : (
                 <Button
-                  onPressOut={() => setFederationOptionsVisible(true)}
+                  onPress={() => setFederationOptionsVisible(true)}
                   appearance={"ghost"} size={"small"} status={"basic"}
                   style={{marginBottom: 15}}
                 >Find more login options?</Button>
@@ -114,7 +111,7 @@ export const LoginIndexScreen: React.FunctionComponent = () => {
             </>
           ) : null}
           <Button
-            onPressOut={handleFindEmail}
+            onPress={handleFindEmail}
             appearance={"ghost"} size={"small"} status={"basic"}
           >Forgot email?</Button>
         </>

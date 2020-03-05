@@ -1,9 +1,10 @@
-import React, { useEffect } from "react";
+import React, { createContext, useContext } from "react";
 import { createStackNavigator, StackNavigationOptions } from "@react-navigation/stack";
+import { useThemePalette } from "../screen/component";
 import { ConsentScreen } from "../screen/consent";
 import { ErrorScreen } from "../screen/error";
 import { routeConfig } from "./routes";
-import { AppOptionsProvider, useAppOptions } from "./options";
+import { AppOptionsProvider } from "./options";
 import { AppStateProvider } from "./state";
 import { AppNavigationProvider } from "./navigation";
 import { ApplicationThemeProvider } from "./theme";
@@ -28,52 +29,14 @@ import { VerifyPhoneEndScreen } from "../screen/verify_phone.end";
 import { VerifyPhoneIndexScreen } from "../screen/verify_phone.index";
 import { VerifyPhoneVerifyScreen } from "../screen/verify_phone.verify";
 
+
 export const App: React.FunctionComponent = () => {
   return (
     <AppOptionsProvider>
       <ApplicationThemeProvider>
         <AppStateProvider>
           <AppNavigationProvider routeConfig={routeConfig}>
-            <RootStack.Navigator
-              screenOptions={screenOptions}
-            >
-              <RootStack.Screen
-                name={"error"}
-                component={ErrorScreen}
-              />
-              <RootStack.Screen
-                name={"consent"}
-                component={ConsentScreen}
-              />
-              <RootStack.Screen
-                name={"login"}
-                component={LoginStackScreen}
-              />
-              <RootStack.Screen
-                name={"find_email"}
-                component={FindEmailStackScreen}
-              />
-              <RootStack.Screen
-                name={"reset_password"}
-                component={ResetPasswordStackScreen}
-              />
-              <RootStack.Screen
-                name={"register"}
-                component={RegisterStackScreen}
-              />
-              <RootStack.Screen
-                name={"logout"}
-                component={LogoutStackScreen}
-              />
-              <RootStack.Screen
-                name={"verify_phone"}
-                component={VerifyPhoneStackScreen}
-              />
-              <RootStack.Screen
-                name={"verify_email"}
-                component={VerifyEmailStackScreen}
-              />
-            </RootStack.Navigator>
+            <AppStacks />
           </AppNavigationProvider>
         </AppStateProvider>
       </ApplicationThemeProvider>
@@ -81,18 +44,77 @@ export const App: React.FunctionComponent = () => {
   )
 };
 
+
+const NavOptionsProvider = createContext<StackNavigationOptions>(undefined as any);
+const useNavOptions = () => useContext(NavOptionsProvider);
+
+const AppStacks = () => {
+  const backgroundColor = useThemePalette()["background-basic-color-1"];
+  const navOptions: StackNavigationOptions = {
+    headerShown: false,
+    cardStyle: {
+      backgroundColor,
+    },
+    gestureEnabled: false,
+    // animationEnabled: false,
+    // transitionSpec: {
+    //   open: RevealFromBottomAndroid,
+    //   close: RevealFromBottomAndroid,
+    // },
+  };
+
+  return (
+    <NavOptionsProvider.Provider value={navOptions}>
+      <RootStack.Navigator
+        screenOptions={navOptions}
+      >
+        <RootStack.Screen
+          name={"error"}
+          component={ErrorScreen}
+        />
+        <RootStack.Screen
+          name={"consent"}
+          component={ConsentScreen}
+        />
+        <RootStack.Screen
+          name={"login"}
+          component={LoginStackScreen}
+        />
+        <RootStack.Screen
+          name={"find_email"}
+          component={FindEmailStackScreen}
+        />
+        <RootStack.Screen
+          name={"reset_password"}
+          component={ResetPasswordStackScreen}
+        />
+        <RootStack.Screen
+          name={"register"}
+          component={RegisterStackScreen}
+        />
+        <RootStack.Screen
+          name={"logout"}
+          component={LogoutStackScreen}
+        />
+        <RootStack.Screen
+          name={"verify_phone"}
+          component={VerifyPhoneStackScreen}
+        />
+        <RootStack.Screen
+          name={"verify_email"}
+          component={VerifyEmailStackScreen}
+        />
+      </RootStack.Navigator>
+    </NavOptionsProvider.Provider>
+  )
+}
+
 const RootStack = createStackNavigator();
-const screenOptions: StackNavigationOptions = {
-  headerShown: false,
-  cardStyle: {
-    backgroundColor: "#ffffff",
-  },
-};
 
 const LoginStack = createStackNavigator();
-const LoginStackScreen = () => (
+const LoginStackScreen: React.FunctionComponent<{backgroundColor: string}> = ({ backgroundColor }) => (
   <LoginStack.Navigator
-    screenOptions={screenOptions}
+    screenOptions={useNavOptions()}
   >
     <LoginStack.Screen
       name={"login.index"}
@@ -108,7 +130,7 @@ const LoginStackScreen = () => (
 const LogoutStack = createStackNavigator();
 const LogoutStackScreen = () => (
   <LogoutStack.Navigator
-    screenOptions={screenOptions}
+    screenOptions={useNavOptions()}
   >
     <LogoutStack.Screen
       name={"logout.index"}
@@ -124,7 +146,7 @@ const LogoutStackScreen = () => (
 const FindEmailStack = createStackNavigator();
 const FindEmailStackScreen = () => (
   <FindEmailStack.Navigator
-    screenOptions={screenOptions}
+    screenOptions={useNavOptions()}
   >
     <FindEmailStack.Screen
       name={"find_email.index"}
@@ -140,7 +162,7 @@ const FindEmailStackScreen = () => (
 const ResetPasswordStack = createStackNavigator();
 const ResetPasswordStackScreen = () => (
   <ResetPasswordStack.Navigator
-    screenOptions={screenOptions}
+    screenOptions={useNavOptions()}
   >
     <ResetPasswordStack.Screen
       name={"reset_password.index"}
@@ -164,7 +186,7 @@ const ResetPasswordStackScreen = () => (
 const RegisterStack = createStackNavigator();
 const RegisterStackScreen = () => (
   <RegisterStack.Navigator
-    screenOptions={screenOptions}
+    screenOptions={useNavOptions()}
   >
     <RegisterStack.Screen
       name={"register.index"}
@@ -184,7 +206,7 @@ const RegisterStackScreen = () => (
 const VerifyPhoneStack = createStackNavigator();
 const VerifyPhoneStackScreen = () => (
   <VerifyPhoneStack.Navigator
-    screenOptions={screenOptions}
+    screenOptions={useNavOptions()}
   >
     <VerifyPhoneStack.Screen
       name={"verify_phone.index"}
@@ -204,7 +226,7 @@ const VerifyPhoneStackScreen = () => (
 const VerifyEmailStack = createStackNavigator();
 const VerifyEmailStackScreen = () => (
   <VerifyEmailStack.Navigator
-    screenOptions={screenOptions}
+    screenOptions={useNavOptions()}
   >
     <VerifyEmailStack.Screen
       name={"verify_email.index"}

@@ -2,6 +2,7 @@ import { LinkingOptions } from "@react-navigation/native/lib/typescript/src/type
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { getStateFromPath as getNavStateFromPath, NavigationContainerRef, useNavigation as useOriginalNavigation } from "@react-navigation/core";
 import { NavigationContainer, NavigationState, Route, useLinking, useRoute } from "@react-navigation/native";
+import { View } from "react-native";
 import { useAppState } from "./state";
 
 export const AppNavigationProvider: React.FunctionComponent<{
@@ -55,7 +56,7 @@ export const AppNavigationProvider: React.FunctionComponent<{
       initialState={initialState}
       ref={ref}
     >
-      {children}
+      <View nativeID={"nav-container"} style={{alignSelf: "center"}}>{children}</View>
     </NavigationContainer>
   )
 }

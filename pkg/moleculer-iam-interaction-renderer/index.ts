@@ -26,8 +26,8 @@ class SinglePageApplicationRenderer implements ApplicationRenderer {
     const html = fs
       .readFileSync(path.join(buildConfig.webpack.output.path, "index.html"))
       .toString()
-      // "index.html" template uses %PUBLIC_URL% rather %PUBLIC_URL% which is for webpack itself to support assets path with dynamic prefix
-      .replace(/%PUBLIC_PATH%/g, buildConfig.webpack.output.publicPath);
+      // "index.html" template uses "{PUBLIC_URI}" rather %PUBLIC_URL% which is for webpack itself to support assets path with dynamic prefix
+      .replace(/{PUBLIC_URI}/g, buildConfig.webpack.output.publicPath);
 
     const index = html.indexOf("<script");
 

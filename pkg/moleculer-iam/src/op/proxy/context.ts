@@ -127,7 +127,7 @@ export class OIDCProviderContextProxy {
   }
 
   public redirect(url: string): void {
-    const redirectURL = url.startsWith("/") ? this.getURL(url) : url;
+    const redirectURL = url.startsWith("/") ? this.getURL(url) : url; // add prefix for local redirection
 
     if (this.isXHR) {
       const response: ApplicationResponse = { redirect: redirectURL };

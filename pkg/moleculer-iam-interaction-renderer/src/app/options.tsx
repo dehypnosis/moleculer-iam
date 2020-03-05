@@ -23,7 +23,7 @@ export class AppOptionsProvider extends React.Component<{}, ApplicationOptions &
     login: {
       federationOptionsVisibleDefault: false,
     },
-    theme: "light",
+    theme: "dark",
     palette: {
       light: lightTheme,
       dark: darkTheme,

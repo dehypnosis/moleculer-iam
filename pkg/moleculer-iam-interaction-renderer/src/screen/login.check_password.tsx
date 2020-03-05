@@ -62,7 +62,7 @@ export const LoginCheckPasswordScreen: React.FunctionComponent = () => {
           type="password"
           inputMode="text"
           placeholder="Enter your password"
-          autoFocus
+          // autoFocus
           tabIndex={21}
           value={password}
           errorMessage={errors.password}

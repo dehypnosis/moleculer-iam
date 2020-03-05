@@ -25,10 +25,12 @@ module.exports = {
     const babelRule = config.module.rules[2].oneOf[1];
     babelRule.include = [
       babelRule.include,
-      path.join(require.resolve("react-native-screens/src/screens.web.js")),
+      require.resolve("@react-navigation/stack"),
+      require.resolve("react-native-screens/src/screens.web.js"),
       path.join(require.resolve("react-native-reanimated"), ".."),
       path.join(require.resolve("react-native-gesture-handler"), ".."),
       path.join(require.resolve("react-native-eva-icons"), ".."),
+      require.resolve("./build.shim.rnw.tsx"),
     ];
     babelRule.options.presets.push(require.resolve("metro-react-native-babel-preset"));
     // process.exit();
@@ -52,6 +54,10 @@ module.exports = {
         new webpack.DefinePlugin({
           __DEV__: process.env.NODE_ENV !== "production",
         }),
+        new webpack.NormalModuleReplacementPlugin(
+          /^react-native$/,
+          path.resolve(__dirname, "./build.shim.rnw.tsx"),
+        ),
         ...config.plugins,
       ],
       output: {

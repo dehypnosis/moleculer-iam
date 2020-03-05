@@ -22,6 +22,8 @@
   },
   "include": [
     "./src",
-    "./inject.ts"
+    "./inject.ts",
+    "./theme.d.ts",
+    "./build.shim.rnw.tsx"
   ]
 }

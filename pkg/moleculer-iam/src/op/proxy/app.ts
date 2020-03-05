@@ -60,7 +60,7 @@ export class ProviderApplicationBuilder {
     return this.builder._dagerouslyGetProvider();
   }
 
-  public readonly getURL = (path: string) => `${this.builder.issuer}${this.prefix}${path}`;
+  public readonly getURL = (path: string, withHost?: true) => `${withHost ? this.builder.issuer : ""}${this.prefix}${path}`;
 
   private readonly wrapContext: IMiddleware<any, ApplicationRequestContext> = async (ctx, next) => {
     ctx.idp = this.idp;

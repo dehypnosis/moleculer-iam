@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { ScreenLayout } from "./layout";
-import { TextFieldStyles, Text, TextField } from "../styles";
 import { useAppState, useWithLoading, useNavigation } from "../hook";
+import { Text, Input, withAttrs } from "./component";
 
 export const FindEmailIndexScreen: React.FunctionComponent = () => {
   const { nav, route } = useNavigation();
@@ -50,21 +50,27 @@ export const FindEmailIndexScreen: React.FunctionComponent = () => {
       ]}
       error={errors.global}
     >
-      <Text>
+      <Text style={{marginBottom: 30}}>
         Have a registered phone number? Can find the ID only if have one.
       </Text>
-      <TextField
+      <Input
+        ref={withAttrs({ tabindex: 21, autofocus: true }, "input")}
         label="Phone number"
-        type="tel"
-        inputMode="tel"
+        autoCapitalize={"none"}
+        autoCorrect={false}
+        autoFocus={true}
+        blurOnSubmit={false}
+        keyboardType={"phone-pad"}
+        returnKeyType={"next"}
+        autoCompleteType={"tel"}
         placeholder="Enter your mobile phone number"
-        autoFocus
-        tabIndex={21}
         value={phoneNumber}
-        errorMessage={errors.phone_number}
-        onChange={(e, v) => setPhoneNumber(v || "")}
-        onKeyUp={e => e.key === "Enter" && handleCheckPhoneNumber()}
-        styles={TextFieldStyles.bold}
+        caption={errors.phone_number}
+        status={errors.phone_number ? "danger" : "basic"}
+        onChangeText={v => setPhoneNumber(v || "")}
+        clearButtonMode={"while-editing"}
+        onKeyPress={e => e.nativeEvent.key === "Enter" && handleCheckPhoneNumber()}
+        size={"large"}
       />
     </ScreenLayout>
   );

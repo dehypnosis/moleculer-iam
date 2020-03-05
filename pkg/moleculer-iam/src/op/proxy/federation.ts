@@ -64,7 +64,7 @@ export class IdentityFederationBuilder {
     return this;
   }
 
-  public readonly getCallbackURL = (providerName: string) => this.builder.app.getURL(`${this._prefix}/${providerName}`);
+  public readonly getCallbackURL = (providerName: string) => this.builder.app.getURL(`${this._prefix}/${providerName}`, true);
 
   public get providerNames(): string[] {
     this.builder.assertBuilding(true);

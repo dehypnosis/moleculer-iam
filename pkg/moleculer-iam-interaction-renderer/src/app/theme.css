@@ -10,17 +10,24 @@ body {
 
 #root {
   height: 100vh;
+  min-width: 320px;
 }
 
-#root > div {
-  height: 100%;
-  max-width: 100vw;
-  min-width: 320px;
-  margin: 0 auto;
+#theme-container {
+  height: 100vh;
+}
+
+#nav-container {
+  height: 100vh;
+  width: 100%;
+}
+
+#scroll-container {
+  width: 100%;
 }
 
 @media (min-width: 640px) {
-  #root > div {
+  #nav-container {
     width: 375px;
   }
 }
