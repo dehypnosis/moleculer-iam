@@ -1,6 +1,5 @@
 import bodyParser from "koa-bodyparser";
 import compose from "koa-compose";
-import mount from "koa-mount";
 import Router, { IMiddleware } from "koa-router";
 import noCache from "koajs-nocache";
 import { interactionPolicy } from "oidc-provider";
@@ -28,7 +27,7 @@ export class ProviderApplicationBuilder {
       sensitive: true,
       strict: false,
     })
-      .use(...this.routerMiddleware);
+      .use(this.routerMiddleware);
 
     (this.router as any)._setPrefix = this.router.prefix.bind(this.router);
     this.router.prefix = () => {
@@ -48,7 +47,8 @@ export class ProviderApplicationBuilder {
   public _dangerouslySetPrefix(prefix: string) {
     this.builder.assertBuilding();
     this._prefix = prefix;
-    (this.router as any)._setPrefix(prefix).use(...this.routerMiddleware); // re-apply middleware
+    (this.router as any)._setPrefix(prefix)
+      .use(this.routerMiddleware); // re-apply middleware
     this.logger.info(`OIDC application route path configured:`, `${prefix}/:path`);
   }
 
@@ -106,12 +106,12 @@ export class ProviderApplicationBuilder {
     }
   };
 
-  private readonly routerMiddleware = [
+  private readonly routerMiddleware = compose([
     noCache(),
     bodyParser(),
     this.wrapContext,
     this.errorHandler,
-  ];
+  ]);
 
   // default render function
   public setRendererFactory<F extends ApplicationRendererFactory>(factory: F, options?: F extends ApplicationRendererFactory<infer O> ? O : never) {
@@ -189,12 +189,8 @@ export class ProviderApplicationBuilder {
   private readonly logoutSourceProxy: NonNullable<DynamicConfiguration["logoutSource"]> = (ctx) => {
     return this.wrapContext(ctx as any, () => {
       const op: ApplicationRequestContext["op"] = ctx.op as any;
-      if (!op.user) {
-        return this.renderError(ctx as any, {
-          error: "invalid_request",
-          error_description: "Account session not exists.",
-        });
-      }
+      ctx.assert(op.user, 400, "Account session not exists.");
+
       const xsrf = op.session.state && op.session.state.secret;
       return this.renderLogout(ctx as any, xsrf);
     });
@@ -327,12 +323,16 @@ export class ProviderApplicationBuilder {
   public _dangerouslyBuild() {
     this.builder.assertBuilding();
 
-    // mount to app
-    this.op.app.use(mount(compose([
-      ...(this.appRenderer.routes ? this.appRenderer.routes() : []), // order matters for security's sake
-      ...this.routerMiddleware,
-      this.router.routes() as any,
-    ])));
+    this.op.app.use(
+      compose([
+        // apply additional "app renderer" middleware (like serving static files), order matters for security's sake
+        ...(this.appRenderer.routes ? this.appRenderer.routes() : []),
+
+        // apply "app router" middleware
+        this.router.routes(),
+        this.router.allowedMethods(), // support "OPTIONS" methods
+      ]),
+    );
 
     // build federation configuration
     this.federation._dangerouslyBuild();

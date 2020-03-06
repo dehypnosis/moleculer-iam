@@ -8,12 +8,12 @@ import helmet from "koa-helmet";
 import { IHelmetConfiguration } from "helmet";
 import prettyJSON from "koa-json";
 import mount from "koa-mount";
+import compose from "koa-compose";
 // @ts-ignore
 import useLocale from "koa-locale";
 import { Logger } from "../logger";
 import { OIDCProvider, ParsedLocale } from "../op";
 import { logging, LoggingOptions } from "./logging";
-import compose from "koa-compose";
 
 export type IAMServerProps = {
   op: OIDCProvider,
@@ -89,6 +89,7 @@ export class IAMServer {
       // @ts-ignore
       const locale = op.parseLocale(ctx.getLocaleFromQuery() || ctx.getLocaleFromCookie() || ctx.getLocaleFromHeader());
       ctx.locale = locale;
+
       return next()
         .then(() => {
           // reassign locale query for redirection response
@@ -120,6 +121,7 @@ export class IAMServer {
     const { op } = this.props;
     await op.start();
 
+    // FIXME: change extending app signature....
     // mount optional app routes and oidc provider routes
     const opRoutes = mount(op.app);
     if (this.options.app) {

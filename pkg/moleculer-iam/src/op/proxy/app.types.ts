@@ -1,6 +1,6 @@
 import { ParameterizedContext, BaseContext } from "koa";
 import { IMiddleware } from "koa-router";
-import { ClientMetadata } from "oidc-provider";
+import { ClientAuthorizationState, ClientMetadata } from "oidc-provider";
 import { IAMServerRequestContextProps } from "../../server";
 import { OIDCProviderContextProxy } from "./context";
 import { OIDCError } from "./error.types";

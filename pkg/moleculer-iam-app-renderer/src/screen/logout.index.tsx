@@ -1,7 +1,6 @@
 import React from "react";
-import { Text, Link } from "../styles";
 import { useAppState, useWithLoading } from "../hook";
-import { ScreenLayout } from "./component/layout";
+import { Persona, ScreenLayout, Text } from "./component";
 
 export const LogoutIndexScreen: React.FunctionComponent = () => {
   // states
@@ -22,27 +21,30 @@ export const LogoutIndexScreen: React.FunctionComponent = () => {
   // render
   return (
     <ScreenLayout
-      title={client ? `Signed out` : `Sign out`}
-      subtitle={user.email}
+      title={client ? `Signed out from` : `Sign out`}
+      subtitle={`Hi, ${user.name}`}
       loading={loading}
       buttons={[
         {
           status: "primary",
-          children: "Done",
+          children: "Continue",
           onPress: handleJustRedirect,
-          tabIndex: 1,
+          tabIndex: 2,
         },
         {
-          children: "Sign out all",
+          children: "Done",
           onPress: handleSignOutAll,
-          tabIndex: 2,
+          tabIndex: 1,
         },
       ]}
       error={errors.global}
     >
+      <Persona {...user} style={{marginBottom: 30}}/>
       <Text>
-        {client ? (<span>Signed out from <Link href={client.client_uri} target={"_blank"}>{client.name}</Link> successfully.<br /></span>) : null }
-        Do you want to destroy all the sessions?
+        <>
+          {client ? (<>Signed out from {client.name} successfully. </>) : null }
+          Destroy all the sessions of this account?
+        </>
       </Text>
     </ScreenLayout>
   );

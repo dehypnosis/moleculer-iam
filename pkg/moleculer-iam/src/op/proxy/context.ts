@@ -43,9 +43,9 @@ export class OIDCProviderContextProxy {
     return this.builder.app.getURL;
   }
 
-  public get getNamedURL() {
-    return (this.provider as any).urlFor;
-  }
+  public readonly getNamedURL = (name: string, opts?: any) => {
+    return (this.provider as any).urlFor(name, opts).replace(this.builder.issuer, "");
+  };
 
   public get routes() {
     return this.builder.app.getRoutes(this.interaction && this.interaction.prompt && this.interaction.prompt.name);
@@ -216,12 +216,16 @@ export class OIDCProviderContextProxy {
     const { ctx, idp, provider } = this;
     const hiddenProvider = getProviderHiddenProps(provider);
 
-    // @ts-ignore ensure oidc context is created
+    // @ts-ignore ensure oidc context
     if (!ctx.oidc) {
       Object.defineProperty(ctx, "oidc", { value: new hiddenProvider.OIDCContext(ctx as any) });
     }
+
+    // @ts-ignore ensure session
+    this.session = ctx.oidc.session || await provider.Session.get(ctx);
+
+    // create metadata
     const configuration: Configuration = hiddenProvider.configuration();
-    this.session = await provider.Session.get(ctx as any) as any;
     this.metadata = {
       federationProviders: this.builder.app.federation.providerNames,
       mandatoryScopes: idp.claims.mandatoryScopes,
@@ -236,13 +240,14 @@ export class OIDCProviderContextProxy {
   private async readProviderSession() {
     const { ctx, idp, provider } = this;
 
+    this.user = this.session.account ? (await idp.findOrFail({ id: this.session.account })) : undefined;
+    if (this.user) {
+      this.userClaims = await this.getPublicUserProps(this.user);
+    }
+
     try {
       const interaction = await provider.interactionDetails(ctx.req, ctx.res) as Interaction;
       this.interaction = interaction;
-      this.user = interaction.session && typeof interaction.session.accountId === "string" ? (await idp.findOrFail({ id: interaction.session.accountId })) : undefined;
-      if (this.user) {
-        this.userClaims = await this.getPublicUserProps(this.user);
-      }
       this.client = interaction.params.client_id ? (await provider.Client.find(interaction.params.client_id) as Client) : undefined;
       if (this.client) {
         this.clientMetadata = await this.getPublicClientProps(this.client);

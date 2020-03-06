@@ -1,7 +1,6 @@
 import React from "react";
-import { Text } from "../styles";
 import { useClose, useAppState } from "../hook";
-import { ScreenLayout } from "./component/layout";
+import { ScreenLayout, Text } from "./component";
 
 export const LogoutEndScreen: React.FunctionComponent = () => {
   // states
@@ -13,7 +12,7 @@ export const LogoutEndScreen: React.FunctionComponent = () => {
   return (
     <ScreenLayout
       title={`Signed out`}
-      subtitle={user ? user.email : undefined}
+      subtitle={`Hi, ${user ? user.name : "guest"}`}
       buttons={[
         {
           children: "Close",
@@ -25,7 +24,7 @@ export const LogoutEndScreen: React.FunctionComponent = () => {
       error={closed ? "Please close the window manually." : undefined}
     >
       <Text>
-        {user ? "All your sessions are still alive." : "All your sessions have been destroyed."}
+        {user ? "Below sessions of your account are still active." : "All the sessions of your account have been destroyed."}
       </Text>
     </ScreenLayout>
   );
