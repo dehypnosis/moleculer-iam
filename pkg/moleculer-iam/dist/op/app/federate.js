@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const idp_1 = require("../../idp");
-function buildFederateRoutes(builder, opts, actions) {
+function buildFederateRoutes(builder, opts) {
     const federation = builder.app.federation;
     builder.app.router
         .post("/federate", async (ctx, next) => {

@@ -12,15 +12,16 @@ export declare type ApplicationRequestContextProps = {
     idp: IdentityProvider;
     unwrap(): BaseContext;
 } & IAMServerRequestContextProps;
-export interface ApplicationActionEndpoints {
+export interface ApplicationRoutes {
     [key: string]: {
         url: string;
         method: "POST" | "GET";
         payload?: any;
-        urlencoded?: boolean;
+        synchronous?: boolean;
         [key: string]: any;
     };
 }
+export declare type ApplicationRoutesFactory = (promptName?: string) => ApplicationRoutes;
 export interface ApplicationSessionState {
     [key: string]: any;
 }
@@ -34,7 +35,7 @@ export interface ApplicationMetadata {
 }
 export interface ApplicationState {
     name: string;
-    actions: ApplicationActionEndpoints;
+    routes: ApplicationRoutes;
     error?: OIDCError;
     metadata: ApplicationMetadata;
     locale: ParsedLocale;

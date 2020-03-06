@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-function buildAbortRoutes(builder, opts, actions) {
+function buildAbortRoutes(builder, opts) {
     builder.app.router.get("/abort", async (ctx) => {
         return ctx.op.redirectWithUpdate({
             error: "access_denied",

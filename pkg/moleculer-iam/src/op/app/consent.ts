@@ -1,8 +1,7 @@
 import { ProviderConfigBuilder } from "../proxy";
-import { ApplicationActionEndpointGroups } from "./actions";
 import { ApplicationBuildOptions } from "./index";
 
-export function buildConsentRoutes(builder: ProviderConfigBuilder, opts: ApplicationBuildOptions, actions: ApplicationActionEndpointGroups): void {
+export function buildConsentRoutes(builder: ProviderConfigBuilder, opts: ApplicationBuildOptions): void {
   builder.app.router
     .get("/consent", async ctx => {
       const { client, interaction } = ctx.op;
@@ -20,10 +19,7 @@ export function buildConsentRoutes(builder: ProviderConfigBuilder, opts: Applica
       }
 
       // or render consent form
-      return ctx.op.render({
-        name: "consent",
-        actions: actions.consent,
-      });
+      return ctx.op.render("consent");
     })
 
     // handle consent

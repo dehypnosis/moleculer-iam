@@ -8,7 +8,6 @@ class IdentityProviderError implements OIDCError {
       public readonly status: number,
       public readonly error: string,
       public readonly error_description: string|undefined,
-      public readonly data: any = {},
     ) {
   }
 }
@@ -32,8 +31,13 @@ class InvalidCredentialsError extends IdentityProviderError {
 }
 
 class ValidationError extends IdentityProviderError {
-  constructor(public readonly fields: ValidationErrorEntry[], detail?: any) {
-    super(422, "validation_failed", "Validation failed.", fields);
+  public readonly fields: {[field: string]: string};
+  constructor(public readonly entries: ValidationErrorEntry[], public readonly debug?: object) {
+    super(422, "validation_failed", "Validation failed.");
+    this.fields = entries.reduce((fields, entry) => {
+      fields[entry.field] = fields[entry.field] || entry.message;
+      return fields;
+    }, {} as {[field: string]: string});
   }
 }
 

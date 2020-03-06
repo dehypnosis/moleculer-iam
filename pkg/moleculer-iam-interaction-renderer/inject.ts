@@ -9,7 +9,7 @@ export type ApplicationOptions = {
     width: string,
   },
   login: {
-    federationOptionsVisibleDefault: boolean,
+    federationOptionsVisible: boolean,
   },
   theme: string;
   palette: {

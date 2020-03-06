@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
 const _ = tslib_1.__importStar(require("lodash"));
-function buildRegisterRoutes(builder, opts, actions) {
+function buildRegisterRoutes(builder, opts) {
     const { allowedScopes, forbiddenClaims } = _.defaultsDeep(opts.register || {}, {
         allowedScopes: ["email", "profile", "birthdate", "gender", "phone"],
         forbiddenClaims: ["email_verified", "phone_number_verified"],
@@ -47,10 +47,7 @@ function buildRegisterRoutes(builder, opts, actions) {
             register: {},
             ...prevState,
         }));
-        return ctx.op.render({
-            name: "register",
-            actions: actions.register,
-        });
+        return ctx.op.render("register");
     })
         // validate claims and credentials
         .post("/register/validate", async (ctx) => {

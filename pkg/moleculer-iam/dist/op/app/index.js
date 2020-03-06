@@ -4,7 +4,7 @@ const tslib_1 = require("tslib");
 const _ = tslib_1.__importStar(require("lodash"));
 const oidc_provider_1 = require("oidc-provider");
 const federation_1 = require("./federation");
-const actions_1 = require("./actions");
+const routes_1 = require("./routes");
 const abort_1 = require("./abort");
 const find_email_1 = require("./find_email");
 const reset_password_1 = require("./reset_password");
@@ -47,6 +47,7 @@ function buildApplication(builder, opts = {}) {
         oidc_provider_1.interactionPolicy.base().get("login"),
         oidc_provider_1.interactionPolicy.base().get("consent"),
     ])
+        .setRoutesFactory(routes_1.createApplicationRoutesFactory(builder, opts))
         // set app renderer
         .setRendererFactory(renderer.factory || require("moleculer-iam-interaction-renderer"), renderer.options)
         // configure federation
@@ -55,16 +56,15 @@ function buildApplication(builder, opts = {}) {
         .setCallbackPrefix("/federate")
         .setProviderConfigurationMap(_.defaultsDeep(federation, federation_1.identityFederationProviderOptionsPreset));
     // build app routes
-    const actions = actions_1.buildApplicationActionEndpoints(builder, opts);
-    abort_1.buildAbortRoutes(builder, opts, actions);
-    find_email_1.buildFindEmailRoutes(builder, opts, actions);
-    verify_email_1.buildVerifyEmailRoutes(builder, opts, actions);
-    verify_phone_1.buildVerifyPhoneRoutes(builder, opts, actions);
-    reset_password_1.buildResetPasswordRoutes(builder, opts, actions);
-    register_1.buildRegisterRoutes(builder, opts, actions);
-    federate_1.buildFederateRoutes(builder, opts, actions);
-    login_1.buildLoginRoutes(builder, opts, actions);
-    consent_1.buildConsentRoutes(builder, opts, actions);
+    abort_1.buildAbortRoutes(builder, opts);
+    find_email_1.buildFindEmailRoutes(builder, opts);
+    verify_email_1.buildVerifyEmailRoutes(builder, opts);
+    verify_phone_1.buildVerifyPhoneRoutes(builder, opts);
+    reset_password_1.buildResetPasswordRoutes(builder, opts);
+    register_1.buildRegisterRoutes(builder, opts);
+    federate_1.buildFederateRoutes(builder, opts);
+    login_1.buildLoginRoutes(builder, opts);
+    consent_1.buildConsentRoutes(builder, opts);
 }
 exports.buildApplication = buildApplication;
 //# sourceMappingURL=index.js.map

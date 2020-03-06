@@ -1,7 +1,7 @@
 import Router from "koa-router";
 import { interactionPolicy } from "oidc-provider";
 import { IdentityFederationBuilder } from "./federation";
-import { ApplicationRequestContext } from "./app.types";
+import { ApplicationRoutes, ApplicationRoutesFactory, ApplicationRequestContext } from "./app.types";
 import { ApplicationRenderer, ApplicationRendererFactory } from "./renderer";
 import { DynamicConfiguration, ProviderConfigBuilder } from "./config";
 export declare class ProviderApplicationBuilder {
@@ -15,13 +15,16 @@ export declare class ProviderApplicationBuilder {
     _dangerouslySetPrefix(prefix: string): void;
     get idp(): import("../..").IdentityProvider;
     get op(): import("oidc-provider").Provider;
-    readonly getURL: (path: string) => string;
+    readonly getURL: (path: string, withHost?: true | undefined) => string;
     private readonly wrapContext;
     private readonly errorHandler;
     private readonly routerMiddleware;
     setRendererFactory<F extends ApplicationRendererFactory>(factory: F, options?: F extends ApplicationRendererFactory<infer O> ? O : never): this;
     private _appRenderer?;
     get appRenderer(): ApplicationRenderer;
+    setRoutesFactory(factory: ApplicationRoutesFactory): this;
+    getRoutes(promptName?: string): ApplicationRoutes;
+    private _routesFactory?;
     private renderError;
     private readonly renderErrorProxy;
     private renderLogout;

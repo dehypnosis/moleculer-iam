@@ -7,7 +7,7 @@ import { interactionPolicy } from "oidc-provider";
 import { snakeCase } from "change-case";
 import { OIDCProviderContextProxy } from "./context";
 import { IdentityFederationBuilder } from "./federation";
-import { ApplicationRequestContext } from "./app.types";
+import { ApplicationRoutes, ApplicationRoutesFactory, ApplicationRequestContext } from "./app.types";
 import { OIDCError } from "./error.types";
 import { DeviceInfo } from "./proxy.types";
 import { Logger } from "../../logger";
@@ -102,10 +102,7 @@ export class ProviderApplicationBuilder {
 
       ctx.status = normalizedStatus;
 
-      return ctx.op.render({
-        name: "error",
-        error: normalizedError,
-      });
+      return ctx.op.render("error", normalizedError);
     }
   };
 
@@ -134,6 +131,21 @@ export class ProviderApplicationBuilder {
     return this._appRenderer!;
   }
 
+  public setRoutesFactory(factory: ApplicationRoutesFactory) {
+    this._routesFactory = factory;
+    return this;
+  }
+
+  public getRoutes(promptName?: string): ApplicationRoutes {
+    if (!this._routesFactory) {
+      this.logger.warn("routes factory not configured; which is to ensure available xhr/page request endpoints for each prompts");
+      return {};
+    }
+    return this._routesFactory(promptName);
+  }
+
+  private _routesFactory?: ApplicationRoutesFactory;
+
   // internally named routes render default functions
   private renderError: (ctx: ApplicationRequestContext, error: OIDCError) => Promise<void> = async (ctx, error) => {
     return this.errorHandler(ctx as any, () => {
@@ -150,28 +162,25 @@ export class ProviderApplicationBuilder {
   };
 
   private renderLogout: (ctx: ApplicationRequestContext, xsrf: string) => Promise<void> = async (ctx, xsrf) => {
-    return ctx.op.render({
-      name: "logout",
-      actions: {
-        // destroy sessions
-        "logout.confirm": {
-          url: ctx.op.getNamedURL("end_session_confirm"),
-          method: "POST",
-          payload: {
-            xsrf,
-            logout: "true",
-          },
-          urlencoded: true,
+    return ctx.op.render("logout", undefined, {
+      // destroy sessions
+      "logout.confirm": {
+        url: ctx.op.getNamedURL("end_session_confirm"),
+        method: "POST",
+        payload: {
+          xsrf,
+          logout: "true",
         },
-        // without session destroy
-        "logout.redirect": {
-          url: ctx.op.getNamedURL("end_session_confirm"),
-          method: "POST",
-          payload: {
-            xsrf,
-          },
-          urlencoded: true,
+        synchronous: true,
+      },
+      // without session destroy
+      "logout.redirect": {
+        url: ctx.op.getNamedURL("end_session_confirm"),
+        method: "POST",
+        payload: {
+          xsrf,
         },
+        synchronous: true,
       },
     });
   };
@@ -187,9 +196,7 @@ export class ProviderApplicationBuilder {
   };
 
   private renderLogoutEnd: (ctx: ApplicationRequestContext) => Promise<void> = async (ctx) => {
-    return ctx.op.render({
-      name: "logout.end",
-    });
+    return ctx.op.render("logout.end");
   };
 
   // ref: https://github.com/panva/node-oidc-provider/blob/e5ecd85c346761f1ac7a89b8bf174b873be09239/lib/actions/end_session.js#L272
@@ -202,16 +209,13 @@ export class ProviderApplicationBuilder {
   };
 
   private renderDeviceFlow: (ctx: ApplicationRequestContext, userCode: string, xsrf: string) => Promise<void> = async (ctx, userCode, xsrf) => {
-    return ctx.op.render({
-      name: "device_flow",
-      actions: {
-        submit: {
-          url: ctx.op.getNamedURL("code_verification"),
-          method: "POST",
-          payload: {
-            xsrf,
-            user_code: userCode,
-          },
+    return ctx.op.render("device_flow", undefined, {
+      "device_flow.submit": {
+        url: ctx.op.getNamedURL("code_verification"),
+        method: "POST",
+        payload: {
+          xsrf,
+          user_code: userCode,
         },
       },
     });
@@ -232,26 +236,23 @@ export class ProviderApplicationBuilder {
   };
 
   private renderDeviceFlowConfirm: (ctx: ApplicationRequestContext, userCode: string, xsrf: string, device: DeviceInfo) => Promise<void> = async (ctx, userCode, xsrf, device) => {
-    return ctx.op.render({
-      name: "device_flow.confirm",
-      actions: {
-        verify: {
-          url: ctx.op.getNamedURL("code_verification"),
-          method: "POST",
-          payload: {
-            xsrf,
-            user_code: userCode,
-            confirm: "true",
-          },
+    return ctx.op.render("device_flow.confirm", undefined, {
+      "device_flow.verify": {
+        url: ctx.op.getNamedURL("code_verification"),
+        method: "POST",
+        payload: {
+          xsrf,
+          user_code: userCode,
+          confirm: "true",
         },
-        abort: {
-          url: ctx.op.getNamedURL("code_verification"),
-          method: "POST",
-          payload: {
-            xsrf,
-            user_code: userCode,
-            abort: "true",
-          },
+      },
+      "device_flow.abort": {
+        url: ctx.op.getNamedURL("code_verification"),
+        method: "POST",
+        payload: {
+          xsrf,
+          user_code: userCode,
+          abort: "true",
         },
       },
     });
@@ -269,10 +270,7 @@ export class ProviderApplicationBuilder {
   };
 
   private renderDeviceFlowEnd: (ctx: ApplicationRequestContext) => Promise<void> = async (ctx) => {
-    return ctx.op.render({
-      name: "device_flow.end",
-      actions: {},
-    });
+    return ctx.op.render("device_flow.end");
   };
 
   // ref: https://github.com/panva/node-oidc-provider/blob/ae8a4589c582b96f4e9ca0432307da15792ac29d/lib/actions/authorization/device_user_flow_response.js#L42

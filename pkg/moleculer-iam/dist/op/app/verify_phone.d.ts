@@ -1,7 +1,6 @@
 import { Logger } from "../../logger";
 import { ProviderConfigBuilder } from "../proxy";
 import { ApplicationBuildOptions } from "./index";
-import { ApplicationActionEndpointGroups } from "./actions";
 export declare type IdentityPhoneVerificationSendArgs = {
     phoneNumber: string;
     secret: string;
@@ -12,4 +11,4 @@ export declare type IdentityPhoneVerificationOptions = {
     timeoutSeconds?: number;
     send?(args: IdentityPhoneVerificationSendArgs): Promise<void>;
 };
-export declare function buildVerifyPhoneRoutes(builder: ProviderConfigBuilder, opts: ApplicationBuildOptions, actions: ApplicationActionEndpointGroups): void;
+export declare function buildVerifyPhoneRoutes(builder: ProviderConfigBuilder, opts: ApplicationBuildOptions): void;

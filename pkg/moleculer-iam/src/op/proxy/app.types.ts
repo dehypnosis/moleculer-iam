@@ -1,4 +1,5 @@
 import { ParameterizedContext, BaseContext } from "koa";
+import { IMiddleware } from "koa-router";
 import { ClientMetadata } from "oidc-provider";
 import { IAMServerRequestContextProps } from "../../server";
 import { OIDCProviderContextProxy } from "./context";
@@ -15,15 +16,17 @@ export type ApplicationRequestContextProps = {
   unwrap(): BaseContext;
 } & IAMServerRequestContextProps;
 
-export interface ApplicationActionEndpoints {
+export interface ApplicationRoutes {
   [key: string]: {
     url: string;
     method: "POST"|"GET";
     payload?: any;
-    urlencoded?: boolean;
+    synchronous?: boolean; // require synchronous request (form submit)
     [key: string]: any;
   };
 }
+
+export type ApplicationRoutesFactory = (promptName?: string) => ApplicationRoutes;
 
 export interface ApplicationSessionState {
   [key: string]: any;
@@ -38,7 +41,7 @@ export interface ApplicationMetadata {
 
 export interface ApplicationState {
   name: string;
-  actions: ApplicationActionEndpoints;
+  routes: ApplicationRoutes;
   error?: OIDCError;
 
   // static metadata

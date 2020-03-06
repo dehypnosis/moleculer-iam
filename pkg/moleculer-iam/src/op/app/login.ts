@@ -1,9 +1,8 @@
 import { Errors } from "../../idp";
 import { ProviderConfigBuilder } from "../proxy";
 import { ApplicationBuildOptions } from "./index";
-import { ApplicationActionEndpointGroups } from "./actions";
 
-export function buildLoginRoutes(builder: ProviderConfigBuilder, opts: ApplicationBuildOptions, actions: ApplicationActionEndpointGroups): void {
+export function buildLoginRoutes(builder: ProviderConfigBuilder, opts: ApplicationBuildOptions): void {
   builder.app.router// redirect to initial render page
 
     .get("/login/:any+", async ctx => {
@@ -12,7 +11,7 @@ export function buildLoginRoutes(builder: ProviderConfigBuilder, opts: Applicati
 
     // initial render page
     .get("/login", async ctx => {
-      const { user, userClaims, interaction, metadata } = ctx.op;
+      const { user, userClaims, interaction } = ctx.op;
       ctx.op.assertPrompt();
 
       // already signed in and consent app
@@ -34,10 +33,7 @@ export function buildLoginRoutes(builder: ProviderConfigBuilder, opts: Applicati
         }
       }
 
-      return ctx.op.render({
-        name: "login",
-        actions: actions.login,
-      });
+      return ctx.op.render("login");
     })
 
     // check login email exists

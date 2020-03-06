@@ -47,32 +47,34 @@ export const ScreenLayout: React.FunctionComponent<{
           <Image source={{uri: options.logo.uri || logo}} style={{height: options.logo.height, width: options.logo.width, resizeMode: "contain"}}/>
         </View>
 
-        <View style={{marginBottom: "30px"}}>
+        <View style={{marginBottom: 30}}>
           <Text category={"h4"}>{title}</Text>
           {subtitle && <Text category={"s1"} style={{marginTop: 10}}>{subtitle}</Text>}
         </View>
 
-        { children ? <View style={{marginBottom: "15px"}}>{children}</View> : null }
+        { children ? <View style={{marginBottom: 15}}>{children}</View> : null }
 
-        <View style={{justifyContent: "flex-end"}}>
-          {error ? <Text status={"danger"} category={"c2"} style={{marginTop: 10}}>{error}</Text> : null}
-          {buttons.map(({hidden, primary, text, onClick, tabIndex}, index) => {
-            if (hidden === true) {
-              return null;
-            }
-            return (
-              <Button ref={withAttrs({tabindex: tabIndex || null})}
-                      key={index}
-                      status={primary ? "primary" : "basic"} size={"large"}
-                      style={{marginTop: 15}}
-                      onPress={loading ? undefined : onClick}
-                      appearance={"filled"}
-              >{text}</Button>
-            );
-          })}
-        </View>
+        {error || buttons.length > 0 ? (
+          <View style={{marginBottom: 15}}>
+            {error ? <Text status={"danger"} category={"c2"} style={{marginTop: 10}}>{error}</Text> : null}
+            {buttons.map(({hidden, primary, text, onClick, tabIndex}, index) => {
+              if (hidden === true) {
+                return null;
+              }
+              return (
+                <Button ref={withAttrs({tabindex: tabIndex || null})}
+                        key={index}
+                        status={primary ? "primary" : "basic"} size={"large"}
+                        style={{marginTop: 15}}
+                        onPress={loading ? undefined : onClick}
+                        appearance={"filled"}
+                >{text}</Button>
+              );
+            })}
+          </View>
+        ) : null}
 
-        { footer ? <View style={{marginTop: 15}}>{footer}</View> : null }
+        { footer ? <View>{footer}</View> : null }
     </ScrollView>
   );
 };

@@ -1,3 +1,4 @@
+import { ValidationError as ValidationErrorEntry } from "fastest-validator";
 import { ErrorOut } from "oidc-provider";
 export interface OIDCError extends ErrorOut {
     error: string;
@@ -9,5 +10,7 @@ export interface OIDCError extends ErrorOut {
         actual: any;
         expected: any;
     }[];
+    entries?: ValidationErrorEntry[];
+    debug?: any;
     [key: string]: any;
 }

@@ -9,7 +9,7 @@ class IdentityFederationBuilder {
         this.callbacks = {};
         this.config = {};
         this._prefix = "/federate";
-        this.getCallbackURL = (providerName) => this.builder.app.getURL(`${this._prefix}/${providerName}`);
+        this.getCallbackURL = (providerName) => this.builder.app.getURL(`${this._prefix}/${providerName}`, true);
         this.passport = new koa_passport_1.KoaPassport();
     }
     get prefix() {

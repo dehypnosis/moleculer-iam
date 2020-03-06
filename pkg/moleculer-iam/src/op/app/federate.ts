@@ -1,9 +1,8 @@
 import { Errors } from "../../idp";
 import { ProviderConfigBuilder } from "../proxy";
 import { ApplicationBuildOptions } from "./index";
-import { ApplicationActionEndpointGroups } from "./actions";
 
-export function buildFederateRoutes(builder: ProviderConfigBuilder, opts: ApplicationBuildOptions, actions: ApplicationActionEndpointGroups): void {
+export function buildFederateRoutes(builder: ProviderConfigBuilder, opts: ApplicationBuildOptions): void {
   const federation = builder.app.federation;
   builder.app.router
     .post("/federate", async (ctx, next) => {

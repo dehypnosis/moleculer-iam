@@ -1,8 +1,9 @@
 import { ClientMetadata, InteractionResults } from "oidc-provider";
 import { Identity } from "../../idp";
 import { ProviderConfigBuilder } from "./config";
+import { OIDCError } from "./error.types";
 import { OIDCAccountClaims } from "./identity.types";
-import { ApplicationRequestContext, ApplicationState, ApplicationSessionState, ApplicationMetadata } from "./app.types";
+import { ApplicationRequestContext, ApplicationSessionState, ApplicationMetadata, ApplicationRoutes } from "./app.types";
 import { Client, DeviceInfo, Interaction, Session } from "./proxy.types";
 export declare class OIDCProviderContextProxy {
     private readonly ctx;
@@ -21,12 +22,13 @@ export declare class OIDCProviderContextProxy {
     constructor(ctx: ApplicationRequestContext, builder: ProviderConfigBuilder);
     private get idp();
     private get provider();
-    get getURL(): (path: string) => string;
+    get getURL(): (path: string, withHost?: true | undefined) => string;
     get getNamedURL(): any;
+    get routes(): ApplicationRoutes;
     private get sessionAppState();
     setSessionState(update: (prevState: ApplicationSessionState) => ApplicationSessionState): Promise<ApplicationSessionState>;
     private get isXHR();
-    render(stateProps: Pick<ApplicationState, "name" | "actions"> | Pick<ApplicationState, "name" | "error">): Promise<void>;
+    render(name: string, error?: OIDCError, additionalRoutes?: ApplicationRoutes): Promise<void>;
     redirectWithUpdate(promptUpdate: Partial<InteractionResults> | {
         error: string;
         error_description?: string;

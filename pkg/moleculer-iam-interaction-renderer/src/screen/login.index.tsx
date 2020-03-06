@@ -11,7 +11,7 @@ export const LoginIndexScreen: React.FunctionComponent = () => {
   const [email, setEmail] = useState(route.params.email || "");
   const [state, dispatch] = useAppState();
   const [options] = useAppOptions();
-  const [federationOptionsVisible, setFederationOptionsVisible] = useState(options.login.federationOptionsVisibleDefault === true);
+  const [federationOptionsVisible, setFederationOptionsVisible] = useState(options.login.federationOptionsVisible === true);
   const federationProviders = state.metadata.federationProviders;
 
   // handlers
@@ -146,7 +146,7 @@ export const LoginIndexScreen: React.FunctionComponent = () => {
 const federationText: {[provider: string]: string} = {
   google: "Login with Google",
   facebook: "Login with Facebook",
-  kakao: "Login with Kakao",
+  kakao: "Login with Kakaotalk",
   default: "Login with {provider}",
 };
 
@@ -154,6 +154,7 @@ const federationStyle: {[provider: string]: {style?: ViewStyle, textStyle?: Text
   google: {
     style: {
       backgroundColor: "#f5f5f5",
+      borderWidth: 0,
     },
     textStyle: {
       color: "#222b45",
@@ -162,6 +163,7 @@ const federationStyle: {[provider: string]: {style?: ViewStyle, textStyle?: Text
   facebook: {
     style: {
       backgroundColor: "#1876f2",
+      borderWidth: 0,
     },
     textStyle: {
       color: "#ffffff",
@@ -170,6 +172,7 @@ const federationStyle: {[provider: string]: {style?: ViewStyle, textStyle?: Text
   kakao: {
     style: {
       backgroundColor: "#ffdc00",
+      borderWidth: 0,
     },
     textStyle: {
       color: "#222b45",
@@ -178,6 +181,7 @@ const federationStyle: {[provider: string]: {style?: ViewStyle, textStyle?: Text
   default: {
     style: {
       backgroundColor: "#f5f5f5",
+      borderWidth: 0,
     },
     textStyle: {
       color: "#222b45",

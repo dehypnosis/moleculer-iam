@@ -4,8 +4,7 @@ declare class IdentityProviderError implements OIDCError {
     readonly status: number;
     readonly error: string;
     readonly error_description: string | undefined;
-    readonly data: any;
-    constructor(status: number, error: string, error_description: string | undefined, data?: any);
+    constructor(status: number, error: string, error_description: string | undefined);
 }
 declare class IdentityAlreadyExistsError extends IdentityProviderError {
     constructor();
@@ -17,8 +16,12 @@ declare class InvalidCredentialsError extends IdentityProviderError {
     constructor();
 }
 declare class ValidationError extends IdentityProviderError {
-    readonly fields: ValidationErrorEntry[];
-    constructor(fields: ValidationErrorEntry[], detail?: any);
+    readonly entries: ValidationErrorEntry[];
+    readonly debug?: object | undefined;
+    readonly fields: {
+        [field: string]: string;
+    };
+    constructor(entries: ValidationErrorEntry[], debug?: object | undefined);
 }
 declare class MigrationError extends IdentityProviderError {
     constructor(desc: string);

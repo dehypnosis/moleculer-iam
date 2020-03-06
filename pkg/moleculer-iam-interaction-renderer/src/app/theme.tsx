@@ -39,6 +39,7 @@ export const ApplicationThemeProvider: React.FunctionComponent = ({ children }) 
 };
 
 
+/*
 // to fix mobile browser 100vh mis-calculation
 if (typeof window !== "undefined") {
   const fullHeightElems = window.document.querySelectorAll("#root, #theme-container, #nav-container");
@@ -49,6 +50,8 @@ if (typeof window !== "undefined") {
     });
   };
 
+  setDocHeight();
   window.addEventListener("resize", _.throttle(setDocHeight, 500));
   window.addEventListener("orientationchange", setDocHeight);
 }
+*/

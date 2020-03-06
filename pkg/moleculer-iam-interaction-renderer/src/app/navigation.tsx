@@ -23,14 +23,6 @@ export const AppNavigationProvider: React.FunctionComponent<{
           navState.routes[0].name = "error";
           console.error(`appState.error`, appState);
         }
-
-        // warn unmatched interaction page
-        if (appState.name) {
-          const route = getMatchedRoute(navState);
-          if (route && route.name !== appState.name) {
-            console.warn(`appState.name differs from matched route`, appState.name, route);
-          }
-        }
         console.debug("nav state update:", navState);
       }
       return navState;
@@ -60,16 +52,6 @@ export const AppNavigationProvider: React.FunctionComponent<{
     </NavigationContainer>
   )
 }
-
-function getMatchedRoute(state: Partial<NavigationState>): Route<string> & {state?: Partial<NavigationState>} | undefined {
-  const route = state.routes && state.routes[0];
-  if (!route) return;
-  if (route.state) {
-    return getMatchedRoute(route.state);
-  }
-  return route;
-}
-
 
 // enhance navigation instance methods
 export function useNavigation() {

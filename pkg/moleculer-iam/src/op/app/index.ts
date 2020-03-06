@@ -3,7 +3,7 @@ import { interactionPolicy, errors } from "oidc-provider";
 import { ProviderConfigBuilder } from "../proxy";
 import { ApplicationRendererFactory, ApplicationRendererFactoryFactoryOptions } from "../proxy";
 import { IdentityFederationProviderOptions, identityFederationProviderOptionsPreset } from "./federation";
-import { buildApplicationActionEndpoints } from "./actions";
+import { createApplicationRoutesFactory } from "./routes";
 import { buildAbortRoutes } from "./abort";
 import { buildFindEmailRoutes } from "./find_email";
 import { buildResetPasswordRoutes } from "./reset_password";
@@ -64,6 +64,8 @@ export function buildApplication(builder: ProviderConfigBuilder, opts: Applicati
       interactionPolicy.base().get("consent"),
     ])
 
+    .setRoutesFactory(createApplicationRoutesFactory(builder, opts))
+
     // set app renderer
     .setRendererFactory(renderer.factory || require("moleculer-iam-interaction-renderer"), renderer.options)
 
@@ -75,14 +77,13 @@ export function buildApplication(builder: ProviderConfigBuilder, opts: Applicati
     .setProviderConfigurationMap(_.defaultsDeep(federation, identityFederationProviderOptionsPreset));
 
   // build app routes
-  const actions = buildApplicationActionEndpoints(builder, opts);
-  buildAbortRoutes(builder, opts, actions);
-  buildFindEmailRoutes(builder, opts, actions);
-  buildVerifyEmailRoutes(builder, opts, actions);
-  buildVerifyPhoneRoutes(builder, opts, actions);
-  buildResetPasswordRoutes(builder, opts, actions);
-  buildRegisterRoutes(builder, opts, actions);
-  buildFederateRoutes(builder, opts, actions);
-  buildLoginRoutes(builder, opts, actions);
-  buildConsentRoutes(builder, opts, actions);
+  buildAbortRoutes(builder, opts);
+  buildFindEmailRoutes(builder, opts);
+  buildVerifyEmailRoutes(builder, opts);
+  buildVerifyPhoneRoutes(builder, opts);
+  buildResetPasswordRoutes(builder, opts);
+  buildRegisterRoutes(builder, opts);
+  buildFederateRoutes(builder, opts);
+  buildLoginRoutes(builder, opts);
+  buildConsentRoutes(builder, opts);
 }

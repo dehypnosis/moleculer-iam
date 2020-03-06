@@ -14,7 +14,7 @@ class ProviderApplicationBuilder {
     constructor(builder) {
         this.builder = builder;
         this._prefix = "/op";
-        this.getURL = (path) => `${this.builder.issuer}${this.prefix}${path}`;
+        this.getURL = (path, withHost) => `${withHost ? this.builder.issuer : ""}${this.prefix}${path}`;
         this.wrapContext = async (ctx, next) => {
             ctx.idp = this.idp;
             ctx.op = await new context_1.OIDCProviderContextProxy(ctx, this.builder)._dangerouslyCreate();
@@ -50,10 +50,7 @@ class ProviderApplicationBuilder {
                     normalizedError.error_description = "Cannot handle the unrecognized route or not allowed method.";
                 }
                 ctx.status = normalizedStatus;
-                return ctx.op.render({
-                    name: "error",
-                    error: normalizedError,
-                });
+                return ctx.op.render("error", normalizedError);
             }
         };
         this.routerMiddleware = [
@@ -76,28 +73,25 @@ class ProviderApplicationBuilder {
             });
         };
         this.renderLogout = async (ctx, xsrf) => {
-            return ctx.op.render({
-                name: "logout",
-                actions: {
-                    // destroy sessions
-                    "logout.confirm": {
-                        url: ctx.op.getNamedURL("end_session_confirm"),
-                        method: "POST",
-                        payload: {
-                            xsrf,
-                            logout: "true",
-                        },
-                        urlencoded: true,
+            return ctx.op.render("logout", undefined, {
+                // destroy sessions
+                "logout.confirm": {
+                    url: ctx.op.getNamedURL("end_session_confirm"),
+                    method: "POST",
+                    payload: {
+                        xsrf,
+                        logout: "true",
                     },
-                    // without session destroy
-                    "logout.redirect": {
-                        url: ctx.op.getNamedURL("end_session_confirm"),
-                        method: "POST",
-                        payload: {
-                            xsrf,
-                        },
-                        urlencoded: true,
+                    synchronous: true,
+                },
+                // without session destroy
+                "logout.redirect": {
+                    url: ctx.op.getNamedURL("end_session_confirm"),
+                    method: "POST",
+                    payload: {
+                        xsrf,
                     },
+                    synchronous: true,
                 },
             });
         };
@@ -111,9 +105,7 @@ class ProviderApplicationBuilder {
             });
         };
         this.renderLogoutEnd = async (ctx) => {
-            return ctx.op.render({
-                name: "logout.end",
-            });
+            return ctx.op.render("logout.end");
         };
         // ref: https://github.com/panva/node-oidc-provider/blob/e5ecd85c346761f1ac7a89b8bf174b873be09239/lib/actions/end_session.js#L272
         this.postLogoutSuccessSourceProxy = async (ctx) => {
@@ -124,16 +116,13 @@ class ProviderApplicationBuilder {
             });
         };
         this.renderDeviceFlow = async (ctx, userCode, xsrf) => {
-            return ctx.op.render({
-                name: "device_flow",
-                actions: {
-                    submit: {
-                        url: ctx.op.getNamedURL("code_verification"),
-                        method: "POST",
-                        payload: {
-                            xsrf,
-                            user_code: userCode,
-                        },
+            return ctx.op.render("device_flow", undefined, {
+                "device_flow.submit": {
+                    url: ctx.op.getNamedURL("code_verification"),
+                    method: "POST",
+                    payload: {
+                        xsrf,
+                        user_code: userCode,
                     },
                 },
             });
@@ -152,26 +141,23 @@ class ProviderApplicationBuilder {
             });
         };
         this.renderDeviceFlowConfirm = async (ctx, userCode, xsrf, device) => {
-            return ctx.op.render({
-                name: "device_flow.confirm",
-                actions: {
-                    verify: {
-                        url: ctx.op.getNamedURL("code_verification"),
-                        method: "POST",
-                        payload: {
-                            xsrf,
-                            user_code: userCode,
-                            confirm: "true",
-                        },
+            return ctx.op.render("device_flow.confirm", undefined, {
+                "device_flow.verify": {
+                    url: ctx.op.getNamedURL("code_verification"),
+                    method: "POST",
+                    payload: {
+                        xsrf,
+                        user_code: userCode,
+                        confirm: "true",
                     },
-                    abort: {
-                        url: ctx.op.getNamedURL("code_verification"),
-                        method: "POST",
-                        payload: {
-                            xsrf,
-                            user_code: userCode,
-                            abort: "true",
-                        },
+                },
+                "device_flow.abort": {
+                    url: ctx.op.getNamedURL("code_verification"),
+                    method: "POST",
+                    payload: {
+                        xsrf,
+                        user_code: userCode,
+                        abort: "true",
                     },
                 },
             });
@@ -187,10 +173,7 @@ class ProviderApplicationBuilder {
             });
         };
         this.renderDeviceFlowEnd = async (ctx) => {
-            return ctx.op.render({
-                name: "device_flow.end",
-                actions: {},
-            });
+            return ctx.op.render("device_flow.end");
         };
         // ref: https://github.com/panva/node-oidc-provider/blob/ae8a4589c582b96f4e9ca0432307da15792ac29d/lib/actions/authorization/device_user_flow_response.js#L42
         this.deviceFlowSuccessSourceProxy = (ctx) => {
@@ -249,6 +232,17 @@ class ProviderApplicationBuilder {
             this.setRendererFactory(renderer_1.dummyAppStateRendererFactory);
         }
         return this._appRenderer;
+    }
+    setRoutesFactory(factory) {
+        this._routesFactory = factory;
+        return this;
+    }
+    getRoutes(promptName) {
+        if (!this._routesFactory) {
+            this.logger.warn("routes factory not configured; which is to ensure available xhr/page request endpoints for each prompts");
+            return {};
+        }
+        return this._routesFactory(promptName);
     }
     setPrompts(prompts) {
         this.builder.assertBuilding();

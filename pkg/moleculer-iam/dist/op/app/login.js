@@ -1,14 +1,14 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const idp_1 = require("../../idp");
-function buildLoginRoutes(builder, opts, actions) {
+function buildLoginRoutes(builder, opts) {
     builder.app.router // redirect to initial render page
         .get("/login/:any+", async (ctx) => {
         return ctx.op.redirect("/login" + (ctx.search || ""));
     })
         // initial render page
         .get("/login", async (ctx) => {
-        const { user, userClaims, interaction, metadata } = ctx.op;
+        const { user, userClaims, interaction } = ctx.op;
         ctx.op.assertPrompt();
         // already signed in and consent app
         if (user) {
@@ -27,10 +27,7 @@ function buildLoginRoutes(builder, opts, actions) {
                 return ctx.op.redirect(`/login?email=${encodeURIComponent(userClaims.email)}`);
             }
         }
-        return ctx.op.render({
-            name: "login",
-            actions: actions.login,
-        });
+        return ctx.op.render("login");
     })
         // check login email exists
         .post("/login/check_email", async (ctx) => {

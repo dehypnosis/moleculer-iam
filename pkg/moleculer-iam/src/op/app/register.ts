@@ -1,14 +1,13 @@
 import * as _ from "lodash";
 import { ApplicationRequestContext, ProviderConfigBuilder } from "../proxy";
 import { ApplicationBuildOptions } from "./index";
-import { ApplicationActionEndpointGroups } from "./actions";
 
 export type IdentityRegisterOptions = {
   allowedScopes?: string[];
   forbiddenClaims?: string[];
 }
 
-export function buildRegisterRoutes(builder: ProviderConfigBuilder, opts: ApplicationBuildOptions, actions: ApplicationActionEndpointGroups): void {
+export function buildRegisterRoutes(builder: ProviderConfigBuilder, opts: ApplicationBuildOptions): void {
 
   const { allowedScopes, forbiddenClaims } = _.defaultsDeep(opts.register || {}, {
     allowedScopes: ["email", "profile", "birthdate", "gender", "phone"],
@@ -62,10 +61,7 @@ export function buildRegisterRoutes(builder: ProviderConfigBuilder, opts: Applic
         ...prevState,
       }));
 
-      return ctx.op.render({
-        name: "register",
-        actions: actions.register,
-      });
+      return ctx.op.render("register");
     })
 
     // validate claims and credentials

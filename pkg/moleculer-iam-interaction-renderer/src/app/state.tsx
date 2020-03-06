@@ -2,6 +2,7 @@ import { ApplicationResponse, ApplicationState } from "moleculer-iam";
 import React, { createContext, useContext } from "react";
 import { ClientErrorScreen } from "../screen/error";
 import { getInitialAppState } from "../../inject";
+import { AppOptionsContext } from "./options";
 
 // read server state and create endpoint request helper
 export const AppStateContext = createContext<[ApplicationState, AppStateProvider["dispatch"]]>([] as any);
@@ -11,6 +12,8 @@ export function useAppState() {
 }
 
 export class AppStateProvider extends React.Component<{}> {
+  static contextType = AppOptionsContext;
+
   state = {
     error: null as any,
     appState: getInitialAppState(),
@@ -19,6 +22,18 @@ export class AppStateProvider extends React.Component<{}> {
   render() {
     const { error, appState } = this.state;
     console.debug("app state update:", appState);
+
+    // expose dev helper
+    const [appOptions, setAppOptions] = this.context;
+    if (appOptions.dev) {
+      // @ts-ignore
+      window.__APP_DEV__ = {
+        options: appOptions,
+        setOptions: setAppOptions,
+        state: appState,
+        dispatch: this.dispatch,
+      };
+    }
 
     if (error) {
       return <ClientErrorScreen error={error} />;
@@ -40,22 +55,22 @@ export class AppStateProvider extends React.Component<{}> {
 
   // call xhr request and update app state
   dispatch = async (name: string, userPayload: any = {}): Promise<ApplicationState> => {
-    const actions = this.state.appState.actions;
-    const action = actions && actions[name];
+    const routes = this.state.appState.routes;
+    const route = routes && routes[name];
 
-    if (!action) {
-      const err = {global: "Cannot call unsupported action."};
-      console.error(err, this.state);
+    if (!route) {
+      const err = {global: "Cannot make a request to unsupported route."};
+      console.error(err, name, userPayload);
       // eslint-disable-next-line no-throw-literal
       throw err;
     }
 
     // merge user payload with hint payload
-    const {url, urlencoded = false, method, payload} = action;
+    const {url, synchronous = false, method, payload} = route;
     const mergedPayload = {...payload, ...userPayload};
 
-    // as application/x-www-form-urlencoded
-    if (urlencoded) {
+    // form submission required (application/x-www-form-urlencoded)
+    if (synchronous) {
       const form = document.createElement("form");
       form.action = url;
       form.method = method;
@@ -74,7 +89,7 @@ export class AppStateProvider extends React.Component<{}> {
     }
 
     // as xhr
-    return fetch(action.url, {
+    return fetch(url, {
       headers: {
         "Accept": "application/json",
         "Content-Type": "application/json;charset=UTF-8",
@@ -87,20 +102,13 @@ export class AppStateProvider extends React.Component<{}> {
         // parse json response
         return res.json()
           .then((data: ApplicationResponse): ApplicationState => {
-            if (data.error) { // XHR error response
-              // organize field error descriptor for form components on validation error
-              if (res.status === 422 && data.error.fields) {
-                const err = data.error.fields.reduce((e: any, item: { field: string, message: string, type: string, actual: any }) => {
-                  e[item.field] = e[item.field] || item.message;
-                  return e;
-                }, {});
-                console.error("validation error", err, data);
-                // eslint-disable-next-line no-throw-literal
-                throw err;
+            if (data.error) { // got error response
+              if (res.status === 422 && data.error.fields) { // got validation error
+                console.error("validation error", data.error);
+                throw data.error.fields;
               } else {
                 const err = {global: typeof data.error === "object" ? (data.error.error_description || data.error.error || JSON.stringify(data.error)) : (data.error as any).toString()};
                 console.error("global error", err, data);
-                // eslint-disable-next-line no-throw-literal
                 throw err;
               }
 
@@ -109,10 +117,13 @@ export class AppStateProvider extends React.Component<{}> {
               this.setState(prev => ({...prev, appState}));
               return appState;
 
-            } else if (data.state) {
-              console.error("interaction state response received from XHR", data);
+            } else if (data.state) { // got whole app state update
+              const appState = data.state;
+              this.setState(prev => ({...prev, appState}));
+              console.error("whole application state response received from XHR, this is unexpected behavior but commit update", data);
+              return appState;
 
-            } else if (data.redirect) {
+            } else if (data.redirect) { // got redirection request
               window.location.assign(data.redirect);
               return new Promise(() => {}) as any;
 

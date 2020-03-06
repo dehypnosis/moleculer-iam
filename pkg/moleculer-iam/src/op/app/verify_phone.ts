@@ -3,7 +3,6 @@ import moment from "moment";
 import { Logger } from "../../logger";
 import { ProviderConfigBuilder } from "../proxy";
 import { ApplicationBuildOptions } from "./index";
-import { ApplicationActionEndpointGroups } from "./actions";
 
 export type IdentityPhoneVerificationSendArgs = {
   phoneNumber: string;
@@ -21,7 +20,7 @@ async function defaultSend({ logger, ...args }: IdentityPhoneVerificationSendArg
   logger.warn("should implement op.app.verifyPhone.send option to send phone verification message", args);
 }
 
-export function buildVerifyPhoneRoutes(builder: ProviderConfigBuilder, opts: ApplicationBuildOptions, actions: ApplicationActionEndpointGroups): void {
+export function buildVerifyPhoneRoutes(builder: ProviderConfigBuilder, opts: ApplicationBuildOptions): void {
 
   const { timeoutSeconds, send } = _.defaultsDeep(opts || {}, {
     timeoutSeconds: 180,

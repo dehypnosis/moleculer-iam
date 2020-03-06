@@ -1,8 +1,9 @@
 import { ClientMetadata, Configuration, InteractionResults } from "oidc-provider";
 import { Identity } from "../../idp";
 import { ProviderConfigBuilder } from "./config";
+import { OIDCError } from "./error.types";
 import { OIDCAccountClaims } from "./identity.types";
-import { ApplicationRequestContext, ApplicationState, ApplicationResponse, ApplicationSessionState, ApplicationMetadata } from "./app.types";
+import { ApplicationRequestContext, ApplicationState, ApplicationResponse, ApplicationSessionState, ApplicationMetadata, ApplicationRoutes } from "./app.types";
 import { BaseContext } from "koa";
 import { Client, DeviceInfo, DiscoveryMetadata, Interaction, Session } from "./proxy.types";
 
@@ -45,6 +46,10 @@ export class OIDCProviderContextProxy {
     return (this.provider as any).urlFor;
   }
 
+  public get routes() {
+    return this.builder.app.getRoutes(this.interaction && this.interaction.prompt && this.interaction.prompt.name);
+  }
+
   private get sessionAppState() {
     return this.session.state && this.session.state[OIDCProviderContextProxy.sessionAppStateField] || {};
   }
@@ -74,25 +79,25 @@ export class OIDCProviderContextProxy {
     return this.ctx.accepts(JSON, HTML) === JSON;
   }
 
-  public async render(stateProps: Pick<ApplicationState, "name"|"actions">|Pick<ApplicationState, "name"|"error">): Promise<void> {
+  public async render(name: string, error?: OIDCError, additionalRoutes?: ApplicationRoutes): Promise<void> {
     const { ctx } = this;
 
     // response { error: {} } when is XHR and stateProps has error
-    if (this.isXHR) {
-      const statePropsWithError: Pick<ApplicationState, "name"|"error"> = stateProps;
-      if (statePropsWithError.error) {
-        const response: ApplicationResponse = { error: statePropsWithError.error };
-        ctx.type = JSON;
-        ctx.body = response;
-        return;
-      }
+    if (this.isXHR && error) {
+      const response: ApplicationResponse = { error };
+      ctx.type = JSON;
+      ctx.body = response;
+      return;
     }
 
     // else response { state: {...} }
     const state: ApplicationState = {
-      name: "undefined",
-      actions: {},
-      ...stateProps,
+      name,
+      error,
+      routes: {
+        ...this.routes,
+        ...additionalRoutes,
+      },
       metadata: this.metadata,
       locale: ctx.locale,
       session: this.sessionAppState,
@@ -104,9 +109,15 @@ export class OIDCProviderContextProxy {
       device: this.device,
     };
 
-    ctx.type = HTML;
+    if (this.isXHR) {
+      const response: ApplicationResponse = { state };
+      ctx.type = JSON;
+      ctx.body = response;
+      return;
+    }
 
-    // unwrap enhanced context and delegate render to secure vulnerability
+    // unwrap enhanced context to secure vulnerability, then delegate response to app renderer
+    ctx.type = HTML;
     return this.builder.app.appRenderer.render(ctx.unwrap(), state);
   }
 
@@ -195,6 +206,8 @@ export class OIDCProviderContextProxy {
 
   private async _parseInteractionState() {
     const { ctx, idp, provider } = this;
+
+    // get current prompt information
     try {
       const interaction = await provider.interactionDetails(ctx.req, ctx.res) as Interaction;
       this.interaction = interaction;

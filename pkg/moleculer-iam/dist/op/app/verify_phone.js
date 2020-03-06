@@ -6,7 +6,7 @@ const moment_1 = tslib_1.__importDefault(require("moment"));
 async function defaultSend({ logger, ...args }) {
     logger.warn("should implement op.app.verifyPhone.send option to send phone verification message", args);
 }
-function buildVerifyPhoneRoutes(builder, opts, actions) {
+function buildVerifyPhoneRoutes(builder, opts) {
     const { timeoutSeconds, send } = _.defaultsDeep(opts || {}, {
         timeoutSeconds: 180,
         send: defaultSend,

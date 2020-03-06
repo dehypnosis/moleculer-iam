@@ -21,9 +21,9 @@ export class AppOptionsProvider extends React.Component<{}, ApplicationOptions &
       width: "92px",
     },
     login: {
-      federationOptionsVisibleDefault: false,
+      federationOptionsVisible: false,
     },
-    theme: "dark",
+    theme: "light",
     palette: {
       light: lightTheme,
       dark: darkTheme,

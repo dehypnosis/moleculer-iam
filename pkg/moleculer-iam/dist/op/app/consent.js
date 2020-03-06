@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-function buildConsentRoutes(builder, opts, actions) {
+function buildConsentRoutes(builder, opts) {
     builder.app.router
         .get("/consent", async (ctx) => {
         const { client, interaction } = ctx.op;
@@ -16,10 +16,7 @@ function buildConsentRoutes(builder, opts, actions) {
             });
         }
         // or render consent form
-        return ctx.op.render({
-            name: "consent",
-            actions: actions.consent,
-        });
+        return ctx.op.render("consent");
     })
         // handle consent
         .post("/consent/accept", async (ctx) => {

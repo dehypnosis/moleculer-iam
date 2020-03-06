@@ -1,11 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class IdentityProviderError {
-    constructor(status, error, error_description, data = {}) {
+    constructor(status, error, error_description) {
         this.status = status;
         this.error = error;
         this.error_description = error_description;
-        this.data = data;
     }
 }
 class IdentityAlreadyExistsError extends IdentityProviderError {
@@ -24,9 +23,14 @@ class InvalidCredentialsError extends IdentityProviderError {
     }
 }
 class ValidationError extends IdentityProviderError {
-    constructor(fields, detail) {
-        super(422, "validation_failed", "Validation failed.", fields);
-        this.fields = fields;
+    constructor(entries, debug) {
+        super(422, "validation_failed", "Validation failed.");
+        this.entries = entries;
+        this.debug = debug;
+        this.fields = entries.reduce((fields, entry) => {
+            fields[entry.field] = fields[entry.field] || entry.message;
+            return fields;
+        }, {});
     }
 }
 class MigrationError extends IdentityProviderError {

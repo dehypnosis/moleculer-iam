@@ -27,6 +27,9 @@ class OIDCProviderContextProxy {
     get getNamedURL() {
         return this.provider.urlFor;
     }
+    get routes() {
+        return this.builder.app.getRoutes(this.interaction && this.interaction.prompt && this.interaction.prompt.name);
+    }
     get sessionAppState() {
         return this.session.state && this.session.state[OIDCProviderContextProxy.sessionAppStateField] || {};
     }
@@ -51,23 +54,23 @@ class OIDCProviderContextProxy {
     get isXHR() {
         return this.ctx.accepts(JSON, HTML) === JSON;
     }
-    async render(stateProps) {
+    async render(name, error, additionalRoutes) {
         const { ctx } = this;
         // response { error: {} } when is XHR and stateProps has error
-        if (this.isXHR) {
-            const statePropsWithError = stateProps;
-            if (statePropsWithError.error) {
-                const response = { error: statePropsWithError.error };
-                ctx.type = JSON;
-                ctx.body = response;
-                return;
-            }
+        if (this.isXHR && error) {
+            const response = { error };
+            ctx.type = JSON;
+            ctx.body = response;
+            return;
         }
         // else response { state: {...} }
         const state = {
-            name: "undefined",
-            actions: {},
-            ...stateProps,
+            name,
+            error,
+            routes: {
+                ...this.routes,
+                ...additionalRoutes,
+            },
             metadata: this.metadata,
             locale: ctx.locale,
             session: this.sessionAppState,
@@ -77,8 +80,14 @@ class OIDCProviderContextProxy {
             user: this.userClaims,
             device: this.device,
         };
+        if (this.isXHR) {
+            const response = { state };
+            ctx.type = JSON;
+            ctx.body = response;
+            return;
+        }
+        // unwrap enhanced context to secure vulnerability, then delegate response to app renderer
         ctx.type = HTML;
-        // unwrap enhanced context and delegate render to secure vulnerability
         return this.builder.app.appRenderer.render(ctx.unwrap(), state);
     }
     async redirectWithUpdate(promptUpdate, allowedPromptNames) {
@@ -94,7 +103,7 @@ class OIDCProviderContextProxy {
         return this.redirect(redirectURL);
     }
     redirect(url) {
-        const redirectURL = url.startsWith("/") ? this.getURL(url) : url;
+        const redirectURL = url.startsWith("/") ? this.getURL(url) : url; // add prefix for local redirection
         if (this.isXHR) {
             const response = { redirect: redirectURL };
             this.ctx.body = response;
@@ -154,6 +163,7 @@ class OIDCProviderContextProxy {
     }
     async _parseInteractionState() {
         const { ctx, idp, provider } = this;
+        // get current prompt information
         try {
             const interaction = await provider.interactionDetails(ctx.req, ctx.res);
             this.interaction = interaction;
