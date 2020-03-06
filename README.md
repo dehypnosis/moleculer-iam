@@ -38,12 +38,12 @@ yarn add moleculer-iam
 - `yarn workspace moleculer-iam test` - Run tests & generate coverage report
 - `yarn workspace moleculer-iam test --watch` - Watch and run tests
 
-## 2. moleculer-iam-renderer
+## 2. moleculer-iam-app-renderer
 ### React Application for OIDC interactions with browser
-- `yarn workspace moleculer-iam-renderer dev` - Start Server Application development (webpack)
-- `yarn workspace moleculer-iam-renderer build`- Transpile client-side ts/tsx to js 
-- `yarn workspace moleculer-iam-renderer build-server`- Transpile server-side ts to js
-- `yarn workspace moleculer-iam-renderer test` - Run tests
+- `yarn workspace moleculer-iam-app-renderer dev` - Start Server Application development (webpack)
+- `yarn workspace moleculer-iam-app-renderer build`- Transpile client-side ts/tsx to js 
+- `yarn workspace moleculer-iam-app-renderer build-server`- Transpile server-side ts to js
+- `yarn workspace moleculer-iam-app-renderer test` - Run tests
 
 
 # Release Road-map

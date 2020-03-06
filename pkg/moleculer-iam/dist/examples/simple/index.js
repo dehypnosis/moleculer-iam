@@ -5,7 +5,7 @@ const app_1 = require("./app");
 const __1 = require("../../"); // "moleculer-iam";
 // import Renderer from "moleculer-iam-app-renderer";
 // tslint:disable-next-line:no-var-requires to avoid circular deps in our monorepo workspace
-const rendererFactory = require("moleculer-iam-interaction-renderer");
+const rendererFactory = require("moleculer-iam-app-renderer");
 // can use any alternative renderer rather than this default one
 // const testRendererAdapter: InteractionRendererAdapter<{test: number}> = {
 //   render(state) {
@@ -79,7 +79,7 @@ const serviceSchema = __1.IAMServiceSchema({
                 },
             },
             renderer: {
-                // factory: require("moleculer-iam-interaction-renderer"), // this is default behavior
+                // factory: require("moleculer-iam-app-renderer"), // this is default behavior
                 options: {
                     logo: {
                         uri: "https://upload.wikimedia.org/wikipedia/commons/a/a2/OpenID_logo_2.svg",

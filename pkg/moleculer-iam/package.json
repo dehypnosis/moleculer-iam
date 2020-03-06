@@ -58,7 +58,7 @@
     "lodash": "^4.17.15",
     "lru-cache": "^5.1.1",
     "moleculer": "^0.14.1",
-    "moleculer-iam-interaction-renderer": "*",
+    "moleculer-iam-app-renderer": "*",
     "moment": "^2.24.0",
     "mysql2": "^2.0.1",
     "object-hash": "^2.0.1",

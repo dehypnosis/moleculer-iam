@@ -129,10 +129,11 @@ class OIDCProviderContextProxy {
         if (this.shouldSaveSession) {
             await session_1.default(this.ctx, () => {
                 // @ts-ignore to set Set-Cookie response header
-                session.touched = true;
+                this.session.touched = true;
             });
             // @ts-ignore store/update session in to adapter
-            await session.save();
+            await this.session.save();
+            this.shouldSaveSession = false;
         }
     }
     // utility methods

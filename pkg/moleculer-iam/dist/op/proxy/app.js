@@ -97,9 +97,14 @@ class ProviderApplicationBuilder {
         };
         // ref: https://github.com/panva/node-oidc-provider/blob/e5ecd85c346761f1ac7a89b8bf174b873be09239/lib/actions/end_session.js#L89
         this.logoutSourceProxy = (ctx) => {
-            const op = ctx.op;
             return this.wrapContext(ctx, () => {
-                ctx.assert(op.user);
+                const op = ctx.op;
+                if (!op.user) {
+                    return this.renderError(ctx, {
+                        error: "invalid_request",
+                        error_description: "Account session not exists.",
+                    });
+                }
                 const xsrf = op.session.state && op.session.state.secret;
                 return this.renderLogout(ctx, xsrf);
             });
