@@ -56,7 +56,7 @@ export function buildRegisterRoutes(builder: ProviderConfigBuilder, opts: Applic
     .get("/register", async ctx => {
 
       // create empty object into register state
-      await ctx.op.setSessionState(prevState => ({
+      await ctx.op.setSessionPublicState(prevState => ({
         register: {},
         ...prevState,
       }));
@@ -67,7 +67,7 @@ export function buildRegisterRoutes(builder: ProviderConfigBuilder, opts: Applic
     // validate claims and credentials
     .post("/register/validate", async ctx => {
       const register = await validatePayload(ctx);
-      await ctx.op.setSessionState(prevState => ({
+      await ctx.op.setSessionPublicState(prevState => ({
         ...prevState,
         register,
       }));

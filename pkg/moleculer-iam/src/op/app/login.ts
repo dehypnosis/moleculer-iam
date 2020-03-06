@@ -42,7 +42,7 @@ export function buildLoginRoutes(builder: ProviderConfigBuilder, opts: Applicati
 
       // set login data to session state and response
       const userClaims = await ctx.op.getPublicUserProps(user);
-      await ctx.op.setSessionState(prevState => ({
+      await ctx.op.setSessionPublicState(prevState => ({
         ...prevState,
         login: { user: userClaims },
       }));
@@ -62,7 +62,7 @@ export function buildLoginRoutes(builder: ProviderConfigBuilder, opts: Applicati
       }
 
       // clear login session state
-      await ctx.op.setSessionState(prevState => ({
+      await ctx.op.setSessionPublicState(prevState => ({
         ...prevState,
         login: undefined,
       }));

@@ -22,7 +22,10 @@ export interface ApplicationRoutes {
     };
 }
 export declare type ApplicationRoutesFactory = (promptName?: string) => ApplicationRoutes;
-export interface ApplicationSessionState {
+export interface ApplicationSessionPublicState {
+    [key: string]: any;
+}
+export interface ApplicationSessionSecretState {
     [key: string]: any;
 }
 export interface ApplicationMetadata {
@@ -39,7 +42,7 @@ export interface ApplicationState {
     error?: OIDCError;
     metadata: ApplicationMetadata;
     locale: ParsedLocale;
-    session: ApplicationSessionState;
+    session: ApplicationSessionPublicState;
     interaction?: Interaction;
     client?: Partial<ClientMetadata>;
     user?: Partial<OIDCAccountClaims>;
@@ -47,7 +50,7 @@ export interface ApplicationState {
 }
 export declare type ApplicationResponse = {
     state?: ApplicationState;
-    session?: ApplicationSessionState;
+    session?: ApplicationSessionPublicState;
     error?: OIDCError;
     redirect?: string;
 };

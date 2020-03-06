@@ -14,7 +14,7 @@ function buildVerifyPhoneRoutes(builder, opts) {
     builder.app.router
         // send/resend verification code
         .post("/verify_phone/send", async (ctx) => {
-        const { session, setSessionState } = ctx.op;
+        const { session, setSessionPublicState } = ctx.op;
         // if 'register' is true, should try registration with 'register' payload after verification
         // else if 'login' is true, should try login after verification
         const { register, login, phone_number } = ctx.request.body;
@@ -42,7 +42,7 @@ function buildVerifyPhoneRoutes(builder, opts) {
         // send sms via adapter props
         await send({ logger: builder.logger, language: ctx.locale.language, phoneNumber, secret });
         // store the state and secret
-        await setSessionState(prevState => ({
+        await setSessionPublicState(prevState => ({
             ...prevState,
             phoneVerification: {
                 phoneNumber,

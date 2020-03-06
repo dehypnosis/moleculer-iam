@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createApplicationRoutesFactory = (builder, opts) => {
-    // internal routes for [logout], [device_code_verification] are not described here
+    // internal routes for logout, device_flow, ... are not described here
     const { getURL } = builder.app;
     const commonRoutes = {
         // find email

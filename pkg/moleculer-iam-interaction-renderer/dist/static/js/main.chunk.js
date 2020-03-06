@@ -2331,6 +2331,7 @@ var ScreenLayout = function ScreenLayout(_ref) {
       options = _useAppOptions2[0];
 
   return _react.default.createElement(_reactNative.ScrollView, {
+    ref: autofocus,
     nativeID: "scroll-container",
     contentContainerStyle: {
       justifyContent: "center",

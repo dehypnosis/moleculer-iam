@@ -28,7 +28,11 @@ export interface ApplicationRoutes {
 
 export type ApplicationRoutesFactory = (promptName?: string) => ApplicationRoutes;
 
-export interface ApplicationSessionState {
+export interface ApplicationSessionPublicState {
+  [key: string]: any;
+}
+
+export interface ApplicationSessionSecretState {
   [key: string]: any;
 }
 
@@ -49,7 +53,7 @@ export interface ApplicationState {
 
   // current user-agent and session information
   locale: ParsedLocale;
-  session: ApplicationSessionState;
+  session: ApplicationSessionPublicState;
 
   // current op interaction information (login, consent)
   interaction?: Interaction;
@@ -63,7 +67,7 @@ export type ApplicationResponse = {
   state?: ApplicationState;
 
   // xhr ok response for session update
-  session?: ApplicationSessionState;
+  session?: ApplicationSessionPublicState;
 
   // xhr error response
   error?: OIDCError;

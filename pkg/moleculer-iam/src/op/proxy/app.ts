@@ -190,7 +190,7 @@ export class ProviderApplicationBuilder {
     const op: ApplicationRequestContext["op"] = ctx.op as any;
     return this.wrapContext(ctx as any, () => {
       ctx.assert(op.user);
-      const xsrf = op.session.state.secret;
+      const xsrf = op.session.state && op.session.state.secret;
       return this.renderLogout(ctx as any, xsrf);
     });
   };
@@ -230,7 +230,7 @@ export class ProviderApplicationBuilder {
         this.logger.error("internal device code flow error", error || out);
         return this.renderError(ctx as any, (out || error) as any);
       }
-      const xsrf = op.session.state.secret;
+      const xsrf = op.session.state && op.session.state.secret;
       return this.renderDeviceFlow(ctx as any, ctx.oidc.params!.user_code || "", xsrf);
     });
   };
@@ -264,7 +264,7 @@ export class ProviderApplicationBuilder {
       const op: ApplicationRequestContext["op"] = ctx.op as any;
       ctx.assert(op.user && op.client);
       op.device = device;
-      const xsrf = op.session.state.secret;
+      const xsrf = op.session.state && op.session.state.secret;
       return this.renderDeviceFlowConfirm(ctx as any, userCode, xsrf, device);
     });
   };

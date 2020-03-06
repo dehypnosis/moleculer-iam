@@ -39,7 +39,7 @@ export const ScreenLayout: React.FunctionComponent<{
   const [options] = useAppOptions();
   return (
       <ScrollView
-        // ref={autofocus}
+        ref={autofocus}
         nativeID={"scroll-container"}
         contentContainerStyle={{justifyContent: "center", width: "100%", margin: "auto", padding: 30}}
       >

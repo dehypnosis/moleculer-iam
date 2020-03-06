@@ -3,29 +3,30 @@ import { Identity } from "../../idp";
 import { ProviderConfigBuilder } from "./config";
 import { OIDCError } from "./error.types";
 import { OIDCAccountClaims } from "./identity.types";
-import { ApplicationRequestContext, ApplicationState, ApplicationResponse, ApplicationSessionState, ApplicationMetadata, ApplicationRoutes } from "./app.types";
-import { BaseContext } from "koa";
+import { ApplicationRequestContext, ApplicationState, ApplicationResponse, ApplicationSessionPublicState, ApplicationMetadata, ApplicationRoutes, ApplicationSessionSecretState } from "./app.types";
 import { Client, DeviceInfo, DiscoveryMetadata, Interaction, Session } from "./proxy.types";
 
+// need to hack oidc-provider private methods
 // ref: https://github.com/panva/node-oidc-provider/blob/9306f66bdbcdff01400773f26539cf35951b9ce8/lib/models/client.js#L385
-// @ts-ignore : need to hack oidc-provider private methods
+// @ts-ignore
 import getProviderHiddenProps from "oidc-provider/lib/helpers/weak_cache";
-// @ts-ignore : need to hack oidc-provider private methods
+// @ts-ignore
 import sessionMiddleware from "oidc-provider/lib/shared/session";
 
 const JSON = "application/json";
 const HTML = "text/html";
+const PUBLIC = "__public__";
+const SECRET = "__secret__";
 
 export class OIDCProviderContextProxy {
-  private static readonly sessionAppStateField = "__app__";
-  public session: Session & { state: ApplicationSessionState } = {} as any;
+  public session: Session = {} as any; // filled later
+  public metadata: ApplicationMetadata = {} as any; // filled later
   public interaction?: Interaction;
   public client?: Client;
   public clientMetadata?: Partial<ClientMetadata>;
   public user?: Identity;
   public userClaims?: Partial<OIDCAccountClaims>;
   public device?: DeviceInfo;
-  public metadata: ApplicationMetadata = {} as any;
 
   constructor(private readonly ctx: ApplicationRequestContext, private builder: ProviderConfigBuilder) {
   }
@@ -50,36 +51,10 @@ export class OIDCProviderContextProxy {
     return this.builder.app.getRoutes(this.interaction && this.interaction.prompt && this.interaction.prompt.name);
   }
 
-  private get sessionAppState() {
-    return this.session.state && this.session.state[OIDCProviderContextProxy.sessionAppStateField] || {};
-  }
-
-  public async setSessionState(update: (prevState: ApplicationSessionState) => ApplicationSessionState): Promise<ApplicationSessionState> {
-    const { ctx, session } = this;
-    const field = OIDCProviderContextProxy.sessionAppStateField;
-
-    if (!session.state) {
-      session.state = { custom: {} };
-    } else if (!session.state[field]) {
-      session.state[field] = {};
-    }
-    session.state[field] = update(session.state[field]);
-
-    await sessionMiddleware(ctx, () => {
-      // @ts-ignore to set Set-Cookie response header
-      session.touched = true;
-    });
-
-    // @ts-ignore store/update session in to adapter
-    await session.save();
-    return session.state[field];
-  }
-
-  private get isXHR() {
-    return this.ctx.accepts(JSON, HTML) === JSON;
-  }
-
+  // response methods
   public async render(name: string, error?: OIDCError, additionalRoutes?: ApplicationRoutes): Promise<void> {
+    await this.ensureSessionSaved();
+
     const { ctx } = this;
 
     // response { error: {} } when is XHR and stateProps has error
@@ -100,7 +75,7 @@ export class OIDCProviderContextProxy {
       },
       metadata: this.metadata,
       locale: ctx.locale,
-      session: this.sessionAppState,
+      session: this.sessionPublicState,
       interaction: this.interaction,
 
       // current op interaction information (login, consent)
@@ -122,24 +97,28 @@ export class OIDCProviderContextProxy {
   }
 
   public async redirectWithUpdate(promptUpdate: Partial<InteractionResults> | { error: string, error_description?: string }, allowedPromptNames?: string[]): Promise<void> {
+    await this.ensureSessionSaved();
+
+    // finish interaction prompt
     const { ctx, interaction, provider } = this;
     ctx.assert(interaction && (!allowedPromptNames || allowedPromptNames.includes(interaction.prompt.name)));
 
     const mergedResult = {...this.interaction!.result, ...promptUpdate};
     const redirectURL = await provider.interactionResult(ctx.req, ctx.res, mergedResult, { mergeWithLastSubmission: true });
 
-    // overwrite session account if need
+    // overwrite session account if need and re-parse interaction state
     if (mergedResult.login) {
       await provider.setProviderSession(ctx.req, ctx.res, mergedResult.login);
-      await this._parseInteractionState();
+      await this.readProviderSession();
     }
 
     return this.redirect(redirectURL);
   }
 
-  public redirect(url: string): void {
-    const redirectURL = url.startsWith("/") ? this.getURL(url) : url; // add prefix for local redirection
+  public async redirect(url: string): Promise<void> {
+    await this.ensureSessionSaved();
 
+    const redirectURL = url.startsWith("/") ? this.getURL(url) : url; // add prefix for local redirection
     if (this.isXHR) {
       const response: ApplicationResponse = { redirect: redirectURL };
       this.ctx.body = response;
@@ -149,10 +128,60 @@ export class OIDCProviderContextProxy {
     this.ctx.redirect(redirectURL);
   }
 
-  public end(): void {
-    const response: ApplicationResponse = { session: this.sessionAppState };
+  public async end(): Promise<void> {
+    await this.ensureSessionSaved();
+
+    const response: ApplicationResponse = { session: this.sessionPublicState };
     this.ctx.type = JSON;
     this.ctx.body = response;
+  }
+
+  // session management
+  public get sessionPublicState() {
+    return this.session.state && this.session.state[PUBLIC] || {};
+  }
+
+  public get sessionSecretState() {
+    return this.session.state && this.session.state[SECRET] || {};
+  }
+
+  public async setSessionPublicState(update: (prevPublicState: ApplicationSessionPublicState) => ApplicationSessionPublicState): Promise<void> {
+    return this.setSessionState(prevState => ({
+      ...prevState,
+      [PUBLIC]: update(prevState[PUBLIC] || {}),
+    }))
+  }
+
+  public async setSessionSecretState(update: (prevSecretState: ApplicationSessionSecretState) => ApplicationSessionSecretState): Promise<void> {
+    return this.setSessionState(prevState => ({
+      ...prevState,
+      [SECRET]: update(prevState[SECRET] || {}),
+    }))
+  }
+
+  private async setSessionState(update: ((prevState: any) => any)): Promise<void> {
+    this.session.state = update(this.session.state || {});
+    this.shouldSaveSession = true;
+  }
+
+  private async ensureSessionSaved() {
+    if (this.shouldSaveSession) {
+      await sessionMiddleware(this.ctx, () => {
+        // @ts-ignore to set Set-Cookie response header
+        this.session.touched = true;
+      });
+
+      // @ts-ignore store/update session in to adapter
+      await this.session.save();
+      this.shouldSaveSession = false;
+    }
+  }
+
+  private shouldSaveSession = false;
+
+  // utility methods
+  private get isXHR() {
+    return this.ctx.accepts(JSON, HTML) === JSON;
   }
 
   public assertPrompt(allowedPromptNames?: string[]): void {
@@ -160,7 +189,6 @@ export class OIDCProviderContextProxy {
     ctx.assert(interaction && (!allowedPromptNames || allowedPromptNames.includes(interaction.prompt.name)));
   }
 
-  // utility
   public async getPublicClientProps(client?: Client): Promise<Partial<ClientMetadata> | undefined> {
     if (!client) return;
     return {
@@ -183,6 +211,7 @@ export class OIDCProviderContextProxy {
     };
   }
 
+  // parse metadata and collect information
   public async _dangerouslyCreate() {
     const { ctx, idp, provider } = this;
     const hiddenProvider = getProviderHiddenProps(provider);
@@ -200,14 +229,13 @@ export class OIDCProviderContextProxy {
       discovery: configuration.discovery as DiscoveryMetadata,
     };
 
-    await this._parseInteractionState();
+    await this.readProviderSession();
     return this;
   }
 
-  private async _parseInteractionState() {
+  private async readProviderSession() {
     const { ctx, idp, provider } = this;
 
-    // get current prompt information
     try {
       const interaction = await provider.interactionDetails(ctx.req, ctx.res) as Interaction;
       this.interaction = interaction;
