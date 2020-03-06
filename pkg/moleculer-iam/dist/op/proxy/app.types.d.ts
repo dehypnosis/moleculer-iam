@@ -1,5 +1,5 @@
 import { ParameterizedContext, BaseContext } from "koa";
-import { ClientMetadata } from "oidc-provider";
+import { ClientAuthorizationState, ClientMetadata } from "oidc-provider";
 import { IAMServerRequestContextProps } from "../../server";
 import { OIDCProviderContextProxy } from "./context";
 import { OIDCError } from "./error.types";
@@ -47,6 +47,9 @@ export interface ApplicationState {
     client?: Partial<ClientMetadata>;
     user?: Partial<OIDCAccountClaims>;
     device?: DeviceInfo;
+    authorizedClients?: (Partial<ClientMetadata> & {
+        authorization: ClientAuthorizationState;
+    })[];
 }
 export declare type ApplicationResponse = {
     state?: ApplicationState;

@@ -60,10 +60,12 @@ export const LoginIndexScreen: React.FunctionComponent = () => {
     });
   }, [nav]);
 
+  const client = state.client!;
+
   return (
     <ScreenLayout
       title={"Sign In"}
-      subtitle={"Enter your account"}
+      subtitle={client.client_name}
       error={errors.global}
       loading={loading}
       buttons={[
@@ -115,6 +117,7 @@ export const LoginIndexScreen: React.FunctionComponent = () => {
           label={"Email"}
           keyboardType={"email-address"}
           placeholder="Enter your email"
+          autoFocus
           value={email}
           setValue={setEmail}
           error={errors.email}

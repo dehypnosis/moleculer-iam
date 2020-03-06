@@ -1,5 +1,5 @@
-import React from "react";
-import { Input, InputProps } from "./index";
+import React, { useState } from "react";
+import { Input, InputProps, Icon } from "./index";
 import { withAttrs } from "./util";
 
 type FormInputAliasProps = {
@@ -8,7 +8,6 @@ type FormInputAliasProps = {
   error?: string;
   tabIndex?: number;
   onEnter?: () => any;
-  isPassword?: boolean;
 } & InputProps;
 
 export const Form: React.FunctionComponent<{
@@ -28,10 +27,14 @@ export const Form: React.FunctionComponent<{
 };
 
 export const FormInput: React.FunctionComponent<FormInputAliasProps> = (props) => {
-  const { value, error, setValue, tabIndex, onEnter, autoFocus, isPassword, ...restProps } = props;
+  const { value, error, setValue, tabIndex, onEnter, autoFocus, secureTextEntry, ...restProps } = props;
+
+  const [passwordVisible, setPasswordVisible] = useState(false);
+
+
   return (
     <Input
-      ref={withAttrs({ tabindex: tabIndex || null, autofocus: autoFocus === true }, "input")}
+      ref={withAttrs({ tabindex: tabIndex || null }, "input")}
 
       // default
       size={"large"}
@@ -39,16 +42,17 @@ export const FormInput: React.FunctionComponent<FormInputAliasProps> = (props) =
       keyboardType={"default"}
       returnKeyType={"next"}
       autoCorrect={false}
-      autoFocus={true}
+      autoFocus={autoFocus}
       blurOnSubmit={typeof onEnter !== "function"}
       clearButtonMode={"while-editing"}
       label={""}
       placeholder={""}
-      secureTextEntry={isPassword}
-      autoCompleteType={isPassword ? "password" : undefined}
+      secureTextEntry={secureTextEntry && !passwordVisible}
       value={value}
       onChangeText={setValue ? v => setValue(v || "") : undefined}
       onKeyPress={typeof onEnter === "function" ? e => e.nativeEvent.key === "Enter" && onEnter() : restProps.onKeyPress}
+      icon={secureTextEntry ? (style => (<Icon style={{...style, ...({cursor: "pointer"} as any)}} name={passwordVisible ? 'eye' : 'eye-off'}/>)) : undefined}
+      onIconPress={secureTextEntry ? (() => setPasswordVisible(!passwordVisible)) : undefined}
 
       // custom
       {...restProps}

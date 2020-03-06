@@ -3,7 +3,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
 const koa_bodyparser_1 = tslib_1.__importDefault(require("koa-bodyparser"));
 const koa_compose_1 = tslib_1.__importDefault(require("koa-compose"));
-const koa_mount_1 = tslib_1.__importDefault(require("koa-mount"));
 const koa_router_1 = tslib_1.__importDefault(require("koa-router"));
 const koajs_nocache_1 = tslib_1.__importDefault(require("koajs-nocache"));
 const change_case_1 = require("change-case");
@@ -53,12 +52,12 @@ class ProviderApplicationBuilder {
                 return ctx.op.render("error", normalizedError);
             }
         };
-        this.routerMiddleware = [
+        this.routerMiddleware = koa_compose_1.default([
             koajs_nocache_1.default(),
             koa_bodyparser_1.default(),
             this.wrapContext,
             this.errorHandler,
-        ];
+        ]);
         // internally named routes render default functions
         this.renderError = async (ctx, error) => {
             return this.errorHandler(ctx, () => {
@@ -99,12 +98,7 @@ class ProviderApplicationBuilder {
         this.logoutSourceProxy = (ctx) => {
             return this.wrapContext(ctx, () => {
                 const op = ctx.op;
-                if (!op.user) {
-                    return this.renderError(ctx, {
-                        error: "invalid_request",
-                        error_description: "Account session not exists.",
-                    });
-                }
+                ctx.assert(op.user, 400, "Account session not exists.");
                 const xsrf = op.session.state && op.session.state.secret;
                 return this.renderLogout(ctx, xsrf);
             });
@@ -199,7 +193,7 @@ class ProviderApplicationBuilder {
             sensitive: true,
             strict: false,
         })
-            .use(...this.routerMiddleware);
+            .use(this.routerMiddleware);
         this.router._setPrefix = this.router.prefix.bind(this.router);
         this.router.prefix = () => {
             this.logger.warn("rather call builder.setPrefix, it will not affect");
@@ -214,7 +208,8 @@ class ProviderApplicationBuilder {
     _dangerouslySetPrefix(prefix) {
         this.builder.assertBuilding();
         this._prefix = prefix;
-        this.router._setPrefix(prefix).use(...this.routerMiddleware); // re-apply middleware
+        this.router._setPrefix(prefix)
+            .use(this.routerMiddleware); // re-apply middleware
         this.logger.info(`OIDC application route path configured:`, `${prefix}/:path`);
     }
     get idp() {
@@ -273,12 +268,13 @@ class ProviderApplicationBuilder {
     }
     _dangerouslyBuild() {
         this.builder.assertBuilding();
-        // mount to app
-        this.op.app.use(koa_mount_1.default(koa_compose_1.default([
+        this.op.app.use(koa_compose_1.default([
+            // apply additional "app renderer" middleware (like serving static files), order matters for security's sake
             ...(this.appRenderer.routes ? this.appRenderer.routes() : []),
-            ...this.routerMiddleware,
+            // apply "app router" middleware
             this.router.routes(),
-        ])));
+            this.router.allowedMethods(),
+        ]));
         // build federation configuration
         this.federation._dangerouslyBuild();
     }

@@ -34,7 +34,7 @@ export function getInitialAppState(): ApplicationState {
     name: "error",
     error: {
       error: "unexpected_error",
-      error_description: "unrecognized state received from server",
+      error_description: "Unrecognized state received from server.",
     },
   }) as ApplicationState;
 }

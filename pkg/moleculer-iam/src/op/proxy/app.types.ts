@@ -60,6 +60,7 @@ export interface ApplicationState {
   client?: Partial<ClientMetadata>;
   user?: Partial<OIDCAccountClaims>;
   device?: DeviceInfo;
+  authorizedClients?: (Partial<ClientMetadata> & { authorization: ClientAuthorizationState })[];
 }
 
 export type ApplicationResponse = {

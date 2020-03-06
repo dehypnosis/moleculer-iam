@@ -1,4 +1,4 @@
-import { ClientMetadata, Configuration, InteractionResults } from "oidc-provider";
+import { ClientAuthorizationState, ClientMetadata, Configuration, InteractionResults } from "oidc-provider";
 import { Identity } from "../../idp";
 import { ProviderConfigBuilder } from "./config";
 import { OIDCError } from "./error.types";
@@ -66,6 +66,7 @@ export class OIDCProviderContextProxy {
     }
 
     // else response { state: {...} }
+
     const state: ApplicationState = {
       name,
       error,
@@ -82,6 +83,7 @@ export class OIDCProviderContextProxy {
       client: this.clientMetadata,
       user: this.userClaims,
       device: this.device,
+      authorizedClients: await this.getAuthorizedClientsProps(),
     };
 
     if (this.isXHR) {
@@ -192,8 +194,8 @@ export class OIDCProviderContextProxy {
   public async getPublicClientProps(client?: Client): Promise<Partial<ClientMetadata> | undefined> {
     if (!client) return;
     return {
-      id: client.clientId,
-      name: client.clientName,
+      client_id: client.clientId,
+      client_name: client.clientName,
       logo_uri: client.logoUri,
       tos_uri: client.tosUri,
       policy_uri: client.policyUri,
@@ -203,12 +205,35 @@ export class OIDCProviderContextProxy {
 
   public async getPublicUserProps(id?: Identity): Promise<Partial<OIDCAccountClaims> | undefined> {
     if (!id) return;
-    const {email, picture, name} = await id.claims("userinfo", "profile email");
+    const {sub, email, picture, name} = await id.claims("userinfo", "profile email");
     return {
+      sub,
       email,
-      name: name || "unknown",
+      name,
       picture,
     };
+  }
+
+  public async getAuthorizedClientsProps() {
+    if (!this.session || !this.session.authorizations) {
+      return undefined;
+    }
+    const authorizations = this.session.authorizations!;
+
+    return Promise.all(
+      Object.keys(authorizations)
+        .map(async clientId =>
+          this.provider.Client.find(clientId)
+            .then(client => this.getPublicClientProps(client as any))
+            .then(clientProps => {
+              if (clientProps) {
+                clientProps.authorization = authorizations[clientId];
+              }
+              return clientProps as Partial<ClientMetadata> & { authorization: ClientAuthorizationState };
+            })
+        )
+      )
+      .then(authorizedClients => authorizedClients.filter(c => !!c));
   }
 
   // parse metadata and collect information

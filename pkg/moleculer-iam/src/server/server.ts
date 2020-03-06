@@ -10,6 +10,8 @@ import prettyJSON from "koa-json";
 import mount from "koa-mount";
 import compose from "koa-compose";
 // @ts-ignore
+import redirectTrailingSlash from "koa-no-trailing-slash";
+// @ts-ignore
 import useLocale from "koa-locale";
 import { Logger } from "../logger";
 import { OIDCProvider, ParsedLocale } from "../op";
@@ -73,8 +75,9 @@ export class IAMServer {
     app.env = op.app.env = "production";
     app.proxy = op.app.proxy = true;
 
-    // apply web security and logging middleware
+    // apply middleware
     app.use(logging(this.logger, options.logging));
+    app.use(redirectTrailingSlash());
     app.use(helmet(options.security));
     app.use(prettyJSON({
       pretty: true,

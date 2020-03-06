@@ -10,10 +10,12 @@ const koa_1 = tslib_1.__importDefault(require("koa"));
 const koa_helmet_1 = tslib_1.__importDefault(require("koa-helmet"));
 const koa_json_1 = tslib_1.__importDefault(require("koa-json"));
 const koa_mount_1 = tslib_1.__importDefault(require("koa-mount"));
+const koa_compose_1 = tslib_1.__importDefault(require("koa-compose"));
+// @ts-ignore
+const koa_no_trailing_slash_1 = tslib_1.__importDefault(require("koa-no-trailing-slash"));
 // @ts-ignore
 const koa_locale_1 = tslib_1.__importDefault(require("koa-locale"));
 const logging_1 = require("./logging");
-const koa_compose_1 = tslib_1.__importDefault(require("koa-compose"));
 class IAMServer {
     constructor(props, opts) {
         this.props = props;
@@ -25,8 +27,9 @@ class IAMServer {
         const app = this.app = new koa_1.default();
         app.env = op.app.env = "production";
         app.proxy = op.app.proxy = true;
-        // apply web security and logging middleware
+        // apply middleware
         app.use(logging_1.logging(this.logger, options.logging));
+        app.use(koa_no_trailing_slash_1.default());
         app.use(koa_helmet_1.default(options.security));
         app.use(koa_json_1.default({
             pretty: true,
@@ -61,6 +64,7 @@ class IAMServer {
         // start op
         const { op } = this.props;
         await op.start();
+        // FIXME: change extending app signature....
         // mount optional app routes and oidc provider routes
         const opRoutes = koa_mount_1.default(op.app);
         if (this.options.app) {

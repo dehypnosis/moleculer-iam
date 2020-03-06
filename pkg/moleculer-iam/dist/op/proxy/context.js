@@ -17,6 +17,9 @@ class OIDCProviderContextProxy {
         this.builder = builder;
         this.session = {}; // filled later
         this.metadata = {}; // filled later
+        this.getNamedURL = (name, opts) => {
+            return this.provider.urlFor(name, opts).replace(this.builder.issuer, "");
+        };
         this.shouldSaveSession = false;
     }
     get idp() {
@@ -27,9 +30,6 @@ class OIDCProviderContextProxy {
     }
     get getURL() {
         return this.builder.app.getURL;
-    }
-    get getNamedURL() {
-        return this.provider.urlFor;
     }
     get routes() {
         return this.builder.app.getRoutes(this.interaction && this.interaction.prompt && this.interaction.prompt.name);
@@ -61,6 +61,7 @@ class OIDCProviderContextProxy {
             client: this.clientMetadata,
             user: this.userClaims,
             device: this.device,
+            authorizedClients: await this.getAuthorizedClientsProps(),
         };
         if (this.isXHR) {
             const response = { state };
@@ -148,8 +149,8 @@ class OIDCProviderContextProxy {
         if (!client)
             return;
         return {
-            id: client.clientId,
-            name: client.clientName,
+            client_id: client.clientId,
+            client_name: client.clientName,
             logo_uri: client.logoUri,
             tos_uri: client.tosUri,
             policy_uri: client.policyUri,
@@ -159,23 +160,42 @@ class OIDCProviderContextProxy {
     async getPublicUserProps(id) {
         if (!id)
             return;
-        const { email, picture, name } = await id.claims("userinfo", "profile email");
+        const { sub, email, picture, name } = await id.claims("userinfo", "profile email");
         return {
+            sub,
             email,
-            name: name || "unknown",
+            name,
             picture,
         };
+    }
+    async getAuthorizedClientsProps() {
+        if (!this.session || !this.session.authorizations) {
+            return undefined;
+        }
+        const authorizations = this.session.authorizations;
+        return Promise.all(Object.keys(authorizations)
+            .map(async (clientId) => this.provider.Client.find(clientId)
+            .then(client => this.getPublicClientProps(client))
+            .then(clientProps => {
+            if (clientProps) {
+                clientProps.authorization = authorizations[clientId];
+            }
+            return clientProps;
+        })))
+            .then(authorizedClients => authorizedClients.filter(c => !!c));
     }
     // parse metadata and collect information
     async _dangerouslyCreate() {
         const { ctx, idp, provider } = this;
         const hiddenProvider = weak_cache_1.default(provider);
-        // @ts-ignore ensure oidc context is created
+        // @ts-ignore ensure oidc context
         if (!ctx.oidc) {
             Object.defineProperty(ctx, "oidc", { value: new hiddenProvider.OIDCContext(ctx) });
         }
+        // @ts-ignore ensure session
+        this.session = ctx.oidc.session || await provider.Session.get(ctx);
+        // create metadata
         const configuration = hiddenProvider.configuration();
-        this.session = await provider.Session.get(ctx);
         this.metadata = {
             federationProviders: this.builder.app.federation.providerNames,
             mandatoryScopes: idp.claims.mandatoryScopes,
@@ -187,13 +207,13 @@ class OIDCProviderContextProxy {
     }
     async readProviderSession() {
         const { ctx, idp, provider } = this;
+        this.user = this.session.account ? (await idp.findOrFail({ id: this.session.account })) : undefined;
+        if (this.user) {
+            this.userClaims = await this.getPublicUserProps(this.user);
+        }
         try {
             const interaction = await provider.interactionDetails(ctx.req, ctx.res);
             this.interaction = interaction;
-            this.user = interaction.session && typeof interaction.session.accountId === "string" ? (await idp.findOrFail({ id: interaction.session.accountId })) : undefined;
-            if (this.user) {
-                this.userClaims = await this.getPublicUserProps(this.user);
-            }
             this.client = interaction.params.client_id ? await provider.Client.find(interaction.params.client_id) : undefined;
             if (this.client) {
                 this.clientMetadata = await this.getPublicClientProps(this.client);

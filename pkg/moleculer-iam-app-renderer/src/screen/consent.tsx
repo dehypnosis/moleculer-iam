@@ -35,7 +35,7 @@ export const ConsentScreen: React.FunctionComponent = () => {
   // render
   return (
     <ScreenLayout
-      title={client.name}
+      title={client.client_name}
       subtitle={"Authorization consent required"}
       loading={loading}
       error={errors.global}
@@ -91,10 +91,10 @@ export const ConsentScreen: React.FunctionComponent = () => {
         ] : []),
       ]}
     >
-      <Persona {...user} style={{marginBottom: 30}}/>
 
+      <Persona {...user} style={{marginBottom: 30}}/>
       <Text>
-        <b>{scopes.new.concat(scopes.accepted).join(", ")}</b> permissions are required to continue authorization.
+        {scopes.new.concat(scopes.accepted).join(", ")} permissions are required to continue authorization.
       </Text>
     </ScreenLayout>
   );

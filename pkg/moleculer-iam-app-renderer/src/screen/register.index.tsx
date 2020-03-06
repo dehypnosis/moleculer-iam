@@ -69,7 +69,7 @@ export const RegisterIndexScreen: React.FunctionComponent = () => {
   return (
     <ScreenLayout
       title={"Sign up"}
-      subtitle={"Create account"}
+      subtitle={"Create an account"}
       loading={loading}
       buttons={[
         {

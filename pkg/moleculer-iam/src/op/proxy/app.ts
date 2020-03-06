@@ -106,7 +106,7 @@ export class ProviderApplicationBuilder {
     }
   };
 
-  private readonly routerMiddleware = compose([
+  private readonly routerMiddleware = compose<any>([
     noCache(),
     bodyParser(),
     this.wrapContext,
@@ -324,7 +324,7 @@ export class ProviderApplicationBuilder {
     this.builder.assertBuilding();
 
     this.op.app.use(
-      compose([
+      compose<any>([
         // apply additional "app renderer" middleware (like serving static files), order matters for security's sake
         ...(this.appRenderer.routes ? this.appRenderer.routes() : []),
 

@@ -13,7 +13,7 @@ export const LogoutIndexScreen: React.FunctionComponent = () => {
     return dispatch("logout.confirm")
       .catch((err: any) => setErrors(err));
   });
-  const handleJustRedirect = withLoading(() => {
+  const handleRedirect = withLoading(() => {
     return dispatch("logout.redirect")
       .catch((err: any) => setErrors(err));
   });
@@ -21,30 +21,38 @@ export const LogoutIndexScreen: React.FunctionComponent = () => {
   // render
   return (
     <ScreenLayout
-      title={client ? `Signed out from` : `Sign out`}
-      subtitle={`Hi, ${user.name}`}
+      title={client ? `Signed out` : `Sign out`}
+      subtitle={user.email}
       loading={loading}
-      buttons={[
+      buttons={client ? [
         {
           status: "primary",
-          children: "Continue",
-          onPress: handleJustRedirect,
+          children: "Done",
+          onPress: handleRedirect,
+          tabIndex: 1,
+        },
+        {
+          children: "Sign out from all",
+          onPress: handleSignOutAll,
           tabIndex: 2,
+        },
+      ] : [
+        {
+          status: "primary",
+          children: "Sign out from all",
+          onPress: handleSignOutAll,
+          tabIndex: 1,
         },
         {
           children: "Done",
-          onPress: handleSignOutAll,
-          tabIndex: 1,
+          onPress: handleRedirect,
+          tabIndex: 2,
         },
       ]}
       error={errors.global}
     >
-      <Persona {...user} style={{marginBottom: 30}}/>
       <Text>
-        <>
-          {client ? (<>Signed out from {client.name} successfully. </>) : null }
-          Destroy all the sessions of this account?
-        </>
+        {client ? (<>Signed out from {client.client_name}. </>) : <>Destroy all the sessions of this account?</> }
       </Text>
     </ScreenLayout>
   );

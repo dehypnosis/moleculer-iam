@@ -2,7 +2,7 @@ import { ButtonGroupProps } from "@ui-kitten/components";
 import React, { ReactElement } from "react";
 import { ScrollView, Image, View } from "react-native";
 import { useAppOptions } from "../../hook";
-import { Text, Button, ButtonGroup, ButtonProps, withAttrs, Separator, activeAutoFocus } from "./index";
+import { Text, Button, ButtonGroup, ButtonProps, withAttrs, Separator } from "./index";
 import logo from "../../assets/logo.svg";
 
 type LayoutFooterButtonGroupProps = {
@@ -46,7 +46,7 @@ export const ScreenLayout: React.FunctionComponent<{
   const [options] = useAppOptions();
   return (
     <ScrollView
-      ref={ref => ref && activeAutoFocus(ref.getInnerViewNode())}
+      // ref={ref => ref && activeAutoFocus(ref.getInnerViewNode())}
       style={{width: "100%"}}
       contentContainerStyle={{justifyContent: "center", width: "100%", margin: "auto", padding: 30}}
     >
@@ -54,7 +54,7 @@ export const ScreenLayout: React.FunctionComponent<{
         <Image source={{uri: options.logo.uri || logo}} style={{height: options.logo.height, width: options.logo.width, resizeMode: "contain"}}/>
       </View>
 
-      <View style={{marginBottom: 45}}>
+      <View style={{marginBottom: 30}}>
         <Text category={"h5"}>{title}</Text>
         {subtitle && <Text category={"s2"} style={{marginTop: 5}}>{subtitle}</Text>}
       </View>

@@ -52,6 +52,9 @@ export const LoginCheckPasswordScreen: React.FunctionComponent = () => {
           tabIndex: 23,
         },
         {
+          separator: "OR",
+        },
+        {
           children: "Forgot password?",
           tabIndex: 24,
           onPress: handleResetPassword,
@@ -71,7 +74,7 @@ export const LoginCheckPasswordScreen: React.FunctionComponent = () => {
           label="Password"
           tabIndex={21}
           autoFocus
-          isPassword
+          secureTextEntry
           autoCompleteType={"password"}
           placeholder="Enter your password"
           value={password}

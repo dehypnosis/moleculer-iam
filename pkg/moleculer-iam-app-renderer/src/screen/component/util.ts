@@ -1,3 +1,4 @@
+import * as _ from "lodash";
 import ReactDOM from "react-dom";
 import { useTheme } from "@ui-kitten/components";
 import { ApplicationThemePalette } from "../../../theme";
@@ -54,24 +55,29 @@ export function withAttrs(attrs: {[key: string]: string|number|boolean|null} = {
 }
 
 // workaround to make autofocus works
-export function activeAutoFocus(ref: React.Component) {
-  withElements(elems => {
-    const found = elems.find(elem => {
-      return elem.getAttribute("autofocus") !== "false"
-        || (elem as any).offsetParent !== null; // check visible
-    });
-    if (found && (found as any).focus) {
-      setTimeout(() => {
-        if (found) {
-          // console.debug("autofocus DOM element focused", found);
-          (found as any).focus();
-        } else {
-          console.warn("autofocus DOM element missing");
-        }
-      }, 50);
-    }
-  }, "[autofocus]")(ref);
-}
+// let lastFocusedElem: any;
+// export function activeAutoFocus(ref: React.Component) {
+//   withElements(elems => {
+//     elems.forEach(elem => {
+//       if ((elem as any).focus) {
+//         setTimeout(() => {
+//           if (
+//             elem.getAttribute("autofocus") === "false"
+//             || (elem as any).offsetParent === null // check visible
+//             || lastFocusedElem === elem
+//           ) {
+//             console.debug("autofocus DOM element focus failed", elem);
+//             return;
+//           }
+//
+//           (elem as any).focus();
+//           lastFocusedElem = elem;
+//           console.debug("autofocus DOM element focused", elem);
+//         }, 300);
+//       }
+//     });
+//   }, "[autofocus]")(ref);
+// }
 
 /* for typing */
 export function useThemePalette(): ApplicationThemePalette {

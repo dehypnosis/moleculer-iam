@@ -4,10 +4,10 @@ import * as http2 from "http2";
 import * as https from "https";
 import Koa from "koa";
 import { IHelmetConfiguration } from "helmet";
+import compose from "koa-compose";
 import { Logger } from "../logger";
 import { OIDCProvider, ParsedLocale } from "../op";
 import { LoggingOptions } from "./logging";
-import compose from "koa-compose";
 export declare type IAMServerProps = {
     op: OIDCProvider;
     logger?: Logger;

@@ -30,7 +30,7 @@ module.exports = {
       path.join(require.resolve("react-native-reanimated"), ".."),
       path.join(require.resolve("react-native-gesture-handler"), ".."),
       path.join(require.resolve("react-native-eva-icons"), ".."),
-      require.resolve("./build.shim.rnw.tsx"),
+      // require.resolve("./build.shim.rnw.tsx"),
     ];
     babelRule.options.presets.push(require.resolve("metro-react-native-babel-preset"));
     // process.exit();
@@ -54,10 +54,10 @@ module.exports = {
         new webpack.DefinePlugin({
           __DEV__: process.env.NODE_ENV !== "production",
         }),
-        new webpack.NormalModuleReplacementPlugin(
-          /^react-native$/,
-          path.resolve(__dirname, "./build.shim.rnw.tsx"),
-        ),
+        // new webpack.NormalModuleReplacementPlugin(
+        //   /^react-native$/,
+        //   path.resolve(__dirname, "./build.shim.rnw.tsx"),
+        // ),
         ...config.plugins,
       ],
       output: {
