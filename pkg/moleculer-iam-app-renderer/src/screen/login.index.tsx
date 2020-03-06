@@ -49,10 +49,10 @@ export const LoginIndexScreen: React.FunctionComponent = () => {
 
   useEffect(() => {
     // submit email if has in URL params
-    if (route.params.email && route.params.change_account !== "true") {
-      console.debug("automatically continue sign in with:", email);
-      handleCheckLoginEmail();
-    }
+    // if (route.params.email && route.params.change_account !== "true") {
+    //   console.debug("automatically continue sign in with:", email);
+    //   handleCheckLoginEmail();
+    // }
 
     // re-hide federation options on blur
     return nav.addListener("blur", () => {

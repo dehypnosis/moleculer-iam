@@ -1,7 +1,7 @@
 import { ButtonGroupProps } from "@ui-kitten/components";
-import React, { ReactElement } from "react";
-import { ScrollView, Image, View } from "react-native";
-import { useAppOptions } from "../../hook";
+import React, { ReactElement, useCallback, useEffect, useRef } from "react";
+import { ScrollView, Image, View, ScrollResponderMixin } from "react-native";
+import { useAppOptions, useNavigation } from "../../hook";
 import { Text, Button, ButtonGroup, ButtonProps, withAttrs, Separator } from "./index";
 import logo from "../../assets/logo.svg";
 
@@ -43,12 +43,38 @@ export const ScreenLayout: React.FunctionComponent<{
       </View>*/
   }
 
+  // fix mobile transition shaking bug
+  // const { nav } = useNavigation();
+  // const scrollableRef = useRef<ScrollView|null>();
+  // const setScrollableRefMinHeight = useCallback(() => {
+  //   if (scrollableRef.current) {
+  //     const view = scrollableRef.current.getInnerViewNode();
+  //     const viewMinHeight = parseInt(view.style.minHeight.replace("px", "") || "0", 10);
+  //     if (viewMinHeight < view.clientHeight) {
+  //       scrollableRef.current!.scrollResponderScrollTo({x: 0, y: 0, animated: false});
+  //       setTimeout(() => {
+  //         view.style.minHeight = `${view.clientHeight}px`;
+  //       }, 100);
+  //     }
+  //   }
+  // }, [scrollableRef]);
+  // useEffect(() => {
+  //   const unsubscribeOnFocus = nav.addListener("focus", setScrollableRefMinHeight);
+  //   const unsubscribeOnBlur = nav.addListener("blur", setScrollableRefMinHeight);
+  //   return () => {
+  //     unsubscribeOnFocus();
+  //     unsubscribeOnBlur();
+  //   }
+  // }, [nav, setScrollableRefMinHeight]);
+
   const [options] = useAppOptions();
   return (
     <ScrollView
       // ref={ref => ref && activeAutoFocus(ref.getInnerViewNode())}
+      // ref={ref => { scrollableRef.current = ref; }}
+      ref={ref => ref && withAttrs({"data-role": "scroll-container"})(ref.getInnerViewNode())} // ref: ../app/theme.tsx
       style={{width: "100%"}}
-      contentContainerStyle={{justifyContent: "center", width: "100%", margin: "auto", padding: 30}}
+      contentContainerStyle={{justifyContent: "center", width: "100%", marginVertical: "auto", padding: 30}}
     >
       <View style={{alignItems: options.logo.align, marginBottom: 20}}>
         <Image source={{uri: options.logo.uri || logo}} style={{height: options.logo.height, width: options.logo.width, resizeMode: "contain"}}/>

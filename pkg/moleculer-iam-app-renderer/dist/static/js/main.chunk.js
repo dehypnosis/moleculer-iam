@@ -12,10 +12,91 @@ var ___CSS_LOADER_API_IMPORT___ = __webpack_require__(/*! ../../../../node_modul
 exports = ___CSS_LOADER_API_IMPORT___(false);
 exports.push([module.i, "@import url(https://fonts.googleapis.com/css?family=Noto+Sans+KR:400,500,700&display=swap&subset=korean);"]);
 // Module
-exports.push([module.i, "body {\n  margin: 0;\n  padding: 0;\n  -webkit-font-smoothing: antialiased;\n  -moz-osx-font-smoothing: grayscale;\n  font-family: 'Noto Sans KR', sans-serif;\n}\n\n#root {\n  height: 100vh;\n  min-width: 320px;\n}\n\n#theme-container {\n  height: 100vh;\n}\n\n#nav-container {\n  height: 100vh;\n  width: 100%;\n}\n\n@media (min-width: 640px) {\n  #nav-container {\n    width: 375px;\n  }\n}\n", ""]);
+exports.push([module.i, "body {\n  margin: 0;\n  padding: 0;\n  -webkit-font-smoothing: antialiased;\n  -moz-osx-font-smoothing: grayscale;\n  font-family: 'Noto Sans KR', sans-serif;\n}\n\n#root {\n  height: 100vh;\n  min-width: 320px;\n}\n\n#theme-container {\n  height: 100vh;\n}\n\n#nav-container {\n  height: 100vh;\n  width: 100%;\n}\n\n@media (min-width: 640px) {\n  #nav-container {\n    width: 375px;\n  }\n}\n\n@media (pointer:none) and (max-width: 640px), (pointer:coarse) and (max-width: 640px) {\n  [data-role=\"scroll-container\"] {\n    margin-top: 50px !important;\n  }\n}\n", ""]);
 // Exports
 module.exports = exports;
 
+
+/***/ }),
+
+/***/ "./build.shim.rnw.tsx":
+/*!****************************!*\
+  !*** ./build.shim.rnw.tsx ***!
+  \****************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+var _interopRequireDefault = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireDefault */ "../../node_modules/@babel/runtime/helpers/interopRequireDefault.js");
+
+var _interopRequireWildcard = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireWildcard */ "../../node_modules/@babel/runtime/helpers/interopRequireWildcard.js");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+var _exportNames = {
+  TouchableOpacity: true,
+  TouchableWithoutFeedback: true,
+  TouchableNativeFeedback: true,
+  TouchableHighlight: true
+};
+exports.TouchableHighlight = exports.TouchableNativeFeedback = exports.TouchableWithoutFeedback = exports.TouchableOpacity = void 0;
+
+var _extends2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/extends */ "../../node_modules/@babel/runtime/helpers/esm/extends.js"));
+
+var _objectWithoutProperties2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/objectWithoutProperties */ "../../node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js"));
+
+var _react = _interopRequireWildcard(__webpack_require__(/*! react */ "../../node_modules/react/index.js"));
+
+var ReactNativeWeb = _interopRequireWildcard(__webpack_require__(/*! react-native-web */ "../../node_modules/react-native-web/dist/index.js"));
+
+Object.keys(ReactNativeWeb).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function get() {
+      return ReactNativeWeb[key];
+    }
+  });
+});
+var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-app-renderer/build.shim.rnw.tsx";
+
+var fixTouchable = function fixTouchable(Touchable) {
+  return function (props) {
+    var onPress = props.onPress,
+        restProps = (0, _objectWithoutProperties2.default)(props, ["onPress"]);
+    var onClickCalled = (0, _react.useRef)(false);
+    var onClick = onPress ? function (e) {
+      onClickCalled.current = true;
+      onPress(e);
+    } : undefined;
+    var onPressAlternative = onPress ? function (e) {
+      setTimeout(function () {
+        if (!onClickCalled.current) {
+          onPress(e);
+        }
+      }, 100);
+    } : undefined;
+    return _react.default.createElement(Touchable, (0, _extends2.default)({}, restProps, {
+      onPress: onPressAlternative,
+      onClick: onClick,
+      __source: {
+        fileName: _jsxFileName,
+        lineNumber: 24
+      },
+      __self: this
+    }));
+  };
+};
+
+var TouchableOpacity = fixTouchable(ReactNativeWeb.TouchableOpacity);
+exports.TouchableOpacity = TouchableOpacity;
+var TouchableWithoutFeedback = fixTouchable(ReactNativeWeb.TouchableWithoutFeedback);
+exports.TouchableWithoutFeedback = TouchableWithoutFeedback;
+var TouchableNativeFeedback = fixTouchable(ReactNativeWeb.TouchableNativeFeedback);
+exports.TouchableNativeFeedback = TouchableNativeFeedback;
+var TouchableHighlight = fixTouchable(ReactNativeWeb.TouchableHighlight);
+exports.TouchableHighlight = TouchableHighlight;
 
 /***/ }),
 
@@ -614,7 +695,7 @@ var _core = __webpack_require__(/*! @react-navigation/core */ "../../node_module
 
 var _native = __webpack_require__(/*! @react-navigation/native */ "../../node_modules/@react-navigation/native/lib/module/index.js");
 
-var _reactNative = __webpack_require__(/*! react-native */ "../../node_modules/react-native-web/dist/index.js");
+var _reactNative = __webpack_require__(/*! react-native */ "./build.shim.rnw.tsx");
 
 var _state = __webpack_require__(/*! ./state */ "./src/app/state.tsx");
 
@@ -1767,7 +1848,7 @@ var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehy
 
 var _react = _interopRequireDefault(__webpack_require__(/*! react */ "../../node_modules/react/index.js"));
 
-var _reactNative = __webpack_require__(/*! react-native */ "../../node_modules/react-native-web/dist/index.js");
+var _reactNative = __webpack_require__(/*! react-native */ "./build.shim.rnw.tsx");
 
 var _hook = __webpack_require__(/*! ../../hook */ "./src/hook.ts");
 
@@ -1799,18 +1880,23 @@ var ScreenLayout = function ScreenLayout(_ref) {
       options = _useAppOptions2[0];
 
   return _react.default.createElement(_reactNative.ScrollView, {
+    ref: function ref(_ref3) {
+      return _ref3 && (0, _index.withAttrs)({
+        "data-role": "scroll-container"
+      })(_ref3.getInnerViewNode());
+    },
     style: {
       width: "100%"
     },
     contentContainerStyle: {
       justifyContent: "center",
       width: "100%",
-      margin: "auto",
+      marginVertical: "auto",
       padding: 30
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 48
+      lineNumber: 72
     },
     __self: this
   }, _react.default.createElement(_reactNative.View, {
@@ -1820,7 +1906,7 @@ var ScreenLayout = function ScreenLayout(_ref) {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 53
+      lineNumber: 79
     },
     __self: this
   }, _react.default.createElement(_reactNative.Image, {
@@ -1834,7 +1920,7 @@ var ScreenLayout = function ScreenLayout(_ref) {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 54
+      lineNumber: 80
     },
     __self: this
   })), _react.default.createElement(_reactNative.View, {
@@ -1843,14 +1929,14 @@ var ScreenLayout = function ScreenLayout(_ref) {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 57
+      lineNumber: 83
     },
     __self: this
   }, _react.default.createElement(_index.Text, {
     category: "h5",
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 58
+      lineNumber: 84
     },
     __self: this
   }, title), subtitle && _react.default.createElement(_index.Text, {
@@ -1860,7 +1946,7 @@ var ScreenLayout = function ScreenLayout(_ref) {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 59
+      lineNumber: 85
     },
     __self: this
   }, subtitle)), children ? _react.default.createElement(_reactNative.View, {
@@ -1869,13 +1955,13 @@ var ScreenLayout = function ScreenLayout(_ref) {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 62
+      lineNumber: 88
     },
     __self: this
   }, children) : null, _react.default.createElement(_reactNative.View, {
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 64
+      lineNumber: 90
     },
     __self: this
   }, error ? _react.default.createElement(_index.Text, {
@@ -1886,7 +1972,7 @@ var ScreenLayout = function ScreenLayout(_ref) {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 65
+      lineNumber: 91
     },
     __self: this
   }, error) : null, buttons.length > 0 ? buttons.map(function (args, index) {
@@ -1902,7 +1988,7 @@ var ScreenLayout = function ScreenLayout(_ref) {
         text: typeof s.separator === "string" ? s.separator : undefined,
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 77
+          lineNumber: 103
         },
         __self: this
       });
@@ -1921,7 +2007,7 @@ var ScreenLayout = function ScreenLayout(_ref) {
         },
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 90
+          lineNumber: 116
         },
         __self: this
       }, _react.default.createElement(_index.ButtonGroup, (0, _extends2.default)({
@@ -1931,7 +2017,7 @@ var ScreenLayout = function ScreenLayout(_ref) {
       }, groupProps, {
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 94
+          lineNumber: 120
         },
         __self: this
       }), g.group.map(function (btn, key) {
@@ -1960,7 +2046,7 @@ var ScreenLayout = function ScreenLayout(_ref) {
           onLongPress: loading ? undefined : props.onLongPress,
           __source: {
             fileName: _jsxFileName,
-            lineNumber: 107
+            lineNumber: 133
           },
           __self: this
         }));
@@ -1978,7 +2064,7 @@ var ScreenLayout = function ScreenLayout(_ref) {
       },
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 137
+        lineNumber: 163
       },
       __self: this
     }, _react.default.createElement(_index.Button, (0, _extends2.default)({
@@ -1995,7 +2081,7 @@ var ScreenLayout = function ScreenLayout(_ref) {
       onLongPress: loading ? undefined : props.onLongPress,
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 141
+        lineNumber: 167
       },
       __self: this
     })));
@@ -2026,7 +2112,7 @@ var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehy
 
 var _react = _interopRequireWildcard(__webpack_require__(/*! react */ "../../node_modules/react/index.js"));
 
-var _reactNative = __webpack_require__(/*! react-native */ "../../node_modules/react-native-web/dist/index.js");
+var _reactNative = __webpack_require__(/*! react-native */ "./build.shim.rnw.tsx");
 
 var _index = __webpack_require__(/*! ./index */ "./src/screen/component/index.ts");
 
@@ -2176,7 +2262,7 @@ exports.Separator = void 0;
 
 var _react = _interopRequireDefault(__webpack_require__(/*! react */ "../../node_modules/react/index.js"));
 
-var _reactNative = __webpack_require__(/*! react-native */ "../../node_modules/react-native-web/dist/index.js");
+var _reactNative = __webpack_require__(/*! react-native */ "./build.shim.rnw.tsx");
 
 var _index = __webpack_require__(/*! ./index */ "./src/screen/component/index.ts");
 
@@ -3058,11 +3144,6 @@ var LoginIndexScreen = function LoginIndexScreen() {
     });
   });
   (0, _react.useEffect)(function () {
-    if (route.params.email && route.params.change_account !== "true") {
-      console.debug("automatically continue sign in with:", email);
-      handleCheckLoginEmail();
-    }
-
     return nav.addListener("blur", function () {
       setTimeout(function () {
         return setFederationOptionsVisible(false);
@@ -3212,7 +3293,7 @@ var _interopRequireDefault = __webpack_require__(/*! /Users/dehypnosis/Synced/qm
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.LogoutEndScreen = void 0;
+exports.ActiveSessionList = exports.LogoutEndScreen = void 0;
 
 var _objectSpread2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/objectSpread2 */ "../../node_modules/@babel/runtime/helpers/esm/objectSpread2.js"));
 
@@ -3235,7 +3316,6 @@ var LogoutEndScreen = function LogoutEndScreen() {
       _useAppState2 = (0, _slicedToArray2.default)(_useAppState, 1),
       state = _useAppState2[0];
 
-  var palette = (0, _component.useThemePalette)();
   var user = state.user;
   var authorizedClients = state.authorizedClients;
   return _react.default.createElement(_component.ScreenLayout, {
@@ -3259,16 +3339,43 @@ var LogoutEndScreen = function LogoutEndScreen() {
       lineNumber: 32
     },
     __self: this
-  }, "Below sessions are active."), _react.default.createElement(_component.List, {
+  }, "Below sessions are active."), _react.default.createElement(ActiveSessionList, {
+    authorizedClients: authorizedClients,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 33
+    },
+    __self: this
+  })) : _react.default.createElement(_component.Text, {
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 36
+    },
+    __self: this
+  }, "There are no active sessions.")) : _react.default.createElement(_component.Text, {
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 40
+    },
+    __self: this
+  }, "Account session not exists."));
+};
+
+exports.LogoutEndScreen = LogoutEndScreen;
+
+var ActiveSessionList = function ActiveSessionList(_ref) {
+  var authorizedClients = _ref.authorizedClients;
+  var palette = (0, _component.useThemePalette)();
+  return _react.default.createElement(_component.List, {
     style: {
       marginTop: 15,
       borderColor: palette["border-basic-color-3"],
       borderWidth: 1
     },
     data: authorizedClients,
-    renderItem: function renderItem(_ref) {
-      var item = _ref.item,
-          index = _ref.index;
+    renderItem: function renderItem(_ref2) {
+      var item = _ref2.item,
+          index = _ref2.index;
       var uri = item.client_uri || item.policy_uri || item.tos_uri;
       return _react.default.createElement(_component.ListItem, {
         key: index,
@@ -3294,39 +3401,27 @@ var LogoutEndScreen = function LogoutEndScreen() {
             name: "external-link-outline",
             __source: {
               fileName: _jsxFileName,
-              lineNumber: 46
+              lineNumber: 62
             },
             __self: this
           });
         } : undefined,
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 39
+          lineNumber: 55
         },
         __self: this
       });
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 33
+      lineNumber: 49
     },
     __self: this
-  })) : _react.default.createElement(_component.Text, {
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 53
-    },
-    __self: this
-  }, "There are no active sessions.")) : _react.default.createElement(_component.Text, {
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 57
-    },
-    __self: this
-  }, "Account session not exists."));
+  });
 };
 
-exports.LogoutEndScreen = LogoutEndScreen;
+exports.ActiveSessionList = ActiveSessionList;
 
 /***/ }),
 
@@ -3351,6 +3446,8 @@ var _react = _interopRequireDefault(__webpack_require__(/*! react */ "../../node
 var _hook = __webpack_require__(/*! ../hook */ "./src/hook.ts");
 
 var _component = __webpack_require__(/*! ./component */ "./src/screen/component/index.ts");
+
+var _logout = __webpack_require__(/*! ./logout.end */ "./src/screen/logout.end.tsx");
 
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-app-renderer/src/screen/logout.index.tsx";
 
@@ -3404,16 +3501,23 @@ var LogoutIndexScreen = function LogoutIndexScreen() {
     error: errors.global,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 23
+      lineNumber: 24
     },
     __self: this
   }, _react.default.createElement(_component.Text, {
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 54
+      lineNumber: 55
     },
     __self: this
-  }, client ? _react.default.createElement(_react.default.Fragment, null, "Signed out from ", client.client_name, ". ") : _react.default.createElement(_react.default.Fragment, null, "Destroy all the sessions of this account?")));
+  }, client ? _react.default.createElement(_react.default.Fragment, null, "Signed out from ", client.client_name, ". ") : _react.default.createElement(_react.default.Fragment, null, "Destroy all the sessions of this account?")), state.authorizedClients ? _react.default.createElement(_logout.ActiveSessionList, {
+    authorizedClients: state.authorizedClients,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 58
+    },
+    __self: this
+  }) : null);
 };
 
 exports.LogoutIndexScreen = LogoutIndexScreen;

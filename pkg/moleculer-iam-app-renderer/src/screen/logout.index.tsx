@@ -1,6 +1,7 @@
 import React from "react";
 import { useAppState, useWithLoading } from "../hook";
 import { Persona, ScreenLayout, Text } from "./component";
+import { ActiveSessionList } from "./logout.end";
 
 export const LogoutIndexScreen: React.FunctionComponent = () => {
   // states
@@ -54,6 +55,7 @@ export const LogoutIndexScreen: React.FunctionComponent = () => {
       <Text>
         {client ? (<>Signed out from {client.client_name}. </>) : <>Destroy all the sessions of this account?</> }
       </Text>
+      { state.authorizedClients ? <ActiveSessionList authorizedClients={state.authorizedClients} /> : null }
     </ScreenLayout>
   );
 };
