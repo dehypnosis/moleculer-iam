@@ -117,6 +117,7 @@ export const LoginIndexScreen: React.FunctionComponent = () => {
           label={"Email"}
           keyboardType={"email-address"}
           placeholder="Enter your email"
+          autoCompleteType={"username"}
           autoFocus
           value={email}
           setValue={setEmail}

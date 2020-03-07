@@ -27,17 +27,18 @@ export const Form: React.FunctionComponent<{
 };
 
 export const FormInput: React.FunctionComponent<FormInputAliasProps> = (props) => {
-  const { value, error, setValue, tabIndex, onEnter, autoFocus, secureTextEntry, ...restProps } = props;
+  const { value, error, setValue, tabIndex, autoCompleteType, onEnter, autoFocus, secureTextEntry, ...restProps } = props;
 
   const [passwordVisible, setPasswordVisible] = useState(false);
 
 
   return (
     <Input
-      ref={withAttrs({ tabindex: tabIndex || null }, "input")}
+      ref={withAttrs({ tabindex: tabIndex || null, autofocus: autoFocus ? "autofocus" : null }, "input")}
 
       // default
       size={"large"}
+      autoCompleteType={autoCompleteType}
       autoCapitalize={"none"}
       keyboardType={"default"}
       returnKeyType={"next"}

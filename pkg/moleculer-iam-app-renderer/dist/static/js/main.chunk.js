@@ -12,7 +12,7 @@ var ___CSS_LOADER_API_IMPORT___ = __webpack_require__(/*! ../../../../node_modul
 exports = ___CSS_LOADER_API_IMPORT___(false);
 exports.push([module.i, "@import url(https://fonts.googleapis.com/css?family=Noto+Sans+KR:400,500,700&display=swap&subset=korean);"]);
 // Module
-exports.push([module.i, "body {\n  margin: 0;\n  padding: 0;\n  -webkit-font-smoothing: antialiased;\n  -moz-osx-font-smoothing: grayscale;\n  font-family: 'Noto Sans KR', sans-serif;\n}\n\n#root {\n  height: 100vh;\n  min-width: 320px;\n}\n\n#theme-container {\n  height: 100vh;\n}\n\n#nav-container {\n  height: 100vh;\n  width: 100%;\n}\n\n@media (min-width: 640px) {\n  #nav-container {\n    width: 375px;\n  }\n}\n\n@media (pointer:none) and (max-width: 640px), (pointer:coarse) and (max-width: 640px) {\n  [data-role=\"scroll-container\"] {\n    margin-top: 50px !important;\n  }\n}\n", ""]);
+exports.push([module.i, "body {\n  margin: 0;\n  padding: 0;\n  -webkit-font-smoothing: antialiased;\n  -moz-osx-font-smoothing: grayscale;\n  font-family: 'Noto Sans KR', sans-serif;\n}\n\n#root {\n  height: 100vh;\n  min-width: 320px;\n}\n\n#theme-container {\n  height: 100vh;\n}\n\n#nav-container {\n  height: 100vh;\n  width: 100%;\n}\n\n@media (min-width: 640px) {\n  #nav-container {\n    width: 375px;\n  }\n}\n\n@media (pointer:none) and (max-width: 640px), (pointer:coarse) and (max-width: 640px) {\n  [data-role=\"scroll-container\"] {\n    margin-top: 50px !important;\n    margi-bottom: 0px !important;\n  }\n}\n", ""]);
 // Exports
 module.exports = exports;
 
@@ -1678,10 +1678,11 @@ var FormInput = function FormInput(props) {
       error = props.error,
       setValue = props.setValue,
       tabIndex = props.tabIndex,
+      autoCompleteType = props.autoCompleteType,
       onEnter = props.onEnter,
       autoFocus = props.autoFocus,
       secureTextEntry = props.secureTextEntry,
-      restProps = (0, _objectWithoutProperties2.default)(props, ["value", "error", "setValue", "tabIndex", "onEnter", "autoFocus", "secureTextEntry"]);
+      restProps = (0, _objectWithoutProperties2.default)(props, ["value", "error", "setValue", "tabIndex", "autoCompleteType", "onEnter", "autoFocus", "secureTextEntry"]);
 
   var _useState = (0, _react.useState)(false),
       _useState2 = (0, _slicedToArray2.default)(_useState, 2),
@@ -1690,9 +1691,11 @@ var FormInput = function FormInput(props) {
 
   return _react.default.createElement(_index.Input, (0, _extends2.default)({
     ref: (0, _util.withAttrs)({
-      tabindex: tabIndex || null
+      tabindex: tabIndex || null,
+      autofocus: autoFocus ? "autofocus" : null
     }, "input"),
     size: "large",
+    autoCompleteType: autoCompleteType,
     autoCapitalize: "none",
     keyboardType: "default",
     returnKeyType: "next",
@@ -1718,7 +1721,7 @@ var FormInput = function FormInput(props) {
         name: passwordVisible ? 'eye' : 'eye-off',
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 54
+          lineNumber: 55
         },
         __self: this
       });
@@ -1835,6 +1838,8 @@ Object.keys(_layout).forEach(function (key) {
 
 var _interopRequireDefault = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireDefault */ "../../node_modules/@babel/runtime/helpers/interopRequireDefault.js");
 
+var _interopRequireWildcard = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireWildcard */ "../../node_modules/@babel/runtime/helpers/interopRequireWildcard.js");
+
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -1846,7 +1851,7 @@ var _objectWithoutProperties2 = _interopRequireDefault(__webpack_require__(/*! /
 
 var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/slicedToArray */ "../../node_modules/@babel/runtime/helpers/esm/slicedToArray.js"));
 
-var _react = _interopRequireDefault(__webpack_require__(/*! react */ "../../node_modules/react/index.js"));
+var _react = _interopRequireWildcard(__webpack_require__(/*! react */ "../../node_modules/react/index.js"));
 
 var _reactNative = __webpack_require__(/*! react-native */ "./build.shim.rnw.tsx");
 
@@ -1875,28 +1880,41 @@ var ScreenLayout = function ScreenLayout(_ref) {
       footer = _ref$footer === void 0 ? null : _ref$footer;
   {}
 
+  var _useNavigation = (0, _hook.useNavigation)(),
+      nav = _useNavigation.nav;
+
+  var scrollableRef = (0, _react.useRef)(null);
+  (0, _react.useEffect)(function () {
+    if (_index.isTouchDevice) return;
+    return nav.addListener("focus", function () {
+      if (scrollableRef.current) {
+        var node = scrollableRef.current.getInnerViewNode();
+        setTimeout(function () {
+          (0, _index.activateAutoFocus)(node);
+        }, 300);
+      }
+    });
+  }, [nav]);
+
   var _useAppOptions = (0, _hook.useAppOptions)(),
       _useAppOptions2 = (0, _slicedToArray2.default)(_useAppOptions, 1),
       options = _useAppOptions2[0];
 
   return _react.default.createElement(_reactNative.ScrollView, {
     ref: function ref(_ref3) {
-      return _ref3 && (0, _index.withAttrs)({
-        "data-role": "scroll-container"
-      })(_ref3.getInnerViewNode());
+      scrollableRef.current = _ref3;
     },
     style: {
       width: "100%"
     },
     contentContainerStyle: {
-      justifyContent: "center",
       width: "100%",
       marginVertical: "auto",
       padding: 30
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 72
+      lineNumber: 62
     },
     __self: this
   }, _react.default.createElement(_reactNative.View, {
@@ -1906,7 +1924,7 @@ var ScreenLayout = function ScreenLayout(_ref) {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 79
+      lineNumber: 67
     },
     __self: this
   }, _react.default.createElement(_reactNative.Image, {
@@ -1920,7 +1938,7 @@ var ScreenLayout = function ScreenLayout(_ref) {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 80
+      lineNumber: 68
     },
     __self: this
   })), _react.default.createElement(_reactNative.View, {
@@ -1929,14 +1947,14 @@ var ScreenLayout = function ScreenLayout(_ref) {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 83
+      lineNumber: 71
     },
     __self: this
   }, _react.default.createElement(_index.Text, {
     category: "h5",
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 84
+      lineNumber: 72
     },
     __self: this
   }, title), subtitle && _react.default.createElement(_index.Text, {
@@ -1946,7 +1964,7 @@ var ScreenLayout = function ScreenLayout(_ref) {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 85
+      lineNumber: 73
     },
     __self: this
   }, subtitle)), children ? _react.default.createElement(_reactNative.View, {
@@ -1955,13 +1973,13 @@ var ScreenLayout = function ScreenLayout(_ref) {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 88
+      lineNumber: 76
     },
     __self: this
   }, children) : null, _react.default.createElement(_reactNative.View, {
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 90
+      lineNumber: 78
     },
     __self: this
   }, error ? _react.default.createElement(_index.Text, {
@@ -1972,7 +1990,7 @@ var ScreenLayout = function ScreenLayout(_ref) {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 91
+      lineNumber: 79
     },
     __self: this
   }, error) : null, buttons.length > 0 ? buttons.map(function (args, index) {
@@ -1988,7 +2006,7 @@ var ScreenLayout = function ScreenLayout(_ref) {
         text: typeof s.separator === "string" ? s.separator : undefined,
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 103
+          lineNumber: 91
         },
         __self: this
       });
@@ -2007,7 +2025,7 @@ var ScreenLayout = function ScreenLayout(_ref) {
         },
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 116
+          lineNumber: 104
         },
         __self: this
       }, _react.default.createElement(_index.ButtonGroup, (0, _extends2.default)({
@@ -2017,7 +2035,7 @@ var ScreenLayout = function ScreenLayout(_ref) {
       }, groupProps, {
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 120
+          lineNumber: 108
         },
         __self: this
       }), g.group.map(function (btn, key) {
@@ -2046,7 +2064,7 @@ var ScreenLayout = function ScreenLayout(_ref) {
           onLongPress: loading ? undefined : props.onLongPress,
           __source: {
             fileName: _jsxFileName,
-            lineNumber: 133
+            lineNumber: 121
           },
           __self: this
         }));
@@ -2064,7 +2082,7 @@ var ScreenLayout = function ScreenLayout(_ref) {
       },
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 163
+        lineNumber: 151
       },
       __self: this
     }, _react.default.createElement(_index.Button, (0, _extends2.default)({
@@ -2081,7 +2099,7 @@ var ScreenLayout = function ScreenLayout(_ref) {
       onLongPress: loading ? undefined : props.onLongPress,
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 167
+        lineNumber: 155
       },
       __self: this
     })));
@@ -2372,7 +2390,9 @@ Object.defineProperty(exports, "__esModule", {
 exports.withElements = withElements;
 exports.withElement = withElement;
 exports.withAttrs = withAttrs;
+exports.activateAutoFocus = activateAutoFocus;
 exports.useThemePalette = useThemePalette;
+exports.isTouchDevice = void 0;
 
 var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/slicedToArray */ "../../node_modules/@babel/runtime/helpers/esm/slicedToArray.js"));
 
@@ -2446,6 +2466,34 @@ function withAttrs() {
     }
   }, selector, ignoreNotFound);
 }
+
+function activateAutoFocus(ref) {
+  withElements(function (elems) {
+    elems.find(function (elem) {
+      if (elem.focus) {
+        if (elem.offsetParent === null) {
+          console.debug("autofocus DOM element focus failed", elem);
+          return false;
+        }
+
+        elem.focus();
+        return true;
+      }
+    });
+  }, "[autofocus]")(ref);
+}
+
+var isTouchDevice = function () {
+  if ("ontouchstart" in window || window.DocumentTouch && document instanceof window.DocumentTouch) {
+    return true;
+  }
+
+  var prefixes = " -webkit- -moz- -o- -ms- ".split(" ");
+  var query = ["(", prefixes.join("touch-enabled),("), "heartz", ")"].join("");
+  return window.matchMedia && window.matchMedia(query).matches;
+}();
+
+exports.isTouchDevice = isTouchDevice;
 
 function useThemePalette() {
   return (0, _components.useTheme)();
@@ -3212,6 +3260,7 @@ var LoginIndexScreen = function LoginIndexScreen() {
     label: "Email",
     keyboardType: "email-address",
     placeholder: "Enter your email",
+    autoCompleteType: "username",
     autoFocus: true,
     value: email,
     setValue: setEmail,
@@ -3319,7 +3368,7 @@ var LogoutEndScreen = function LogoutEndScreen() {
   var user = state.user;
   var authorizedClients = state.authorizedClients;
   return _react.default.createElement(_component.ScreenLayout, {
-    title: "Account session",
+    title: "Sign out",
     subtitle: user ? user.email : "Signed out",
     buttons: [{
       children: "Close",
@@ -3333,29 +3382,17 @@ var LogoutEndScreen = function LogoutEndScreen() {
       lineNumber: 15
     },
     __self: this
-  }, user ? _react.default.createElement(_react.default.Fragment, null, authorizedClients ? _react.default.createElement(_react.default.Fragment, null, _react.default.createElement(_component.Text, {
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 32
-    },
-    __self: this
-  }, "Below sessions are active."), _react.default.createElement(ActiveSessionList, {
+  }, user ? _react.default.createElement(ActiveSessionList, {
     authorizedClients: authorizedClients,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 33
+      lineNumber: 29
     },
     __self: this
-  })) : _react.default.createElement(_component.Text, {
+  }) : _react.default.createElement(_component.Text, {
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 36
-    },
-    __self: this
-  }, "There are no active sessions.")) : _react.default.createElement(_component.Text, {
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 40
+      lineNumber: 31
     },
     __self: this
   }, "Account session not exists."));
@@ -3366,7 +3403,13 @@ exports.LogoutEndScreen = LogoutEndScreen;
 var ActiveSessionList = function ActiveSessionList(_ref) {
   var authorizedClients = _ref.authorizedClients;
   var palette = (0, _component.useThemePalette)();
-  return _react.default.createElement(_component.List, {
+  return _react.default.createElement(_react.default.Fragment, null, authorizedClients ? _react.default.createElement(_react.default.Fragment, null, _react.default.createElement(_component.Text, {
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 43
+    },
+    __self: this
+  }, "Below sessions are active."), _react.default.createElement(_component.List, {
     style: {
       marginTop: 15,
       borderColor: palette["border-basic-color-3"],
@@ -3401,24 +3444,30 @@ var ActiveSessionList = function ActiveSessionList(_ref) {
             name: "external-link-outline",
             __source: {
               fileName: _jsxFileName,
-              lineNumber: 62
+              lineNumber: 57
             },
             __self: this
           });
         } : undefined,
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 55
+          lineNumber: 50
         },
         __self: this
       });
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 49
+      lineNumber: 44
     },
     __self: this
-  });
+  })) : _react.default.createElement(_component.Text, {
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 64
+    },
+    __self: this
+  }, "There are no active sessions."));
 };
 
 exports.ActiveSessionList = ActiveSessionList;
@@ -3463,8 +3512,6 @@ var LogoutIndexScreen = function LogoutIndexScreen() {
       state = _useAppState2[0],
       dispatch = _useAppState2[1];
 
-  var user = state.user;
-  var client = state.client;
   var handleSignOutAll = withLoading(function () {
     return dispatch("logout.confirm").catch(function (err) {
       return setErrors(err);
@@ -3476,10 +3523,10 @@ var LogoutIndexScreen = function LogoutIndexScreen() {
     });
   });
   return _react.default.createElement(_component.ScreenLayout, {
-    title: client ? "Signed out" : "Sign out",
-    subtitle: user.email,
+    title: "Sign out",
+    subtitle: state.user.email,
     loading: loading,
-    buttons: client ? [{
+    buttons: [{
       status: "primary",
       children: "Done",
       onPress: handleRedirect,
@@ -3487,37 +3534,22 @@ var LogoutIndexScreen = function LogoutIndexScreen() {
     }, {
       children: "Sign out from all",
       onPress: handleSignOutAll,
-      tabIndex: 2
-    }] : [{
-      status: "primary",
-      children: "Sign out from all",
-      onPress: handleSignOutAll,
-      tabIndex: 1
-    }, {
-      children: "Done",
-      onPress: handleRedirect,
       tabIndex: 2
     }],
     error: errors.global,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 24
+      lineNumber: 22
     },
     __self: this
-  }, _react.default.createElement(_component.Text, {
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 55
-    },
-    __self: this
-  }, client ? _react.default.createElement(_react.default.Fragment, null, "Signed out from ", client.client_name, ". ") : _react.default.createElement(_react.default.Fragment, null, "Destroy all the sessions of this account?")), state.authorizedClients ? _react.default.createElement(_logout.ActiveSessionList, {
+  }, _react.default.createElement(_logout.ActiveSessionList, {
     authorizedClients: state.authorizedClients,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 58
+      lineNumber: 41
     },
     __self: this
-  }) : null);
+  }));
 };
 
 exports.LogoutIndexScreen = LogoutIndexScreen;

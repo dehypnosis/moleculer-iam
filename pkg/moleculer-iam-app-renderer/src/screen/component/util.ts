@@ -55,29 +55,31 @@ export function withAttrs(attrs: {[key: string]: string|number|boolean|null} = {
 }
 
 // workaround to make autofocus works
-// let lastFocusedElem: any;
-// export function activeAutoFocus(ref: React.Component) {
-//   withElements(elems => {
-//     elems.forEach(elem => {
-//       if ((elem as any).focus) {
-//         setTimeout(() => {
-//           if (
-//             elem.getAttribute("autofocus") === "false"
-//             || (elem as any).offsetParent === null // check visible
-//             || lastFocusedElem === elem
-//           ) {
-//             console.debug("autofocus DOM element focus failed", elem);
-//             return;
-//           }
-//
-//           (elem as any).focus();
-//           lastFocusedElem = elem;
-//           console.debug("autofocus DOM element focused", elem);
-//         }, 300);
-//       }
-//     });
-//   }, "[autofocus]")(ref);
-// }
+export function activateAutoFocus(ref: React.Component) {
+  withElements(elems => {
+    elems.find(elem => {
+      if ((elem as any).focus) {
+        if ((elem as any).offsetParent === null) { // check visibility
+          console.debug("autofocus DOM element focus failed", elem);
+          return false;
+        }
+
+        (elem as any).focus();
+        // console.debug("autofocus DOM element focused", elem);
+        return true;
+      }
+    });
+  }, "[autofocus]")(ref);
+}
+
+export const isTouchDevice = (() => {
+  if (("ontouchstart" in window) || (window as any).DocumentTouch && document instanceof (window as any).DocumentTouch) {
+    return true;
+  }
+  const prefixes = " -webkit- -moz- -o- -ms- ".split(" ");
+  const query = ["(", prefixes.join("touch-enabled),("), "heartz", ")"].join("");
+  return window.matchMedia && window.matchMedia(query).matches;
+})();
 
 /* for typing */
 export function useThemePalette(): ApplicationThemePalette {
