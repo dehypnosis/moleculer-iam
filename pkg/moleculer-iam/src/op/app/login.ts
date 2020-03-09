@@ -5,14 +5,10 @@ import { ApplicationBuildOptions } from "./index";
 export function buildLoginRoutes(builder: ProviderConfigBuilder, opts: ApplicationBuildOptions): void {
   builder.app.router// redirect to initial render page
 
-    .get("/login/:any+", async ctx => {
-      return ctx.op.redirect("/login" + (ctx.search || ""));
-    })
-
     // initial render page
-    .get("/login", async ctx => {
+    .get("/login", async (ctx, next) => {
       const { user, userClaims, interaction } = ctx.op;
-      ctx.op.assertPrompt();
+      ctx.op.assertPrompt(["login", "consent"], "Login prompt session not exists.");
 
       // already signed in and consent app
       if (user) {
@@ -33,6 +29,12 @@ export function buildLoginRoutes(builder: ProviderConfigBuilder, opts: Applicati
         }
       }
 
+      // automatic federation
+      const federate = ctx.query.federate || interaction!.params.federate;
+      if (federate) {
+        return builder.app.federation.handleRequest(ctx, next, federate);
+      }
+
       return ctx.op.render("login");
     })
 
@@ -42,7 +44,7 @@ export function buildLoginRoutes(builder: ProviderConfigBuilder, opts: Applicati
 
       // set login data to session state and response
       const userClaims = await ctx.op.getPublicUserProps(user);
-      await ctx.op.setSessionPublicState(prevState => ({
+      ctx.op.setSessionPublicState(prevState => ({
         ...prevState,
         login: { user: userClaims },
       }));
@@ -51,6 +53,12 @@ export function buildLoginRoutes(builder: ProviderConfigBuilder, opts: Applicati
     })
 
     // handle password login
+    .get("/login/check_password", async ctx => {
+      if (!ctx.op.sessionPublicState.login) {
+        return ctx.op.redirect("/login" + (ctx.search || ""));
+      }
+      return ctx.op.render("login");
+    })
     .post("/login/check_password", async ctx => {
       ctx.op.assertPrompt();
       const {email, password} = ctx.request.body;
@@ -62,7 +70,7 @@ export function buildLoginRoutes(builder: ProviderConfigBuilder, opts: Applicati
       }
 
       // clear login session state
-      await ctx.op.setSessionPublicState(prevState => ({
+      ctx.op.setSessionPublicState(prevState => ({
         ...prevState,
         login: undefined,
       }));

@@ -4,7 +4,7 @@ export { useNavigation, useAppState, useAppOptions };
 
 // do async job with loading state
 export function useWithLoading() {
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false as boolean);
   const [errors, setErrors] = useState({} as { global?: any, [key: string]: any });
 
   const unmounted = useRef(false);
@@ -14,29 +14,36 @@ export function useWithLoading() {
     };
   }, []);
 
-  const callWithLoading = useCallback(async (callback: () => void | Promise<void>) => {
-    if (loading) return;
-    setLoading(true);
-    setErrors({});
-    try {
-      await callback();
-    } catch (error) {
-      console.error(error);
-      setErrors({global: error.toString()});
-    } finally {
-      setTimeout(() => !unmounted.current && setLoading(false), 500);
-    }
-  }, [loading]);
-
-  const withLoading = <T extends any[]>(callback: (...args: T) => any | Promise<any>, deps: DependencyList = []) => {
+  const withLoading = <T extends any[]>(callback: (...args: T) => any, deps: DependencyList = []) => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const [callbackLoading, setCallbackLoading] = useState(false as boolean);
     // eslint-disable-next-line react-hooks/rules-of-hooks, react-hooks/exhaustive-deps
-    return useCallback((...args: T) => callWithLoading(() => callback(...args)), [callback, ...deps]);
+    const callWithLoading = useCallback((...args: T) => {
+      if (loading) return;
+      setLoading(true);
+      setCallbackLoading(true);
+      setTimeout(async () => {
+        try {
+          await callback(...args);
+        } catch (error) {
+          console.error("global error from withLoading callback", error);
+          setErrors({global: error.message || error.toString()});
+        } finally {
+          setTimeout(() => {
+            if (!unmounted.current) {
+              setLoading(false);
+              setCallbackLoading(false);
+            }
+          }, 100);
+        }
+      }, 100);
+    }, [callback, ...deps]);
+    return [callWithLoading, callbackLoading] as [typeof callWithLoading, boolean];
   };
 
   return {
     withLoading,
     loading,
-    setLoading,
     errors,
     setErrors,
   };

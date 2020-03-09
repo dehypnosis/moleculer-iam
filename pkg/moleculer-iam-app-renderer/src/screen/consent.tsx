@@ -9,23 +9,25 @@ export const ConsentScreen: React.FunctionComponent = () => {
   const [state, dispatch] = useAppState();
 
   // handlers
-  const handleAccept = withLoading(() => {
+  const [handleAccept, handleAcceptLoading] = withLoading(() => {
     return dispatch("consent.accept")
+      .then(() => setErrors({}))
       .catch((err: any) => setErrors(err));
   });
 
   // const handleReject = withLoading(() => {
+  //   setErrors({});
   //   return request("consent.reject")
   //     .catch((err: any) => setErrors(err));
   // });
 
-  const handleChangeAccount = withLoading(() => {
+  const [handleChangeAccount, handleChangeAccountLoading] = withLoading(() => {
     // return request("consent.change_account")
     //   .catch((err: any) => setErrors(err));
-    return nav.navigate("login", {
+    nav.navigate("login.stack", {
       screen: "login.index",
-      params: {},
     });
+    setErrors({});
   });
 
   const user = state.user!;
@@ -44,6 +46,7 @@ export const ConsentScreen: React.FunctionComponent = () => {
           status: "primary",
           children: "Continue",
           onPress: handleAccept,
+          loading: handleAcceptLoading,
           tabIndex: 1,
         },
         // {
@@ -77,6 +80,7 @@ export const ConsentScreen: React.FunctionComponent = () => {
           size: "small",
           children: "Continue with other account",
           onPress: handleChangeAccount,
+          loading: handleChangeAccountLoading,
           tabIndex: 3,
         },
         ...(client.client_uri ? [
@@ -94,7 +98,7 @@ export const ConsentScreen: React.FunctionComponent = () => {
 
       <Persona {...user} style={{marginBottom: 30}}/>
       <Text>
-        {scopes.new.concat(scopes.accepted).join(", ")} permissions are required to continue authorization.
+        {scopes.new.concat(scopes.accepted).join(", ")} permissions are required.
       </Text>
     </ScreenLayout>
   );

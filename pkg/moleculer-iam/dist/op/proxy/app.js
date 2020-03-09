@@ -42,11 +42,7 @@ class ProviderApplicationBuilder {
                     ...((expose || this.builder.dev) ? otherProps : {}),
                 };
                 if (!normalizedError.error) {
-                    normalizedError.error = "internal_server_error";
-                    normalizedError.error_description = "Cannot handle the invalid request.";
-                }
-                if (normalizedError.error_description.startsWith("unrecognized route or not allowed method")) {
-                    normalizedError.error_description = "Cannot handle the unrecognized route or not allowed method.";
+                    normalizedError.error = "invalid_request";
                 }
                 ctx.status = normalizedStatus;
                 return ctx.op.render("error", normalizedError);
@@ -59,16 +55,12 @@ class ProviderApplicationBuilder {
             this.errorHandler,
         ]);
         // internally named routes render default functions
-        this.renderError = async (ctx, error) => {
-            return this.errorHandler(ctx, () => {
-                throw error;
-            });
-        };
         // ref: https://github.com/panva/node-oidc-provider/blob/74b434c627248c82ca9db5aed3a03f0acd0d7214/lib/shared/error_handler.js#L47
         this.renderErrorProxy = (ctx, out, error) => {
             return this.wrapContext(ctx, () => {
-                this.logger.error("internal render error", error);
-                return this.renderError(ctx, out);
+                return this.errorHandler(ctx, () => {
+                    throw error;
+                });
             });
         };
         this.renderLogout = async (ctx, xsrf) => {
@@ -133,7 +125,7 @@ class ProviderApplicationBuilder {
                 ctx.assert(op.user && op.client);
                 if (error || out) {
                     this.logger.error("internal device code flow error", error || out);
-                    return this.renderError(ctx, (out || error));
+                    throw out || error;
                 }
                 const xsrf = op.session.state && op.session.state.secret;
                 return this.renderDeviceFlow(ctx, ctx.oidc.params.user_code || "", xsrf);
@@ -268,12 +260,20 @@ class ProviderApplicationBuilder {
     }
     _dangerouslyBuild() {
         this.builder.assertBuilding();
+        // normalize xhr error response, ref: https://github.com/panva/node-oidc-provider/blob/master/lib/shared/error_handler.js#L49
+        this.op.app.middleware.unshift(async (ctx, next) => {
+            await next();
+            if (ctx.body && ctx.body.error_description) {
+                ctx.body = { error: ctx.body };
+            }
+        });
+        // mount app renderer and app
         this.op.app.use(koa_compose_1.default([
             // apply additional "app renderer" middleware (like serving static files), order matters for security's sake
             ...(this.appRenderer.routes ? this.appRenderer.routes() : []),
             // apply "app router" middleware
+            // this.router.allowedMethods(), // support "OPTIONS" methods
             this.router.routes(),
-            this.router.allowedMethods(),
         ]));
         // build federation configuration
         this.federation._dangerouslyBuild();

@@ -40,9 +40,9 @@ class OIDCProviderProxy {
     }
     parseLocale(locale) {
         const locales = this.supportedLocales;
-        const raw = accept_language_parser_1.pick(locales, locale, { loose: true }) || locales[0] || "ko-KR";
+        const raw = accept_language_parser_1.pick(locales, locale || "", { loose: true }) || locales[0] || "ko-KR";
         const [language, country] = raw.split("-");
-        const [_, requestCountry] = locale.split("-"); // request locale country will take precedence over matched one
+        const [_, requestCountry] = (locale || "").split("-"); // request locale country will take precedence over matched one
         return { language: language || "ko", country: requestCountry || country || "KR" };
     }
     get issuer() {

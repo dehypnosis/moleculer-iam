@@ -34,7 +34,7 @@ export const RegisterDetailScreen: React.FunctionComponent = () => {
   const { nav } = useNavigation();
   const {loading, errors, setErrors, withLoading} = useWithLoading();
 
-  const handlePayloadSubmit = withLoading(async () => {
+  const [handlePayloadSubmit, handlePayloadSubmitLoading] = withLoading(async () => {
     const stored = state.session.register;
     const { phone_number, birthdate, gender } = payload;
 
@@ -66,13 +66,16 @@ export const RegisterDetailScreen: React.FunctionComponent = () => {
           });
         }
       })
-      .catch((err: any) => setErrors(err));
+      .catch(errs => setErrors(errs));
   }, [payload]);
 
-  const handleCancel = withLoading(() => nav.navigate("register", {
-    screen: "register.index",
-    params: {},
-  }), [nav]);
+  const [handleCancel, handleCancelLoading] = withLoading(() => {
+    nav.navigate("register", {
+      screen: "register.index",
+      params: {},
+    });
+    setErrors({});
+  });
 
   // render
   const storedClaims = state.session.register.claims;
@@ -86,11 +89,13 @@ export const RegisterDetailScreen: React.FunctionComponent = () => {
           status: "primary",
           children: "Continue",
           onPress: handlePayloadSubmit,
+          loading: handlePayloadSubmitLoading,
           tabIndex: 64,
         },
         {
           children: "Cancel",
           onPress: handleCancel,
+          loading: handleCancelLoading,
           tabIndex: 65,
         },
       ]}
@@ -101,7 +106,7 @@ export const RegisterDetailScreen: React.FunctionComponent = () => {
         handlePayloadSubmit();
       }}>
         <Stack tokens={{childrenGap: 15}}>
-          <Text>Please enter the mobile phone number to find the your account for the case of lost.</Text>
+          <Text>Please enter the phone number to find the your account for the case of lost.</Text>
           <TextField
             label={`Phone${phoneNumberIsRequired ? "" : " (optional)"}`}
             type="text"

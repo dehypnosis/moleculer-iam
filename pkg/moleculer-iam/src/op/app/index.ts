@@ -7,7 +7,7 @@ import { createApplicationRoutesFactory } from "./routes";
 import { buildAbortRoutes } from "./abort";
 import { buildFindEmailRoutes } from "./find_email";
 import { buildResetPasswordRoutes } from "./reset_password";
-import { buildVerifyEmailRoutes } from "./verify_email";
+import { buildVerifyEmailRoutes, IdentityEmailVerificationOptions } from "./verify_email";
 import { buildVerifyPhoneRoutes, IdentityPhoneVerificationOptions } from "./verify_phone";
 import { buildRegisterRoutes, IdentityRegisterOptions } from "./register";
 import { buildFederateRoutes } from "./federate";
@@ -22,7 +22,8 @@ export interface ApplicationBuildOptions {
     options?: ApplicationRendererFactoryFactoryOptions;
   };
   register?: IdentityRegisterOptions;
-  phoneVerification?: IdentityPhoneVerificationOptions;
+  verifyPhone?: IdentityPhoneVerificationOptions;
+  verifyEmail?: IdentityEmailVerificationOptions;
 }
 
 export function buildApplication(builder: ProviderConfigBuilder, opts: ApplicationBuildOptions = {}): void {
@@ -51,8 +52,10 @@ export function buildApplication(builder: ProviderConfigBuilder, opts: Applicati
     })
 
     .setExtraParams([
-      // support extra params for /login?change_account=true to not auto-fill signed in session account
+      // /login?change_account=true to not auto-fill signed in session account
       "change_account",
+      // /login?federate=google to automatically start federation process
+      "federate",
     ])
 
     // configure app

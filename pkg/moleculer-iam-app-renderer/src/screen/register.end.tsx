@@ -10,7 +10,7 @@ export const RegisterEndScreen: React.FunctionComponent = () => {
   const { email = "" } = route.params;
 
   // handlers
-  const handleContinue = withLoading(() => {
+  const [handleContinue, handleContinueLoading] = withLoading(() => {
     // ... login
     nav.navigate("login", {
       screen: "login.index",
@@ -30,6 +30,7 @@ export const RegisterEndScreen: React.FunctionComponent = () => {
           status: "primary",
           children: "Done",
           onPress: handleContinue,
+          loading: handleContinueLoading,
           tabIndex: 1,
         },
       ]}

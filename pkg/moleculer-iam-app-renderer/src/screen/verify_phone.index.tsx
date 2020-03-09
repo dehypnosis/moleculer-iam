@@ -1,59 +1,70 @@
-import React  from "react";
-import { Text, Image } from "../styles";
-import { useNavigation, useWithLoading } from "../hook";
-import { ScreenLayout } from "./component/layout";
-import svg from "../assets/screen_verify.svg";
+import React, { useEffect, useState } from "react";
+import { useNavigation, useAppState, useWithLoading } from "../hook";
+import { Text, ScreenLayout, FormInput } from "./component";
 
 export const VerifyPhoneIndexScreen: React.FunctionComponent = () => {
   // states
-  const {loading, errors, setErrors, withLoading} = useWithLoading();
-  const { nav, route } = useNavigation();
-  const { phoneNumber = "", callback = "" } = route.params;
+  const [state, dispatch] = useAppState();
+  const [phoneNumber, setPhoneNumber] = useState("");
 
   // handlers
-  const handleSend = withLoading(() => {
-    // TODO: ..
-    nav.navigate("verify_phone", {
-      screen: "verify_phone.verify",
-      params: { phoneNumber, ttl: 500, callback },
-    });
-  }, [nav, phoneNumber, callback]);
+  const { nav, route } = useNavigation();
+  const { loading, errors, setErrors, withLoading } = useWithLoading();
+  const [handleCheckPhoneNumber, handleCheckPhoneNumberLoading] = withLoading(() => {
+    dispatch("verify_phone.check_phone", {
+      phone_number: `${state.locale.country}|${phoneNumber}`,
+      registered: true,
+    })
+      .then(() => {
+        setErrors({});
+        nav.navigate("verify_phone.stack", {
+          screen: "verify_phone.verify",
+          params: {},
+        });
+      })
+      .catch((err: any) => setErrors(err))
+  }, [phoneNumber]);
 
-  const handleCancel = withLoading(() => {
-    callback === "register" ? nav.navigate("register", {
-      screen: "register.detail",
-      params: {},
-    }) : nav.navigate("login", {
-      screen: "login.index",
-      params: {},
-    });
-  }, [nav, callback]);
+  useEffect(() => {
+    // update email when route params updated
+    if (route.params.phone_number && route.params.phone_number !== phoneNumber) {
+      setPhoneNumber(route.params.phone_number || "");
+      setErrors({});
+    }
+  }, [nav, route]);
 
   // render
   return (
     <ScreenLayout
-      title={`Verify phone number`}
-      subtitle={phoneNumber}
+      title={`Verify your phone`}
+      loading={loading}
+      error={errors.global}
       buttons={[
         {
           status: "primary",
-          children: "Send",
-          onPress: handleSend,
-          tabIndex: 1,
-        },
-        {
-          children: "Cancel",
-          onPress: handleCancel,
-          tabIndex: 2,
+          children: "Continue",
+          onPress: handleCheckPhoneNumber,
+          loading: handleCheckPhoneNumberLoading,
+          tabIndex: 22,
         },
       ]}
-      loading={loading}
-      error={errors.global}
     >
-      <Text>
-        A text message with a verification code will be sent to verify the phone number.
+      <Text style={{marginBottom: 30}}>
+        Verify your registered phone number.
       </Text>
-      <Image src={svg} styles={{root: {minHeight: "270px"}, image: {width: "100%"}}}/>
+      <FormInput
+        autoFocus
+        tabIndex={21}
+        label={`Phone number`}
+        placeholder={`Enter your mobile phone number (${state.locale.country})`}
+        blurOnSubmit={false}
+        keyboardType={"phone-pad"}
+        autoCompleteType={"tel"}
+        value={phoneNumber}
+        error={errors.phone_number}
+        setValue={setPhoneNumber}
+        onEnter={handleCheckPhoneNumber}
+      />
     </ScreenLayout>
   );
 };

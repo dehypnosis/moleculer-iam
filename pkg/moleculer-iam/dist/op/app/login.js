@@ -3,13 +3,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const idp_1 = require("../../idp");
 function buildLoginRoutes(builder, opts) {
     builder.app.router // redirect to initial render page
-        .get("/login/:any+", async (ctx) => {
-        return ctx.op.redirect("/login" + (ctx.search || ""));
-    })
         // initial render page
         .get("/login", async (ctx) => {
         const { user, userClaims, interaction } = ctx.op;
-        ctx.op.assertPrompt();
+        ctx.op.assertPrompt(["login", "consent"], "Login prompt session not exists.");
         // already signed in and consent app
         if (user) {
             const changeAccount = ctx.query.change_account === "true" || interaction.params.change_account === "true";
@@ -41,6 +38,12 @@ function buildLoginRoutes(builder, opts) {
         return ctx.op.end();
     })
         // handle password login
+        .get("/login/check_password", async (ctx) => {
+        if (!ctx.op.sessionPublicState.login) {
+            return ctx.op.redirect("/login" + (ctx.search || ""));
+        }
+        return ctx.op.render("login");
+    })
         .post("/login/check_password", async (ctx) => {
         ctx.op.assertPrompt();
         const { email, password } = ctx.request.body;

@@ -141,9 +141,9 @@ class OIDCProviderContextProxy {
     get isXHR() {
         return this.ctx.accepts(JSON, HTML) === JSON;
     }
-    assertPrompt(allowedPromptNames) {
+    assertPrompt(allowedPromptNames, message) {
         const { ctx, interaction } = this;
-        ctx.assert(interaction && (!allowedPromptNames || allowedPromptNames.includes(interaction.prompt.name)));
+        ctx.assert(interaction && (!allowedPromptNames || allowedPromptNames.includes(interaction.prompt.name)), 400, message);
     }
     async getPublicClientProps(client) {
         if (!client)

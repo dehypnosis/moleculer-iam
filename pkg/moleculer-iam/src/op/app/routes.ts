@@ -3,36 +3,82 @@ import { ApplicationBuildOptions } from "./index";
 
 export const createApplicationRoutesFactory = (builder: ProviderConfigBuilder, opts: ApplicationBuildOptions): ApplicationRoutesFactory => {
   // internal routes for logout, device_flow, ... are not described here
-  const { getURL } = builder.app;
+  const {getURL} = builder.app;
 
   const commonRoutes: ApplicationRoutes = {
+    // reset password
+    "reset_password": {
+      url: getURL("/reset_password"),
+      method: "GET",
+      synchronous: true,
+    },
+    "reset_password.set": {
+      url: getURL("/reset_password/set"),
+      method: "POST",
+      payload: {
+        email: "",
+        password: "",
+        password_confirmation: "",
+      },
+    },
+
+    // verify email
+    "verify_email": {
+      url: getURL("/verify_email"),
+      method: "GET",
+      synchronous: true,
+    },
+    "verify_email.check_email": {
+      url: getURL("/verify_email/check_email"),
+      method: "POST",
+      payload: {
+        email: "",
+        registered: false,
+      },
+    },
+    "verify_email.send": {
+      url: getURL("/verify_email/send"),
+      method: "POST",
+      payload: {
+        email: "",
+      },
+    },
+    "verify_email.verify": {
+      url: getURL("/verify_email/verify"),
+      method: "POST",
+      payload: {
+        email: "",
+        secret: "",
+        callback: "", // reset_password, register, (verify), ...
+      },
+    },
+
     // find email
     "find_email": {
       url: getURL("/find_email"),
       method: "GET",
       synchronous: true,
     },
-    "find_email.check_phone": {
-      url: getURL("/find_email/check_phone"),
-      method: "POST",
-      payload: {
-        phone_number: "",
-      },
-    },
 
     // verify phone
     "verify_phone": {
-      url: getURL("/verify_phone/send"),
+      url: getURL("/verify_phone"),
       method: "GET",
       synchronous: true,
+    },
+    "verify_phone.check_phone": {
+      url: getURL("/verify_phone/check_phone"),
+      method: "POST",
+      payload: {
+        phone_number: "",
+        registered: false,
+      },
     },
     "verify_phone.send": {
       url: getURL("/verify_phone/send"),
       method: "POST",
       payload: {
         phone_number: "",
-        register: false,
-        login: false,
       },
     },
     "verify_phone.verify": {
@@ -41,6 +87,7 @@ export const createApplicationRoutesFactory = (builder: ProviderConfigBuilder, o
       payload: {
         phone_number: "",
         secret: "",
+        callback: "", // find_email, register, (verify), ...
       },
     },
 

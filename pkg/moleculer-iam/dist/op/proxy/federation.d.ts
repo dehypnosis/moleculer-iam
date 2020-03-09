@@ -38,10 +38,10 @@ export declare class IdentityFederationBuilder {
     private config;
     constructor(builder: ProviderConfigBuilder);
     private _prefix;
-    get prefix(): string;
+    readonly prefix: string;
     setCallbackPrefix(prefix: string): this;
     readonly getCallbackURL: (providerName: string) => string;
-    get providerNames(): string[];
+    readonly providerNames: string[];
     setProviderConfigurationMap(configMap: IdentityFederationProviderConfigurationMap): this;
     _dangerouslyBuild(): void;
     handleRequest(ctx: ApplicationRequestContext, next: () => Promise<void>, provider: string): Promise<void>;

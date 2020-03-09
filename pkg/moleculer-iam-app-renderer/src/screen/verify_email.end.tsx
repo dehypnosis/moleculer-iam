@@ -1,44 +1,29 @@
 import React from "react";
-import { Text } from "../styles";
-import { useWithLoading, useNavigation } from "../hook";
-import { ScreenLayout } from "./component/layout";
+import { useAppState, useClose } from "../hook";
+import { ScreenLayout, Text } from "./component";
 
 export const VerifyEmailEndScreen: React.FunctionComponent = () => {
   // states
-  const {loading, errors, setErrors, withLoading} = useWithLoading();
-  const { route, nav } = useNavigation();
-
-  // props
-  const { email = "" } = route.params;
-
-  // handlers
-  const handleDone = withLoading(() =>
-    nav.navigate("login", {
-      screen: "login.index",
-      params: {
-        email,
-      },
-    })
-  , [email]);
+  const [state] = useAppState();
+  const {close, closed} = useClose(false);
 
   // render
   return (
     <ScreenLayout
-      title={`Email verified`}
-      subtitle={email}
+      title={`Email address verified`}
+      subtitle={state.session.verifyEmail.email}
+      error={closed ? "Please close the window manually." : undefined}
+      loading={closed}
       buttons={[
         {
-          status: "primary",
-          children: "Done",
-          onPress: handleDone,
-          tabIndex: 31,
+          children: "Close",
+          tabIndex: 1,
+          onPress: close,
         },
       ]}
-      error={errors.global}
-      loading={loading}
     >
       <Text>
-        Account email address has been verified successfully.
+        The account email address has been verified successfully.
       </Text>
     </ScreenLayout>
   );

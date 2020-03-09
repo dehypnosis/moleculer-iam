@@ -1,56 +1,90 @@
-import React  from "react";
-import { Text, Image } from "../styles";
-import { useWithLoading, useNavigation } from "../hook";
-import { ScreenLayout } from "./component/layout";
-import svg from "../assets/screen_password.svg";
+import React, { useEffect, useState } from "react";
+import { useWithLoading, useNavigation, useAppState } from "../hook";
+import { Text, ScreenLayout, FormInput } from "./component";
 
 export const ResetPasswordIndexScreen: React.FunctionComponent = () => {
   // states
-  const {loading, errors, setErrors, withLoading} = useWithLoading();
-
-  // props
+  const [state, dispatch] = useAppState();
+  const [email, setEmail] = useState(state.user && state.user.email || "");
   const { nav, route } = useNavigation();
-  const { email = "" } = route.params;
 
   // handlers
-  const handleSend = withLoading(async () => {
-    // TODO: ..
-    nav.navigate("reset_password", {
-      screen: "reset_password.sent",
-      params: {email, ttl: 3600},
-    });
-  }, [nav, email]);
+  const {loading, errors, setErrors, withLoading} = useWithLoading();
+  const [handleCheckEmail, handleCheckEmailLoading] = withLoading(() => {
+    dispatch("verify_email.check_email", {
+      email,
+      registered: true,
+    })
+      .then(() => {
+        setErrors({});
+        nav.navigate("verify_email.stack", {
+          screen: "verify_email.verify",
+          params: {
+            callback: "reset_password",
+          },
+        });
+      })
+      .catch(errs => setErrors(errs))
+  }, [email]);
 
-  const handleCancel = withLoading(() => nav.navigate("login", {
-    screen: "login.index",
-    params: {},
-  }), [email]);
+  const [handleCancel, handleCancelLoading] = withLoading(() => {
+    nav.navigate("login.stack", {
+      screen: "login.check_password",
+      params: {
+        email,
+      },
+    });
+    setErrors({});
+  }, [email]);
+
+  useEffect(() => {
+    // update email when route params updated
+    if (route.params.email && route.params.email !== email) {
+      setEmail(route.params.email || "");
+      setErrors({});
+    }
+  }, [nav, route]);
 
   // render
   return (
     <ScreenLayout
       title={`Reset password`}
-      subtitle={email}
+      subtitle={`with email verification`}
+      loading={loading}
+      error={errors.global}
       buttons={[
         {
           status: "primary",
-          children: "Send",
-          onPress: handleSend,
-          tabIndex: 31,
+          children: "Continue",
+          onPress: handleCheckEmail,
+          loading: handleCheckEmailLoading,
+          tabIndex: 22,
         },
         {
           children: "Cancel",
           onPress: handleCancel,
-          tabIndex: 32,
+          loading: handleCancelLoading,
+          tabIndex: 23,
+          hidden: !state.routes.login,
         },
       ]}
-      loading={loading}
-      error={errors.global}
     >
-      <Text>
-        An email with a link will be sent to help you to reset password.
+      <Text style={{marginBottom: 30}}>
+        Verify your registered email address.
       </Text>
-      <Image src={svg} styles={{root: {minHeight: "270px"}, image: {width: "100%"}}}/>
+      <FormInput
+        autoFocus
+        tabIndex={21}
+        label={`Email`}
+        keyboardType={"email-address"}
+        placeholder="Enter your email address"
+        autoCompleteType={"username"}
+        blurOnSubmit={false}
+        value={email}
+        error={errors.email}
+        setValue={setEmail}
+        onEnter={handleCheckEmail}
+      />
     </ScreenLayout>
   );
 };

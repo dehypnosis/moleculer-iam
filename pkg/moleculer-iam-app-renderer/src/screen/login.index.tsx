@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { ViewStyle, TextStyle } from "react-native";
 import { useNavigation, useAppState, useWithLoading, useAppOptions } from "../hook";
-import { Form, FormInput, ScreenLayout } from "./component";
+import { Icon, Form, FormInput, ScreenLayout } from "./component";
 
 
 export const LoginIndexScreen: React.FunctionComponent = () => {
   // state
   const { nav, route } = useNavigation();
-  const [email, setEmail] = useState(route.params.email as string || "");
+  const [email, setEmail] = useState("");
   const [state, dispatch] = useAppState();
   const [options] = useAppOptions();
   const [federationOptionsVisible, setFederationOptionsVisible] = useState(options.login.federationOptionsVisible === true);
@@ -21,10 +21,11 @@ export const LoginIndexScreen: React.FunctionComponent = () => {
   //     .catch((err: any) => setErrors(err));
   // });
 
-  const handleCheckLoginEmail = withLoading(() => {
+  const [handleCheckLoginEmail, handleCheckLoginEmailLoading] = withLoading(() => {
     return dispatch("login.check_email", { email })
       .then(() => {
-        nav.navigate("login", {
+        setErrors({});
+        nav.navigate("login.stack", {
           screen: "login.check_password",
           params: {
             email,
@@ -34,20 +35,30 @@ export const LoginIndexScreen: React.FunctionComponent = () => {
       .catch((err: any) => setErrors(err));
   }, [email]);
 
-  const handleFindEmail = withLoading(() => nav.navigate("find_email", {
-    screen: "find_email.index",
-  }));
+  const [handleFindEmail, handleFindEmailLoading] = withLoading(() =>
+    nav.navigate("find_email.stack", {
+      screen: "find_email.index",
+    })
+  );
 
-  const handleSignUp = withLoading(() => nav.navigate("register", {
-    screen: "register.index",
-  }));
+  const [handleSignUp, handleSignUpLoading] = withLoading(() =>
+    nav.navigate("register.stack", {
+      screen: "register.index",
+    })
+  );
 
-  const handleFederation = withLoading((provider: string) => {
+  const [handleFederation, handleFederationLoading] = withLoading((provider: string) => {
     return dispatch("login.federate", { provider })
       .catch((err: any) => setErrors(err));
   });
 
   useEffect(() => {
+    // update email when route params updated
+    if (route.params.email && route.params.email !== email) {
+      setEmail(route.params.email);
+      setErrors({});
+    }
+
     // submit email if has in URL params
     // if (route.params.email && route.params.change_account !== "true") {
     //   console.debug("automatically continue sign in with:", email);
@@ -58,14 +69,13 @@ export const LoginIndexScreen: React.FunctionComponent = () => {
     return nav.addListener("blur", () => {
       setTimeout(() => setFederationOptionsVisible(false), 500);
     });
-  }, [nav]);
+  }, [nav, route]);
 
-  const client = state.client!;
 
   return (
     <ScreenLayout
       title={"Sign In"}
-      subtitle={client.client_name}
+      subtitle={state.client!.client_name}
       error={errors.global}
       loading={loading}
       buttons={[
@@ -73,11 +83,13 @@ export const LoginIndexScreen: React.FunctionComponent = () => {
           status: "primary",
           children: "Continue",
           onPress: handleCheckLoginEmail,
+          loading: handleCheckLoginEmailLoading,
           tabIndex: 12,
         },
         {
           children: "Sign up",
           onPress: handleSignUp,
+          loading: handleSignUpLoading,
           tabIndex: 13,
         },
         ...(
@@ -87,6 +99,7 @@ export const LoginIndexScreen: React.FunctionComponent = () => {
               const { style, textStyle } = getFederationStyle(provider);
               return {
                 onPress: () => { handleFederation(provider) },
+                loading: handleFederationLoading,
                 children: getFederationText(provider),
                 tabIndex: 14 + i,
                 style,
@@ -106,7 +119,8 @@ export const LoginIndexScreen: React.FunctionComponent = () => {
         ),
         {
           onPress: handleFindEmail,
-          children: "Forgot account email?",
+          loading: handleFindEmailLoading,
+          children: "Forgot your email address?",
           appearance: "ghost",
           size: "small",
         },
@@ -116,7 +130,7 @@ export const LoginIndexScreen: React.FunctionComponent = () => {
         <FormInput
           label={"Email"}
           keyboardType={"email-address"}
-          placeholder="Enter your email"
+          placeholder="Enter your email address"
           autoCompleteType={"username"}
           autoFocus
           value={email}

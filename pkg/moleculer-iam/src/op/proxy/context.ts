@@ -147,33 +147,28 @@ export class OIDCProviderContextProxy {
     return this.session.state && this.session.state[SECRET] || {};
   }
 
-  public async setSessionPublicState(update: (prevPublicState: ApplicationSessionPublicState) => ApplicationSessionPublicState): Promise<void> {
+  public setSessionPublicState(update: (prevPublicState: ApplicationSessionPublicState) => ApplicationSessionPublicState): void {
     return this.setSessionState(prevState => ({
       ...prevState,
       [PUBLIC]: update(prevState[PUBLIC] || {}),
     }))
   }
 
-  public async setSessionSecretState(update: (prevSecretState: ApplicationSessionSecretState) => ApplicationSessionSecretState): Promise<void> {
+  public setSessionSecretState(update: (prevSecretState: ApplicationSessionSecretState) => ApplicationSessionSecretState): void {
     return this.setSessionState(prevState => ({
       ...prevState,
       [SECRET]: update(prevState[SECRET] || {}),
     }))
   }
 
-  private async setSessionState(update: ((prevState: any) => any)): Promise<void> {
+  private setSessionState(update: ((prevState: any) => any)): void {
     this.session.state = update(this.session.state || {});
     this.shouldSaveSession = true;
   }
 
   private async ensureSessionSaved() {
     if (this.shouldSaveSession) {
-      await sessionMiddleware(this.ctx, () => {
-        // @ts-ignore to set Set-Cookie response header
-        this.session.touched = true;
-      });
-
-      // @ts-ignore store/update session in to adapter
+      // @ts-ignore
       await this.session.save();
       this.shouldSaveSession = false;
     }
@@ -186,9 +181,9 @@ export class OIDCProviderContextProxy {
     return this.ctx.accepts(JSON, HTML) === JSON;
   }
 
-  public assertPrompt(allowedPromptNames?: string[]): void {
+  public assertPrompt(allowedPromptNames?: string[], message?: string): void {
     const { ctx, interaction } = this;
-    ctx.assert(interaction && (!allowedPromptNames || allowedPromptNames.includes(interaction.prompt.name)));
+    ctx.assert(interaction && (!allowedPromptNames || allowedPromptNames.includes(interaction.prompt.name)), 400, message);
   }
 
   public async getPublicClientProps(client?: Client): Promise<Partial<ClientMetadata> | undefined> {
@@ -247,7 +242,12 @@ export class OIDCProviderContextProxy {
     }
 
     // @ts-ignore ensure session
-    this.session = ctx.oidc.session || await provider.Session.get(ctx);
+    await sessionMiddleware(this.ctx, () => {
+      // @ts-ignore to set Set-Cookie response header
+      this.ctx.oidc.session.touched = true;
+      // @ts-ignore
+      this.session = this.ctx.oidc.session;
+    });
 
     // create metadata
     const configuration: Configuration = hiddenProvider.configuration();

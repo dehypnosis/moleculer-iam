@@ -7,12 +7,14 @@ import logo from "../../assets/logo.svg";
 
 type LayoutFooterButtonGroupProps = {
   hidden?: boolean;
+  loading?: boolean;
   group: LayoutFooterButtonProps[];
 } & Omit<ButtonGroupProps, "children">;
 
 type LayoutFooterButtonProps = {
   tabIndex?: number
   hidden?: boolean;
+  loading?: boolean;
 } & ButtonProps;
 
 type LayoutFooterSeparatorProps = {
@@ -75,107 +77,106 @@ export const ScreenLayout: React.FunctionComponent<{
 
       {children ? <View style={{marginBottom: 30}}>{children}</View> : null}
 
-      <View>
-        {error ? <Text status={"danger"} category={"c2"} style={{marginBottom: 15}}>{error}</Text> : null}
+      {error ? <Text status={"danger"} category={"c2"} style={{marginBottom: 15}}>{error}</Text> : null}
 
-        {buttons.length > 0 ? (
-          buttons.map((args, index) => {
-            if (args.hidden === true) {
-              return null;
-            }
+      {buttons.length > 0 ? (
+        buttons.map((args, index) => {
+          if (args.hidden === true) {
+            return null;
+          }
 
-            // render separator
-            const s = args as LayoutFooterSeparatorProps;
-            if (s.separator) {
-              return (
-                <Separator
-                  key={index}
-                  text={typeof s.separator === "string" ? s.separator : undefined}
-                />
-              );
-            }
+          // render separator
+          const s = args as LayoutFooterSeparatorProps;
+          if (s.separator) {
+            return (
+              <Separator
+                key={index}
+                text={typeof s.separator === "string" ? s.separator : undefined}
+              />
+            );
+          }
 
-            // render button groups
-            const g = args as LayoutFooterButtonGroupProps;
-            if (g.group) {
-              const {group, ...groupProps} = g;
-              console.log(groupProps);
-              return (
-                <View
-                  key={index}
-                  style={{marginBottom: 15}}
-                >
-                  <ButtonGroup
-                    // default
-                    status={"basic"}
-                    size={"large"}
-                    appearance={"filled"}
-
-                    // custom
-                    {...groupProps}
-                  >
-                    {g.group.map((btn, key) => {
-                      // tslint:disable-next-line:no-shadowed-variable
-                      const {hidden, tabIndex, ...props} = btn;
-                      return (
-                        <Button
-                          ref={withAttrs({tabindex: tabIndex || null})}
-                          key={key}
-
-                          // default
-                          status={"basic"}
-                          size={"large"}
-                          appearance={"filled"}
-                          style={{flexGrow: 1, flexShrink: 1}}
-                          textStyle={{textAlign: "center"}}
-
-                          // custom
-                          {...props}
-
-                          // override
-                          onPress={loading ? undefined : props.onPress}
-                          onPressOut={loading ? undefined : props.onPressOut}
-                          onPressIn={loading ? undefined : props.onPressIn}
-                          onLongPress={loading ? undefined : props.onLongPress}
-                        />
-                      );
-                    })}
-                  </ButtonGroup>
-                </View>
-              );
-            }
-
-            // render button
-            const {hidden, tabIndex, ...props} = args as LayoutFooterButtonProps;
+          // render button groups
+          const g = args as LayoutFooterButtonGroupProps;
+          if (g.group) {
+            // tslint:disable-next-line:no-shadowed-variable
+            const {group, loading, ...groupProps} = g;
             return (
               <View
                 key={index}
                 style={{marginBottom: 15}}
               >
-                <Button
-                  ref={withAttrs({tabindex: tabIndex || null})}
-
+                <ButtonGroup
                   // default
                   status={"basic"}
                   size={"large"}
                   appearance={"filled"}
 
                   // custom
-                  {...props}
+                  {...groupProps}
+                >
+                  {g.group.map((btn, key) => {
+                    // tslint:disable-next-line:no-shadowed-variable
+                    const {hidden, tabIndex, loading, ...props} = btn;
+                    return (
+                      <Button
+                        ref={withAttrs({tabindex: tabIndex || null})}
+                        key={key}
 
-                  // override
-                  onPress={loading ? undefined : props.onPress}
-                  onPressOut={loading ? undefined : props.onPressOut}
-                  onPressIn={loading ? undefined : props.onPressIn}
-                  onLongPress={loading ? undefined : props.onLongPress}
-                />
+                        // default
+                        status={"basic"}
+                        size={"large"}
+                        style={{flexGrow: 1, flexShrink: 1}}
+                        textStyle={{textAlign: "center"}}
+
+                        // custom
+                        {...props}
+
+                        // override
+                        appearance={(g.loading || btn.loading) ? "outline" : (props.appearance || "filled")}
+                        onPress={loading ? undefined : props.onPress}
+                        onPressOut={loading ? undefined : props.onPressOut}
+                        onPressIn={loading ? undefined : props.onPressIn}
+                        onLongPress={loading ? undefined : props.onLongPress}
+                      />
+                    );
+                  })}
+                </ButtonGroup>
               </View>
             );
-          })
-        ) : null}
+          }
 
-        {footer}
-      </View>
+          // render button
+          // tslint:disable-next-line:no-shadowed-variable
+          const {hidden, tabIndex, loading, ...props} = args as LayoutFooterButtonProps;
+          return (
+            <View
+              key={index}
+              style={{marginBottom: 15}}
+            >
+              <Button
+                ref={withAttrs({tabindex: tabIndex || null})}
+
+                // default
+                status={"basic"}
+                size={"large"}
+
+                // custom
+                {...props}
+
+                // override
+                appearance={loading ? "outline" : (props.appearance || "filled")}
+                onPress={loading ? undefined : props.onPress}
+                onPressOut={loading ? undefined : props.onPressOut}
+                onPressIn={loading ? undefined : props.onPressIn}
+                onLongPress={loading ? undefined : props.onLongPress}
+              />
+            </View>
+          );
+        })
+      ) : null}
+
+      {footer}
     </ScrollView>
   );
 };

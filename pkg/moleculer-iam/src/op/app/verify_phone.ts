@@ -1,10 +1,11 @@
 import * as _ from "lodash";
 import moment from "moment";
+import { Identity } from "../../idp";
 import { Logger } from "../../logger";
 import { ProviderConfigBuilder } from "../proxy";
 import { ApplicationBuildOptions } from "./index";
 
-export type IdentityPhoneVerificationSendArgs = {
+export type IdentityPhoneVerificationArgs = {
   phoneNumber: string;
   secret: string;
   language: string;
@@ -13,75 +14,177 @@ export type IdentityPhoneVerificationSendArgs = {
 
 export type IdentityPhoneVerificationOptions = {
   timeoutSeconds?: number;
-  send?(args: IdentityPhoneVerificationSendArgs): Promise<void>;
+  send?(args: IdentityPhoneVerificationArgs): Promise<void>;
 }
 
-async function defaultSend({ logger, ...args }: IdentityPhoneVerificationSendArgs) {
+async function defaultSend({ logger, ...args }: IdentityPhoneVerificationArgs) {
   logger.warn("should implement op.app.verifyPhone.send option to send phone verification message", args);
 }
 
 export function buildVerifyPhoneRoutes(builder: ProviderConfigBuilder, opts: ApplicationBuildOptions): void {
 
-  const { timeoutSeconds, send } = _.defaultsDeep(opts || {}, {
+  const options = _.defaultsDeep(opts || {}, {
     timeoutSeconds: 180,
     send: defaultSend,
   }) as IdentityPhoneVerificationOptions;
 
   builder.app.router
-    // send/resend verification code
-    .post("/verify_phone/send", async ctx => {
-      const { session, setSessionPublicState } = ctx.op;
+    // render
+    .get("/verify_phone", ctx => {
+      return ctx.op.render("verify_phone");
+    })
 
-      // if 'register' is true, should try registration with 'register' payload after verification
-      // else if 'login' is true, should try login after verification
-      const { register, login, phone_number } = ctx.request.body;
+    // validate phone number
+    .post("/verify_phone/check_phone", async ctx => {
+      // 'registered' means verifying already registered phone number
+      const { registered = false, phone_number = "" } = ctx.request.body;
       const claims = { phone_number };
 
-      await ctx.idp.validateEmailOrPhoneNumber(claims);
-      const phoneNumber = claims.phone_number;  // normalized phone number
+      ctx.idp.validateEmailOrPhoneNumber(claims); // normalize phone number
 
       // assert user with the phone number
-      const user = await ctx.idp.find({ claims: { phone_number: phoneNumber || "" } });
-      if (!register && !user) {
+      const user = await ctx.idp.find({ claims: { phone_number: claims.phone_number || "" } });
+      if (registered && !user) {
         ctx.throw(400, "Not a registered phone number.");
-      } else if (register && user) {
+      } else if (!registered && user) {
         ctx.throw(400, "Already registered phone number.");
       }
 
-      // check too much resend
-      if (session.state && session.state.phoneVerification) {
-        const state = session.state.phoneVerification;
+      // update session
+      if (!ctx.op.sessionPublicState.verifyPhone
+        || ctx.op.sessionPublicState.verifyPhone.phoneNumber !== claims.phone_number
+        || ctx.op.sessionPublicState.verifyPhone.verified
+      ) {
+        ctx.op.setSessionPublicState(prevState => ({
+          ...prevState,
+          verifyPhone: {
+            phoneNumber: claims.phone_number,
+            registered,
+          },
+        }));
 
-        if (state.phoneNumber === phoneNumber && state.expiresAt && moment().isBefore(state.expiresAt)) {
+        ctx.op.setSessionSecretState(prevState => ({
+          ...prevState,
+          verifyPhone: undefined,
+        }));
+      }
+
+      return ctx.op.end();
+    })
+
+    // send/resend verification code
+    .post("/verify_phone/send", async ctx => {
+      const { phone_number } = ctx.request.body;
+      const claims = { phone_number };
+
+      await ctx.idp.validateEmailOrPhoneNumber(claims); // normalized phone number
+
+      // check too much resend
+      const publicState = ctx.op.sessionPublicState;
+      if (publicState && publicState.verifyPhone) {
+        const verifyState = publicState.verifyPhone;
+
+        if (verifyState.phoneNumber === claims.phone_number && verifyState.expiresAt && moment().isBefore(verifyState.expiresAt)) {
           ctx.throw(400, "Cannot resend a phone verification code until previous one expires.");
         }
       }
 
       // create and send code
-      const expiresAt = moment().add(timeoutSeconds!, "s").toISOString();
-      const secret = Math.floor(Math.random() * 1000000).toString();
+      const expiresAt = moment().add(options.timeoutSeconds!, "s").toISOString();
+      let secret = "";
+      for(let i=0; i<6; i++) secret += Math.floor((Math.random()*10)%10).toString();
 
       // send sms via adapter props
-      await send!({ logger: builder.logger, language: ctx.locale.language, phoneNumber, secret });
+      await options.send!({ logger: builder.logger, language: ctx.locale.language, phoneNumber: claims.phone_number, secret });
 
-      // store the state and secret
-      await setSessionPublicState(prevState => ({
-        ...prevState,
-        phoneVerification: {
-          phoneNumber,
+      // store the secret
+      ctx.op.setSessionSecretState(prev => ({
+        ...prev,
+        verifyPhone: {
           secret,
-          register,
-          login,
-          expiresAt,
         },
       }));
 
-      return ctx.body = {
-        phone_number: phoneNumber,
-        timeout_seconds: timeoutSeconds,
-        register,
-        login,
-        ...(builder.dev ? { debug: { secret } } : {}),
-      };
+      // store the state
+      ctx.op.setSessionPublicState(prevState => ({
+        ...prevState,
+        verifyPhone: {
+          phoneNumber: claims.phone_number,
+          expiresAt,
+        },
+
+        // show secret on dev
+        ...(builder.dev ? ({
+          dev: {
+            ...prevState.dev,
+            verifyPhoneSecret: secret,
+          },
+        }) : {})
+      }));
+
+      return ctx.op.end();
+    })
+
+    // verify
+    .get("/verify_phone/verify", ctx => {
+      if (!ctx.op.sessionPublicState.verifyPhone) {
+        return ctx.op.redirect("/verify_phone");
+      }
+      return ctx.op.render("verify_phone");
+    })
+
+    .post("/verify_phone/verify", async ctx => {
+      const { phone_number, secret = "", callback = "" } = ctx.request.body;
+      const claims = { phone_number };
+
+      await ctx.idp.validateEmailOrPhoneNumber(claims); // normalized phone number
+
+      // check secret
+      const publicState = ctx.op.sessionPublicState.verifyPhone || {};
+      const secretState = ctx.op.sessionSecretState.verifyPhone || {};
+      if (publicState.phoneNumber !== claims.phone_number || moment().isAfter(publicState.expiresAt) || secretState.secret !== secret) {
+        ctx.throw("400", "Verification code has expired or incorrect.");
+      }
+
+      ctx.op.setSessionPublicState(prevState => ({
+        ...prevState,
+        verifyPhone: {
+          ...prevState.verifyPhone,
+          verified: true,
+        }
+      }));
+
+      // update verification state if registered phone number
+      let identity: Identity|undefined;
+      if (publicState.registered) {
+        identity = await ctx.idp.findOrFail({ claims });
+        await identity.updateClaims({ phone_number_verified: true });
+      }
+
+      // process callback
+      switch (callback) {
+        case "find_email":
+          if (!identity) {
+            identity = await ctx.idp.findOrFail({ claims });
+          }
+          const identityClaims = await ctx.op.getPublicUserProps(identity);
+          ctx.op.setSessionPublicState(prevState => ({
+            ...prevState,
+            findEmail: {
+              user: identityClaims,
+            },
+          }));
+          break;
+      }
+
+      return ctx.op.end();
+    })
+
+    // end
+    .get("/verify_phone/end", ctx => {
+      if (!ctx.op.sessionPublicState.verifyPhone || !ctx.op.sessionPublicState.verifyPhone.verified) {
+        return ctx.op.redirect("/verify_phone");
+      }
+      return ctx.op.render("verify_phone");
     })
 }

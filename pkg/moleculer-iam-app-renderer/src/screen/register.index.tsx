@@ -37,7 +37,7 @@ export const RegisterIndexScreen: React.FunctionComponent = () => {
   const [passwordVisible, setPasswordVisible] = useState(false);
   const {loading, errors, setErrors, withLoading} = useWithLoading();
 
-  const handlePayloadSubmit = withLoading(async () => {
+  const [handlePayloadSubmit, handlePayloadSubmitLoading] = withLoading(async () => {
     const { name, email, password, password_confirmation } = payload;
     return dispatch("register.validate", {
       claims: {
@@ -51,6 +51,7 @@ export const RegisterIndexScreen: React.FunctionComponent = () => {
       scope: ["email", "profile"],
     })
       .then(() => {
+        setErrors({});
         nav.navigate("register", {
           screen: "register.detail",
           params: {},
@@ -59,10 +60,13 @@ export const RegisterIndexScreen: React.FunctionComponent = () => {
       .catch((err: any) => setErrors(err));
   }, [nav, payload]);
 
-  const handleCancel = withLoading(() => nav.navigate("login", {
-    screen: "login.index",
-    params: {},
-  }), [nav]);
+  const [handleCancel, handleCancelLoading] = withLoading(() => {
+    nav.navigate("login", {
+      screen: "login.index",
+      params: {},
+    });
+    setErrors({});
+  }, [nav]);
 
   // render
   const discovery = state.metadata.discovery;
@@ -76,11 +80,13 @@ export const RegisterIndexScreen: React.FunctionComponent = () => {
           status: "primary",
           children: "Continue",
           onPress: handlePayloadSubmit,
+          loading: handlePayloadSubmitLoading,
           tabIndex: 55,
         },
         {
           children: "Cancel",
           onPress: handleCancel,
+          loading: handleCancelLoading,
           hidden: state.name === "register",
           tabIndex: 56,
         },

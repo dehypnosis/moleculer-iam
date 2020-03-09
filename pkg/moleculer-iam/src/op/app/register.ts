@@ -3,8 +3,10 @@ import { ApplicationRequestContext, ProviderConfigBuilder } from "../proxy";
 import { ApplicationBuildOptions } from "./index";
 
 export type IdentityRegisterOptions = {
-  allowedScopes?: string[];
-  forbiddenClaims?: string[];
+  allowedScopes?: string[]; // ["email", "profile", "birthdate", "gender", "phone"]
+  forbiddenClaims?: string[]; // ["email_verified", "phone_number_verified"]
+  phoneVerificationRequired?: boolean, // false
+  emailVerificationRequired?: boolean, // false
 }
 
 export function buildRegisterRoutes(builder: ProviderConfigBuilder, opts: ApplicationBuildOptions): void {
@@ -12,6 +14,8 @@ export function buildRegisterRoutes(builder: ProviderConfigBuilder, opts: Applic
   const { allowedScopes, forbiddenClaims } = _.defaultsDeep(opts.register || {}, {
     allowedScopes: ["email", "profile", "birthdate", "gender", "phone"],
     forbiddenClaims: ["email_verified", "phone_number_verified"],
+    phoneVerificationRequired: false,
+    emailVerificationRequired: false,
   }) as IdentityRegisterOptions;
 
   function filterClaims(claims: any) {
@@ -56,7 +60,7 @@ export function buildRegisterRoutes(builder: ProviderConfigBuilder, opts: Applic
     .get("/register", async ctx => {
 
       // create empty object into register state
-      await ctx.op.setSessionPublicState(prevState => ({
+      ctx.op.setSessionPublicState(prevState => ({
         register: {},
         ...prevState,
       }));
@@ -67,7 +71,7 @@ export function buildRegisterRoutes(builder: ProviderConfigBuilder, opts: Applic
     // validate claims and credentials
     .post("/register/validate", async ctx => {
       const register = await validatePayload(ctx);
-      await ctx.op.setSessionPublicState(prevState => ({
+      ctx.op.setSessionPublicState(prevState => ({
         ...prevState,
         register,
       }));

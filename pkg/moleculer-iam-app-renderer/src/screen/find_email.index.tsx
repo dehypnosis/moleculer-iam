@@ -1,76 +1,78 @@
-import React, { useState } from "react";
-import { ScreenLayout } from "./component/layout";
+import React, { useEffect, useState } from "react";
 import { useAppState, useWithLoading, useNavigation } from "../hook";
-import { Text, Input, withAttrs } from "./component";
+import { ScreenLayout, Text, FormInput } from "./component";
 
 export const FindEmailIndexScreen: React.FunctionComponent = () => {
-  const { nav, route } = useNavigation();
-  const [phoneNumber, setPhoneNumber] = useState(route.params.phoneNumber || "");
-  const { loading, errors, setErrors, withLoading } = useWithLoading();
+  const { nav } = useNavigation();
   const [state, dispatch] = useAppState();
+  const [phoneNumber, setPhoneNumber] = useState("");
 
-  const handleCheckPhoneNumber = withLoading(() => {
-    dispatch("find_email.check_phone")
-      .then((data: any) => {
-        console.log(data);
-        nav.navigate("find_email", {
-          screen: "find_email.verify",
+  // handlers
+  const { loading, errors, setErrors, withLoading } = useWithLoading();
+  const [handleCheckPhoneNumber, handleCheckPhoneNumberLoading] = withLoading(() => {
+    dispatch("verify_phone.check_phone", {
+      phone_number: `${state.locale.country}|${phoneNumber}`,
+      registered: true,
+    })
+      .then(() => {
+        setErrors({});
+        nav.navigate("verify_phone.stack", {
+          screen: "verify_phone.verify",
           params: {
-            phoneNumber,
+            callback: "find_email",
           },
         });
       })
       .catch((err: any) => setErrors(err))
-  }, [phoneNumber, state]);
+  }, [phoneNumber]);
 
-  const handleCancel = withLoading(() => nav.navigate("login", {
-    screen: "login.index",
-    params: {},
-  }));
+  const [handleCancel, handleCancelLoading] = withLoading(() => {
+    nav.navigate("login.stack", {
+      screen: "login.index",
+      params: {},
+    });
+    setErrors({});
+  });
 
   // render
   return (
     <ScreenLayout
-      title={`Find email`}
-      subtitle={`Enter your phone number`}
+      title={`Find your account`}
+      subtitle={`With phone verification`}
       loading={loading}
       buttons={[
         {
           status: "primary",
           children: "Continue",
           onPress: handleCheckPhoneNumber,
+          loading: handleCheckPhoneNumberLoading,
           tabIndex: 22,
         },
         {
           children: "Cancel",
           onPress: handleCancel,
+          loading: handleCancelLoading,
           tabIndex: 23,
-          hidden: state.name === "find_email",
+          hidden: !state.routes.login,
         },
       ]}
       error={errors.global}
     >
       <Text style={{marginBottom: 30}}>
-        Have a registered phone number? Can find the ID only if have one.
+        Have you registered a phone number?
       </Text>
-      <Input
-        ref={withAttrs({ tabindex: 21, autofocus: true }, "input")}
-        label="Phone number"
-        autoCapitalize={"none"}
-        autoCorrect={false}
-        autoFocus={true}
+      <FormInput
+        autoFocus
+        tabIndex={21}
+        label={`Phone number`}
+        placeholder={`Enter your mobile phone number (${state.locale.country})`}
         blurOnSubmit={false}
         keyboardType={"phone-pad"}
-        returnKeyType={"next"}
         autoCompleteType={"tel"}
-        placeholder="Enter your mobile phone number"
         value={phoneNumber}
-        caption={errors.phone_number}
-        status={errors.phone_number ? "danger" : "basic"}
-        onChangeText={v => setPhoneNumber(v || "")}
-        clearButtonMode={"while-editing"}
-        onKeyPress={e => e.nativeEvent.key === "Enter" && handleCheckPhoneNumber()}
-        size={"large"}
+        error={errors.phone_number}
+        setValue={setPhoneNumber}
+        onEnter={handleCheckPhoneNumber}
       />
     </ScreenLayout>
   );

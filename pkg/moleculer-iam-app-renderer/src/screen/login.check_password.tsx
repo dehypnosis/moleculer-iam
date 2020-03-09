@@ -12,25 +12,38 @@ export const LoginCheckPasswordScreen: React.FunctionComponent = () => {
   const { nav } = useNavigation();
   const { loading, errors, setErrors, withLoading } = useWithLoading();
 
-  const handleCheckLoginPassword = withLoading(async () => {
+  const [handleCheckLoginPassword, handleCheckLoginPasswordLoading] = withLoading(async () => {
     return dispatch("login.check_password", { email, password })
       .catch((err: any) => setErrors(err));
   }, [password]);
 
-  const handleResetPassword = withLoading(() => nav.navigate("reset_password", {
-    screen: "reset_password.index",
-    params: {
+  const [handleResetPassword, handleResetPasswordLoading] = withLoading(() => {
+    dispatch("verify_email.check_email", {
       email,
-    }
-  }), []);
+      registered: true,
+    })
+      .then(() => {
+        setErrors({});
+        nav.navigate("verify_email.stack", {
+          screen: "verify_email.verify",
+          params: {
+            callback: "reset_password",
+          },
+        });
+      })
+      .catch((err: any) => setErrors(err));
+  }, []);
 
-  const handleCancel = withLoading(() => nav.navigate("login", {
-    screen: "login.index",
-    params: {
-      email,
-      change_account: "true",
-    },
-  }), []);
+  const [handleCancel, handleCancelLoading] = withLoading(() => {
+    nav.navigate("login.stack", {
+      screen: "login.index",
+      params: {
+        email,
+        change_account: "true",
+      },
+    });
+    setErrors({});
+  }, [email]);
 
   // render
   return (
@@ -44,11 +57,13 @@ export const LoginCheckPasswordScreen: React.FunctionComponent = () => {
           status: "primary",
           children: "Sign in",
           onPress: handleCheckLoginPassword,
+          loading: handleCheckLoginPasswordLoading,
           tabIndex: 22,
         },
         {
           children: "Cancel",
           onPress: handleCancel,
+          loading: handleCancelLoading,
           tabIndex: 23,
         },
         {
@@ -58,6 +73,7 @@ export const LoginCheckPasswordScreen: React.FunctionComponent = () => {
           children: "Forgot password?",
           tabIndex: 24,
           onPress: handleResetPassword,
+          loading: handleResetPasswordLoading,
           appearance: "ghost",
           size: "small",
         },

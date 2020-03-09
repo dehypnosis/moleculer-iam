@@ -1,40 +1,29 @@
 import React from "react";
-import { Text } from "../styles";
-import { useWithLoading, useNavigation } from "../hook";
-import { ScreenLayout } from "./component/layout";
+import { useAppState, useClose } from "../hook";
+import { ScreenLayout, Text } from "./component";
 
 export const VerifyPhoneEndScreen: React.FunctionComponent = () => {
   // states
-  const {loading, errors, setErrors, withLoading} = useWithLoading();
-  const { nav, route } = useNavigation();
-  const { phoneNumber = "" } = route.params;
-
-  // handlers
-  const handleDone = withLoading(() =>
-    nav.navigate("login", {
-      screen: "login.index",
-      params: {},
-    })
-  );
+  const [state] = useAppState();
+  const {close, closed} = useClose(false);
 
   // render
   return (
     <ScreenLayout
       title={`Phone number verified`}
-      subtitle={phoneNumber}
+      subtitle={state.session.verifyPhone.phoneNumber}
+      error={closed ? "Please close the window manually." : undefined}
+      loading={closed}
       buttons={[
         {
-          status: "primary",
-          children: "Done",
-          onPress: handleDone,
-          tabIndex: 31,
+          children: "Close",
+          tabIndex: 1,
+          onPress: close,
         },
       ]}
-      error={errors.global}
-      loading={loading}
     >
       <Text>
-        Account phone number has been verified successfully.
+        The account phone number has been verified successfully.
       </Text>
     </ScreenLayout>
   );
