@@ -19,87 +19,6 @@ module.exports = exports;
 
 /***/ }),
 
-/***/ "./build.shim.rnw.tsx":
-/*!****************************!*\
-  !*** ./build.shim.rnw.tsx ***!
-  \****************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-var _interopRequireDefault = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireDefault */ "../../node_modules/@babel/runtime/helpers/interopRequireDefault.js");
-
-var _interopRequireWildcard = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireWildcard */ "../../node_modules/@babel/runtime/helpers/interopRequireWildcard.js");
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-var _exportNames = {
-  TouchableOpacity: true,
-  TouchableWithoutFeedback: true,
-  TouchableNativeFeedback: true,
-  TouchableHighlight: true
-};
-exports.TouchableHighlight = exports.TouchableNativeFeedback = exports.TouchableWithoutFeedback = exports.TouchableOpacity = void 0;
-
-var _extends2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/extends */ "../../node_modules/@babel/runtime/helpers/esm/extends.js"));
-
-var _objectWithoutProperties2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/objectWithoutProperties */ "../../node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js"));
-
-var _react = _interopRequireWildcard(__webpack_require__(/*! react */ "../../node_modules/react/index.js"));
-
-var ReactNativeWeb = _interopRequireWildcard(__webpack_require__(/*! react-native-web */ "../../node_modules/react-native-web/dist/index.js"));
-
-Object.keys(ReactNativeWeb).forEach(function (key) {
-  if (key === "default" || key === "__esModule") return;
-  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
-  Object.defineProperty(exports, key, {
-    enumerable: true,
-    get: function get() {
-      return ReactNativeWeb[key];
-    }
-  });
-});
-var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-app-renderer/build.shim.rnw.tsx";
-
-var fixTouchable = function fixTouchable(Touchable) {
-  return function (props) {
-    var onPress = props.onPress,
-        restProps = (0, _objectWithoutProperties2.default)(props, ["onPress"]);
-    var onClickCalled = (0, _react.useRef)(false);
-    var onClick = onPress ? function (e) {
-      onClickCalled.current = true;
-      onPress(e);
-    } : undefined;
-    var onPressAlternative = onPress ? function (e) {
-      setTimeout(function () {
-        if (!onClickCalled.current) {
-          onPress(e);
-        }
-      }, 100);
-    } : undefined;
-    return _react.default.createElement(Touchable, (0, _extends2.default)({}, restProps, {
-      onPress: onPressAlternative,
-      onClick: onClick,
-      __source: {
-        fileName: _jsxFileName,
-        lineNumber: 24
-      },
-      __self: this
-    }));
-  };
-};
-
-var TouchableOpacity = fixTouchable(ReactNativeWeb.TouchableOpacity);
-exports.TouchableOpacity = TouchableOpacity;
-var TouchableWithoutFeedback = fixTouchable(ReactNativeWeb.TouchableWithoutFeedback);
-exports.TouchableWithoutFeedback = TouchableWithoutFeedback;
-var TouchableNativeFeedback = fixTouchable(ReactNativeWeb.TouchableNativeFeedback);
-exports.TouchableNativeFeedback = TouchableNativeFeedback;
-var TouchableHighlight = fixTouchable(ReactNativeWeb.TouchableHighlight);
-exports.TouchableHighlight = TouchableHighlight;
-
-/***/ }),
-
 /***/ "./inject.js":
 /*!*******************!*\
   !*** ./inject.js ***!
@@ -166,492 +85,471 @@ exports.getAppDev = getAppDev;
 /*!*************************!*\
   !*** ./src/app/app.tsx ***!
   \*************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
+/*! exports provided: App */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-var _interopRequireWildcard = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireWildcard */ "../../node_modules/@babel/runtime/helpers/interopRequireWildcard.js");
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.App = void 0;
-
-var _react = _interopRequireWildcard(__webpack_require__(/*! react */ "../../node_modules/react/index.js"));
-
-var _stack = __webpack_require__(/*! @react-navigation/stack */ "../../node_modules/@react-navigation/stack/lib/module/index.js");
-
-var _component = __webpack_require__(/*! ../screen/component */ "./src/screen/component/index.ts");
-
-var _consent = __webpack_require__(/*! ../screen/consent */ "./src/screen/consent.tsx");
-
-var _error = __webpack_require__(/*! ../screen/error */ "./src/screen/error.tsx");
-
-var _routes = __webpack_require__(/*! ./routes */ "./src/app/routes.ts");
-
-var _options = __webpack_require__(/*! ./options */ "./src/app/options.tsx");
-
-var _state = __webpack_require__(/*! ./state */ "./src/app/state.tsx");
-
-var _navigation = __webpack_require__(/*! ./navigation */ "./src/app/navigation.tsx");
-
-var _theme = __webpack_require__(/*! ./theme */ "./src/app/theme.tsx");
-
-var _find_email = __webpack_require__(/*! ../screen/find_email.index */ "./src/screen/find_email.index.tsx");
-
-var _find_email2 = __webpack_require__(/*! ../screen/find_email.end */ "./src/screen/find_email.end.tsx");
-
-var _login = __webpack_require__(/*! ../screen/login.check_password */ "./src/screen/login.check_password.tsx");
-
-var _login2 = __webpack_require__(/*! ../screen/login.index */ "./src/screen/login.index.tsx");
-
-var _logout = __webpack_require__(/*! ../screen/logout.end */ "./src/screen/logout.end.tsx");
-
-var _logout2 = __webpack_require__(/*! ../screen/logout.index */ "./src/screen/logout.index.tsx");
-
-var _register = __webpack_require__(/*! ../screen/register.detail */ "./src/screen/register.detail.tsx");
-
-var _register2 = __webpack_require__(/*! ../screen/register.end */ "./src/screen/register.end.tsx");
-
-var _register3 = __webpack_require__(/*! ../screen/register.index */ "./src/screen/register.index.tsx");
-
-var _reset_password = __webpack_require__(/*! ../screen/reset_password.end */ "./src/screen/reset_password.end.tsx");
-
-var _reset_password2 = __webpack_require__(/*! ../screen/reset_password.index */ "./src/screen/reset_password.index.tsx");
-
-var _reset_password3 = __webpack_require__(/*! ../screen/reset_password.set */ "./src/screen/reset_password.set.tsx");
-
-var _verify_email = __webpack_require__(/*! ../screen/verify_email.end */ "./src/screen/verify_email.end.tsx");
-
-var _verify_email2 = __webpack_require__(/*! ../screen/verify_email.index */ "./src/screen/verify_email.index.tsx");
-
-var _verify_email3 = __webpack_require__(/*! ../screen/verify_email.verify */ "./src/screen/verify_email.verify.tsx");
-
-var _verify_phone = __webpack_require__(/*! ../screen/verify_phone.end */ "./src/screen/verify_phone.end.tsx");
-
-var _verify_phone2 = __webpack_require__(/*! ../screen/verify_phone.index */ "./src/screen/verify_phone.index.tsx");
-
-var _verify_phone3 = __webpack_require__(/*! ../screen/verify_phone.verify */ "./src/screen/verify_phone.verify.tsx");
-
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "App", function() { return App; });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "../../node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _react_navigation_stack__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @react-navigation/stack */ "../../node_modules/@react-navigation/stack/lib/module/index.js");
+/* harmony import */ var _screen_component__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../screen/component */ "./src/screen/component/index.ts");
+/* harmony import */ var _screen_consent__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../screen/consent */ "./src/screen/consent.tsx");
+/* harmony import */ var _screen_error__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../screen/error */ "./src/screen/error.tsx");
+/* harmony import */ var _routes__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./routes */ "./src/app/routes.ts");
+/* harmony import */ var _options__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./options */ "./src/app/options.tsx");
+/* harmony import */ var _state__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./state */ "./src/app/state.tsx");
+/* harmony import */ var _navigation__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./navigation */ "./src/app/navigation.tsx");
+/* harmony import */ var _theme__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./theme */ "./src/app/theme.tsx");
+/* harmony import */ var _screen_find_email_index__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../screen/find_email.index */ "./src/screen/find_email.index.tsx");
+/* harmony import */ var _screen_find_email_end__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../screen/find_email.end */ "./src/screen/find_email.end.tsx");
+/* harmony import */ var _screen_login_check_password__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../screen/login.check_password */ "./src/screen/login.check_password.tsx");
+/* harmony import */ var _screen_login_index__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../screen/login.index */ "./src/screen/login.index.tsx");
+/* harmony import */ var _screen_logout_end__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../screen/logout.end */ "./src/screen/logout.end.tsx");
+/* harmony import */ var _screen_logout_index__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../screen/logout.index */ "./src/screen/logout.index.tsx");
+/* harmony import */ var _screen_register_detail__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ../screen/register.detail */ "./src/screen/register.detail.tsx");
+/* harmony import */ var _screen_register_end__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ../screen/register.end */ "./src/screen/register.end.tsx");
+/* harmony import */ var _screen_register_index__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ../screen/register.index */ "./src/screen/register.index.tsx");
+/* harmony import */ var _screen_reset_password_end__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ../screen/reset_password.end */ "./src/screen/reset_password.end.tsx");
+/* harmony import */ var _screen_reset_password_index__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ../screen/reset_password.index */ "./src/screen/reset_password.index.tsx");
+/* harmony import */ var _screen_reset_password_set__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ../screen/reset_password.set */ "./src/screen/reset_password.set.tsx");
+/* harmony import */ var _screen_verify_email_end__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ../screen/verify_email.end */ "./src/screen/verify_email.end.tsx");
+/* harmony import */ var _screen_verify_email_index__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ../screen/verify_email.index */ "./src/screen/verify_email.index.tsx");
+/* harmony import */ var _screen_verify_email_verify__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ../screen/verify_email.verify */ "./src/screen/verify_email.verify.tsx");
+/* harmony import */ var _screen_verify_phone_end__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ../screen/verify_phone.end */ "./src/screen/verify_phone.end.tsx");
+/* harmony import */ var _screen_verify_phone_index__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ../screen/verify_phone.index */ "./src/screen/verify_phone.index.tsx");
+/* harmony import */ var _screen_verify_phone_verify__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ../screen/verify_phone.verify */ "./src/screen/verify_phone.verify.tsx");
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-app-renderer/src/app/app.tsx";
 
-var App = function App() {
-  return _react.default.createElement(_options.AppOptionsProvider, {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const App = () => {
+  return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_options__WEBPACK_IMPORTED_MODULE_6__["AppOptionsProvider"], {
     __source: {
       fileName: _jsxFileName,
       lineNumber: 34
     },
-    __self: this
-  }, _react.default.createElement(_theme.ApplicationThemeProvider, {
+    __self: undefined
+  }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_theme__WEBPACK_IMPORTED_MODULE_9__["ApplicationThemeProvider"], {
     __source: {
       fileName: _jsxFileName,
       lineNumber: 35
     },
-    __self: this
-  }, _react.default.createElement(_state.AppStateProvider, {
+    __self: undefined
+  }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_state__WEBPACK_IMPORTED_MODULE_7__["AppStateProvider"], {
     __source: {
       fileName: _jsxFileName,
       lineNumber: 36
     },
-    __self: this
-  }, _react.default.createElement(_navigation.AppNavigationProvider, {
-    routeConfig: _routes.routeConfig,
+    __self: undefined
+  }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_navigation__WEBPACK_IMPORTED_MODULE_8__["AppNavigationProvider"], {
+    routeConfig: _routes__WEBPACK_IMPORTED_MODULE_5__["routeConfig"],
     __source: {
       fileName: _jsxFileName,
       lineNumber: 37
     },
-    __self: this
-  }, _react.default.createElement(AppTabs, {
+    __self: undefined
+  }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(AppTabs, {
     __source: {
       fileName: _jsxFileName,
       lineNumber: 38
     },
-    __self: this
+    __self: undefined
   })))));
 };
+const NavOptionsProvider = Object(react__WEBPACK_IMPORTED_MODULE_0__["createContext"])(undefined);
 
-exports.App = App;
-var NavOptionsProvider = (0, _react.createContext)(undefined);
+const useNavOptions = () => Object(react__WEBPACK_IMPORTED_MODULE_0__["useContext"])(NavOptionsProvider);
 
-var useNavOptions = function useNavOptions() {
-  return (0, _react.useContext)(NavOptionsProvider);
-};
+const RootStack = Object(_react_navigation_stack__WEBPACK_IMPORTED_MODULE_1__["createStackNavigator"])();
 
-var RootStack = (0, _stack.createStackNavigator)();
-
-var AppTabs = function AppTabs() {
-  var backgroundColor = (0, _component.useThemePalette)()["background-basic-color-1"];
-  var navOptions = {
+const AppTabs = () => {
+  const backgroundColor = Object(_screen_component__WEBPACK_IMPORTED_MODULE_2__["useThemePalette"])()["background-basic-color-1"];
+  const navOptions = {
     headerShown: false,
     cardStyle: {
-      backgroundColor: backgroundColor
+      backgroundColor
     },
-    gestureEnabled: false
+    gestureEnabled: false // animationEnabled: false,
+    // transitionSpec: {
+    //   open: RevealFromBottomAndroid,
+    //   close: RevealFromBottomAndroid,
+    // },
+
   };
-  return _react.default.createElement(NavOptionsProvider.Provider, {
+  return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(NavOptionsProvider.Provider, {
     value: navOptions,
     __source: {
       fileName: _jsxFileName,
       lineNumber: 68
     },
-    __self: this
-  }, _react.default.createElement(RootStack.Navigator, {
+    __self: undefined
+  }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(RootStack.Navigator, {
     screenOptions: navOptions,
     __source: {
       fileName: _jsxFileName,
       lineNumber: 69
     },
-    __self: this
-  }, _react.default.createElement(RootStack.Screen, {
+    __self: undefined
+  }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(RootStack.Screen, {
     name: "error.stack",
     component: ErrorStackScreen,
     __source: {
       fileName: _jsxFileName,
       lineNumber: 72
     },
-    __self: this
-  }), _react.default.createElement(RootStack.Screen, {
+    __self: undefined
+  }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(RootStack.Screen, {
     name: "consent.stack",
     component: ConsentStackScreen,
     __source: {
       fileName: _jsxFileName,
       lineNumber: 76
     },
-    __self: this
-  }), _react.default.createElement(RootStack.Screen, {
+    __self: undefined
+  }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(RootStack.Screen, {
     name: "login.stack",
     component: LoginStackScreen,
     __source: {
       fileName: _jsxFileName,
       lineNumber: 80
     },
-    __self: this
-  }), _react.default.createElement(RootStack.Screen, {
+    __self: undefined
+  }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(RootStack.Screen, {
     name: "find_email.stack",
     component: FindEmailStackScreen,
     __source: {
       fileName: _jsxFileName,
       lineNumber: 84
     },
-    __self: this
-  }), _react.default.createElement(RootStack.Screen, {
+    __self: undefined
+  }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(RootStack.Screen, {
     name: "reset_password.stack",
     component: ResetPasswordStackScreen,
     __source: {
       fileName: _jsxFileName,
       lineNumber: 88
     },
-    __self: this
-  }), _react.default.createElement(RootStack.Screen, {
+    __self: undefined
+  }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(RootStack.Screen, {
     name: "register.stack",
     component: RegisterStackScreen,
     __source: {
       fileName: _jsxFileName,
       lineNumber: 92
     },
-    __self: this
-  }), _react.default.createElement(RootStack.Screen, {
+    __self: undefined
+  }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(RootStack.Screen, {
     name: "logout.stack",
     component: LogoutStackScreen,
     __source: {
       fileName: _jsxFileName,
       lineNumber: 96
     },
-    __self: this
-  }), _react.default.createElement(RootStack.Screen, {
+    __self: undefined
+  }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(RootStack.Screen, {
     name: "verify_phone.stack",
     component: VerifyPhoneStackScreen,
     __source: {
       fileName: _jsxFileName,
       lineNumber: 100
     },
-    __self: this
-  }), _react.default.createElement(RootStack.Screen, {
+    __self: undefined
+  }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(RootStack.Screen, {
     name: "verify_email.stack",
     component: VerifyEmailStackScreen,
     __source: {
       fileName: _jsxFileName,
       lineNumber: 104
     },
-    __self: this
+    __self: undefined
   })));
 };
 
-var ErrorStack = (0, _stack.createStackNavigator)();
+const ErrorStack = Object(_react_navigation_stack__WEBPACK_IMPORTED_MODULE_1__["createStackNavigator"])();
 
-var ErrorStackScreen = function ErrorStackScreen() {
-  return _react.default.createElement(ErrorStack.Navigator, {
-    screenOptions: useNavOptions(),
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 115
-    },
-    __self: this
-  }, _react.default.createElement(ErrorStack.Screen, {
-    name: "error.index",
-    component: _error.ErrorScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 118
-    },
-    __self: this
-  }));
-};
+const ErrorStackScreen = () => react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(ErrorStack.Navigator, {
+  screenOptions: useNavOptions(),
+  __source: {
+    fileName: _jsxFileName,
+    lineNumber: 115
+  },
+  __self: undefined
+}, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(ErrorStack.Screen, {
+  name: "error.index",
+  component: _screen_error__WEBPACK_IMPORTED_MODULE_4__["ErrorScreen"],
+  __source: {
+    fileName: _jsxFileName,
+    lineNumber: 118
+  },
+  __self: undefined
+}));
 
-var ConsentStack = (0, _stack.createStackNavigator)();
+const ConsentStack = Object(_react_navigation_stack__WEBPACK_IMPORTED_MODULE_1__["createStackNavigator"])();
 
-var ConsentStackScreen = function ConsentStackScreen() {
-  return _react.default.createElement(ConsentStack.Navigator, {
-    screenOptions: useNavOptions(),
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 127
-    },
-    __self: this
-  }, _react.default.createElement(ConsentStack.Screen, {
-    name: "consent.index",
-    component: _consent.ConsentScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 130
-    },
-    __self: this
-  }));
-};
+const ConsentStackScreen = () => react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(ConsentStack.Navigator, {
+  screenOptions: useNavOptions(),
+  __source: {
+    fileName: _jsxFileName,
+    lineNumber: 127
+  },
+  __self: undefined
+}, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(ConsentStack.Screen, {
+  name: "consent.index",
+  component: _screen_consent__WEBPACK_IMPORTED_MODULE_3__["ConsentScreen"],
+  __source: {
+    fileName: _jsxFileName,
+    lineNumber: 130
+  },
+  __self: undefined
+}));
 
-var LoginStack = (0, _stack.createStackNavigator)();
+const LoginStack = Object(_react_navigation_stack__WEBPACK_IMPORTED_MODULE_1__["createStackNavigator"])();
 
-var LoginStackScreen = function LoginStackScreen() {
-  return _react.default.createElement(LoginStack.Navigator, {
-    screenOptions: useNavOptions(),
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 139
-    },
-    __self: this
-  }, _react.default.createElement(LoginStack.Screen, {
-    name: "login.check_password",
-    component: _login.LoginCheckPasswordScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 142
-    },
-    __self: this
-  }), _react.default.createElement(LoginStack.Screen, {
-    name: "login.index",
-    component: _login2.LoginIndexScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 146
-    },
-    __self: this
-  }));
-};
+const LoginStackScreen = () => react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(LoginStack.Navigator, {
+  screenOptions: useNavOptions(),
+  __source: {
+    fileName: _jsxFileName,
+    lineNumber: 139
+  },
+  __self: undefined
+}, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(LoginStack.Screen, {
+  name: "login.check_password",
+  component: _screen_login_check_password__WEBPACK_IMPORTED_MODULE_12__["LoginCheckPasswordScreen"],
+  __source: {
+    fileName: _jsxFileName,
+    lineNumber: 142
+  },
+  __self: undefined
+}), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(LoginStack.Screen, {
+  name: "login.index",
+  component: _screen_login_index__WEBPACK_IMPORTED_MODULE_13__["LoginIndexScreen"],
+  __source: {
+    fileName: _jsxFileName,
+    lineNumber: 146
+  },
+  __self: undefined
+}));
 
-var LogoutStack = (0, _stack.createStackNavigator)();
+const LogoutStack = Object(_react_navigation_stack__WEBPACK_IMPORTED_MODULE_1__["createStackNavigator"])();
 
-var LogoutStackScreen = function LogoutStackScreen() {
-  return _react.default.createElement(LogoutStack.Navigator, {
-    screenOptions: useNavOptions(),
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 155
-    },
-    __self: this
-  }, _react.default.createElement(LogoutStack.Screen, {
-    name: "logout.end",
-    component: _logout.LogoutEndScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 158
-    },
-    __self: this
-  }), _react.default.createElement(LogoutStack.Screen, {
-    name: "logout.index",
-    component: _logout2.LogoutIndexScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 162
-    },
-    __self: this
-  }));
-};
+const LogoutStackScreen = () => react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(LogoutStack.Navigator, {
+  screenOptions: useNavOptions(),
+  __source: {
+    fileName: _jsxFileName,
+    lineNumber: 155
+  },
+  __self: undefined
+}, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(LogoutStack.Screen, {
+  name: "logout.end",
+  component: _screen_logout_end__WEBPACK_IMPORTED_MODULE_14__["LogoutEndScreen"],
+  __source: {
+    fileName: _jsxFileName,
+    lineNumber: 158
+  },
+  __self: undefined
+}), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(LogoutStack.Screen, {
+  name: "logout.index",
+  component: _screen_logout_index__WEBPACK_IMPORTED_MODULE_15__["LogoutIndexScreen"],
+  __source: {
+    fileName: _jsxFileName,
+    lineNumber: 162
+  },
+  __self: undefined
+}));
 
-var FindEmailStack = (0, _stack.createStackNavigator)();
+const FindEmailStack = Object(_react_navigation_stack__WEBPACK_IMPORTED_MODULE_1__["createStackNavigator"])();
 
-var FindEmailStackScreen = function FindEmailStackScreen() {
-  return _react.default.createElement(FindEmailStack.Navigator, {
-    screenOptions: useNavOptions(),
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 171
-    },
-    __self: this
-  }, _react.default.createElement(FindEmailStack.Screen, {
-    name: "find_email.index",
-    component: _find_email.FindEmailIndexScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 174
-    },
-    __self: this
-  }), _react.default.createElement(FindEmailStack.Screen, {
-    name: "find_email.end",
-    component: _find_email2.FindEmailEndScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 178
-    },
-    __self: this
-  }));
-};
+const FindEmailStackScreen = () => react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(FindEmailStack.Navigator, {
+  screenOptions: useNavOptions(),
+  __source: {
+    fileName: _jsxFileName,
+    lineNumber: 171
+  },
+  __self: undefined
+}, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(FindEmailStack.Screen, {
+  name: "find_email.index",
+  component: _screen_find_email_index__WEBPACK_IMPORTED_MODULE_10__["FindEmailIndexScreen"],
+  __source: {
+    fileName: _jsxFileName,
+    lineNumber: 174
+  },
+  __self: undefined
+}), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(FindEmailStack.Screen, {
+  name: "find_email.end",
+  component: _screen_find_email_end__WEBPACK_IMPORTED_MODULE_11__["FindEmailEndScreen"],
+  __source: {
+    fileName: _jsxFileName,
+    lineNumber: 178
+  },
+  __self: undefined
+}));
 
-var ResetPasswordStack = (0, _stack.createStackNavigator)();
+const ResetPasswordStack = Object(_react_navigation_stack__WEBPACK_IMPORTED_MODULE_1__["createStackNavigator"])();
 
-var ResetPasswordStackScreen = function ResetPasswordStackScreen() {
-  return _react.default.createElement(ResetPasswordStack.Navigator, {
-    screenOptions: useNavOptions(),
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 187
-    },
-    __self: this
-  }, _react.default.createElement(ResetPasswordStack.Screen, {
-    name: "reset_password.set",
-    component: _reset_password3.ResetPasswordSetScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 190
-    },
-    __self: this
-  }), _react.default.createElement(ResetPasswordStack.Screen, {
-    name: "reset_password.end",
-    component: _reset_password.ResetPasswordEndScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 194
-    },
-    __self: this
-  }), _react.default.createElement(ResetPasswordStack.Screen, {
-    name: "reset_password.index",
-    component: _reset_password2.ResetPasswordIndexScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 198
-    },
-    __self: this
-  }));
-};
+const ResetPasswordStackScreen = () => react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(ResetPasswordStack.Navigator, {
+  screenOptions: useNavOptions(),
+  __source: {
+    fileName: _jsxFileName,
+    lineNumber: 187
+  },
+  __self: undefined
+}, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(ResetPasswordStack.Screen, {
+  name: "reset_password.set",
+  component: _screen_reset_password_set__WEBPACK_IMPORTED_MODULE_21__["ResetPasswordSetScreen"],
+  __source: {
+    fileName: _jsxFileName,
+    lineNumber: 190
+  },
+  __self: undefined
+}), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(ResetPasswordStack.Screen, {
+  name: "reset_password.end",
+  component: _screen_reset_password_end__WEBPACK_IMPORTED_MODULE_19__["ResetPasswordEndScreen"],
+  __source: {
+    fileName: _jsxFileName,
+    lineNumber: 194
+  },
+  __self: undefined
+}), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(ResetPasswordStack.Screen, {
+  name: "reset_password.index",
+  component: _screen_reset_password_index__WEBPACK_IMPORTED_MODULE_20__["ResetPasswordIndexScreen"],
+  __source: {
+    fileName: _jsxFileName,
+    lineNumber: 198
+  },
+  __self: undefined
+}));
 
-var RegisterStack = (0, _stack.createStackNavigator)();
+const RegisterStack = Object(_react_navigation_stack__WEBPACK_IMPORTED_MODULE_1__["createStackNavigator"])();
 
-var RegisterStackScreen = function RegisterStackScreen() {
-  return _react.default.createElement(RegisterStack.Navigator, {
-    screenOptions: useNavOptions(),
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 207
-    },
-    __self: this
-  }, _react.default.createElement(RegisterStack.Screen, {
-    name: "register.detail",
-    component: _register.RegisterDetailScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 210
-    },
-    __self: this
-  }), _react.default.createElement(RegisterStack.Screen, {
-    name: "register.end",
-    component: _register2.RegisterEndScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 214
-    },
-    __self: this
-  }), _react.default.createElement(RegisterStack.Screen, {
-    name: "register.index",
-    component: _register3.RegisterIndexScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 218
-    },
-    __self: this
-  }));
-};
+const RegisterStackScreen = () => react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(RegisterStack.Navigator, {
+  screenOptions: useNavOptions(),
+  __source: {
+    fileName: _jsxFileName,
+    lineNumber: 207
+  },
+  __self: undefined
+}, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(RegisterStack.Screen, {
+  name: "register.detail",
+  component: _screen_register_detail__WEBPACK_IMPORTED_MODULE_16__["RegisterDetailScreen"],
+  __source: {
+    fileName: _jsxFileName,
+    lineNumber: 210
+  },
+  __self: undefined
+}), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(RegisterStack.Screen, {
+  name: "register.end",
+  component: _screen_register_end__WEBPACK_IMPORTED_MODULE_17__["RegisterEndScreen"],
+  __source: {
+    fileName: _jsxFileName,
+    lineNumber: 214
+  },
+  __self: undefined
+}), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(RegisterStack.Screen, {
+  name: "register.index",
+  component: _screen_register_index__WEBPACK_IMPORTED_MODULE_18__["RegisterIndexScreen"],
+  __source: {
+    fileName: _jsxFileName,
+    lineNumber: 218
+  },
+  __self: undefined
+}));
 
-var VerifyPhoneStack = (0, _stack.createStackNavigator)();
+const VerifyPhoneStack = Object(_react_navigation_stack__WEBPACK_IMPORTED_MODULE_1__["createStackNavigator"])();
 
-var VerifyPhoneStackScreen = function VerifyPhoneStackScreen() {
-  return _react.default.createElement(VerifyPhoneStack.Navigator, {
-    screenOptions: useNavOptions(),
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 227
-    },
-    __self: this
-  }, _react.default.createElement(VerifyPhoneStack.Screen, {
-    name: "verify_phone.verify",
-    component: _verify_phone3.VerifyPhoneVerifyScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 230
-    },
-    __self: this
-  }), _react.default.createElement(VerifyPhoneStack.Screen, {
-    name: "verify_phone.end",
-    component: _verify_phone.VerifyPhoneEndScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 234
-    },
-    __self: this
-  }), _react.default.createElement(VerifyPhoneStack.Screen, {
-    name: "verify_phone.index",
-    component: _verify_phone2.VerifyPhoneIndexScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 238
-    },
-    __self: this
-  }));
-};
+const VerifyPhoneStackScreen = () => react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(VerifyPhoneStack.Navigator, {
+  screenOptions: useNavOptions(),
+  __source: {
+    fileName: _jsxFileName,
+    lineNumber: 227
+  },
+  __self: undefined
+}, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(VerifyPhoneStack.Screen, {
+  name: "verify_phone.verify",
+  component: _screen_verify_phone_verify__WEBPACK_IMPORTED_MODULE_27__["VerifyPhoneVerifyScreen"],
+  __source: {
+    fileName: _jsxFileName,
+    lineNumber: 230
+  },
+  __self: undefined
+}), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(VerifyPhoneStack.Screen, {
+  name: "verify_phone.end",
+  component: _screen_verify_phone_end__WEBPACK_IMPORTED_MODULE_25__["VerifyPhoneEndScreen"],
+  __source: {
+    fileName: _jsxFileName,
+    lineNumber: 234
+  },
+  __self: undefined
+}), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(VerifyPhoneStack.Screen, {
+  name: "verify_phone.index",
+  component: _screen_verify_phone_index__WEBPACK_IMPORTED_MODULE_26__["VerifyPhoneIndexScreen"],
+  __source: {
+    fileName: _jsxFileName,
+    lineNumber: 238
+  },
+  __self: undefined
+}));
 
-var VerifyEmailStack = (0, _stack.createStackNavigator)();
+const VerifyEmailStack = Object(_react_navigation_stack__WEBPACK_IMPORTED_MODULE_1__["createStackNavigator"])();
 
-var VerifyEmailStackScreen = function VerifyEmailStackScreen() {
-  return _react.default.createElement(VerifyEmailStack.Navigator, {
-    screenOptions: useNavOptions(),
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 247
-    },
-    __self: this
-  }, _react.default.createElement(VerifyEmailStack.Screen, {
-    name: "verify_email.verify",
-    component: _verify_email3.VerifyEmailVerifyScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 250
-    },
-    __self: this
-  }), _react.default.createElement(VerifyEmailStack.Screen, {
-    name: "verify_email.end",
-    component: _verify_email.VerifyEmailEndScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 254
-    },
-    __self: this
-  }), _react.default.createElement(VerifyEmailStack.Screen, {
-    name: "verify_email.index",
-    component: _verify_email2.VerifyEmailIndexScreen,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 258
-    },
-    __self: this
-  }));
-};
+const VerifyEmailStackScreen = () => react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(VerifyEmailStack.Navigator, {
+  screenOptions: useNavOptions(),
+  __source: {
+    fileName: _jsxFileName,
+    lineNumber: 247
+  },
+  __self: undefined
+}, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(VerifyEmailStack.Screen, {
+  name: "verify_email.verify",
+  component: _screen_verify_email_verify__WEBPACK_IMPORTED_MODULE_24__["VerifyEmailVerifyScreen"],
+  __source: {
+    fileName: _jsxFileName,
+    lineNumber: 250
+  },
+  __self: undefined
+}), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(VerifyEmailStack.Screen, {
+  name: "verify_email.end",
+  component: _screen_verify_email_end__WEBPACK_IMPORTED_MODULE_22__["VerifyEmailEndScreen"],
+  __source: {
+    fileName: _jsxFileName,
+    lineNumber: 254
+  },
+  __self: undefined
+}), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(VerifyEmailStack.Screen, {
+  name: "verify_email.index",
+  component: _screen_verify_email_index__WEBPACK_IMPORTED_MODULE_23__["VerifyEmailIndexScreen"],
+  __source: {
+    fileName: _jsxFileName,
+    lineNumber: 258
+  },
+  __self: undefined
+}));
 
 /***/ }),
 
@@ -659,44 +557,27 @@ var VerifyEmailStackScreen = function VerifyEmailStackScreen() {
 /*!**************************!*\
   !*** ./src/app/index.ts ***!
   \**************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
+/*! exports provided: useAppOptions, useAppState, useNavigation, App */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-Object.defineProperty(exports, "useAppOptions", {
-  enumerable: true,
-  get: function get() {
-    return _options.useAppOptions;
-  }
-});
-Object.defineProperty(exports, "useAppState", {
-  enumerable: true,
-  get: function get() {
-    return _state.useAppState;
-  }
-});
-Object.defineProperty(exports, "useNavigation", {
-  enumerable: true,
-  get: function get() {
-    return _navigation.useNavigation;
-  }
-});
-Object.defineProperty(exports, "App", {
-  enumerable: true,
-  get: function get() {
-    return _app.App;
-  }
-});
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _options__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./options */ "./src/app/options.tsx");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "useAppOptions", function() { return _options__WEBPACK_IMPORTED_MODULE_0__["useAppOptions"]; });
 
-var _options = __webpack_require__(/*! ./options */ "./src/app/options.tsx");
+/* harmony import */ var _state__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./state */ "./src/app/state.tsx");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "useAppState", function() { return _state__WEBPACK_IMPORTED_MODULE_1__["useAppState"]; });
 
-var _state = __webpack_require__(/*! ./state */ "./src/app/state.tsx");
+/* harmony import */ var _navigation__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./navigation */ "./src/app/navigation.tsx");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "useNavigation", function() { return _navigation__WEBPACK_IMPORTED_MODULE_2__["useNavigation"]; });
 
-var _navigation = __webpack_require__(/*! ./navigation */ "./src/app/navigation.tsx");
+/* harmony import */ var _app__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./app */ "./src/app/app.tsx");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "App", function() { return _app__WEBPACK_IMPORTED_MODULE_3__["App"]; });
 
-var _app = __webpack_require__(/*! ./app */ "./src/app/app.tsx");
+
+
+
+
 
 /***/ }),
 
@@ -704,56 +585,45 @@ var _app = __webpack_require__(/*! ./app */ "./src/app/app.tsx");
 /*!********************************!*\
   !*** ./src/app/navigation.tsx ***!
   \********************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
+/*! exports provided: AppNavigationProvider, useNavigation */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-var _interopRequireDefault = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireDefault */ "../../node_modules/@babel/runtime/helpers/interopRequireDefault.js");
-
-var _interopRequireWildcard = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireWildcard */ "../../node_modules/@babel/runtime/helpers/interopRequireWildcard.js");
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.useNavigation = useNavigation;
-exports.AppNavigationProvider = void 0;
-
-var _toConsumableArray2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/toConsumableArray */ "../../node_modules/@babel/runtime/helpers/esm/toConsumableArray.js"));
-
-var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/slicedToArray */ "../../node_modules/@babel/runtime/helpers/esm/slicedToArray.js"));
-
-var _react = _interopRequireWildcard(__webpack_require__(/*! react */ "../../node_modules/react/index.js"));
-
-var _core = __webpack_require__(/*! @react-navigation/core */ "../../node_modules/@react-navigation/core/lib/module/index.js");
-
-var _native = __webpack_require__(/*! @react-navigation/native */ "../../node_modules/@react-navigation/native/lib/module/index.js");
-
-var _reactNative = __webpack_require__(/*! react-native */ "./build.shim.rnw.tsx");
-
-var _hook = __webpack_require__(/*! ../hook */ "./src/hook.ts");
-
-var _state = __webpack_require__(/*! ./state */ "./src/app/state.tsx");
-
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "AppNavigationProvider", function() { return AppNavigationProvider; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "useNavigation", function() { return useNavigation; });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "../../node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _react_navigation_core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @react-navigation/core */ "../../node_modules/@react-navigation/core/lib/module/index.js");
+/* harmony import */ var _react_navigation_native__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @react-navigation/native */ "../../node_modules/@react-navigation/native/lib/module/index.js");
+/* harmony import */ var react_native__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! react-native */ "../../node_modules/react-native-web/dist/index.js");
+/* harmony import */ var _hook__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../hook */ "./src/hook.ts");
+/* harmony import */ var _state__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./state */ "./src/app/state.tsx");
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-app-renderer/src/app/navigation.tsx";
 
-var AppNavigationProvider = function AppNavigationProvider(_ref) {
-  var routeConfig = _ref.routeConfig,
-      children = _ref.children;
 
-  var _useAppState = (0, _state.useAppState)(),
-      _useAppState2 = (0, _slicedToArray2.default)(_useAppState, 1),
-      appState = _useAppState2[0];
 
-  var ref = (0, _react.useRef)();
-  var deepLinking = (0, _native.useLinking)(ref, {
+
+
+
+const AppNavigationProvider = ({
+  routeConfig,
+  children
+}) => {
+  const [appState] = Object(_state__WEBPACK_IMPORTED_MODULE_5__["useAppState"])(); // link nav state with URL
+
+  const ref = Object(react__WEBPACK_IMPORTED_MODULE_0__["useRef"])();
+  const deepLinking = Object(_react_navigation_native__WEBPACK_IMPORTED_MODULE_2__["useLinking"])(ref, {
     prefixes: [window.location.origin],
     config: routeConfig,
-    getStateFromPath: (0, _react.useCallback)(function (path, options) {
-      var navState = (0, _core.getStateFromPath)(path, options);
+    getStateFromPath: Object(react__WEBPACK_IMPORTED_MODULE_0__["useCallback"])((path, options) => {
+      const navState = Object(_react_navigation_core__WEBPACK_IMPORTED_MODULE_1__["getStateFromPath"])(path, options);
 
       if (navState) {
+        // show error route on server error
         if (appState.error) {
           navState.routes[0].name = "error";
-          console.error("appState.error", appState);
+          console.error(`appState.error`, appState);
         }
 
         console.debug("nav state update:", navState);
@@ -761,41 +631,28 @@ var AppNavigationProvider = function AppNavigationProvider(_ref) {
 
       return navState;
     }, [appState])
-  });
+  }); // load initial nav state
 
-  var _useState = (0, _react.useState)(null),
-      _useState2 = (0, _slicedToArray2.default)(_useState, 2),
-      initialState = _useState2[0],
-      setInitialState = _useState2[1];
-
-  var _useState3 = (0, _react.useState)(true),
-      _useState4 = (0, _slicedToArray2.default)(_useState3, 2),
-      loading = _useState4[0],
-      setLoading = _useState4[1];
-
-  (0, _react.useEffect)(function () {
-    deepLinking.getInitialState().then(function (nav) {
-      return setInitialState(nav);
-    }, function (err) {
-      return console.error(err);
-    }).finally(function () {
-      return setLoading(false);
-    });
-  }, []);
+  const [initialState, setInitialState] = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])(null);
+  const [loading, setLoading] = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])(true);
+  Object(react__WEBPACK_IMPORTED_MODULE_0__["useEffect"])(() => {
+    deepLinking.getInitialState().then(nav => setInitialState(nav), err => console.error(err)).finally(() => setLoading(false));
+  }, // eslint-disable-next-line react-hooks/exhaustive-deps
+  []);
 
   if (loading) {
     return null;
   }
 
-  return _react.default.createElement(_native.NavigationContainer, {
+  return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_react_navigation_native__WEBPACK_IMPORTED_MODULE_2__["NavigationContainer"], {
     initialState: initialState,
     ref: ref,
     __source: {
       fileName: _jsxFileName,
       lineNumber: 50
     },
-    __self: this
-  }, _react.default.createElement(_reactNative.View, {
+    __self: undefined
+  }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_native__WEBPACK_IMPORTED_MODULE_3__["View"], {
     nativeID: "nav-container",
     style: {
       alignSelf: "center"
@@ -804,48 +661,42 @@ var AppNavigationProvider = function AppNavigationProvider(_ref) {
       fileName: _jsxFileName,
       lineNumber: 54
     },
-    __self: this
+    __self: undefined
   }, children));
-};
-
-exports.AppNavigationProvider = AppNavigationProvider;
+}; // enhance navigation instance methods
 
 function useNavigation() {
-  var route = (0, _native.useRoute)();
-  var nav = (0, _core.useNavigation)();
-  var navigate = nav.navigate;
+  // set undefined params as empty object
+  const route = Object(_react_navigation_native__WEBPACK_IMPORTED_MODULE_2__["useRoute"])(); // override nav methods to include locale query for navigation
+
+  const nav = Object(_react_navigation_core__WEBPACK_IMPORTED_MODULE_1__["useNavigation"])();
+  const navigate = nav.navigate; // @ts-ignore
 
   if (!navigate.__enhanced) {
-    nav.navigate = function () {
-      for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
-        args[_key] = arguments[_key];
-      }
-
+    nav.navigate = (...args) => {
       includeLocaleQuery(args, route);
-      navigate.apply(void 0, (0, _toConsumableArray2.default)(args));
+      navigate(...args); // call navigate twice as a workaround to fix a bug which does not update existing screen's params
 
-      if (args[1] && args[1].screen && nav.dangerouslyGetState().routes.every(function (r) {
-        return r.name !== args[1].screen;
-      })) {
-        navigate.apply(void 0, (0, _toConsumableArray2.default)(args));
+      if (args[1] && args[1].screen && nav.dangerouslyGetState().routes.every(r => r.name !== args[1].screen)) {
+        navigate(...args);
       }
-    };
+    }; // @ts-ignore
+
 
     nav.navigate.__enhanced = true;
   }
 
-  var _useAppOptions = (0, _hook.useAppOptions)(),
-      _useAppOptions2 = (0, _slicedToArray2.default)(_useAppOptions, 1),
-      appOptions = _useAppOptions2[0];
+  const [appOptions] = Object(_hook__WEBPACK_IMPORTED_MODULE_4__["useAppOptions"])();
 
   if (appOptions.dev) {
+    // @ts-ignore
     window.__APP_DEV__.nav = nav;
   }
 
   if (!route.params) route.params = {};
   return {
-    nav: nav,
-    route: route
+    nav,
+    route
   };
 }
 
@@ -871,65 +722,37 @@ function includeLocaleQuery(args, route) {
 /*!*****************************!*\
   !*** ./src/app/options.tsx ***!
   \*****************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
+/*! exports provided: AppOptionsContext, useAppOptions, AppOptionsProvider */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-var _interopRequireDefault = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireDefault */ "../../node_modules/@babel/runtime/helpers/interopRequireDefault.js");
-
-var _interopRequireWildcard = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireWildcard */ "../../node_modules/@babel/runtime/helpers/interopRequireWildcard.js");
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.useAppOptions = useAppOptions;
-exports.AppOptionsProvider = exports.AppOptionsContext = void 0;
-
-var _objectSpread2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/objectSpread2 */ "../../node_modules/@babel/runtime/helpers/esm/objectSpread2.js"));
-
-var _classCallCheck2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/classCallCheck */ "../../node_modules/@babel/runtime/helpers/esm/classCallCheck.js"));
-
-var _createClass2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/createClass */ "../../node_modules/@babel/runtime/helpers/esm/createClass.js"));
-
-var _possibleConstructorReturn2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/possibleConstructorReturn */ "../../node_modules/@babel/runtime/helpers/esm/possibleConstructorReturn.js"));
-
-var _getPrototypeOf3 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/getPrototypeOf */ "../../node_modules/@babel/runtime/helpers/esm/getPrototypeOf.js"));
-
-var _inherits2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/inherits */ "../../node_modules/@babel/runtime/helpers/esm/inherits.js"));
-
-var _ = _interopRequireWildcard(__webpack_require__(/*! lodash */ "../../node_modules/lodash/lodash.js"));
-
-var _react = _interopRequireWildcard(__webpack_require__(/*! react */ "../../node_modules/react/index.js"));
-
-var _inject = __webpack_require__(/*! ../../inject */ "./inject.js");
-
-var _theme = __webpack_require__(/*! ../../theme */ "./theme.js");
-
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "AppOptionsContext", function() { return AppOptionsContext; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "useAppOptions", function() { return useAppOptions; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "AppOptionsProvider", function() { return AppOptionsProvider; });
+/* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! lodash */ "../../node_modules/lodash/lodash.js");
+/* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(lodash__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react */ "../../node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _inject__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../inject */ "./inject.js");
+/* harmony import */ var _inject__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_inject__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _theme__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../theme */ "./theme.js");
+/* harmony import */ var _theme__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_theme__WEBPACK_IMPORTED_MODULE_3__);
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-app-renderer/src/app/options.tsx";
-var AppOptionsContext = (0, _react.createContext)([]);
-exports.AppOptionsContext = AppOptionsContext;
 
+
+
+
+const AppOptionsContext = Object(react__WEBPACK_IMPORTED_MODULE_1__["createContext"])([]);
 function useAppOptions() {
-  return (0, _react.useContext)(AppOptionsContext);
+  return Object(react__WEBPACK_IMPORTED_MODULE_1__["useContext"])(AppOptionsContext);
 }
-
-var AppOptionsProvider = function (_React$Component) {
-  (0, _inherits2.default)(AppOptionsProvider, _React$Component);
-
-  function AppOptionsProvider() {
-    var _getPrototypeOf2;
-
-    var _this;
-
-    (0, _classCallCheck2.default)(this, AppOptionsProvider);
-
-    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
-      args[_key] = arguments[_key];
-    }
-
-    _this = (0, _possibleConstructorReturn2.default)(this, (_getPrototypeOf2 = (0, _getPrototypeOf3.default)(AppOptionsProvider)).call.apply(_getPrototypeOf2, [this].concat(args)));
-    _this.state = _.defaultsDeep((0, _objectSpread2.default)({}, (0, _inject.getAppOptions)(), {
-      dev: (0, _inject.getAppDev)()
-    }), {
+class AppOptionsProvider extends react__WEBPACK_IMPORTED_MODULE_1___default.a.Component {
+  constructor(...args) {
+    super(...args);
+    this.state = lodash__WEBPACK_IMPORTED_MODULE_0__["defaultsDeep"]({ ...Object(_inject__WEBPACK_IMPORTED_MODULE_2__["getAppOptions"])(),
+      dev: Object(_inject__WEBPACK_IMPORTED_MODULE_2__["getAppDev"])()
+    }, {
       logo: {
         uri: null,
         align: "flex-start",
@@ -946,31 +769,25 @@ var AppOptionsProvider = function (_React$Component) {
       },
       theme: "light",
       palette: {
-        light: _theme.lightTheme,
-        dark: _theme.darkTheme
+        light: _theme__WEBPACK_IMPORTED_MODULE_3__["lightTheme"],
+        dark: _theme__WEBPACK_IMPORTED_MODULE_3__["darkTheme"]
       }
     });
-    return _this;
   }
 
-  (0, _createClass2.default)(AppOptionsProvider, [{
-    key: "render",
-    value: function render() {
-      console.debug("app options update:", this.state);
-      return _react.default.createElement(AppOptionsContext.Provider, {
-        value: [this.state, this.setState.bind(this)],
-        __source: {
-          fileName: _jsxFileName,
-          lineNumber: 42
-        },
-        __self: this
-      }, this.props.children);
-    }
-  }]);
-  return AppOptionsProvider;
-}(_react.default.Component);
+  render() {
+    console.debug("app options update:", this.state);
+    return react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(AppOptionsContext.Provider, {
+      value: [this.state, this.setState.bind(this)],
+      __source: {
+        fileName: _jsxFileName,
+        lineNumber: 42
+      },
+      __self: this
+    }, this.props.children);
+  }
 
-exports.AppOptionsProvider = AppOptionsProvider;
+}
 
 /***/ }),
 
@@ -978,68 +795,67 @@ exports.AppOptionsProvider = AppOptionsProvider;
 /*!***************************!*\
   !*** ./src/app/routes.ts ***!
   \***************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
+/*! exports provided: routeConfig */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.routeConfig = void 0;
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "routeConfig", function() { return routeConfig; });
+/* harmony import */ var _inject__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../inject */ "./inject.js");
+/* harmony import */ var _inject__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_inject__WEBPACK_IMPORTED_MODULE_0__);
 
-var _inject = __webpack_require__(/*! ../../inject */ "./inject.js");
-
-var prefix = (0, _inject.getAppPrefix)();
+let prefix = Object(_inject__WEBPACK_IMPORTED_MODULE_0__["getAppPrefix"])();
 prefix = prefix.startsWith("/") ? prefix.substr(1) : prefix;
-var routeConfig = {
+const routeConfig = {
   "login.stack": {
     screens: {
-      "login.check_password": prefix + "/login/check_password",
-      "login.index": prefix + "/login"
+      "login.check_password": `${prefix}/login/check_password`,
+      "login.index": `${prefix}/login`
     }
   },
   "consent.stack": {
     screens: {
-      "consent.index": prefix + "/consent"
+      "consent.index": `${prefix}/consent`
     }
   },
   "logout.stack": {
     screens: {
-      "logout.end": prefix + "/session/end/success",
-      "logout.index": prefix + "/session/end"
+      "logout.end": `${prefix}/session/end/success`,
+      "logout.index": `${prefix}/session/end`
     }
   },
   "find_email.stack": {
     screens: {
-      "find_email.end": prefix + "/find_email/end",
-      "find_email.index": prefix + "/find_email"
+      "find_email.end": `${prefix}/find_email/end`,
+      "find_email.index": `${prefix}/find_email`
     }
   },
   "reset_password.stack": {
     screens: {
-      "reset_password.end": prefix + "/reset_password/end",
-      "reset_password.set": prefix + "/reset_password/set",
-      "reset_password.index": prefix + "/reset_password"
+      "reset_password.end": `${prefix}/reset_password/end`,
+      "reset_password.set": `${prefix}/reset_password/set`,
+      "reset_password.index": `${prefix}/reset_password`
     }
   },
   "register.stack": {
     screens: {
-      "register.end": prefix + "/register/end",
-      "register.detail": prefix + "/register/detail",
-      "register.index": prefix + "/register"
+      "register.end": `${prefix}/register/end`,
+      "register.detail": `${prefix}/register/detail`,
+      "register.index": `${prefix}/register`
     }
   },
   "verify_phone.stack": {
     screens: {
-      "verify_phone.end": prefix + "/verify_phone/end",
-      "verify_phone.verify": prefix + "/verify_phone/verify",
-      "verify_phone.index": prefix + "/verify_phone"
+      "verify_phone.end": `${prefix}/verify_phone/end`,
+      "verify_phone.verify": `${prefix}/verify_phone/verify`,
+      "verify_phone.index": `${prefix}/verify_phone`
     }
   },
   "verify_email.stack": {
     screens: {
-      "verify_email.end": prefix + "/verify_email/end",
-      "verify_email.verify": prefix + "/verify_email/verify",
-      "verify_email.index": prefix + "/verify_email"
+      "verify_email.end": `${prefix}/verify_email/end`,
+      "verify_email.verify": `${prefix}/verify_email/verify`,
+      "verify_email.index": `${prefix}/verify_email`
     }
   },
   "error.stack": {
@@ -1048,7 +864,6 @@ var routeConfig = {
     }
   }
 };
-exports.routeConfig = routeConfig;
 
 /***/ }),
 
@@ -1056,266 +871,202 @@ exports.routeConfig = routeConfig;
 /*!***************************!*\
   !*** ./src/app/state.tsx ***!
   \***************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
+/*! exports provided: AppStateContext, useAppState, AppStateProvider */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-var _interopRequireDefault = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireDefault */ "../../node_modules/@babel/runtime/helpers/interopRequireDefault.js");
-
-var _interopRequireWildcard = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireWildcard */ "../../node_modules/@babel/runtime/helpers/interopRequireWildcard.js");
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.useAppState = useAppState;
-exports.AppStateProvider = exports.AppStateContext = void 0;
-
-var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/slicedToArray */ "../../node_modules/@babel/runtime/helpers/esm/slicedToArray.js"));
-
-var _regenerator = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/regenerator */ "../../node_modules/@babel/runtime/regenerator/index.js"));
-
-var _objectSpread2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/objectSpread2 */ "../../node_modules/@babel/runtime/helpers/esm/objectSpread2.js"));
-
-var _classCallCheck2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/classCallCheck */ "../../node_modules/@babel/runtime/helpers/esm/classCallCheck.js"));
-
-var _createClass2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/createClass */ "../../node_modules/@babel/runtime/helpers/esm/createClass.js"));
-
-var _possibleConstructorReturn2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/possibleConstructorReturn */ "../../node_modules/@babel/runtime/helpers/esm/possibleConstructorReturn.js"));
-
-var _getPrototypeOf3 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/getPrototypeOf */ "../../node_modules/@babel/runtime/helpers/esm/getPrototypeOf.js"));
-
-var _inherits2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/inherits */ "../../node_modules/@babel/runtime/helpers/esm/inherits.js"));
-
-var _react = _interopRequireWildcard(__webpack_require__(/*! react */ "../../node_modules/react/index.js"));
-
-var _error = __webpack_require__(/*! ../screen/error */ "./src/screen/error.tsx");
-
-var _inject = __webpack_require__(/*! ../../inject */ "./inject.js");
-
-var _options = __webpack_require__(/*! ./options */ "./src/app/options.tsx");
-
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "AppStateContext", function() { return AppStateContext; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "useAppState", function() { return useAppState; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "AppStateProvider", function() { return AppStateProvider; });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "../../node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _screen_error__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../screen/error */ "./src/screen/error.tsx");
+/* harmony import */ var _inject__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../inject */ "./inject.js");
+/* harmony import */ var _inject__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_inject__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _options__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./options */ "./src/app/options.tsx");
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-app-renderer/src/app/state.tsx";
-var AppStateContext = (0, _react.createContext)([]);
-exports.AppStateContext = AppStateContext;
 
+
+
+ // read server state and create endpoint request helper
+
+const AppStateContext = Object(react__WEBPACK_IMPORTED_MODULE_0__["createContext"])([]);
 function useAppState() {
-  return (0, _react.useContext)(AppStateContext);
+  return Object(react__WEBPACK_IMPORTED_MODULE_0__["useContext"])(AppStateContext);
 }
-
-var AppStateProvider = function (_React$Component) {
-  (0, _inherits2.default)(AppStateProvider, _React$Component);
-
-  function AppStateProvider() {
-    var _getPrototypeOf2;
-
-    var _this;
-
-    (0, _classCallCheck2.default)(this, AppStateProvider);
-
-    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
-      args[_key] = arguments[_key];
-    }
-
-    _this = (0, _possibleConstructorReturn2.default)(this, (_getPrototypeOf2 = (0, _getPrototypeOf3.default)(AppStateProvider)).call.apply(_getPrototypeOf2, [this].concat(args)));
-    _this.state = {
+class AppStateProvider extends react__WEBPACK_IMPORTED_MODULE_0___default.a.Component {
+  constructor(...args) {
+    super(...args);
+    this.state = {
       error: null,
-      appState: (0, _inject.getInitialAppState)()
+      appState: Object(_inject__WEBPACK_IMPORTED_MODULE_2__["getInitialAppState"])()
     };
 
-    _this.dispatch = function _callee(name) {
-      var userPayload,
-          routes,
-          route,
-          err,
-          url,
-          _route$synchronous,
-          synchronous,
-          method,
-          payload,
-          mergedPayload,
-          form,
-          k,
-          input,
-          _args = arguments;
+    this.dispatch = async (name, userPayload = {}) => {
+      const routes = this.state.appState.routes;
+      const route = routes && routes[name];
 
-      return _regenerator.default.async(function _callee$(_context) {
-        while (1) {
-          switch (_context.prev = _context.next) {
-            case 0:
-              userPayload = _args.length > 1 && _args[1] !== undefined ? _args[1] : {};
-              routes = _this.state.appState.routes;
-              route = routes && routes[name];
+      if (!route) {
+        const err = {
+          global: "Cannot make a request to unsupported route."
+        };
+        console.error(err, name, userPayload); // eslint-disable-next-line no-throw-literal
 
-              if (route) {
-                _context.next = 7;
-                break;
-              }
+        throw err;
+      } // merge user payload with hint payload
 
-              err = {
-                global: "Cannot make a request to unsupported route."
-              };
-              console.error(err, name, userPayload);
-              throw err;
 
-            case 7:
-              url = route.url, _route$synchronous = route.synchronous, synchronous = _route$synchronous === void 0 ? false : _route$synchronous, method = route.method, payload = route.payload;
-              mergedPayload = (0, _objectSpread2.default)({}, payload, {}, userPayload);
+      const {
+        url,
+        synchronous = false,
+        method,
+        payload
+      } = route;
+      const mergedPayload = { ...payload,
+        ...userPayload
+      }; // form submission required (application/x-www-form-urlencoded)
 
-              if (!synchronous) {
-                _context.next = 18;
-                break;
-              }
+      if (synchronous) {
+        const form = document.createElement("form");
+        form.action = url;
+        form.method = method;
+        form.style.display = "none"; // tslint:disable-next-line:forin
 
-              form = document.createElement("form");
-              form.action = url;
-              form.method = method;
-              form.style.display = "none";
-
-              for (k in mergedPayload) {
-                input = document.createElement("input");
-                input.type = "hidden";
-                input.name = k;
-                input.value = mergedPayload[k];
-                form.appendChild(input);
-              }
-
-              document.body.appendChild(form);
-              form.submit();
-              return _context.abrupt("return", new Promise(function () {}));
-
-            case 18:
-              return _context.abrupt("return", fetch(url, {
-                headers: {
-                  "Accept": "application/json",
-                  "Content-Type": "application/json;charset=UTF-8"
-                },
-                credentials: "same-origin",
-                method: method,
-                body: method !== "GET" ? JSON.stringify(mergedPayload) : undefined
-              }).then(function (res) {
-                return res.json().then(function (data) {
-                  if (data.error) {
-                    if (res.status === 422 && data.error.fields) {
-                      console.error("validation error", data.error);
-                      throw data.error.fields;
-                    } else {
-                      var _err = {
-                        global: typeof data.error === "object" ? data.error.error_description || data.error.error || JSON.stringify(data.error) : data.error.toString()
-                      };
-                      console.error("global error", _err, data);
-                      throw _err;
-                    }
-                  } else if (data.session) {
-                    var appState = (0, _objectSpread2.default)({}, _this.state.appState, {
-                      session: data.session
-                    });
-
-                    _this.setState(function (prev) {
-                      return (0, _objectSpread2.default)({}, prev, {
-                        appState: appState
-                      });
-                    });
-
-                    return appState;
-                  } else if (data.state) {
-                    var _appState = data.state;
-
-                    _this.setState(function (prev) {
-                      return (0, _objectSpread2.default)({}, prev, {
-                        appState: _appState
-                      });
-                    });
-
-                    console.error("whole application state response received from XHR, this is unexpected behavior but commit update", data);
-                    return _appState;
-                  } else if (data.redirect) {
-                    window.location.assign(data.redirect);
-                    return new Promise(function () {});
-                  } else {
-                    console.error("unrecognized response structure", data);
-                  }
-
-                  return _this.state.appState;
-                }, function (err) {
-                  console.error("failed to parse xhr response", err);
-                  throw {
-                    global: err.message || err.name
-                  };
-                });
-              }, function (err) {
-                console.error("failed to get response", err);
-                throw {
-                  global: err.message || err.name
-                };
-              }));
-
-            case 19:
-            case "end":
-              return _context.stop();
-          }
+        for (const k in mergedPayload) {
+          const input = document.createElement("input");
+          input.type = "hidden";
+          input.name = k;
+          input.value = mergedPayload[k];
+          form.appendChild(input);
         }
+
+        document.body.appendChild(form);
+        form.submit();
+        return new Promise(() => {});
+      } // as xhr
+
+
+      return fetch(url, {
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json;charset=UTF-8"
+        },
+        credentials: "same-origin",
+        method,
+        body: method !== "GET" ? JSON.stringify(mergedPayload) : undefined
+      }).then(res => {
+        // parse json response
+        return res.json().then(data => {
+          if (data.error) {
+            // got error response
+            if (res.status === 422 && data.error.fields) {
+              // got validation error
+              console.error("validation error", data.error); // eslint-disable-next-line no-throw-literal
+
+              throw data.error.fields;
+            } else {
+              const err = {
+                global: typeof data.error === "object" ? data.error.error_description || data.error.error || JSON.stringify(data.error) : data.error.toString()
+              };
+              console.error("global error", err, data); // eslint-disable-next-line no-throw-literal
+
+              throw err;
+            }
+          } else if (data.session) {
+            // got session state update
+            const appState = { ...this.state.appState,
+              session: data.session
+            };
+            this.setState(prev => ({ ...prev,
+              appState
+            }));
+            return appState;
+          } else if (data.state) {
+            // got whole app state update
+            const appState = data.state;
+            this.setState(prev => ({ ...prev,
+              appState
+            }));
+            console.error("whole application state response received from XHR, this is unexpected behavior but commit update", data);
+            return appState;
+          } else if (data.redirect) {
+            // got redirection request
+            window.location.assign(data.redirect);
+            return new Promise(() => {});
+          } else {
+            console.error("unrecognized response structure", data);
+          }
+
+          return this.state.appState;
+        }, err => {
+          console.error("failed to parse xhr response", err); // eslint-disable-next-line no-throw-literal
+
+          throw {
+            global: err.message || err.name
+          };
+        });
+      }, err => {
+        console.error("failed to get response", err); // eslint-disable-next-line no-throw-literal
+
+        throw {
+          global: err.message || err.name
+        };
       });
     };
-
-    return _this;
   }
 
-  (0, _createClass2.default)(AppStateProvider, [{
-    key: "render",
-    value: function render() {
-      var _this$state = this.state,
-          error = _this$state.error,
-          appState = _this$state.appState;
-      console.debug("app state update:", appState);
+  render() {
+    const {
+      error,
+      appState
+    } = this.state;
+    console.debug("app state update:", appState); // expose dev helper
 
-      var _this$context = (0, _slicedToArray2.default)(this.context, 2),
-          appOptions = _this$context[0],
-          setAppOptions = _this$context[1];
+    const [appOptions, setAppOptions] = this.context;
 
-      if (appOptions.dev) {
-        window.__APP_DEV__ = {
-          options: appOptions,
-          setOptions: setAppOptions,
-          state: appState,
-          dispatch: this.dispatch
-        };
-      }
+    if (appOptions.dev) {
+      // @ts-ignore
+      window.__APP_DEV__ = {
+        options: appOptions,
+        setOptions: setAppOptions,
+        state: appState,
+        dispatch: this.dispatch
+      };
+    }
 
-      if (error) {
-        return _react.default.createElement(_error.ClientErrorScreen, {
-          error: error,
-          __source: {
-            fileName: _jsxFileName,
-            lineNumber: 39
-          },
-          __self: this
-        });
-      }
-
-      return _react.default.createElement(AppStateContext.Provider, {
-        value: [appState, this.dispatch],
+    if (error) {
+      return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_screen_error__WEBPACK_IMPORTED_MODULE_1__["ClientErrorScreen"], {
+        error: error,
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 43
+          lineNumber: 39
         },
         __self: this
-      }, this.props.children);
-    }
-  }, {
-    key: "componentDidCatch",
-    value: function componentDidCatch(error, info) {
-      this.setState(function (prev) {
-        return (0, _objectSpread2.default)({}, prev, {
-          error: error
-        });
       });
-      console.error(error, info);
     }
-  }]);
-  return AppStateProvider;
-}(_react.default.Component);
 
-exports.AppStateProvider = AppStateProvider;
-AppStateProvider.contextType = _options.AppOptionsContext;
+    return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(AppStateContext.Provider, {
+      value: [appState, this.dispatch],
+      __source: {
+        fileName: _jsxFileName,
+        lineNumber: 43
+      },
+      __self: this
+    }, this.props.children);
+  } // wrap with error boundary
+
+
+  componentDidCatch(error, info) {
+    this.setState(prev => ({ ...prev,
+      error
+    }));
+    console.error(error, info); // can report uncaught client error here
+  } // call xhr request and update app state
+
+
+}
+AppStateProvider.contextType = _options__WEBPACK_IMPORTED_MODULE_3__["AppOptionsContext"];
 
 /***/ }),
 
@@ -1378,76 +1129,89 @@ if(true) {
 /*!***************************!*\
   !*** ./src/app/theme.tsx ***!
   \***************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
+/*! exports provided: ApplicationThemeProvider */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-var _interopRequireDefault = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireDefault */ "../../node_modules/@babel/runtime/helpers/interopRequireDefault.js");
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.ApplicationThemeProvider = void 0;
-
-var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/slicedToArray */ "../../node_modules/@babel/runtime/helpers/esm/slicedToArray.js"));
-
-var _react = _interopRequireDefault(__webpack_require__(/*! react */ "../../node_modules/react/index.js"));
-
-var _components = __webpack_require__(/*! @ui-kitten/components */ "../../node_modules/@ui-kitten/components/index.js");
-
-var _evaIcons = __webpack_require__(/*! @ui-kitten/eva-icons */ "../../node_modules/@ui-kitten/eva-icons/index.js");
-
-var _eva = __webpack_require__(/*! @eva-design/eva */ "../../node_modules/@eva-design/eva/index.js");
-
-var _options = __webpack_require__(/*! ./options */ "./src/app/options.tsx");
-
-__webpack_require__(/*! ./theme.css */ "./src/app/theme.css");
-
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ApplicationThemeProvider", function() { return ApplicationThemeProvider; });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "../../node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _ui_kitten_components__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @ui-kitten/components */ "../../node_modules/@ui-kitten/components/index.js");
+/* harmony import */ var _ui_kitten_components__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_ui_kitten_components__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _ui_kitten_eva_icons__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @ui-kitten/eva-icons */ "../../node_modules/@ui-kitten/eva-icons/index.js");
+/* harmony import */ var _ui_kitten_eva_icons__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_ui_kitten_eva_icons__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _eva_design_eva__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @eva-design/eva */ "../../node_modules/@eva-design/eva/index.js");
+/* harmony import */ var _eva_design_eva__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_eva_design_eva__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _options__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./options */ "./src/app/options.tsx");
+/* harmony import */ var _theme_css__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./theme.css */ "./src/app/theme.css");
+/* harmony import */ var _theme_css__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_theme_css__WEBPACK_IMPORTED_MODULE_5__);
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-app-renderer/src/app/theme.tsx";
-var customMapping = {
+ // import { View } from "react-native";
+
+
+
+
+
+ // ref: https://akveo.github.io/react-native-ui-kitten/docs/guides/branding#fonts
+
+const customMapping = {
   "strict": {
     "text-font-family": "'Noto Sans KR', sans-serif"
   },
   components: {},
   version: 1
 };
-
-var ApplicationThemeProvider = function ApplicationThemeProvider(_ref) {
-  var children = _ref.children;
-
-  var _useAppOptions = (0, _options.useAppOptions)(),
-      _useAppOptions2 = (0, _slicedToArray2.default)(_useAppOptions, 1),
-      appOptions = _useAppOptions2[0];
-
-  var theme = appOptions.theme,
-      palette = appOptions.palette;
-  var currentTheme = palette && theme && palette[theme] || _eva.light || _eva.dark;
-  return _react.default.createElement(_react.default.Fragment, null, _react.default.createElement(_components.IconRegistry, {
-    icons: _evaIcons.EvaIconsPack,
+const ApplicationThemeProvider = ({
+  children
+}) => {
+  const [appOptions] = Object(_options__WEBPACK_IMPORTED_MODULE_4__["useAppOptions"])();
+  const {
+    theme,
+    palette
+  } = appOptions;
+  const currentTheme = palette && theme && palette[theme] || _eva_design_eva__WEBPACK_IMPORTED_MODULE_3__["light"] || _eva_design_eva__WEBPACK_IMPORTED_MODULE_3__["dark"];
+  return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react__WEBPACK_IMPORTED_MODULE_0___default.a.Fragment, null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_ui_kitten_components__WEBPACK_IMPORTED_MODULE_1__["IconRegistry"], {
+    icons: _ui_kitten_eva_icons__WEBPACK_IMPORTED_MODULE_2__["EvaIconsPack"],
     __source: {
       fileName: _jsxFileName,
       lineNumber: 27
     },
-    __self: this
-  }), _react.default.createElement(_components.ApplicationProvider, {
-    mapping: _eva.mapping,
+    __self: undefined
+  }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_ui_kitten_components__WEBPACK_IMPORTED_MODULE_1__["ApplicationProvider"], {
+    mapping: _eva_design_eva__WEBPACK_IMPORTED_MODULE_3__["mapping"],
     customMapping: customMapping,
     theme: currentTheme,
     __source: {
       fileName: _jsxFileName,
       lineNumber: 28
     },
-    __self: this
-  }, _react.default.createElement(_components.Layout, {
+    __self: undefined
+  }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_ui_kitten_components__WEBPACK_IMPORTED_MODULE_1__["Layout"], {
     nativeID: "theme-container",
     __source: {
       fileName: _jsxFileName,
       lineNumber: 33
     },
-    __self: this
+    __self: undefined
   }, children)));
 };
+/*
+// to fix mobile browser 100vh mis-calculation
+if (typeof window !== "undefined") {
+  const fullHeightElems = window.document.querySelectorAll("#root, #theme-container, #nav-container");
+  const setDocHeight = () => {
+    const fullHeight = `${window.innerHeight}px`;
+    fullHeightElems.forEach(elem => {
+      (elem as any).style.height = fullHeight;
+    });
+  };
 
-exports.ApplicationThemeProvider = ApplicationThemeProvider;
+  setDocHeight();
+  window.addEventListener("resize", _.throttle(setDocHeight, 500));
+  window.addEventListener("orientationchange", setDocHeight);
+}
+*/
 
 /***/ }),
 
@@ -1488,154 +1252,91 @@ module.exports = __webpack_require__.p + "static/media/screen_verify.465fe378.sv
 /*!*********************!*\
   !*** ./src/hook.ts ***!
   \*********************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
+/*! exports provided: useNavigation, useAppState, useAppOptions, useWithLoading, useClose */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-var _interopRequireDefault = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireDefault */ "../../node_modules/@babel/runtime/helpers/interopRequireDefault.js");
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "useWithLoading", function() { return useWithLoading; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "useClose", function() { return useClose; });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "../../node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _app__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./app */ "./src/app/index.ts");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "useNavigation", function() { return _app__WEBPACK_IMPORTED_MODULE_1__["useNavigation"]; });
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.useWithLoading = useWithLoading;
-exports.useClose = useClose;
-Object.defineProperty(exports, "useNavigation", {
-  enumerable: true,
-  get: function get() {
-    return _app.useNavigation;
-  }
-});
-Object.defineProperty(exports, "useAppState", {
-  enumerable: true,
-  get: function get() {
-    return _app.useAppState;
-  }
-});
-Object.defineProperty(exports, "useAppOptions", {
-  enumerable: true,
-  get: function get() {
-    return _app.useAppOptions;
-  }
-});
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "useAppState", function() { return _app__WEBPACK_IMPORTED_MODULE_1__["useAppState"]; });
 
-var _toConsumableArray2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/toConsumableArray */ "../../node_modules/@babel/runtime/helpers/esm/toConsumableArray.js"));
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "useAppOptions", function() { return _app__WEBPACK_IMPORTED_MODULE_1__["useAppOptions"]; });
 
-var _regenerator = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/regenerator */ "../../node_modules/@babel/runtime/regenerator/index.js"));
 
-var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/slicedToArray */ "../../node_modules/@babel/runtime/helpers/esm/slicedToArray.js"));
 
-var _react = __webpack_require__(/*! react */ "../../node_modules/react/index.js");
-
-var _app = __webpack_require__(/*! ./app */ "./src/app/index.ts");
+ // do async job with loading state
 
 function useWithLoading() {
-  var _useState = (0, _react.useState)(false),
-      _useState2 = (0, _slicedToArray2.default)(_useState, 2),
-      loading = _useState2[0],
-      setLoading = _useState2[1];
-
-  var _useState3 = (0, _react.useState)({}),
-      _useState4 = (0, _slicedToArray2.default)(_useState3, 2),
-      errors = _useState4[0],
-      setErrors = _useState4[1];
-
-  var unmounted = (0, _react.useRef)(false);
-  (0, _react.useEffect)(function () {
-    return function () {
+  const [loading, setLoading] = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])(false);
+  const [errors, setErrors] = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])({});
+  const unmounted = Object(react__WEBPACK_IMPORTED_MODULE_0__["useRef"])(false);
+  Object(react__WEBPACK_IMPORTED_MODULE_0__["useEffect"])(() => {
+    return () => {
       unmounted.current = true;
     };
   }, []);
 
-  var withLoading = function withLoading(callback) {
-    var deps = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
+  const withLoading = (callback, deps = []) => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const [callbackLoading, setCallbackLoading] = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])(false); // eslint-disable-next-line react-hooks/rules-of-hooks, react-hooks/exhaustive-deps
 
-    var _useState5 = (0, _react.useState)(false),
-        _useState6 = (0, _slicedToArray2.default)(_useState5, 2),
-        callbackLoading = _useState6[0],
-        setCallbackLoading = _useState6[1];
-
-    var callWithLoading = (0, _react.useCallback)(function () {
-      for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
-        args[_key] = arguments[_key];
-      }
-
+    const callWithLoading = Object(react__WEBPACK_IMPORTED_MODULE_0__["useCallback"])((...args) => {
       if (loading) return;
       setLoading(true);
       setCallbackLoading(true);
-      setTimeout(function _callee() {
-        return _regenerator.default.async(function _callee$(_context) {
-          while (1) {
-            switch (_context.prev = _context.next) {
-              case 0:
-                _context.prev = 0;
-                _context.next = 3;
-                return _regenerator.default.awrap(callback.apply(void 0, args));
-
-              case 3:
-                _context.next = 9;
-                break;
-
-              case 5:
-                _context.prev = 5;
-                _context.t0 = _context["catch"](0);
-                console.error("global error from withLoading callback", _context.t0);
-                setErrors({
-                  global: _context.t0.message || _context.t0.toString()
-                });
-
-              case 9:
-                _context.prev = 9;
-                setTimeout(function () {
-                  if (!unmounted.current) {
-                    setLoading(false);
-                    setCallbackLoading(false);
-                  }
-                }, 100);
-                return _context.finish(9);
-
-              case 12:
-              case "end":
-                return _context.stop();
+      setTimeout(async () => {
+        try {
+          await callback(...args);
+        } catch (error) {
+          console.error("global error from withLoading callback", error);
+          setErrors({
+            global: error.message || error.toString()
+          });
+        } finally {
+          setTimeout(() => {
+            if (!unmounted.current) {
+              setLoading(false);
+              setCallbackLoading(false);
             }
-          }
-        }, null, null, [[0, 5, 9, 12]]);
+          }, 100);
+        }
       }, 100);
-    }, [callback].concat((0, _toConsumableArray2.default)(deps)));
+    }, // eslint-disable-next-line react-hooks/exhaustive-deps
+    [callback, ...deps]);
     return [callWithLoading, callbackLoading];
   };
 
   return {
-    withLoading: withLoading,
-    loading: loading,
-    errors: errors,
-    setErrors: setErrors
+    withLoading,
+    loading,
+    errors,
+    setErrors
   };
-}
+} // close screen
 
-function useClose() {
-  var tryGoBack = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
-
-  var _useState7 = (0, _react.useState)(false),
-      _useState8 = (0, _slicedToArray2.default)(_useState7, 2),
-      closed = _useState8[0],
-      setClosed = _useState8[1];
-
-  var _useNavigation = (0, _app.useNavigation)(),
-      nav = _useNavigation.nav;
-
-  var close = (0, _react.useCallback)(function () {
+function useClose(tryGoBack = true) {
+  const [closed, setClosed] = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])(false);
+  const {
+    nav
+  } = Object(_app__WEBPACK_IMPORTED_MODULE_1__["useNavigation"])();
+  const close = Object(react__WEBPACK_IMPORTED_MODULE_0__["useCallback"])(() => {
     if (tryGoBack && nav.canGoBack()) {
       nav.goBack();
     } else {
       window.close();
-      setTimeout(function () {
-        return setClosed(true);
-      }, 500);
+      setTimeout(() => setClosed(true), 500);
     }
   }, [nav, tryGoBack]);
   return {
-    closed: closed,
-    setClosed: setClosed,
-    close: close
+    closed,
+    setClosed,
+    close
   };
 }
 
@@ -1645,32 +1346,33 @@ function useClose() {
 /*!***********************!*\
   !*** ./src/index.tsx ***!
   \***********************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
+/*! no exports provided */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-var _interopRequireDefault = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireDefault */ "../../node_modules/@babel/runtime/helpers/interopRequireDefault.js");
-
-var _interopRequireWildcard = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireWildcard */ "../../node_modules/@babel/runtime/helpers/interopRequireWildcard.js");
-
-var _react = _interopRequireDefault(__webpack_require__(/*! react */ "../../node_modules/react/index.js"));
-
-var _reactDom = _interopRequireDefault(__webpack_require__(/*! react-dom */ "../../node_modules/react-dom/index.js"));
-
-var serviceWorker = _interopRequireWildcard(__webpack_require__(/*! ./service-worker */ "./src/service-worker.ts"));
-
-var _app = __webpack_require__(/*! ./app */ "./src/app/index.ts");
-
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "../../node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var react_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react-dom */ "../../node_modules/react-dom/index.js");
+/* harmony import */ var react_dom__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(react_dom__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _service_worker__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./service-worker */ "./src/service-worker.ts");
+/* harmony import */ var _app__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./app */ "./src/app/index.ts");
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-app-renderer/src/index.tsx";
 
-_reactDom.default.render(_react.default.createElement(_app.App, {
+
+
+
+react_dom__WEBPACK_IMPORTED_MODULE_1___default.a.render(react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_app__WEBPACK_IMPORTED_MODULE_3__["App"], {
   __source: {
     fileName: _jsxFileName,
     lineNumber: 6
   },
-  __self: this
-}), document.getElementById("root"));
+  __self: undefined
+}), document.getElementById("root")); // If you want your app to work offline and load faster, you can change
+// unregister() to register() below. Note this comes with some pitfalls.
+// Learn more about service workers: https://bit.ly/CRA-PWA
 
-serviceWorker.unregister();
+_service_worker__WEBPACK_IMPORTED_MODULE_2__["unregister"]();
 
 /***/ }),
 
@@ -1678,74 +1380,57 @@ serviceWorker.unregister();
 /*!***************************************!*\
   !*** ./src/screen/component/form.tsx ***!
   \***************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
+/*! exports provided: Form, FormInput */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-var _interopRequireDefault = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireDefault */ "../../node_modules/@babel/runtime/helpers/interopRequireDefault.js");
-
-var _interopRequireWildcard = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireWildcard */ "../../node_modules/@babel/runtime/helpers/interopRequireWildcard.js");
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.FormInput = exports.Form = void 0;
-
-var _extends2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/extends */ "../../node_modules/@babel/runtime/helpers/esm/extends.js"));
-
-var _objectSpread2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/objectSpread2 */ "../../node_modules/@babel/runtime/helpers/esm/objectSpread2.js"));
-
-var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/slicedToArray */ "../../node_modules/@babel/runtime/helpers/esm/slicedToArray.js"));
-
-var _objectWithoutProperties2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/objectWithoutProperties */ "../../node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js"));
-
-var _react = _interopRequireWildcard(__webpack_require__(/*! react */ "../../node_modules/react/index.js"));
-
-var _index = __webpack_require__(/*! ./index */ "./src/screen/component/index.ts");
-
-var _util = __webpack_require__(/*! ./util */ "./src/screen/component/util.ts");
-
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Form", function() { return Form; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "FormInput", function() { return FormInput; });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "../../node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _index__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./index */ "./src/screen/component/index.ts");
+/* harmony import */ var _util__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./util */ "./src/screen/component/util.ts");
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-app-renderer/src/screen/component/form.tsx";
 
-var Form = function Form(_ref) {
-  var _onSubmit = _ref.onSubmit,
-      children = _ref.children;
-  return _react.default.createElement("form", {
+
+
+const Form = ({
+  onSubmit,
+  children
+}) => {
+  return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("form", {
     noValidate: true,
-    onSubmit: function onSubmit(e) {
+    onSubmit: e => {
       e.preventDefault();
-      if (_onSubmit) _onSubmit();
+      if (onSubmit) onSubmit();
     },
     __source: {
       fileName: _jsxFileName,
       lineNumber: 17
     },
-    __self: this
+    __self: undefined
   }, children);
 };
-
-exports.Form = Form;
-
-var FormInput = function FormInput(props) {
-  var value = props.value,
-      error = props.error,
-      setValue = props.setValue,
-      tabIndex = props.tabIndex,
-      autoCompleteType = props.autoCompleteType,
-      onEnter = props.onEnter,
-      autoFocus = props.autoFocus,
-      secureTextEntry = props.secureTextEntry,
-      restProps = (0, _objectWithoutProperties2.default)(props, ["value", "error", "setValue", "tabIndex", "autoCompleteType", "onEnter", "autoFocus", "secureTextEntry"]);
-
-  var _useState = (0, _react.useState)(false),
-      _useState2 = (0, _slicedToArray2.default)(_useState, 2),
-      passwordVisible = _useState2[0],
-      setPasswordVisible = _useState2[1];
-
-  return _react.default.createElement(_index.Input, (0, _extends2.default)({
-    ref: (0, _util.withAttrs)({
+const FormInput = props => {
+  const {
+    value,
+    error,
+    setValue,
+    tabIndex,
+    autoCompleteType,
+    onEnter,
+    autoFocus,
+    secureTextEntry,
+    ...restProps
+  } = props;
+  const [passwordVisible, setPasswordVisible] = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])(false);
+  return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_index__WEBPACK_IMPORTED_MODULE_1__["Input"], Object.assign({
+    ref: Object(_util__WEBPACK_IMPORTED_MODULE_2__["withAttrs"])({
       tabindex: tabIndex || null,
       autofocus: autoFocus ? "autofocus" : null
-    }, "input"),
+    }, "input") // default
+    ,
     size: "large",
     autoCompleteType: autoCompleteType,
     autoCapitalize: "none",
@@ -1759,40 +1444,34 @@ var FormInput = function FormInput(props) {
     placeholder: "",
     secureTextEntry: secureTextEntry && !passwordVisible,
     value: value,
-    onChangeText: setValue ? function (v) {
-      return setValue(v || "");
-    } : undefined,
-    onKeyPress: typeof onEnter === "function" ? function (e) {
-      return e.nativeEvent.key === "Enter" && onEnter();
-    } : restProps.onKeyPress,
-    icon: secureTextEntry ? function (style) {
-      return _react.default.createElement(_index.Icon, {
-        style: (0, _objectSpread2.default)({}, style, {}, {
+    onChangeText: setValue ? v => setValue(v || "") : undefined,
+    onKeyPress: typeof onEnter === "function" ? e => e.nativeEvent.key === "Enter" && onEnter() : restProps.onKeyPress,
+    icon: secureTextEntry ? style => react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_index__WEBPACK_IMPORTED_MODULE_1__["Icon"], {
+      style: { ...style,
+        ...{
           cursor: "pointer"
-        }),
-        name: passwordVisible ? 'eye' : 'eye-off',
-        __source: {
-          fileName: _jsxFileName,
-          lineNumber: 55
-        },
-        __self: this
-      });
-    } : undefined,
-    onIconPress: secureTextEntry ? function () {
-      return setPasswordVisible(!passwordVisible);
-    } : undefined
+        }
+      },
+      name: passwordVisible ? 'eye' : 'eye-off',
+      __source: {
+        fileName: _jsxFileName,
+        lineNumber: 55
+      },
+      __self: undefined
+    }) : undefined,
+    onIconPress: secureTextEntry ? () => setPasswordVisible(!passwordVisible) : undefined // custom
+
   }, restProps, {
+    // override
     caption: error || restProps.caption,
     status: error ? "danger" : restProps.status || "basic",
     __source: {
       fileName: _jsxFileName,
       lineNumber: 36
     },
-    __self: this
+    __self: undefined
   }));
 };
-
-exports.FormInput = FormInput;
 
 /***/ }),
 
@@ -1801,83 +1480,46 @@ exports.FormInput = FormInput;
   !*** ./src/screen/component/index.ts ***!
   \***************************************/
 /*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _ui_kitten_components__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @ui-kitten/components */ "../../node_modules/@ui-kitten/components/index.js");
+/* harmony import */ var _ui_kitten_components__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_ui_kitten_components__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _ui_kitten_components__WEBPACK_IMPORTED_MODULE_0__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _ui_kitten_components__WEBPACK_IMPORTED_MODULE_0__[key]; }) }(__WEBPACK_IMPORT_KEY__));
+/* harmony import */ var _util__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./util */ "./src/screen/component/util.ts");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "withElements", function() { return _util__WEBPACK_IMPORTED_MODULE_1__["withElements"]; });
 
-var _components = __webpack_require__(/*! @ui-kitten/components */ "../../node_modules/@ui-kitten/components/index.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "withElement", function() { return _util__WEBPACK_IMPORTED_MODULE_1__["withElement"]; });
 
-Object.keys(_components).forEach(function (key) {
-  if (key === "default" || key === "__esModule") return;
-  Object.defineProperty(exports, key, {
-    enumerable: true,
-    get: function get() {
-      return _components[key];
-    }
-  });
-});
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "withAttrs", function() { return _util__WEBPACK_IMPORTED_MODULE_1__["withAttrs"]; });
 
-var _util = __webpack_require__(/*! ./util */ "./src/screen/component/util.ts");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "activateAutoFocus", function() { return _util__WEBPACK_IMPORTED_MODULE_1__["activateAutoFocus"]; });
 
-Object.keys(_util).forEach(function (key) {
-  if (key === "default" || key === "__esModule") return;
-  Object.defineProperty(exports, key, {
-    enumerable: true,
-    get: function get() {
-      return _util[key];
-    }
-  });
-});
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "isTouchDevice", function() { return _util__WEBPACK_IMPORTED_MODULE_1__["isTouchDevice"]; });
 
-var _separator = __webpack_require__(/*! ./separator */ "./src/screen/component/separator.tsx");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "useThemePalette", function() { return _util__WEBPACK_IMPORTED_MODULE_1__["useThemePalette"]; });
 
-Object.keys(_separator).forEach(function (key) {
-  if (key === "default" || key === "__esModule") return;
-  Object.defineProperty(exports, key, {
-    enumerable: true,
-    get: function get() {
-      return _separator[key];
-    }
-  });
-});
+/* harmony import */ var _separator__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./separator */ "./src/screen/component/separator.tsx");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Separator", function() { return _separator__WEBPACK_IMPORTED_MODULE_2__["Separator"]; });
 
-var _form = __webpack_require__(/*! ./form */ "./src/screen/component/form.tsx");
+/* harmony import */ var _form__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./form */ "./src/screen/component/form.tsx");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Form", function() { return _form__WEBPACK_IMPORTED_MODULE_3__["Form"]; });
 
-Object.keys(_form).forEach(function (key) {
-  if (key === "default" || key === "__esModule") return;
-  Object.defineProperty(exports, key, {
-    enumerable: true,
-    get: function get() {
-      return _form[key];
-    }
-  });
-});
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "FormInput", function() { return _form__WEBPACK_IMPORTED_MODULE_3__["FormInput"]; });
 
-var _persona = __webpack_require__(/*! ./persona */ "./src/screen/component/persona.tsx");
+/* harmony import */ var _persona__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./persona */ "./src/screen/component/persona.tsx");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Persona", function() { return _persona__WEBPACK_IMPORTED_MODULE_4__["Persona"]; });
 
-Object.keys(_persona).forEach(function (key) {
-  if (key === "default" || key === "__esModule") return;
-  Object.defineProperty(exports, key, {
-    enumerable: true,
-    get: function get() {
-      return _persona[key];
-    }
-  });
-});
+/* harmony import */ var _layout__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./layout */ "./src/screen/component/layout.tsx");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ScreenLayout", function() { return _layout__WEBPACK_IMPORTED_MODULE_5__["ScreenLayout"]; });
 
-var _layout = __webpack_require__(/*! ./layout */ "./src/screen/component/layout.tsx");
 
-Object.keys(_layout).forEach(function (key) {
-  if (key === "default" || key === "__esModule") return;
-  Object.defineProperty(exports, key, {
-    enumerable: true,
-    get: function get() {
-      return _layout[key];
-    }
-  });
-});
+
+
+
+
+
 
 /***/ }),
 
@@ -1885,75 +1527,69 @@ Object.keys(_layout).forEach(function (key) {
 /*!*****************************************!*\
   !*** ./src/screen/component/layout.tsx ***!
   \*****************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
+/*! exports provided: ScreenLayout */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-var _interopRequireDefault = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireDefault */ "../../node_modules/@babel/runtime/helpers/interopRequireDefault.js");
-
-var _interopRequireWildcard = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireWildcard */ "../../node_modules/@babel/runtime/helpers/interopRequireWildcard.js");
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.ScreenLayout = void 0;
-
-var _extends2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/extends */ "../../node_modules/@babel/runtime/helpers/esm/extends.js"));
-
-var _objectWithoutProperties2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/objectWithoutProperties */ "../../node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js"));
-
-var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/slicedToArray */ "../../node_modules/@babel/runtime/helpers/esm/slicedToArray.js"));
-
-var _react = _interopRequireWildcard(__webpack_require__(/*! react */ "../../node_modules/react/index.js"));
-
-var _reactNative = __webpack_require__(/*! react-native */ "./build.shim.rnw.tsx");
-
-var _hook = __webpack_require__(/*! ../../hook */ "./src/hook.ts");
-
-var _index = __webpack_require__(/*! ./index */ "./src/screen/component/index.ts");
-
-var _logo = _interopRequireDefault(__webpack_require__(/*! ../../assets/logo.svg */ "./src/assets/logo.svg"));
-
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ScreenLayout", function() { return ScreenLayout; });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "../../node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var react_native__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react-native */ "../../node_modules/react-native-web/dist/index.js");
+/* harmony import */ var _hook__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../hook */ "./src/hook.ts");
+/* harmony import */ var _index__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./index */ "./src/screen/component/index.ts");
+/* harmony import */ var _assets_logo_svg__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../assets/logo.svg */ "./src/assets/logo.svg");
+/* harmony import */ var _assets_logo_svg__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_assets_logo_svg__WEBPACK_IMPORTED_MODULE_4__);
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-app-renderer/src/screen/component/layout.tsx";
 
-var ScreenLayout = function ScreenLayout(_ref) {
-  var _ref$title = _ref.title,
-      title = _ref$title === void 0 ? "undefined" : _ref$title,
-      _ref$subtitle = _ref.subtitle,
-      subtitle = _ref$subtitle === void 0 ? null : _ref$subtitle,
-      _ref$loading = _ref.loading,
-      loading = _ref$loading === void 0 ? false : _ref$loading,
-      _ref$children = _ref.children,
-      children = _ref$children === void 0 ? null : _ref$children,
-      _ref$buttons = _ref.buttons,
-      buttons = _ref$buttons === void 0 ? [] : _ref$buttons,
-      _ref$error = _ref.error,
-      error = _ref$error === void 0 ? null : _ref$error,
-      _ref$footer = _ref.footer,
-      footer = _ref$footer === void 0 ? null : _ref$footer;
 
-  var _useNavigation = (0, _hook.useNavigation)(),
-      nav = _useNavigation.nav;
 
-  var scrollableRef = (0, _react.useRef)(null);
-  (0, _react.useEffect)(function () {
-    if (_index.isTouchDevice) return;
-    return nav.addListener("focus", function () {
+
+
+
+/*
+<View
+  style={{
+    top: 0, right: 0, zIndex: 1000, alignItems: "flex-end", flex: 0,
+    ...({
+      position: "sticky",
+      transition: "opacity 1s",
+      opacity: loading ? 0.3 : 0,
+    } as unknown as ViewStyle)
+  }}>
+  <View style={{margin: 20}}>
+    <Spinner size={"tiny"} status={"primary"} />
+  </View>
+</View>
+*/
+const ScreenLayout = ({
+  title = "undefined",
+  subtitle = null,
+  loading = false,
+  children = null,
+  buttons = [],
+  error = null,
+  footer = null
+}) => {
+  const {
+    nav
+  } = Object(_hook__WEBPACK_IMPORTED_MODULE_2__["useNavigation"])();
+  const scrollableRef = Object(react__WEBPACK_IMPORTED_MODULE_0__["useRef"])(null);
+  Object(react__WEBPACK_IMPORTED_MODULE_0__["useEffect"])(() => {
+    if (_index__WEBPACK_IMPORTED_MODULE_3__["isTouchDevice"]) return;
+    return nav.addListener("focus", () => {
       if (scrollableRef.current) {
-        var node = scrollableRef.current.getInnerViewNode();
-        setTimeout(function () {
-          (0, _index.activateAutoFocus)(node);
-        }, 300);
+        const node = scrollableRef.current.getInnerViewNode();
+        setTimeout(() => {
+          Object(_index__WEBPACK_IMPORTED_MODULE_3__["activateAutoFocus"])(node);
+        }, 300); // delay for transition animation
       }
     });
   }, [nav]);
-
-  var _useAppOptions = (0, _hook.useAppOptions)(),
-      _useAppOptions2 = (0, _slicedToArray2.default)(_useAppOptions, 1),
-      options = _useAppOptions2[0];
-
-  return _react.default.createElement(_reactNative.ScrollView, {
-    ref: function ref(_ref3) {
-      scrollableRef.current = _ref3;
+  const [options] = Object(_hook__WEBPACK_IMPORTED_MODULE_2__["useAppOptions"])();
+  return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_native__WEBPACK_IMPORTED_MODULE_1__["ScrollView"], {
+    ref: ref => {
+      scrollableRef.current = ref;
     },
     style: {
       width: "100%"
@@ -1967,8 +1603,8 @@ var ScreenLayout = function ScreenLayout(_ref) {
       fileName: _jsxFileName,
       lineNumber: 65
     },
-    __self: this
-  }, _react.default.createElement(_reactNative.View, {
+    __self: undefined
+  }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_native__WEBPACK_IMPORTED_MODULE_1__["View"], {
     style: {
       alignItems: options.logo.align,
       marginBottom: 20
@@ -1977,10 +1613,10 @@ var ScreenLayout = function ScreenLayout(_ref) {
       fileName: _jsxFileName,
       lineNumber: 70
     },
-    __self: this
-  }, _react.default.createElement(_reactNative.Image, {
+    __self: undefined
+  }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_native__WEBPACK_IMPORTED_MODULE_1__["Image"], {
     source: {
-      uri: options.logo.uri || _logo.default
+      uri: options.logo.uri || _assets_logo_svg__WEBPACK_IMPORTED_MODULE_4___default.a
     },
     style: {
       height: options.logo.height,
@@ -1991,8 +1627,8 @@ var ScreenLayout = function ScreenLayout(_ref) {
       fileName: _jsxFileName,
       lineNumber: 71
     },
-    __self: this
-  })), _react.default.createElement(_reactNative.View, {
+    __self: undefined
+  })), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_native__WEBPACK_IMPORTED_MODULE_1__["View"], {
     style: {
       marginBottom: 30
     },
@@ -2000,15 +1636,15 @@ var ScreenLayout = function ScreenLayout(_ref) {
       fileName: _jsxFileName,
       lineNumber: 74
     },
-    __self: this
-  }, _react.default.createElement(_index.Text, {
+    __self: undefined
+  }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_index__WEBPACK_IMPORTED_MODULE_3__["Text"], {
     category: "h5",
     __source: {
       fileName: _jsxFileName,
       lineNumber: 75
     },
-    __self: this
-  }, title), subtitle && _react.default.createElement(_index.Text, {
+    __self: undefined
+  }, title), subtitle && react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_index__WEBPACK_IMPORTED_MODULE_3__["Text"], {
     category: "s2",
     style: {
       marginTop: 5
@@ -2017,8 +1653,8 @@ var ScreenLayout = function ScreenLayout(_ref) {
       fileName: _jsxFileName,
       lineNumber: 76
     },
-    __self: this
-  }, subtitle)), children ? _react.default.createElement(_reactNative.View, {
+    __self: undefined
+  }, subtitle)), children ? react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_native__WEBPACK_IMPORTED_MODULE_1__["View"], {
     style: {
       marginBottom: 30
     },
@@ -2026,8 +1662,8 @@ var ScreenLayout = function ScreenLayout(_ref) {
       fileName: _jsxFileName,
       lineNumber: 79
     },
-    __self: this
-  }, children) : null, error ? _react.default.createElement(_index.Text, {
+    __self: undefined
+  }, children) : null, error ? react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_index__WEBPACK_IMPORTED_MODULE_3__["Text"], {
     status: "danger",
     category: "c2",
     style: {
@@ -2037,33 +1673,38 @@ var ScreenLayout = function ScreenLayout(_ref) {
       fileName: _jsxFileName,
       lineNumber: 81
     },
-    __self: this
-  }, error) : null, buttons.length > 0 ? buttons.map(function (args, index) {
+    __self: undefined
+  }, error) : null, buttons.length > 0 ? buttons.map((args, index) => {
     if (args.hidden === true) {
       return null;
-    }
+    } // render separator
 
-    var s = args;
+
+    const s = args;
 
     if (s.separator) {
-      return _react.default.createElement(_index.Separator, {
+      return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_index__WEBPACK_IMPORTED_MODULE_3__["Separator"], {
         key: index,
         text: typeof s.separator === "string" ? s.separator : undefined,
         __source: {
           fileName: _jsxFileName,
           lineNumber: 93
         },
-        __self: this
+        __self: undefined
       });
-    }
+    } // render button groups
 
-    var g = args;
+
+    const g = args;
 
     if (g.group) {
-      var group = g.group,
-          _loading = g.loading,
-          groupProps = (0, _objectWithoutProperties2.default)(g, ["group", "loading"]);
-      return _react.default.createElement(_reactNative.View, {
+      // tslint:disable-next-line:no-shadowed-variable
+      const {
+        group,
+        loading,
+        ...groupProps
+      } = g;
+      return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_native__WEBPACK_IMPORTED_MODULE_1__["View"], {
         key: index,
         style: {
           marginBottom: 15
@@ -2072,27 +1713,33 @@ var ScreenLayout = function ScreenLayout(_ref) {
           fileName: _jsxFileName,
           lineNumber: 106
         },
-        __self: this
-      }, _react.default.createElement(_index.ButtonGroup, (0, _extends2.default)({
+        __self: undefined
+      }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_index__WEBPACK_IMPORTED_MODULE_3__["ButtonGroup"] // default
+      , Object.assign({
         status: "basic",
         size: "large",
-        appearance: "filled"
+        appearance: "filled" // custom
+
       }, groupProps, {
         __source: {
           fileName: _jsxFileName,
           lineNumber: 110
         },
-        __self: this
-      }), g.group.map(function (btn, key) {
-        var hidden = btn.hidden,
-            tabIndex = btn.tabIndex,
-            loading = btn.loading,
-            props = (0, _objectWithoutProperties2.default)(btn, ["hidden", "tabIndex", "loading"]);
-        return _react.default.createElement(_index.Button, (0, _extends2.default)({
-          ref: (0, _index.withAttrs)({
+        __self: undefined
+      }), g.group.map((btn, key) => {
+        // tslint:disable-next-line:no-shadowed-variable
+        const {
+          hidden,
+          tabIndex,
+          loading,
+          ...props
+        } = btn;
+        return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_index__WEBPACK_IMPORTED_MODULE_3__["Button"], Object.assign({
+          ref: Object(_index__WEBPACK_IMPORTED_MODULE_3__["withAttrs"])({
             tabindex: tabIndex || null
           }),
-          key: key,
+          key: key // default
+          ,
           status: "basic",
           size: "large",
           style: {
@@ -2101,8 +1748,10 @@ var ScreenLayout = function ScreenLayout(_ref) {
           },
           textStyle: {
             textAlign: "center"
-          }
+          } // custom
+
         }, props, {
+          // override
           appearance: g.loading || btn.loading ? "outline" : props.appearance || "filled",
           onPress: loading ? undefined : props.onPress,
           onPressOut: loading ? undefined : props.onPressOut,
@@ -2112,17 +1761,20 @@ var ScreenLayout = function ScreenLayout(_ref) {
             fileName: _jsxFileName,
             lineNumber: 123
           },
-          __self: this
+          __self: undefined
         }));
       })));
-    }
+    } // render button
+    // tslint:disable-next-line:no-shadowed-variable
 
-    var _ref2 = args,
-        hidden = _ref2.hidden,
-        tabIndex = _ref2.tabIndex,
-        loading = _ref2.loading,
-        props = (0, _objectWithoutProperties2.default)(_ref2, ["hidden", "tabIndex", "loading"]);
-    return _react.default.createElement(_reactNative.View, {
+
+    const {
+      hidden,
+      tabIndex,
+      loading,
+      ...props
+    } = args;
+    return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_native__WEBPACK_IMPORTED_MODULE_1__["View"], {
       key: index,
       style: {
         marginBottom: 15
@@ -2131,14 +1783,17 @@ var ScreenLayout = function ScreenLayout(_ref) {
         fileName: _jsxFileName,
         lineNumber: 154
       },
-      __self: this
-    }, _react.default.createElement(_index.Button, (0, _extends2.default)({
-      ref: (0, _index.withAttrs)({
+      __self: undefined
+    }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_index__WEBPACK_IMPORTED_MODULE_3__["Button"], Object.assign({
+      ref: Object(_index__WEBPACK_IMPORTED_MODULE_3__["withAttrs"])({
         tabindex: tabIndex || null
-      }),
+      }) // default
+      ,
       status: "basic",
-      size: "large"
+      size: "large" // custom
+
     }, props, {
+      // override
       appearance: loading ? "outline" : props.appearance || "filled",
       onPress: loading ? undefined : props.onPress,
       onPressOut: loading ? undefined : props.onPressOut,
@@ -2148,12 +1803,10 @@ var ScreenLayout = function ScreenLayout(_ref) {
         fileName: _jsxFileName,
         lineNumber: 158
       },
-      __self: this
+      __self: undefined
     })));
   }) : null, footer);
 };
-
-exports.ScreenLayout = ScreenLayout;
 
 /***/ }),
 
@@ -2161,51 +1814,37 @@ exports.ScreenLayout = ScreenLayout;
 /*!******************************************!*\
   !*** ./src/screen/component/persona.tsx ***!
   \******************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
+/*! exports provided: Persona */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-var _interopRequireDefault = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireDefault */ "../../node_modules/@babel/runtime/helpers/interopRequireDefault.js");
-
-var _interopRequireWildcard = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireWildcard */ "../../node_modules/@babel/runtime/helpers/interopRequireWildcard.js");
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.Persona = void 0;
-
-var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/slicedToArray */ "../../node_modules/@babel/runtime/helpers/esm/slicedToArray.js"));
-
-var _react = _interopRequireWildcard(__webpack_require__(/*! react */ "../../node_modules/react/index.js"));
-
-var _reactNative = __webpack_require__(/*! react-native */ "./build.shim.rnw.tsx");
-
-var _index = __webpack_require__(/*! ./index */ "./src/screen/component/index.ts");
-
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Persona", function() { return Persona; });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "../../node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var react_native__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react-native */ "../../node_modules/react-native-web/dist/index.js");
+/* harmony import */ var _index__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./index */ "./src/screen/component/index.ts");
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-app-renderer/src/screen/component/persona.tsx";
 
-var Persona = function Persona(_ref) {
-  var _ref$name = _ref.name,
-      name = _ref$name === void 0 ? "?" : _ref$name,
-      _ref$email = _ref.email,
-      email = _ref$email === void 0 ? "?" : _ref$email,
-      picture = _ref.picture,
-      style = _ref.style;
-  var size = 50;
-  var palette = (0, _index.useThemePalette)();
 
-  var _useState = (0, _react.useState)(!!picture),
-      _useState2 = (0, _slicedToArray2.default)(_useState, 2),
-      pictureVisible = _useState2[0],
-      setPictureVisible = _useState2[1];
 
-  return _react.default.createElement(_reactNative.View, {
+const Persona = ({
+  name = "?",
+  email = "?",
+  picture,
+  style
+}) => {
+  const size = 50;
+  const palette = Object(_index__WEBPACK_IMPORTED_MODULE_2__["useThemePalette"])();
+  const [pictureVisible, setPictureVisible] = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])(!!picture);
+  return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_native__WEBPACK_IMPORTED_MODULE_1__["View"], {
     style: style,
     __source: {
       fileName: _jsxFileName,
       lineNumber: 17
     },
-    __self: this
-  }, _react.default.createElement(_reactNative.View, {
+    __self: undefined
+  }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_native__WEBPACK_IMPORTED_MODULE_1__["View"], {
     style: {
       flexDirection: "row"
     },
@@ -2213,8 +1852,8 @@ var Persona = function Persona(_ref) {
       fileName: _jsxFileName,
       lineNumber: 18
     },
-    __self: this
-  }, _react.default.createElement(_reactNative.View, {
+    __self: undefined
+  }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_native__WEBPACK_IMPORTED_MODULE_1__["View"], {
     style: {
       width: size,
       height: size,
@@ -2228,14 +1867,12 @@ var Persona = function Persona(_ref) {
       fileName: _jsxFileName,
       lineNumber: 21
     },
-    __self: this
-  }, pictureVisible ? _react.default.createElement(_index.Avatar, {
+    __self: undefined
+  }, pictureVisible ? react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_index__WEBPACK_IMPORTED_MODULE_2__["Avatar"], {
     source: {
       uri: picture
     },
-    onError: function onError(err) {
-      return setPictureVisible(false);
-    },
+    onError: err => setPictureVisible(false),
     style: {
       width: size + 2,
       height: size + 2,
@@ -2246,8 +1883,8 @@ var Persona = function Persona(_ref) {
       fileName: _jsxFileName,
       lineNumber: 31
     },
-    __self: this
-  }) : _react.default.createElement(_reactNative.View, {
+    __self: undefined
+  }) : react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_native__WEBPACK_IMPORTED_MODULE_1__["View"], {
     style: {
       width: size,
       height: size,
@@ -2260,8 +1897,8 @@ var Persona = function Persona(_ref) {
       fileName: _jsxFileName,
       lineNumber: 42
     },
-    __self: this
-  }, _react.default.createElement(_index.Text, {
+    __self: undefined
+  }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_index__WEBPACK_IMPORTED_MODULE_2__["Text"], {
     style: {
       textAlign: "center",
       marginTop: -size / 10,
@@ -2274,8 +1911,8 @@ var Persona = function Persona(_ref) {
       fileName: _jsxFileName,
       lineNumber: 50
     },
-    __self: this
-  }))), _react.default.createElement(_reactNative.View, {
+    __self: undefined
+  }))), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_native__WEBPACK_IMPORTED_MODULE_1__["View"], {
     style: {
       justifyContent: "center",
       flexDirection: "column",
@@ -2286,8 +1923,8 @@ var Persona = function Persona(_ref) {
       fileName: _jsxFileName,
       lineNumber: 62
     },
-    __self: this
-  }, _react.default.createElement(_index.Text, {
+    __self: undefined
+  }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_index__WEBPACK_IMPORTED_MODULE_2__["Text"], {
     category: "h6",
     style: {
       marginBottom: 2
@@ -2296,18 +1933,16 @@ var Persona = function Persona(_ref) {
       fileName: _jsxFileName,
       lineNumber: 68
     },
-    __self: this
-  }, name), _react.default.createElement(_index.Text, {
+    __self: undefined
+  }, name), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_index__WEBPACK_IMPORTED_MODULE_2__["Text"], {
     category: "p2",
     __source: {
       fileName: _jsxFileName,
       lineNumber: 69
     },
-    __self: this
+    __self: undefined
   }, email))));
 };
-
-exports.Persona = Persona;
 
 /***/ }),
 
@@ -2315,43 +1950,38 @@ exports.Persona = Persona;
 /*!********************************************!*\
   !*** ./src/screen/component/separator.tsx ***!
   \********************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
+/*! exports provided: Separator */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-var _interopRequireDefault = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireDefault */ "../../node_modules/@babel/runtime/helpers/interopRequireDefault.js");
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.Separator = void 0;
-
-var _react = _interopRequireDefault(__webpack_require__(/*! react */ "../../node_modules/react/index.js"));
-
-var _reactNative = __webpack_require__(/*! react-native */ "./build.shim.rnw.tsx");
-
-var _index = __webpack_require__(/*! ./index */ "./src/screen/component/index.ts");
-
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Separator", function() { return Separator; });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "../../node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var react_native__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react-native */ "../../node_modules/react-native-web/dist/index.js");
+/* harmony import */ var _index__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./index */ "./src/screen/component/index.ts");
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-app-renderer/src/screen/component/separator.tsx";
 
-var Separator = function Separator(_ref) {
-  var text = _ref.text,
-      _ref$marginTop = _ref.marginTop,
-      marginTop = _ref$marginTop === void 0 ? 10 : _ref$marginTop,
-      _ref$marginBottom = _ref.marginBottom,
-      marginBottom = _ref$marginBottom === void 0 ? 20 : _ref$marginBottom;
-  var palette = (0, _index.useThemePalette)();
-  return _react.default.createElement(_reactNative.View, {
+
+
+const Separator = ({
+  text,
+  marginTop = 10,
+  marginBottom = 20
+}) => {
+  const palette = Object(_index__WEBPACK_IMPORTED_MODULE_2__["useThemePalette"])();
+  return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_native__WEBPACK_IMPORTED_MODULE_1__["View"], {
     style: {
       position: "relative",
-      marginTop: marginTop,
-      marginBottom: marginBottom
+      marginTop,
+      marginBottom
     },
     __source: {
       fileName: _jsxFileName,
       lineNumber: 9
     },
-    __self: this
-  }, _react.default.createElement(_reactNative.View, {
+    __self: undefined
+  }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_native__WEBPACK_IMPORTED_MODULE_1__["View"], {
     style: {
       borderTopWidth: 1,
       borderTopColor: palette["text-disabled-color"],
@@ -2365,8 +1995,8 @@ var Separator = function Separator(_ref) {
       fileName: _jsxFileName,
       lineNumber: 10
     },
-    __self: this
-  }), text ? _react.default.createElement(_reactNative.View, {
+    __self: undefined
+  }), text ? react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_native__WEBPACK_IMPORTED_MODULE_1__["View"], {
     style: {
       flexDirection: "row"
     },
@@ -2374,8 +2004,8 @@ var Separator = function Separator(_ref) {
       fileName: _jsxFileName,
       lineNumber: 12
     },
-    __self: this
-  }, _react.default.createElement(_reactNative.View, {
+    __self: undefined
+  }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_native__WEBPACK_IMPORTED_MODULE_1__["View"], {
     style: {
       flexGrow: 1
     },
@@ -2383,8 +2013,8 @@ var Separator = function Separator(_ref) {
       fileName: _jsxFileName,
       lineNumber: 13
     },
-    __self: this
-  }), _react.default.createElement(_index.Text, {
+    __self: undefined
+  }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_index__WEBPACK_IMPORTED_MODULE_2__["Text"], {
     category: "c1",
     appearance: "hint",
     style: {
@@ -2398,8 +2028,8 @@ var Separator = function Separator(_ref) {
       fileName: _jsxFileName,
       lineNumber: 14
     },
-    __self: this
-  }, text), _react.default.createElement(_reactNative.View, {
+    __self: undefined
+  }, text), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_native__WEBPACK_IMPORTED_MODULE_1__["View"], {
     style: {
       flexGrow: 1
     },
@@ -2407,18 +2037,16 @@ var Separator = function Separator(_ref) {
       fileName: _jsxFileName,
       lineNumber: 17
     },
-    __self: this
-  })) : _react.default.createElement(_index.Text, {
+    __self: undefined
+  })) : react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_index__WEBPACK_IMPORTED_MODULE_2__["Text"], {
     category: "c1",
     __source: {
       fileName: _jsxFileName,
       lineNumber: 20
     },
-    __self: this
+    __self: undefined
   }, " "));
 };
-
-exports.Separator = Separator;
 
 /***/ }),
 
@@ -2426,31 +2054,28 @@ exports.Separator = Separator;
 /*!**************************************!*\
   !*** ./src/screen/component/util.ts ***!
   \**************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
+/*! exports provided: withElements, withElement, withAttrs, activateAutoFocus, isTouchDevice, useThemePalette */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-var _interopRequireDefault = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireDefault */ "../../node_modules/@babel/runtime/helpers/interopRequireDefault.js");
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "withElements", function() { return withElements; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "withElement", function() { return withElement; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "withAttrs", function() { return withAttrs; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "activateAutoFocus", function() { return activateAutoFocus; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isTouchDevice", function() { return isTouchDevice; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "useThemePalette", function() { return useThemePalette; });
+/* harmony import */ var react_dom__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react-dom */ "../../node_modules/react-dom/index.js");
+/* harmony import */ var react_dom__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react_dom__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _ui_kitten_components__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @ui-kitten/components */ "../../node_modules/@ui-kitten/components/index.js");
+/* harmony import */ var _ui_kitten_components__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_ui_kitten_components__WEBPACK_IMPORTED_MODULE_1__);
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.withElements = withElements;
-exports.withElement = withElement;
-exports.withAttrs = withAttrs;
-exports.activateAutoFocus = activateAutoFocus;
-exports.useThemePalette = useThemePalette;
-exports.isTouchDevice = void 0;
 
-var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/slicedToArray */ "../../node_modules/@babel/runtime/helpers/esm/slicedToArray.js"));
 
-var _reactDom = _interopRequireDefault(__webpack_require__(/*! react-dom */ "../../node_modules/react-dom/index.js"));
-
-var _components = __webpack_require__(/*! @ui-kitten/components */ "../../node_modules/@ui-kitten/components/index.js");
-
+/* for DOM manipulation */
 function withElements(callback, selector) {
-  return function (ref) {
-    var node = _reactDom.default.findDOMNode(ref);
-
+  return ref => {
+    const node = react_dom__WEBPACK_IMPORTED_MODULE_0___default.a.findDOMNode(ref);
     if (!node) return;
 
     if (typeof node === "object") {
@@ -2459,14 +2084,11 @@ function withElements(callback, selector) {
     }
   };
 }
-
-function withElement(callback, selector) {
-  var ignoreNotFound = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-  return function (ref) {
-    var node = _reactDom.default.findDOMNode(ref);
-
+function withElement(callback, selector, ignoreNotFound = false) {
+  return ref => {
+    const node = react_dom__WEBPACK_IMPORTED_MODULE_0___default.a.findDOMNode(ref);
     if (!node) return;
-    var found = null;
+    let found = null;
 
     if (typeof node === "object") {
       found = node;
@@ -2487,20 +2109,9 @@ function withElement(callback, selector) {
     callback(found);
   };
 }
-
-function withAttrs() {
-  var attrs = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-  var selector = arguments.length > 1 ? arguments[1] : undefined;
-  var ignoreNotFound = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-  return withElement(function (elem) {
-    for (var _i = 0, _Object$entries = Object.entries(attrs); _i < _Object$entries.length; _i++) {
-      var _ref = _Object$entries[_i];
-
-      var _ref2 = (0, _slicedToArray2.default)(_ref, 2);
-
-      var k = _ref2[0];
-      var v = _ref2[1];
-
+function withAttrs(attrs = {}, selector, ignoreNotFound = false) {
+  return withElement(elem => {
+    for (const [k, v] of Object.entries(attrs)) {
       if (typeof v === "string") {
         elem.setAttribute(k, v);
       } else if (typeof v === "number") {
@@ -2512,40 +2123,40 @@ function withAttrs() {
       }
     }
   }, selector, ignoreNotFound);
-}
+} // workaround to make autofocus works
 
 function activateAutoFocus(ref) {
-  withElements(function (elems) {
-    elems.find(function (elem) {
+  withElements(elems => {
+    elems.find(elem => {
       if (!elem.focus) {
         return false;
       }
 
       if (elem.offsetParent === null) {
+        // check visibility
         console.debug("autofocus DOM element focus failed", elem);
         return false;
       }
 
-      elem.focus();
+      elem.focus(); // console.debug("autofocus DOM element focused", elem);
+
       return true;
     });
   }, "[autofocus]")(ref);
 }
-
-var isTouchDevice = function () {
+const isTouchDevice = (() => {
   if ("ontouchstart" in window || window.DocumentTouch && document instanceof window.DocumentTouch) {
     return true;
   }
 
-  var prefixes = " -webkit- -moz- -o- -ms- ".split(" ");
-  var query = ["(", prefixes.join("touch-enabled),("), "heartz", ")"].join("");
+  const prefixes = " -webkit- -moz- -o- -ms- ".split(" ");
+  const query = ["(", prefixes.join("touch-enabled),("), "heartz", ")"].join("");
   return window.matchMedia && window.matchMedia(query).matches;
-}();
-
-exports.isTouchDevice = isTouchDevice;
+})();
+/* for typing */
 
 function useThemePalette() {
-  return (0, _components.useTheme)();
+  return Object(_ui_kitten_components__WEBPACK_IMPORTED_MODULE_1__["useTheme"])();
 }
 
 /***/ }),
@@ -2554,70 +2165,54 @@ function useThemePalette() {
 /*!********************************!*\
   !*** ./src/screen/consent.tsx ***!
   \********************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
+/*! exports provided: ConsentScreen */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-var _interopRequireDefault = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireDefault */ "../../node_modules/@babel/runtime/helpers/interopRequireDefault.js");
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.ConsentScreen = void 0;
-
-var _extends2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/extends */ "../../node_modules/@babel/runtime/helpers/esm/extends.js"));
-
-var _toConsumableArray2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/toConsumableArray */ "../../node_modules/@babel/runtime/helpers/esm/toConsumableArray.js"));
-
-var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/slicedToArray */ "../../node_modules/@babel/runtime/helpers/esm/slicedToArray.js"));
-
-var _react = _interopRequireDefault(__webpack_require__(/*! react */ "../../node_modules/react/index.js"));
-
-var _hook = __webpack_require__(/*! ../hook */ "./src/hook.ts");
-
-var _component = __webpack_require__(/*! ./component */ "./src/screen/component/index.ts");
-
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ConsentScreen", function() { return ConsentScreen; });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "../../node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _hook__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../hook */ "./src/hook.ts");
+/* harmony import */ var _component__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./component */ "./src/screen/component/index.ts");
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-app-renderer/src/screen/consent.tsx";
 
-var ConsentScreen = function ConsentScreen() {
-  var _useWithLoading = (0, _hook.useWithLoading)(),
-      loading = _useWithLoading.loading,
-      withLoading = _useWithLoading.withLoading,
-      errors = _useWithLoading.errors,
-      setErrors = _useWithLoading.setErrors;
 
-  var _useNavigation = (0, _hook.useNavigation)(),
-      nav = _useNavigation.nav;
 
-  var _useAppState = (0, _hook.useAppState)(),
-      _useAppState2 = (0, _slicedToArray2.default)(_useAppState, 2),
-      state = _useAppState2[0],
-      dispatch = _useAppState2[1];
+const ConsentScreen = () => {
+  // states
+  const {
+    loading,
+    withLoading,
+    errors,
+    setErrors
+  } = Object(_hook__WEBPACK_IMPORTED_MODULE_1__["useWithLoading"])();
+  const {
+    nav
+  } = Object(_hook__WEBPACK_IMPORTED_MODULE_1__["useNavigation"])();
+  const [state, dispatch] = Object(_hook__WEBPACK_IMPORTED_MODULE_1__["useAppState"])(); // handlers
 
-  var _withLoading = withLoading(function () {
-    return dispatch("consent.accept").then(function () {
-      return setErrors({});
-    }).catch(function (err) {
-      return setErrors(err);
-    });
-  }),
-      _withLoading2 = (0, _slicedToArray2.default)(_withLoading, 2),
-      handleAccept = _withLoading2[0],
-      handleAcceptLoading = _withLoading2[1];
+  const [handleAccept, handleAcceptLoading] = withLoading(() => {
+    return dispatch("consent.accept").then(() => setErrors({})).catch(err => setErrors(err));
+  }); // const handleReject = withLoading(() => {
+  //   setErrors({});
+  //   return request("consent.reject")
+  //     .catch((err: any) => setErrors(err));
+  // });
 
-  var _withLoading3 = withLoading(function () {
+  const [handleChangeAccount, handleChangeAccountLoading] = withLoading(() => {
+    // return request("consent.change_account")
+    //   .catch((err: any) => setErrors(err));
     nav.navigate("login.stack", {
       screen: "login.index"
     });
     setErrors({});
-  }),
-      _withLoading4 = (0, _slicedToArray2.default)(_withLoading3, 2),
-      handleChangeAccount = _withLoading4[0],
-      handleChangeAccountLoading = _withLoading4[1];
+  });
+  const user = state.user;
+  const client = state.client;
+  const scopes = state.interaction.prompt.details.scopes; // render
 
-  var user = state.user;
-  var client = state.client;
-  var scopes = state.interaction.prompt.details.scopes;
-  return _react.default.createElement(_component.ScreenLayout, {
+  return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_2__["ScreenLayout"], {
     title: client.client_name,
     subtitle: "Authorization consent required",
     loading: loading,
@@ -2628,20 +2223,22 @@ var ConsentScreen = function ConsentScreen() {
       onPress: handleAccept,
       loading: handleAcceptLoading,
       tabIndex: 1
-    }, {
+    }, // {
+    //   children: "Cancel",
+    //   onPress: handleReject,
+    //   loading,
+    //   tabIndex: 2,
+    // },
+    {
       size: "medium",
       group: [{
         children: "Privacy policy",
-        onPress: function onPress() {
-          return window.open(client.policy_uri, "_blank");
-        },
+        onPress: () => window.open(client.policy_uri, "_blank"),
         disabled: !client.policy_uri,
         tabIndex: 4
       }, {
         children: "Terms of service",
-        onPress: function onPress() {
-          return window.open(client.tos_uri, "_blank");
-        },
+        onPress: () => window.open(client.tos_uri, "_blank"),
         disabled: !client.tos_uri,
         tabIndex: 5
       }]
@@ -2654,22 +2251,20 @@ var ConsentScreen = function ConsentScreen() {
       onPress: handleChangeAccount,
       loading: handleChangeAccountLoading,
       tabIndex: 3
-    }].concat((0, _toConsumableArray2.default)(client.client_uri ? [{
+    }, ...(client.client_uri ? [{
       appearance: "ghost",
       size: "small",
       children: "Visit service homepage",
-      onPress: function onPress() {
-        return window.open(client.client_uri, "_blank");
-      },
+      onPress: () => window.open(client.client_uri, "_blank"),
       disabled: !client.client_uri,
       tabIndex: 6
-    }] : [])),
+    }] : [])],
     __source: {
       fileName: _jsxFileName,
       lineNumber: 39
     },
-    __self: this
-  }, _react.default.createElement(_component.Persona, (0, _extends2.default)({}, user, {
+    __self: undefined
+  }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_2__["Persona"], Object.assign({}, user, {
     style: {
       marginBottom: 30
     },
@@ -2677,17 +2272,15 @@ var ConsentScreen = function ConsentScreen() {
       fileName: _jsxFileName,
       lineNumber: 99
     },
-    __self: this
-  })), _react.default.createElement(_component.Text, {
+    __self: undefined
+  })), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_2__["Text"], {
     __source: {
       fileName: _jsxFileName,
       lineNumber: 100
     },
-    __self: this
+    __self: undefined
   }, scopes.new.concat(scopes.accepted).join(", "), " permissions are required."));
 };
-
-exports.ConsentScreen = ConsentScreen;
 
 /***/ }),
 
@@ -2695,44 +2288,33 @@ exports.ConsentScreen = ConsentScreen;
 /*!******************************!*\
   !*** ./src/screen/error.tsx ***!
   \******************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
+/*! exports provided: ErrorScreen, ClientErrorScreen */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-var _interopRequireDefault = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireDefault */ "../../node_modules/@babel/runtime/helpers/interopRequireDefault.js");
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.ClientErrorScreen = exports.ErrorScreen = void 0;
-
-var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/slicedToArray */ "../../node_modules/@babel/runtime/helpers/esm/slicedToArray.js"));
-
-var _react = _interopRequireDefault(__webpack_require__(/*! react */ "../../node_modules/react/index.js"));
-
-var _layout = __webpack_require__(/*! ./component/layout */ "./src/screen/component/layout.tsx");
-
-var _hook = __webpack_require__(/*! ../hook */ "./src/hook.ts");
-
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ErrorScreen", function() { return ErrorScreen; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ClientErrorScreen", function() { return ClientErrorScreen; });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "../../node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _component_layout__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./component/layout */ "./src/screen/component/layout.tsx");
+/* harmony import */ var _hook__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../hook */ "./src/hook.ts");
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-app-renderer/src/screen/error.tsx";
 
-var ErrorScreen = function ErrorScreen() {
-  var _useAppState = (0, _hook.useAppState)(),
-      _useAppState2 = (0, _slicedToArray2.default)(_useAppState, 1),
-      state = _useAppState2[0];
 
-  var error = state.error || {
+
+const ErrorScreen = () => {
+  const [state] = Object(_hook__WEBPACK_IMPORTED_MODULE_2__["useAppState"])();
+  const error = state.error || {
     error: "unexpected_server_error",
     error_description: "unrecognized state received from server."
   };
-
-  var _useClose = (0, _hook.useClose)(),
-      closed = _useClose.closed,
-      close = _useClose.close;
-
-  return _react.default.createElement(_layout.ScreenLayout, {
-    title: error.error.split("_").map(function (w) {
-      return w[0].toUpperCase() + w.substr(1);
-    }).join(" "),
+  const {
+    closed,
+    close
+  } = Object(_hook__WEBPACK_IMPORTED_MODULE_2__["useClose"])();
+  return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component_layout__WEBPACK_IMPORTED_MODULE_1__["ScreenLayout"], {
+    title: error.error.split("_").map(w => w[0].toUpperCase() + w.substr(1)).join(" "),
     subtitle: error.error_description,
     error: closed ? "Please close the window manually." : undefined,
     loading: closed,
@@ -2745,22 +2327,19 @@ var ErrorScreen = function ErrorScreen() {
       fileName: _jsxFileName,
       lineNumber: 10
     },
-    __self: this
+    __self: undefined
   });
 };
-
-exports.ErrorScreen = ErrorScreen;
-
-var ClientErrorScreen = function ClientErrorScreen(props) {
-  return _react.default.createElement(_layout.ScreenLayout, {
+const ClientErrorScreen = props => {
+  return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component_layout__WEBPACK_IMPORTED_MODULE_1__["ScreenLayout"], {
     title: props.error.name,
     subtitle: props.error.message,
     __source: {
       fileName: _jsxFileName,
       lineNumber: 28
     },
-    __self: this
-  }, _react.default.createElement("pre", {
+    __self: undefined
+  }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("pre", {
     style: {
       fontSize: "0.8em",
       color: "gray",
@@ -2771,11 +2350,9 @@ var ClientErrorScreen = function ClientErrorScreen(props) {
       fileName: _jsxFileName,
       lineNumber: 32
     },
-    __self: this
+    __self: undefined
   }, props.error.stack));
 };
-
-exports.ClientErrorScreen = ClientErrorScreen;
 
 /***/ }),
 
@@ -2783,59 +2360,47 @@ exports.ClientErrorScreen = ClientErrorScreen;
 /*!***************************************!*\
   !*** ./src/screen/find_email.end.tsx ***!
   \***************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
+/*! exports provided: FindEmailEndScreen */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-var _interopRequireDefault = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireDefault */ "../../node_modules/@babel/runtime/helpers/interopRequireDefault.js");
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.FindEmailEndScreen = void 0;
-
-var _extends2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/extends */ "../../node_modules/@babel/runtime/helpers/esm/extends.js"));
-
-var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/slicedToArray */ "../../node_modules/@babel/runtime/helpers/esm/slicedToArray.js"));
-
-var _react = _interopRequireDefault(__webpack_require__(/*! react */ "../../node_modules/react/index.js"));
-
-var _hook = __webpack_require__(/*! ../hook */ "./src/hook.ts");
-
-var _component = __webpack_require__(/*! ./component */ "./src/screen/component/index.ts");
-
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "FindEmailEndScreen", function() { return FindEmailEndScreen; });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "../../node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _hook__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../hook */ "./src/hook.ts");
+/* harmony import */ var _component__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./component */ "./src/screen/component/index.ts");
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-app-renderer/src/screen/find_email.end.tsx";
 
-var FindEmailEndScreen = function FindEmailEndScreen() {
-  var _useAppState = (0, _hook.useAppState)(),
-      _useAppState2 = (0, _slicedToArray2.default)(_useAppState, 1),
-      state = _useAppState2[0];
 
-  var _useNavigation = (0, _hook.useNavigation)(),
-      nav = _useNavigation.nav;
 
-  var _useWithLoading = (0, _hook.useWithLoading)(),
-      loading = _useWithLoading.loading,
-      withLoading = _useWithLoading.withLoading;
+const FindEmailEndScreen = () => {
+  // states
+  const [state] = Object(_hook__WEBPACK_IMPORTED_MODULE_1__["useAppState"])(); // handlers
 
-  var _withLoading = withLoading(function () {
+  const {
+    nav
+  } = Object(_hook__WEBPACK_IMPORTED_MODULE_1__["useNavigation"])();
+  const {
+    loading,
+    withLoading
+  } = Object(_hook__WEBPACK_IMPORTED_MODULE_1__["useWithLoading"])();
+  const [handleLogin, handleLoginLoading] = withLoading(() => {
     nav.navigate("login.stack", {
       screen: "login.index",
       params: {
         email: state.session.findEmail.user.email
       }
     });
-  }, [state]),
-      _withLoading2 = (0, _slicedToArray2.default)(_withLoading, 2),
-      handleLogin = _withLoading2[0],
-      handleLoginLoading = _withLoading2[1];
+  }, [state]);
+  const {
+    closed,
+    close
+  } = Object(_hook__WEBPACK_IMPORTED_MODULE_1__["useClose"])(false); // render
 
-  var _useClose = (0, _hook.useClose)(false),
-      closed = _useClose.closed,
-      close = _useClose.close;
-
-  return _react.default.createElement(_component.ScreenLayout, {
-    title: "Find your account",
-    subtitle: "With mobile phone",
+  return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_2__["ScreenLayout"], {
+    title: `Find your account`,
+    subtitle: `With mobile phone`,
     loading: loading || closed,
     error: closed ? "Please close the window manually." : undefined,
     buttons: [{
@@ -2856,14 +2421,14 @@ var FindEmailEndScreen = function FindEmailEndScreen() {
       fileName: _jsxFileName,
       lineNumber: 25
     },
-    __self: this
-  }, _react.default.createElement(_component.Persona, (0, _extends2.default)({}, state.session.findEmail.user, {
+    __self: undefined
+  }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_2__["Persona"], Object.assign({}, state.session.findEmail.user, {
     __source: {
       fileName: _jsxFileName,
       lineNumber: 48
     },
-    __self: this
-  })), _react.default.createElement(_component.Text, {
+    __self: undefined
+  })), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_2__["Text"], {
     style: {
       marginTop: 30
     },
@@ -2871,11 +2436,9 @@ var FindEmailEndScreen = function FindEmailEndScreen() {
       fileName: _jsxFileName,
       lineNumber: 49
     },
-    __self: this
+    __self: undefined
   }, "Found your account."));
 };
-
-exports.FindEmailEndScreen = FindEmailEndScreen;
 
 /***/ }),
 
@@ -2883,53 +2446,38 @@ exports.FindEmailEndScreen = FindEmailEndScreen;
 /*!*****************************************!*\
   !*** ./src/screen/find_email.index.tsx ***!
   \*****************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
+/*! exports provided: FindEmailIndexScreen */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-var _interopRequireDefault = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireDefault */ "../../node_modules/@babel/runtime/helpers/interopRequireDefault.js");
-
-var _interopRequireWildcard = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireWildcard */ "../../node_modules/@babel/runtime/helpers/interopRequireWildcard.js");
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.FindEmailIndexScreen = void 0;
-
-var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/slicedToArray */ "../../node_modules/@babel/runtime/helpers/esm/slicedToArray.js"));
-
-var _react = _interopRequireWildcard(__webpack_require__(/*! react */ "../../node_modules/react/index.js"));
-
-var _hook = __webpack_require__(/*! ../hook */ "./src/hook.ts");
-
-var _component = __webpack_require__(/*! ./component */ "./src/screen/component/index.ts");
-
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "FindEmailIndexScreen", function() { return FindEmailIndexScreen; });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "../../node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _hook__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../hook */ "./src/hook.ts");
+/* harmony import */ var _component__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./component */ "./src/screen/component/index.ts");
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-app-renderer/src/screen/find_email.index.tsx";
 
-var FindEmailIndexScreen = function FindEmailIndexScreen() {
-  var _useNavigation = (0, _hook.useNavigation)(),
-      nav = _useNavigation.nav;
 
-  var _useAppState = (0, _hook.useAppState)(),
-      _useAppState2 = (0, _slicedToArray2.default)(_useAppState, 2),
-      state = _useAppState2[0],
-      dispatch = _useAppState2[1];
 
-  var _useState = (0, _react.useState)(""),
-      _useState2 = (0, _slicedToArray2.default)(_useState, 2),
-      phoneNumber = _useState2[0],
-      setPhoneNumber = _useState2[1];
+const FindEmailIndexScreen = () => {
+  const {
+    nav
+  } = Object(_hook__WEBPACK_IMPORTED_MODULE_1__["useNavigation"])();
+  const [state, dispatch] = Object(_hook__WEBPACK_IMPORTED_MODULE_1__["useAppState"])();
+  const [phoneNumber, setPhoneNumber] = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])(""); // handlers
 
-  var _useWithLoading = (0, _hook.useWithLoading)(),
-      loading = _useWithLoading.loading,
-      errors = _useWithLoading.errors,
-      setErrors = _useWithLoading.setErrors,
-      withLoading = _useWithLoading.withLoading;
-
-  var _withLoading = withLoading(function () {
+  const {
+    loading,
+    errors,
+    setErrors,
+    withLoading
+  } = Object(_hook__WEBPACK_IMPORTED_MODULE_1__["useWithLoading"])();
+  const [handleCheckPhoneNumber, handleCheckPhoneNumberLoading] = withLoading(() => {
     dispatch("verify_phone.check_phone", {
-      phone_number: state.locale.country + "|" + phoneNumber,
+      phone_number: `${state.locale.country}|${phoneNumber}`,
       registered: true
-    }).then(function () {
+    }).then(() => {
       setErrors({});
       nav.navigate("verify_phone.stack", {
         screen: "verify_phone.verify",
@@ -2937,28 +2485,19 @@ var FindEmailIndexScreen = function FindEmailIndexScreen() {
           callback: "find_email"
         }
       });
-    }).catch(function (err) {
-      return setErrors(err);
-    });
-  }, [phoneNumber]),
-      _withLoading2 = (0, _slicedToArray2.default)(_withLoading, 2),
-      handleCheckPhoneNumber = _withLoading2[0],
-      handleCheckPhoneNumberLoading = _withLoading2[1];
-
-  var _withLoading3 = withLoading(function () {
+    }).catch(err => setErrors(err));
+  }, [phoneNumber]);
+  const [handleCancel, handleCancelLoading] = withLoading(() => {
     nav.navigate("login.stack", {
       screen: "login.index",
       params: {}
     });
     setErrors({});
-  }),
-      _withLoading4 = (0, _slicedToArray2.default)(_withLoading3, 2),
-      handleCancel = _withLoading4[0],
-      handleCancelLoading = _withLoading4[1];
+  }); // render
 
-  return _react.default.createElement(_component.ScreenLayout, {
-    title: "Find your account",
-    subtitle: "With phone verification",
+  return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_2__["ScreenLayout"], {
+    title: `Find your account`,
+    subtitle: `With phone verification`,
     loading: loading,
     buttons: [{
       status: "primary",
@@ -2978,8 +2517,8 @@ var FindEmailIndexScreen = function FindEmailIndexScreen() {
       fileName: _jsxFileName,
       lineNumber: 39
     },
-    __self: this
-  }, _react.default.createElement(_component.Text, {
+    __self: undefined
+  }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_2__["Text"], {
     style: {
       marginBottom: 30
     },
@@ -2987,12 +2526,12 @@ var FindEmailIndexScreen = function FindEmailIndexScreen() {
       fileName: _jsxFileName,
       lineNumber: 61
     },
-    __self: this
-  }, "Have you registered a phone number?"), _react.default.createElement(_component.FormInput, {
+    __self: undefined
+  }, "Have you registered a phone number?"), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_2__["FormInput"], {
     autoFocus: true,
     tabIndex: 21,
-    label: "Phone number",
-    placeholder: "Enter your mobile phone number (" + state.locale.country + ")",
+    label: `Phone number`,
+    placeholder: `Enter your mobile phone number (${state.locale.country})`,
     blurOnSubmit: false,
     keyboardType: "phone-pad",
     autoCompleteType: "tel",
@@ -3004,11 +2543,9 @@ var FindEmailIndexScreen = function FindEmailIndexScreen() {
       fileName: _jsxFileName,
       lineNumber: 64
     },
-    __self: this
+    __self: undefined
   }));
 };
-
-exports.FindEmailIndexScreen = FindEmailIndexScreen;
 
 /***/ }),
 
@@ -3016,83 +2553,51 @@ exports.FindEmailIndexScreen = FindEmailIndexScreen;
 /*!*********************************************!*\
   !*** ./src/screen/login.check_password.tsx ***!
   \*********************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
+/*! exports provided: LoginCheckPasswordScreen */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-var _interopRequireDefault = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireDefault */ "../../node_modules/@babel/runtime/helpers/interopRequireDefault.js");
-
-var _interopRequireWildcard = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireWildcard */ "../../node_modules/@babel/runtime/helpers/interopRequireWildcard.js");
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.LoginCheckPasswordScreen = void 0;
-
-var _regenerator = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/regenerator */ "../../node_modules/@babel/runtime/regenerator/index.js"));
-
-var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/slicedToArray */ "../../node_modules/@babel/runtime/helpers/esm/slicedToArray.js"));
-
-var _react = _interopRequireWildcard(__webpack_require__(/*! react */ "../../node_modules/react/index.js"));
-
-var _hook = __webpack_require__(/*! ../hook */ "./src/hook.ts");
-
-var _component = __webpack_require__(/*! ./component */ "./src/screen/component/index.ts");
-
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "LoginCheckPasswordScreen", function() { return LoginCheckPasswordScreen; });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "../../node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _hook__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../hook */ "./src/hook.ts");
+/* harmony import */ var _component__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./component */ "./src/screen/component/index.ts");
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-app-renderer/src/screen/login.check_password.tsx";
 
-var LoginCheckPasswordScreen = function LoginCheckPasswordScreen() {
-  var _useState = (0, _react.useState)(""),
-      _useState2 = (0, _slicedToArray2.default)(_useState, 2),
-      password = _useState2[0],
-      setPassword = _useState2[1];
 
-  var _useAppState = (0, _hook.useAppState)(),
-      _useAppState2 = (0, _slicedToArray2.default)(_useAppState, 2),
-      state = _useAppState2[0],
-      dispatch = _useAppState2[1];
 
-  var _state$session$login$ = state.session.login.user,
-      email = _state$session$login$.email,
-      name = _state$session$login$.name,
-      picture = _state$session$login$.picture;
+const LoginCheckPasswordScreen = () => {
+  // state
+  const [password, setPassword] = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])("");
+  const [state, dispatch] = Object(_hook__WEBPACK_IMPORTED_MODULE_1__["useAppState"])(); // eslint-disable-next-line @typescript-eslint/no-unused-vars
 
-  var _useNavigation = (0, _hook.useNavigation)(),
-      nav = _useNavigation.nav;
+  const {
+    email,
+    name,
+    picture
+  } = state.session.login.user; // handlers
 
-  var _useWithLoading = (0, _hook.useWithLoading)(),
-      loading = _useWithLoading.loading,
-      errors = _useWithLoading.errors,
-      setErrors = _useWithLoading.setErrors,
-      withLoading = _useWithLoading.withLoading;
-
-  var _withLoading = withLoading(function _callee() {
-    return _regenerator.default.async(function _callee$(_context) {
-      while (1) {
-        switch (_context.prev = _context.next) {
-          case 0:
-            return _context.abrupt("return", dispatch("login.check_password", {
-              email: email,
-              password: password
-            }).catch(function (err) {
-              return setErrors(err);
-            }));
-
-          case 1:
-          case "end":
-            return _context.stop();
-        }
-      }
-    });
-  }, [password]),
-      _withLoading2 = (0, _slicedToArray2.default)(_withLoading, 2),
-      handleCheckLoginPassword = _withLoading2[0],
-      handleCheckLoginPasswordLoading = _withLoading2[1];
-
-  var _withLoading3 = withLoading(function () {
+  const {
+    nav
+  } = Object(_hook__WEBPACK_IMPORTED_MODULE_1__["useNavigation"])();
+  const {
+    loading,
+    errors,
+    setErrors,
+    withLoading
+  } = Object(_hook__WEBPACK_IMPORTED_MODULE_1__["useWithLoading"])();
+  const [handleCheckLoginPassword, handleCheckLoginPasswordLoading] = withLoading(async () => {
+    return dispatch("login.check_password", {
+      email,
+      password
+    }).catch(err => setErrors(err));
+  }, [password]);
+  const [handleResetPassword, handleResetPasswordLoading] = withLoading(() => {
     dispatch("verify_email.check_email", {
-      email: email,
+      email,
       registered: true
-    }).then(function () {
+    }).then(() => {
       setErrors({});
       nav.navigate("verify_email.stack", {
         screen: "verify_email.verify",
@@ -3100,30 +2605,21 @@ var LoginCheckPasswordScreen = function LoginCheckPasswordScreen() {
           callback: "reset_password"
         }
       });
-    }).catch(function (err) {
-      return setErrors(err);
-    });
-  }, []),
-      _withLoading4 = (0, _slicedToArray2.default)(_withLoading3, 2),
-      handleResetPassword = _withLoading4[0],
-      handleResetPasswordLoading = _withLoading4[1];
-
-  var _withLoading5 = withLoading(function () {
+    }).catch(err => setErrors(err));
+  }, []);
+  const [handleCancel, handleCancelLoading] = withLoading(() => {
     nav.navigate("login.stack", {
       screen: "login.index",
       params: {
-        email: email,
+        email,
         change_account: "true"
       }
     });
     setErrors({});
-  }, [email]),
-      _withLoading6 = (0, _slicedToArray2.default)(_withLoading5, 2),
-      handleCancel = _withLoading6[0],
-      handleCancelLoading = _withLoading6[1];
+  }, [email]); // render
 
-  return _react.default.createElement(_component.ScreenLayout, {
-    title: "Hi, " + name,
+  return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_2__["ScreenLayout"], {
+    title: `Hi, ${name}`,
     subtitle: email,
     loading: loading,
     error: errors.global,
@@ -3152,15 +2648,15 @@ var LoginCheckPasswordScreen = function LoginCheckPasswordScreen() {
       fileName: _jsxFileName,
       lineNumber: 51
     },
-    __self: this
-  }, _react.default.createElement(_component.Form, {
+    __self: undefined
+  }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_2__["Form"], {
     onSubmit: handleCheckLoginPassword,
     __source: {
       fileName: _jsxFileName,
       lineNumber: 83
     },
-    __self: this
-  }, _react.default.createElement(_component.FormInput, {
+    __self: undefined
+  }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_2__["FormInput"], {
     autoCompleteType: "username",
     value: email,
     style: {
@@ -3170,8 +2666,8 @@ var LoginCheckPasswordScreen = function LoginCheckPasswordScreen() {
       fileName: _jsxFileName,
       lineNumber: 85
     },
-    __self: this
-  }), _react.default.createElement(_component.FormInput, {
+    __self: undefined
+  }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_2__["FormInput"], {
     label: "Password",
     tabIndex: 21,
     autoFocus: true,
@@ -3186,11 +2682,9 @@ var LoginCheckPasswordScreen = function LoginCheckPasswordScreen() {
       fileName: _jsxFileName,
       lineNumber: 90
     },
-    __self: this
+    __self: undefined
   })));
 };
-
-exports.LoginCheckPasswordScreen = LoginCheckPasswordScreen;
 
 /***/ }),
 
@@ -3198,123 +2692,85 @@ exports.LoginCheckPasswordScreen = LoginCheckPasswordScreen;
 /*!************************************!*\
   !*** ./src/screen/login.index.tsx ***!
   \************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
+/*! exports provided: LoginIndexScreen */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-var _interopRequireDefault = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireDefault */ "../../node_modules/@babel/runtime/helpers/interopRequireDefault.js");
-
-var _interopRequireWildcard = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireWildcard */ "../../node_modules/@babel/runtime/helpers/interopRequireWildcard.js");
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.LoginIndexScreen = void 0;
-
-var _toConsumableArray2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/toConsumableArray */ "../../node_modules/@babel/runtime/helpers/esm/toConsumableArray.js"));
-
-var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/slicedToArray */ "../../node_modules/@babel/runtime/helpers/esm/slicedToArray.js"));
-
-var _react = _interopRequireWildcard(__webpack_require__(/*! react */ "../../node_modules/react/index.js"));
-
-var _hook = __webpack_require__(/*! ../hook */ "./src/hook.ts");
-
-var _component = __webpack_require__(/*! ./component */ "./src/screen/component/index.ts");
-
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "LoginIndexScreen", function() { return LoginIndexScreen; });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "../../node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _hook__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../hook */ "./src/hook.ts");
+/* harmony import */ var _component__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./component */ "./src/screen/component/index.ts");
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-app-renderer/src/screen/login.index.tsx";
 
-var LoginIndexScreen = function LoginIndexScreen() {
-  var _useNavigation = (0, _hook.useNavigation)(),
-      nav = _useNavigation.nav,
-      route = _useNavigation.route;
 
-  var _useState = (0, _react.useState)(""),
-      _useState2 = (0, _slicedToArray2.default)(_useState, 2),
-      email = _useState2[0],
-      setEmail = _useState2[1];
 
-  var _useAppState = (0, _hook.useAppState)(),
-      _useAppState2 = (0, _slicedToArray2.default)(_useAppState, 2),
-      state = _useAppState2[0],
-      dispatch = _useAppState2[1];
+const LoginIndexScreen = () => {
+  // state
+  const {
+    nav,
+    route
+  } = Object(_hook__WEBPACK_IMPORTED_MODULE_1__["useNavigation"])();
+  const [email, setEmail] = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])("");
+  const [state, dispatch] = Object(_hook__WEBPACK_IMPORTED_MODULE_1__["useAppState"])();
+  const [options] = Object(_hook__WEBPACK_IMPORTED_MODULE_1__["useAppOptions"])();
+  const [federationOptionsVisible, setFederationOptionsVisible] = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])(options.login.federationOptionsVisible === true);
+  const federationProviders = state.metadata.federationProviders; // handlers
 
-  var _useAppOptions = (0, _hook.useAppOptions)(),
-      _useAppOptions2 = (0, _slicedToArray2.default)(_useAppOptions, 1),
-      options = _useAppOptions2[0];
+  const {
+    loading,
+    errors,
+    setErrors,
+    withLoading
+  } = Object(_hook__WEBPACK_IMPORTED_MODULE_1__["useWithLoading"])(); // const handleAbort = withLoading(() => {
+  //   return dispatch("login.abort")
+  //     .catch((err: any) => setErrors(err));
+  // });
 
-  var _useState3 = (0, _react.useState)(options.login.federationOptionsVisible === true),
-      _useState4 = (0, _slicedToArray2.default)(_useState3, 2),
-      federationOptionsVisible = _useState4[0],
-      setFederationOptionsVisible = _useState4[1];
-
-  var federationProviders = state.metadata.federationProviders;
-
-  var _useWithLoading = (0, _hook.useWithLoading)(),
-      loading = _useWithLoading.loading,
-      errors = _useWithLoading.errors,
-      setErrors = _useWithLoading.setErrors,
-      withLoading = _useWithLoading.withLoading;
-
-  var _withLoading = withLoading(function () {
+  const [handleCheckLoginEmail, handleCheckLoginEmailLoading] = withLoading(() => {
     return dispatch("login.check_email", {
-      email: email
-    }).then(function () {
+      email
+    }).then(() => {
       setErrors({});
       nav.navigate("login.stack", {
         screen: "login.check_password",
         params: {
-          email: email
+          email
         }
       });
-    }).catch(function (err) {
-      return setErrors(err);
-    });
-  }, [email]),
-      _withLoading2 = (0, _slicedToArray2.default)(_withLoading, 2),
-      handleCheckLoginEmail = _withLoading2[0],
-      handleCheckLoginEmailLoading = _withLoading2[1];
-
-  var _withLoading3 = withLoading(function () {
-    return nav.navigate("find_email.stack", {
-      screen: "find_email.index"
-    });
-  }),
-      _withLoading4 = (0, _slicedToArray2.default)(_withLoading3, 2),
-      handleFindEmail = _withLoading4[0],
-      handleFindEmailLoading = _withLoading4[1];
-
-  var _withLoading5 = withLoading(function () {
-    return nav.navigate("register.stack", {
-      screen: "register.index"
-    });
-  }),
-      _withLoading6 = (0, _slicedToArray2.default)(_withLoading5, 2),
-      handleSignUp = _withLoading6[0],
-      handleSignUpLoading = _withLoading6[1];
-
-  var _withLoading7 = withLoading(function (provider) {
+    }).catch(err => setErrors(err));
+  }, [email]);
+  const [handleFindEmail, handleFindEmailLoading] = withLoading(() => nav.navigate("find_email.stack", {
+    screen: "find_email.index"
+  }));
+  const [handleSignUp, handleSignUpLoading] = withLoading(() => nav.navigate("register.stack", {
+    screen: "register.index"
+  }));
+  const [handleFederation, handleFederationLoading] = withLoading(provider => {
     return dispatch("login.federate", {
-      provider: provider
-    }).catch(function (err) {
-      return setErrors(err);
-    });
-  }),
-      _withLoading8 = (0, _slicedToArray2.default)(_withLoading7, 2),
-      handleFederation = _withLoading8[0],
-      handleFederationLoading = _withLoading8[1];
-
-  (0, _react.useEffect)(function () {
+      provider
+    }).catch(err => setErrors(err));
+  });
+  Object(react__WEBPACK_IMPORTED_MODULE_0__["useEffect"])(() => {
+    // update email when route params updated
     if (route.params.email && route.params.email !== email) {
       setEmail(route.params.email);
       setErrors({});
-    }
+    } // submit email if has in URL params
+    // if (route.params.email && route.params.change_account !== "true") {
+    //   console.debug("automatically continue sign in with:", email);
+    //   handleCheckLoginEmail();
+    // }
+    // re-hide federation options on blur
 
-    return nav.addListener("blur", function () {
-      setTimeout(function () {
-        return setFederationOptionsVisible(false);
-      }, 500);
+
+    return nav.addListener("blur", () => {
+      setTimeout(() => setFederationOptionsVisible(false), 500);
     });
-  }, [nav, route]);
-  return _react.default.createElement(_component.ScreenLayout, {
+  }, // eslint-disable-next-line react-hooks/exhaustive-deps
+  [nav, route]);
+  return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_2__["ScreenLayout"], {
     title: "Sign In",
     subtitle: state.client.client_name,
     error: errors.global,
@@ -3330,52 +2786,50 @@ var LoginIndexScreen = function LoginIndexScreen() {
       onPress: handleSignUp,
       loading: handleSignUpLoading,
       tabIndex: 13
-    }].concat((0, _toConsumableArray2.default)(federationProviders.length > 0 ? [{
+    }, ...(federationProviders.length > 0 ? [{
       separator: "OR"
-    }].concat((0, _toConsumableArray2.default)(federationOptionsVisible ? federationProviders.map(function (provider, i) {
-      var _getFederationStyle = getFederationStyle(provider),
-          style = _getFederationStyle.style,
-          textStyle = _getFederationStyle.textStyle;
-
+    }, ...(federationOptionsVisible ? federationProviders.map((provider, i) => {
+      const {
+        style,
+        textStyle
+      } = getFederationStyle(provider);
       return {
-        onPress: function onPress() {
+        onPress: () => {
           handleFederation(provider);
         },
         loading: handleFederationLoading,
         children: getFederationText(provider),
         tabIndex: 14 + i,
-        style: style,
-        textStyle: textStyle,
+        style,
+        textStyle,
         size: "medium"
       };
     }) : [{
-      onPress: function onPress() {
-        return setFederationOptionsVisible(true);
-      },
+      onPress: () => setFederationOptionsVisible(true),
       children: "Find more login options?",
       tabIndex: 14,
       appearance: "ghost",
       size: "small"
-    }])) : []), [{
+    }])] : []), {
       onPress: handleFindEmail,
       loading: handleFindEmailLoading,
       children: "Forgot your email address?",
       appearance: "ghost",
       size: "small"
-    }]),
+    }],
     __source: {
       fileName: _jsxFileName,
       lineNumber: 77
     },
-    __self: this
-  }, _react.default.createElement(_component.Form, {
+    __self: undefined
+  }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_2__["Form"], {
     onSubmit: handleCheckLoginEmail,
     __source: {
       fileName: _jsxFileName,
       lineNumber: 130
     },
-    __self: this
-  }, _react.default.createElement(_component.FormInput, {
+    __self: undefined
+  }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_2__["FormInput"], {
     label: "Email",
     keyboardType: "email-address",
     placeholder: "Enter your email address",
@@ -3389,18 +2843,16 @@ var LoginIndexScreen = function LoginIndexScreen() {
       fileName: _jsxFileName,
       lineNumber: 131
     },
-    __self: this
+    __self: undefined
   })));
 };
-
-exports.LoginIndexScreen = LoginIndexScreen;
-var federationText = {
+const federationText = {
   google: "Login with Google",
   facebook: "Login with Facebook",
   kakao: "Login with Kakaotalk",
   default: "Login with {provider}"
 };
-var federationStyle = {
+const federationStyle = {
   google: {
     style: {
       backgroundColor: "#f5f5f5",
@@ -3453,41 +2905,33 @@ function getFederationStyle(provider) {
 /*!***********************************!*\
   !*** ./src/screen/logout.end.tsx ***!
   \***********************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
+/*! exports provided: LogoutEndScreen, ActiveSessionList */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-var _interopRequireDefault = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireDefault */ "../../node_modules/@babel/runtime/helpers/interopRequireDefault.js");
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.ActiveSessionList = exports.LogoutEndScreen = void 0;
-
-var _objectSpread2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/objectSpread2 */ "../../node_modules/@babel/runtime/helpers/esm/objectSpread2.js"));
-
-var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/slicedToArray */ "../../node_modules/@babel/runtime/helpers/esm/slicedToArray.js"));
-
-var _react = _interopRequireDefault(__webpack_require__(/*! react */ "../../node_modules/react/index.js"));
-
-var _hook = __webpack_require__(/*! ../hook */ "./src/hook.ts");
-
-var _component = __webpack_require__(/*! ./component */ "./src/screen/component/index.ts");
-
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "LogoutEndScreen", function() { return LogoutEndScreen; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ActiveSessionList", function() { return ActiveSessionList; });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "../../node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _hook__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../hook */ "./src/hook.ts");
+/* harmony import */ var _component__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./component */ "./src/screen/component/index.ts");
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-app-renderer/src/screen/logout.end.tsx";
 
-var LogoutEndScreen = function LogoutEndScreen() {
-  var _useClose = (0, _hook.useClose)(false),
-      closed = _useClose.closed,
-      close = _useClose.close;
 
-  var _useAppState = (0, _hook.useAppState)(),
-      _useAppState2 = (0, _slicedToArray2.default)(_useAppState, 1),
-      state = _useAppState2[0];
 
-  var user = state.user;
-  var authorizedClients = state.authorizedClients;
-  return _react.default.createElement(_component.ScreenLayout, {
-    title: "Sign out",
+const LogoutEndScreen = () => {
+  // states
+  const {
+    closed,
+    close
+  } = Object(_hook__WEBPACK_IMPORTED_MODULE_1__["useClose"])(false);
+  const [state] = Object(_hook__WEBPACK_IMPORTED_MODULE_1__["useAppState"])();
+  const user = state.user;
+  const authorizedClients = state.authorizedClients; // render
+
+  return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_2__["ScreenLayout"], {
+    title: `Sign out`,
     subtitle: user ? user.email : "Signed out",
     buttons: [{
       children: "Close",
@@ -3500,46 +2944,45 @@ var LogoutEndScreen = function LogoutEndScreen() {
       fileName: _jsxFileName,
       lineNumber: 15
     },
-    __self: this
-  }, user ? _react.default.createElement(ActiveSessionList, {
+    __self: undefined
+  }, user ? react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(ActiveSessionList, {
     authorizedClients: authorizedClients,
     __source: {
       fileName: _jsxFileName,
       lineNumber: 29
     },
-    __self: this
-  }) : _react.default.createElement(_component.Text, {
+    __self: undefined
+  }) : react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_2__["Text"], {
     __source: {
       fileName: _jsxFileName,
       lineNumber: 31
     },
-    __self: this
+    __self: undefined
   }, "Account session not exists."));
 };
-
-exports.LogoutEndScreen = LogoutEndScreen;
-
-var ActiveSessionList = function ActiveSessionList(_ref) {
-  var authorizedClients = _ref.authorizedClients;
-  var palette = (0, _component.useThemePalette)();
-  return _react.default.createElement(_react.default.Fragment, null, authorizedClients ? _react.default.createElement(_react.default.Fragment, null, _react.default.createElement(_component.Text, {
+const ActiveSessionList = ({
+  authorizedClients
+}) => {
+  const palette = Object(_component__WEBPACK_IMPORTED_MODULE_2__["useThemePalette"])();
+  return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react__WEBPACK_IMPORTED_MODULE_0___default.a.Fragment, null, authorizedClients ? react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react__WEBPACK_IMPORTED_MODULE_0___default.a.Fragment, null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_2__["Text"], {
     __source: {
       fileName: _jsxFileName,
       lineNumber: 43
     },
-    __self: this
-  }, "Below sessions are active."), _react.default.createElement(_component.List, {
+    __self: undefined
+  }, "Below sessions are active."), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_2__["List"], {
     style: {
       marginTop: 15,
       borderColor: palette["border-basic-color-3"],
       borderWidth: 1
     },
     data: authorizedClients,
-    renderItem: function renderItem(_ref2) {
-      var item = _ref2.item,
-          index = _ref2.index;
-      var uri = item.client_uri || item.policy_uri || item.tos_uri;
-      return _react.default.createElement(_component.ListItem, {
+    renderItem: ({
+      item,
+      index
+    }) => {
+      const uri = item.client_uri || item.policy_uri || item.tos_uri;
+      return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_2__["ListItem"], {
         key: index,
         style: {
           paddingLeft: 15,
@@ -3551,45 +2994,39 @@ var ActiveSessionList = function ActiveSessionList(_ref) {
         title: item.client_name,
         description: uri || item.client_id,
         disabled: !uri,
-        onPress: uri ? function () {
-          return window.open(uri);
-        } : undefined,
-        accessory: uri ? function (style) {
-          return _react.default.createElement(_component.Icon, {
-            style: (0, _objectSpread2.default)({}, style, {
-              width: 20
-            }),
-            fill: palette["text-hint-color"],
-            name: "external-link-outline",
-            __source: {
-              fileName: _jsxFileName,
-              lineNumber: 57
-            },
-            __self: this
-          });
-        } : undefined,
+        onPress: uri ? () => window.open(uri) : undefined,
+        accessory: uri ? style => react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_2__["Icon"], {
+          style: { ...style,
+            width: 20
+          },
+          fill: palette["text-hint-color"],
+          name: "external-link-outline",
+          __source: {
+            fileName: _jsxFileName,
+            lineNumber: 57
+          },
+          __self: undefined
+        }) : undefined,
         __source: {
           fileName: _jsxFileName,
           lineNumber: 50
         },
-        __self: this
+        __self: undefined
       });
     },
     __source: {
       fileName: _jsxFileName,
       lineNumber: 44
     },
-    __self: this
-  })) : _react.default.createElement(_component.Text, {
+    __self: undefined
+  })) : react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_2__["Text"], {
     __source: {
       fileName: _jsxFileName,
       lineNumber: 64
     },
-    __self: this
+    __self: undefined
   }, "There are no active sessions."));
 };
-
-exports.ActiveSessionList = ActiveSessionList;
 
 /***/ }),
 
@@ -3597,64 +3034,40 @@ exports.ActiveSessionList = ActiveSessionList;
 /*!*************************************!*\
   !*** ./src/screen/logout.index.tsx ***!
   \*************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
+/*! exports provided: LogoutIndexScreen */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-var _interopRequireDefault = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireDefault */ "../../node_modules/@babel/runtime/helpers/interopRequireDefault.js");
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.LogoutIndexScreen = void 0;
-
-var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/slicedToArray */ "../../node_modules/@babel/runtime/helpers/esm/slicedToArray.js"));
-
-var _react = _interopRequireDefault(__webpack_require__(/*! react */ "../../node_modules/react/index.js"));
-
-var _hook = __webpack_require__(/*! ../hook */ "./src/hook.ts");
-
-var _component = __webpack_require__(/*! ./component */ "./src/screen/component/index.ts");
-
-var _logout = __webpack_require__(/*! ./logout.end */ "./src/screen/logout.end.tsx");
-
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "LogoutIndexScreen", function() { return LogoutIndexScreen; });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "../../node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _hook__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../hook */ "./src/hook.ts");
+/* harmony import */ var _component__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./component */ "./src/screen/component/index.ts");
+/* harmony import */ var _logout_end__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./logout.end */ "./src/screen/logout.end.tsx");
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-app-renderer/src/screen/logout.index.tsx";
 
-var LogoutIndexScreen = function LogoutIndexScreen() {
-  var _useWithLoading = (0, _hook.useWithLoading)(),
-      loading = _useWithLoading.loading,
-      withLoading = _useWithLoading.withLoading,
-      errors = _useWithLoading.errors,
-      setErrors = _useWithLoading.setErrors;
 
-  var _useAppState = (0, _hook.useAppState)(),
-      _useAppState2 = (0, _slicedToArray2.default)(_useAppState, 2),
-      state = _useAppState2[0],
-      dispatch = _useAppState2[1];
 
-  var _withLoading = withLoading(function () {
-    return dispatch("logout.confirm").then(function () {
-      return setErrors({});
-    }).catch(function (err) {
-      return setErrors(err);
-    });
-  }),
-      _withLoading2 = (0, _slicedToArray2.default)(_withLoading, 2),
-      handleSignOutAll = _withLoading2[0],
-      handleSignOutAllLoading = _withLoading2[1];
 
-  var _withLoading3 = withLoading(function () {
-    return dispatch("logout.redirect").then(function () {
-      return setErrors({});
-    }).catch(function (err) {
-      return setErrors(err);
-    });
-  }),
-      _withLoading4 = (0, _slicedToArray2.default)(_withLoading3, 2),
-      handleRedirect = _withLoading4[0],
-      handleRedirectLoading = _withLoading4[1];
+const LogoutIndexScreen = () => {
+  // states
+  const {
+    loading,
+    withLoading,
+    errors,
+    setErrors
+  } = Object(_hook__WEBPACK_IMPORTED_MODULE_1__["useWithLoading"])();
+  const [state, dispatch] = Object(_hook__WEBPACK_IMPORTED_MODULE_1__["useAppState"])();
+  const [handleSignOutAll, handleSignOutAllLoading] = withLoading(() => {
+    return dispatch("logout.confirm").then(() => setErrors({})).catch(err => setErrors(err));
+  });
+  const [handleRedirect, handleRedirectLoading] = withLoading(() => {
+    return dispatch("logout.redirect").then(() => setErrors({})).catch(err => setErrors(err));
+  }); // render
 
-  return _react.default.createElement(_component.ScreenLayout, {
-    title: "Sign out",
+  return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_2__["ScreenLayout"], {
+    title: `Sign out`,
     subtitle: state.user.email,
     loading: loading,
     buttons: [{
@@ -3674,18 +3087,16 @@ var LogoutIndexScreen = function LogoutIndexScreen() {
       fileName: _jsxFileName,
       lineNumber: 24
     },
-    __self: this
-  }, _react.default.createElement(_logout.ActiveSessionList, {
+    __self: undefined
+  }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_logout_end__WEBPACK_IMPORTED_MODULE_3__["ActiveSessionList"], {
     authorizedClients: state.authorizedClients,
     __source: {
       fileName: _jsxFileName,
       lineNumber: 45
     },
-    __self: this
+    __self: undefined
   }));
 };
-
-exports.LogoutIndexScreen = LogoutIndexScreen;
 
 /***/ }),
 
@@ -3693,187 +3104,100 @@ exports.LogoutIndexScreen = LogoutIndexScreen;
 /*!****************************************!*\
   !*** ./src/screen/register.detail.tsx ***!
   \****************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
+/*! exports provided: RegisterDetailScreen */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-var _interopRequireDefault = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireDefault */ "../../node_modules/@babel/runtime/helpers/interopRequireDefault.js");
-
-var _interopRequireWildcard = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireWildcard */ "../../node_modules/@babel/runtime/helpers/interopRequireWildcard.js");
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.RegisterDetailScreen = void 0;
-
-var _regenerator = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/regenerator */ "../../node_modules/@babel/runtime/regenerator/index.js"));
-
-var _objectSpread2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/objectSpread2 */ "../../node_modules/@babel/runtime/helpers/esm/objectSpread2.js"));
-
-var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/slicedToArray */ "../../node_modules/@babel/runtime/helpers/esm/slicedToArray.js"));
-
-var _react = _interopRequireWildcard(__webpack_require__(/*! react */ "../../node_modules/react/index.js"));
-
-var _component = __webpack_require__(/*! ./component */ "./src/screen/component/index.ts");
-
-var _hook = __webpack_require__(/*! ../hook */ "./src/hook.ts");
-
-var _moment = _interopRequireDefault(__webpack_require__(/*! moment */ "../../node_modules/moment/moment.js"));
-
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "RegisterDetailScreen", function() { return RegisterDetailScreen; });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "../../node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _component__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./component */ "./src/screen/component/index.ts");
+/* harmony import */ var _hook__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../hook */ "./src/hook.ts");
+/* harmony import */ var moment__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! moment */ "../../node_modules/moment/moment.js");
+/* harmony import */ var moment__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(moment__WEBPACK_IMPORTED_MODULE_3__);
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-app-renderer/src/screen/register.detail.tsx";
 
-var RegisterDetailScreen = function RegisterDetailScreen() {
-  var _useAppState = (0, _hook.useAppState)(),
-      _useAppState2 = (0, _slicedToArray2.default)(_useAppState, 2),
-      state = _useAppState2[0],
-      dispatch = _useAppState2[1];
 
-  var _useAppOptions = (0, _hook.useAppOptions)(),
-      _useAppOptions2 = (0, _slicedToArray2.default)(_useAppOptions, 1),
-      options = _useAppOptions2[0];
 
-  var tmpState = state.session.register || {};
-  var tmpClaims = tmpState.claims || {};
-  var tmpCreds = tmpState.credentials || {};
 
-  var _useState = (0, _react.useState)({
+const RegisterDetailScreen = () => {
+  // state
+  const [state, dispatch] = Object(_hook__WEBPACK_IMPORTED_MODULE_2__["useAppState"])();
+  const [options] = Object(_hook__WEBPACK_IMPORTED_MODULE_2__["useAppOptions"])();
+  const tmpState = state.session.register || {};
+  const tmpClaims = tmpState.claims || {};
+  const tmpCreds = tmpState.credentials || {};
+  const [payload, setPayload] = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])({
     phone_number: tmpClaims.phone_number || "",
     birthdate: tmpClaims.birthdate || "",
     gender: tmpClaims.gender || ""
-  }),
-      _useState2 = (0, _slicedToArray2.default)(_useState, 2),
-      payload = _useState2[0],
-      setPayload = _useState2[1];
+  });
+  const phoneNumberVerified = state.session.verifyPhone && state.session.verifyPhone.phoneNumber === payload.phone_number && state.session.verifyPhone.verified;
+  const phoneNumberRequired = state.metadata.mandatoryScopes.includes("phone"); // handlers
 
-  var phoneNumberVerified = state.session.verifyPhone && state.session.verifyPhone.phoneNumber === payload.phone_number && state.session.verifyPhone.verified;
-  var phoneNumberRequired = state.metadata.mandatoryScopes.includes("phone");
+  const {
+    nav
+  } = Object(_hook__WEBPACK_IMPORTED_MODULE_2__["useNavigation"])();
+  const {
+    loading,
+    errors,
+    setErrors,
+    withLoading
+  } = Object(_hook__WEBPACK_IMPORTED_MODULE_2__["useWithLoading"])();
+  const [handlePayloadSubmit, handlePayloadSubmitLoading] = withLoading(async () => {
+    const {
+      phone_number,
+      birthdate,
+      gender
+    } = payload;
+    const data = {
+      submit: false,
+      claims: {
+        phone_number: phone_number ? `${state.locale.country}|${phone_number}` : undefined,
+        birthdate,
+        gender,
+        ...tmpClaims
+      },
+      credentials: tmpCreds,
+      scope: ["email", "profile", "birthdate", "gender"].concat(phoneNumberRequired || phone_number ? "phone" : [])
+    };
+    return dispatch("register.submit", data).then(() => {
+      setErrors({}); // verify email
 
-  var _useNavigation = (0, _hook.useNavigation)(),
-      nav = _useNavigation.nav;
-
-  var _useWithLoading = (0, _hook.useWithLoading)(),
-      loading = _useWithLoading.loading,
-      errors = _useWithLoading.errors,
-      setErrors = _useWithLoading.setErrors,
-      withLoading = _useWithLoading.withLoading;
-
-  var _withLoading = withLoading(function _callee() {
-    var phone_number, birthdate, gender, data;
-    return _regenerator.default.async(function _callee$(_context) {
-      while (1) {
-        switch (_context.prev = _context.next) {
-          case 0:
-            phone_number = payload.phone_number, birthdate = payload.birthdate, gender = payload.gender;
-            data = {
-              submit: false,
-              claims: (0, _objectSpread2.default)({
-                phone_number: phone_number ? state.locale.country + "|" + phone_number : undefined,
-                birthdate: birthdate,
-                gender: gender
-              }, tmpClaims),
-              credentials: tmpCreds,
-              scope: ["email", "profile", "birthdate", "gender"].concat(phoneNumberRequired || phone_number ? "phone" : [])
-            };
-            return _context.abrupt("return", dispatch("register.submit", data).then(function () {
-              setErrors({});
-
-              if (data.claims.phone_number && !options.register.skipPhoneVerification && !phoneNumberVerified) {
-                return dispatch("verify_phone.check_phone", {
-                  phone_number: data.claims.phone_number,
-                  registered: false
-                }).then(function () {
-                  nav.navigate("verify_phone.stack", {
-                    screen: "verify_phone.verify",
-                    params: {
-                      callback: "register"
-                    }
-                  });
-                });
-              } else {
-                return dispatch("register.submit", (0, _objectSpread2.default)({}, data, {
-                  register: true
-                })).then(function () {
-                  nav.navigate("register.stack", {
-                    screen: "register.end",
-                    params: {}
-                  });
-                });
-              }
-            }).catch(function (errs) {
-              return setErrors(errs);
-            }));
-
-          case 3:
-          case "end":
-            return _context.stop();
-        }
+      if (data.claims.phone_number && !options.register.skipPhoneVerification && !phoneNumberVerified) {
+        return dispatch("verify_phone.check_phone", {
+          phone_number: data.claims.phone_number,
+          registered: false
+        }).then(() => {
+          nav.navigate("verify_phone.stack", {
+            screen: "verify_phone.verify",
+            params: {
+              callback: "register"
+            }
+          });
+        }); // register user
+      } else {
+        return dispatch("register.submit", { ...data,
+          register: true
+        }).then(() => {
+          nav.navigate("register.stack", {
+            screen: "register.end",
+            params: {}
+          });
+        });
       }
-    });
-  }, [payload]),
-      _withLoading2 = (0, _slicedToArray2.default)(_withLoading, 2),
-      handlePayloadSubmit = _withLoading2[0],
-      handlePayloadSubmitLoading = _withLoading2[1];
-
-  var _withLoading3 = withLoading(function () {
+    }).catch(errs => setErrors(errs));
+  }, [payload]);
+  const [handleCancel, handleCancelLoading] = withLoading(() => {
     nav.navigate("register.stack", {
       screen: "register.index",
       params: {}
     });
     setErrors({});
-  }, []),
-      _withLoading4 = (0, _slicedToArray2.default)(_withLoading3, 2),
-      handleCancel = _withLoading4[0],
-      handleCancelLoading = _withLoading4[1];
+  }, []); // render
 
-  return _react.default.createElement(_react.default.Fragment, null, _react.default.createElement(_component.Popover, {
-    content: _react.default.createElement(_component.Text, {
-      __source: {
-        fileName: _jsxFileName,
-        lineNumber: 87
-      },
-      __self: this
-    }, "hello?"),
-    visible: true,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 86
-    },
-    __self: this
-  }, _react.default.createElement(_component.Text, {
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 90
-    },
-    __self: this
-  }, "btn?")), _react.default.createElement(_component.Datepicker, {
-    label: "Birthdate",
-    size: "large",
-    placement: "top",
-    placeholder: "Select your birthdate",
-    date: (payload.birthdate ? (0, _moment.default)(payload.birthdate) : (0, _moment.default)().subtract(20, "y")).toDate(),
-    onSelect: function onSelect(v) {
-      return setPayload(function (p) {
-        return (0, _objectSpread2.default)({}, p, {
-          birthdate: (0, _moment.default)(v).format("YYYY-MM-DD")
-        });
-      });
-    },
-    icon: function icon(s) {
-      return _react.default.createElement(_component.Icon, {
-        style: s,
-        name: "calendar",
-        __source: {
-          fileName: _jsxFileName,
-          lineNumber: 99
-        },
-        __self: this
-      });
-    },
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 92
-    },
-    __self: this
-  }), _react.default.createElement(_component.ScreenLayout, {
+  return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_1__["ScreenLayout"], {
     title: "Sign up",
     subtitle: tmpClaims.email,
     loading: loading,
@@ -3892,66 +3216,72 @@ var RegisterDetailScreen = function RegisterDetailScreen() {
     }],
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 101
+      lineNumber: 84
     },
-    __self: this
-  }, _react.default.createElement(_component.Text, {
+    __self: undefined
+  }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_1__["Text"], {
     style: {
       marginBottom: 30
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 122
+      lineNumber: 105
     },
-    __self: this
-  }, "Please enter the phone number to find the your account for the case of lost."), _react.default.createElement(_component.Form, {
+    __self: undefined
+  }, "Please enter the phone number to find the your account for the case of lost."), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_1__["Form"], {
     onSubmit: handlePayloadSubmit,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 126
+      lineNumber: 109
     },
-    __self: this
-  }, _react.default.createElement(_component.FormInput, {
+    __self: undefined
+  }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_1__["FormInput"], {
     autoFocus: !payload.phone_number,
     tabIndex: 61,
-    label: "Phone number" + (phoneNumberRequired ? "" : " (optional)"),
-    placeholder: "Enter your mobile phone number (" + state.locale.country + ")",
+    label: `Phone number${phoneNumberRequired ? "" : " (optional)"}`,
+    placeholder: `Enter your mobile phone number (${state.locale.country})`,
     blurOnSubmit: false,
     keyboardType: "phone-pad",
     autoCompleteType: "tel",
     value: payload.phone_number,
-    setValue: function setValue(v) {
-      return setPayload(function (p) {
-        return (0, _objectSpread2.default)({}, p, {
-          phone_number: v
-        });
-      });
-    },
+    setValue: v => setPayload(p => ({ ...p,
+      phone_number: v
+    })),
     error: errors.phone_number,
     onEnter: handlePayloadSubmit,
-    icon: phoneNumberVerified ? function (s) {
-      return _react.default.createElement(_component.Icon, {
-        name: "checkmark-circle-2-outline",
-        style: s,
-        __source: {
-          fileName: _jsxFileName,
-          lineNumber: 139
-        },
-        __self: this
-      });
-    } : undefined,
+    icon: phoneNumberVerified ? s => react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_1__["Icon"], {
+      name: "checkmark-circle-2-outline",
+      style: s,
+      __source: {
+        fileName: _jsxFileName,
+        lineNumber: 122
+      },
+      __self: undefined
+    }) : undefined,
     style: {
       marginBottom: 15
     },
     __source: {
       fileName: _jsxFileName,
+      lineNumber: 110
+    },
+    __self: undefined
+  }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_1__["Datepicker"] // label={"Birthdate"}
+  // size={"large"}
+  // placeholder={"Select your birthdate"}
+  , {
+    date: (payload.birthdate ? moment__WEBPACK_IMPORTED_MODULE_3___default()(payload.birthdate) : moment__WEBPACK_IMPORTED_MODULE_3___default()().subtract(20, "y")).toDate(),
+    onSelect: v => setPayload(p => ({ ...p,
+      birthdate: moment__WEBPACK_IMPORTED_MODULE_3___default()(v).format("YYYY-MM-DD")
+    })) // icon={s => <Icon style={s} name="calendar" />}
+    ,
+    __source: {
+      fileName: _jsxFileName,
       lineNumber: 127
     },
-    __self: this
-  }))));
+    __self: undefined
+  })));
 };
-
-exports.RegisterDetailScreen = RegisterDetailScreen;
 
 /***/ }),
 
@@ -3959,56 +3289,40 @@ exports.RegisterDetailScreen = RegisterDetailScreen;
 /*!*************************************!*\
   !*** ./src/screen/register.end.tsx ***!
   \*************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
+/*! exports provided: RegisterEndScreen */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-var _interopRequireDefault = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireDefault */ "../../node_modules/@babel/runtime/helpers/interopRequireDefault.js");
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.RegisterEndScreen = void 0;
-
-var _extends2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/extends */ "../../node_modules/@babel/runtime/helpers/esm/extends.js"));
-
-var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/slicedToArray */ "../../node_modules/@babel/runtime/helpers/esm/slicedToArray.js"));
-
-var _react = _interopRequireDefault(__webpack_require__(/*! react */ "../../node_modules/react/index.js"));
-
-var _hook = __webpack_require__(/*! ../hook */ "./src/hook.ts");
-
-var _component = __webpack_require__(/*! ./component */ "./src/screen/component/index.ts");
-
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "RegisterEndScreen", function() { return RegisterEndScreen; });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "../../node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _hook__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../hook */ "./src/hook.ts");
+/* harmony import */ var _component__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./component */ "./src/screen/component/index.ts");
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-app-renderer/src/screen/register.end.tsx";
 
-var RegisterEndScreen = function RegisterEndScreen() {
-  var _useAppState = (0, _hook.useAppState)(),
-      _useAppState2 = (0, _slicedToArray2.default)(_useAppState, 2),
-      state = _useAppState2[0],
-      dispatch = _useAppState2[1];
 
-  var user = state.session.registered || {};
 
-  var _useClose = (0, _hook.useClose)(false),
-      close = _useClose.close,
-      closed = _useClose.closed;
+const RegisterEndScreen = () => {
+  // states
+  const [state, dispatch] = Object(_hook__WEBPACK_IMPORTED_MODULE_1__["useAppState"])();
+  const user = state.session.registered || {}; // handlers
 
-  var _useWithLoading = (0, _hook.useWithLoading)(),
-      loading = _useWithLoading.loading,
-      errors = _useWithLoading.errors,
-      setErrors = _useWithLoading.setErrors,
-      withLoading = _useWithLoading.withLoading;
+  const {
+    close,
+    closed
+  } = Object(_hook__WEBPACK_IMPORTED_MODULE_1__["useClose"])(false);
+  const {
+    loading,
+    errors,
+    setErrors,
+    withLoading
+  } = Object(_hook__WEBPACK_IMPORTED_MODULE_1__["useWithLoading"])();
+  const [handleSignIn, handleSignInLoading] = withLoading(() => {
+    return dispatch("register.login").catch(errs => setErrors(errs));
+  }); // render
 
-  var _withLoading = withLoading(function () {
-    return dispatch("register.login").catch(function (errs) {
-      return setErrors(errs);
-    });
-  }),
-      _withLoading2 = (0, _slicedToArray2.default)(_withLoading, 2),
-      handleSignIn = _withLoading2[0],
-      handleSignInLoading = _withLoading2[1];
-
-  return _react.default.createElement(_component.ScreenLayout, {
+  return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_2__["ScreenLayout"], {
     title: "Signed up",
     loading: loading || closed,
     error: errors.global || (closed ? "Please close the window manually." : undefined),
@@ -4029,14 +3343,14 @@ var RegisterEndScreen = function RegisterEndScreen() {
       fileName: _jsxFileName,
       lineNumber: 20
     },
-    __self: this
-  }, _react.default.createElement(_component.Persona, (0, _extends2.default)({}, user, {
+    __self: undefined
+  }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_2__["Persona"], Object.assign({}, user, {
     __source: {
       fileName: _jsxFileName,
       lineNumber: 41
     },
-    __self: this
-  })), _react.default.createElement(_component.Text, {
+    __self: undefined
+  })), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_2__["Text"], {
     style: {
       marginTop: 30
     },
@@ -4044,11 +3358,9 @@ var RegisterEndScreen = function RegisterEndScreen() {
       fileName: _jsxFileName,
       lineNumber: 42
     },
-    __self: this
+    __self: undefined
   }, "Congratulations! The account has been registered successfully."));
 };
-
-exports.RegisterEndScreen = RegisterEndScreen;
 
 /***/ }),
 
@@ -4056,144 +3368,105 @@ exports.RegisterEndScreen = RegisterEndScreen;
 /*!***************************************!*\
   !*** ./src/screen/register.index.tsx ***!
   \***************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
+/*! exports provided: RegisterIndexScreen */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-var _interopRequireDefault = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireDefault */ "../../node_modules/@babel/runtime/helpers/interopRequireDefault.js");
-
-var _interopRequireWildcard = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireWildcard */ "../../node_modules/@babel/runtime/helpers/interopRequireWildcard.js");
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.RegisterIndexScreen = void 0;
-
-var _regenerator = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/regenerator */ "../../node_modules/@babel/runtime/regenerator/index.js"));
-
-var _objectSpread2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/objectSpread2 */ "../../node_modules/@babel/runtime/helpers/esm/objectSpread2.js"));
-
-var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/slicedToArray */ "../../node_modules/@babel/runtime/helpers/esm/slicedToArray.js"));
-
-var _react = _interopRequireWildcard(__webpack_require__(/*! react */ "../../node_modules/react/index.js"));
-
-var _component = __webpack_require__(/*! ./component */ "./src/screen/component/index.ts");
-
-var _hook = __webpack_require__(/*! ../hook */ "./src/hook.ts");
-
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "RegisterIndexScreen", function() { return RegisterIndexScreen; });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "../../node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _component__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./component */ "./src/screen/component/index.ts");
+/* harmony import */ var _hook__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../hook */ "./src/hook.ts");
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-app-renderer/src/screen/register.index.tsx";
 
-var RegisterIndexScreen = function RegisterIndexScreen() {
-  var _useAppState = (0, _hook.useAppState)(),
-      _useAppState2 = (0, _slicedToArray2.default)(_useAppState, 2),
-      state = _useAppState2[0],
-      dispatch = _useAppState2[1];
 
-  var _useAppOptions = (0, _hook.useAppOptions)(),
-      _useAppOptions2 = (0, _slicedToArray2.default)(_useAppOptions, 1),
-      options = _useAppOptions2[0];
 
-  var tmpState = state.session.register || {};
-  var tmpClaims = tmpState.claims || {};
-  var tmpCreds = tmpState.credentials || {};
-
-  var _useState = (0, _react.useState)({
+const RegisterIndexScreen = () => {
+  // state
+  const [state, dispatch] = Object(_hook__WEBPACK_IMPORTED_MODULE_2__["useAppState"])();
+  const [options] = Object(_hook__WEBPACK_IMPORTED_MODULE_2__["useAppOptions"])();
+  const tmpState = state.session.register || {};
+  const tmpClaims = tmpState.claims || {};
+  const tmpCreds = tmpState.credentials || {};
+  const [payload, setPayload] = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])({
     name: tmpClaims.name || "",
     email: tmpClaims.email || "",
     password: tmpCreds.password || "",
     password_confirmation: tmpCreds.password_confirmation || ""
-  }),
-      _useState2 = (0, _slicedToArray2.default)(_useState, 2),
-      payload = _useState2[0],
-      setPayload = _useState2[1];
+  });
+  const emailVerified = state.session.verifyEmail && state.session.verifyEmail.email === payload.email && state.session.verifyEmail.verified; // handlers
 
-  var emailVerified = state.session.verifyEmail && state.session.verifyEmail.email === payload.email && state.session.verifyEmail.verified;
+  const {
+    nav
+  } = Object(_hook__WEBPACK_IMPORTED_MODULE_2__["useNavigation"])();
+  const {
+    loading,
+    errors,
+    setErrors,
+    withLoading
+  } = Object(_hook__WEBPACK_IMPORTED_MODULE_2__["useWithLoading"])();
+  const [handlePayloadSubmit, handlePayloadSubmitLoading] = withLoading(async () => {
+    const {
+      name,
+      email,
+      password,
+      password_confirmation
+    } = payload;
+    const data = {
+      submit: false,
+      claims: {
+        name,
+        email
+      },
+      credentials: {
+        password,
+        password_confirmation
+      },
+      scope: ["email", "profile"]
+    };
+    return dispatch("register.submit", data).then(() => {
+      setErrors({}); // verify email
 
-  var _useNavigation = (0, _hook.useNavigation)(),
-      nav = _useNavigation.nav;
-
-  var _useWithLoading = (0, _hook.useWithLoading)(),
-      loading = _useWithLoading.loading,
-      errors = _useWithLoading.errors,
-      setErrors = _useWithLoading.setErrors,
-      withLoading = _useWithLoading.withLoading;
-
-  var _withLoading = withLoading(function _callee() {
-    var name, email, password, password_confirmation, data;
-    return _regenerator.default.async(function _callee$(_context) {
-      while (1) {
-        switch (_context.prev = _context.next) {
-          case 0:
-            name = payload.name, email = payload.email, password = payload.password, password_confirmation = payload.password_confirmation;
-            data = {
-              submit: false,
-              claims: {
-                name: name,
-                email: email
-              },
-              credentials: {
-                password: password,
-                password_confirmation: password_confirmation
-              },
-              scope: ["email", "profile"]
-            };
-            return _context.abrupt("return", dispatch("register.submit", data).then(function () {
-              setErrors({});
-
-              if (!options.register.skipEmailVerification && !emailVerified) {
-                return dispatch("verify_email.check_email", {
-                  email: data.claims.email,
-                  registered: false
-                }).then(function () {
-                  nav.navigate("verify_email.stack", {
-                    screen: "verify_email.verify",
-                    params: {
-                      callback: "register"
-                    }
-                  });
-                });
-              } else if (!options.register.skipDetailClaims) {
-                nav.navigate("register.stack", {
-                  screen: "register.detail",
-                  params: {}
-                });
-              } else {
-                return dispatch("register.submit", (0, _objectSpread2.default)({}, data, {
-                  register: true
-                })).then(function () {
-                  nav.navigate("register.stack", {
-                    screen: "register.end",
-                    params: {}
-                  });
-                });
-              }
-            }).catch(function (errs) {
-              return setErrors(errs);
-            }));
-
-          case 3:
-          case "end":
-            return _context.stop();
-        }
+      if (!options.register.skipEmailVerification && !emailVerified) {
+        return dispatch("verify_email.check_email", {
+          email: data.claims.email,
+          registered: false
+        }).then(() => {
+          nav.navigate("verify_email.stack", {
+            screen: "verify_email.verify",
+            params: {
+              callback: "register"
+            }
+          });
+        }); // enter detail claims
+      } else if (!options.register.skipDetailClaims) {
+        nav.navigate("register.stack", {
+          screen: "register.detail",
+          params: {}
+        }); // register user
+      } else {
+        return dispatch("register.submit", { ...data,
+          register: true
+        }).then(() => {
+          nav.navigate("register.stack", {
+            screen: "register.end",
+            params: {}
+          });
+        });
       }
-    });
-  }, [payload]),
-      _withLoading2 = (0, _slicedToArray2.default)(_withLoading, 2),
-      handlePayloadSubmit = _withLoading2[0],
-      handlePayloadSubmitLoading = _withLoading2[1];
-
-  var _withLoading3 = withLoading(function () {
+    }).catch(errs => setErrors(errs));
+  }, [payload]);
+  const [handleCancel, handleCancelLoading] = withLoading(() => {
     nav.navigate("login.stack", {
       screen: "login.index",
       params: {}
     });
     setErrors({});
-  }, []),
-      _withLoading4 = (0, _slicedToArray2.default)(_withLoading3, 2),
-      handleCancel = _withLoading4[0],
-      handleCancelLoading = _withLoading4[1];
+  }, []); // render
 
-  var discovery = state.metadata.discovery;
-  return _react.default.createElement(_component.ScreenLayout, {
+  const discovery = state.metadata.discovery;
+  return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_1__["ScreenLayout"], {
     title: "Sign up",
     subtitle: "Create an account",
     loading: loading,
@@ -4208,16 +3481,12 @@ var RegisterIndexScreen = function RegisterIndexScreen() {
       size: "medium",
       group: [{
         children: "Privacy policy",
-        onPress: function onPress() {
-          return window.open(discovery.op_policy_uri, "_blank");
-        },
+        onPress: () => window.open(discovery.op_policy_uri, "_blank"),
         disabled: !discovery.op_policy_uri,
         tabIndex: 4
       }, {
         children: "Terms of service",
-        onPress: function onPress() {
-          return window.open(discovery.op_tos_uri, "_blank");
-        },
+        onPress: () => window.open(discovery.op_tos_uri, "_blank"),
         disabled: !discovery.op_tos_uri,
         tabIndex: 5
       }]
@@ -4233,15 +3502,15 @@ var RegisterIndexScreen = function RegisterIndexScreen() {
       fileName: _jsxFileName,
       lineNumber: 92
     },
-    __self: this
-  }, _react.default.createElement(_component.Form, {
+    __self: undefined
+  }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_1__["Form"], {
     onSubmit: handlePayloadSubmit,
     __source: {
       fileName: _jsxFileName,
       lineNumber: 132
     },
-    __self: this
-  }, _react.default.createElement(_component.FormInput, {
+    __self: undefined
+  }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_1__["FormInput"], {
     label: "Name",
     tabIndex: 51,
     keyboardType: "default",
@@ -4249,13 +3518,9 @@ var RegisterIndexScreen = function RegisterIndexScreen() {
     autoCompleteType: "name",
     autoFocus: !payload.name,
     value: payload.name,
-    setValue: function setValue(v) {
-      return setPayload(function (p) {
-        return (0, _objectSpread2.default)({}, p, {
-          name: v
-        });
-      });
-    },
+    setValue: v => setPayload(p => ({ ...p,
+      name: v
+    })),
     error: errors.name,
     onEnter: handlePayloadSubmit,
     style: {
@@ -4265,32 +3530,26 @@ var RegisterIndexScreen = function RegisterIndexScreen() {
       fileName: _jsxFileName,
       lineNumber: 133
     },
-    __self: this
-  }), _react.default.createElement(_component.FormInput, {
+    __self: undefined
+  }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_1__["FormInput"], {
     label: "Email",
     tabIndex: 52,
     keyboardType: "email-address",
     placeholder: "Enter your email address",
     autoCompleteType: "username",
     value: payload.email,
-    setValue: function setValue(v) {
-      return setPayload(function (p) {
-        return (0, _objectSpread2.default)({}, p, {
-          email: v
-        });
-      });
-    },
-    icon: emailVerified ? function (s) {
-      return _react.default.createElement(_component.Icon, {
-        name: "checkmark-circle-2-outline",
-        style: s,
-        __source: {
-          fileName: _jsxFileName,
-          lineNumber: 154
-        },
-        __self: this
-      });
-    } : undefined,
+    setValue: v => setPayload(p => ({ ...p,
+      email: v
+    })),
+    icon: emailVerified ? s => react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_1__["Icon"], {
+      name: "checkmark-circle-2-outline",
+      style: s,
+      __source: {
+        fileName: _jsxFileName,
+        lineNumber: 154
+      },
+      __self: undefined
+    }) : undefined,
     error: errors.email,
     onEnter: handlePayloadSubmit,
     style: {
@@ -4300,21 +3559,17 @@ var RegisterIndexScreen = function RegisterIndexScreen() {
       fileName: _jsxFileName,
       lineNumber: 146
     },
-    __self: this
-  }), _react.default.createElement(_component.FormInput, {
+    __self: undefined
+  }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_1__["FormInput"], {
     label: "Password",
     tabIndex: 53,
     secureTextEntry: true,
     autoCompleteType: "password",
     placeholder: "Enter password",
     value: payload.password,
-    setValue: function setValue(v) {
-      return setPayload(function (p) {
-        return (0, _objectSpread2.default)({}, p, {
-          password: v
-        });
-      });
-    },
+    setValue: v => setPayload(p => ({ ...p,
+      password: v
+    })),
     error: errors.password,
     onEnter: handlePayloadSubmit,
     style: {
@@ -4324,29 +3579,25 @@ var RegisterIndexScreen = function RegisterIndexScreen() {
       fileName: _jsxFileName,
       lineNumber: 159
     },
-    __self: this
-  }), _react.default.createElement(_component.FormInput, {
+    __self: undefined
+  }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_1__["FormInput"], {
     label: "Confirm",
     tabIndex: 54,
     secureTextEntry: true,
     autoCompleteType: "password",
     placeholder: "Confirm password",
     value: payload.password_confirmation,
-    setValue: function setValue(v) {
-      return setPayload(function (p) {
-        return (0, _objectSpread2.default)({}, p, {
-          password_confirmation: v
-        });
-      });
-    },
+    setValue: v => setPayload(p => ({ ...p,
+      password_confirmation: v
+    })),
     error: errors.password_confirmation,
     onEnter: handlePayloadSubmit,
     __source: {
       fileName: _jsxFileName,
       lineNumber: 171
     },
-    __self: this
-  })), _react.default.createElement(_component.Text, {
+    __self: undefined
+  })), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_1__["Text"], {
     style: {
       marginTop: 30
     },
@@ -4354,11 +3605,9 @@ var RegisterIndexScreen = function RegisterIndexScreen() {
       fileName: _jsxFileName,
       lineNumber: 183
     },
-    __self: this
+    __self: undefined
   }, "When continue, you are agreeing to the terms of service and the privacy policy."));
 };
-
-exports.RegisterIndexScreen = RegisterIndexScreen;
 
 /***/ }),
 
@@ -4366,58 +3615,47 @@ exports.RegisterIndexScreen = RegisterIndexScreen;
 /*!*******************************************!*\
   !*** ./src/screen/reset_password.end.tsx ***!
   \*******************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
+/*! exports provided: ResetPasswordEndScreen */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-var _interopRequireDefault = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireDefault */ "../../node_modules/@babel/runtime/helpers/interopRequireDefault.js");
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.ResetPasswordEndScreen = void 0;
-
-var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/slicedToArray */ "../../node_modules/@babel/runtime/helpers/esm/slicedToArray.js"));
-
-var _react = _interopRequireDefault(__webpack_require__(/*! react */ "../../node_modules/react/index.js"));
-
-var _hook = __webpack_require__(/*! ../hook */ "./src/hook.ts");
-
-var _component = __webpack_require__(/*! ./component */ "./src/screen/component/index.ts");
-
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ResetPasswordEndScreen", function() { return ResetPasswordEndScreen; });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "../../node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _hook__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../hook */ "./src/hook.ts");
+/* harmony import */ var _component__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./component */ "./src/screen/component/index.ts");
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-app-renderer/src/screen/reset_password.end.tsx";
 
-var ResetPasswordEndScreen = function ResetPasswordEndScreen() {
-  var _useAppState = (0, _hook.useAppState)(),
-      _useAppState2 = (0, _slicedToArray2.default)(_useAppState, 1),
-      state = _useAppState2[0];
 
-  var email = state.session.resetPassword.user.email;
 
-  var _useNavigation = (0, _hook.useNavigation)(),
-      nav = _useNavigation.nav;
+const ResetPasswordEndScreen = () => {
+  // states
+  const [state] = Object(_hook__WEBPACK_IMPORTED_MODULE_1__["useAppState"])();
+  const email = state.session.resetPassword.user.email; // handlers
 
-  var _useWithLoading = (0, _hook.useWithLoading)(),
-      loading = _useWithLoading.loading,
-      withLoading = _useWithLoading.withLoading;
-
-  var _withLoading = withLoading(function () {
+  const {
+    nav
+  } = Object(_hook__WEBPACK_IMPORTED_MODULE_1__["useNavigation"])();
+  const {
+    loading,
+    withLoading
+  } = Object(_hook__WEBPACK_IMPORTED_MODULE_1__["useWithLoading"])();
+  const [handleLogin, handleLoginLoading] = withLoading(() => {
     nav.navigate("login.stack", {
       screen: "login.index",
       params: {
-        email: email
+        email
       }
     });
-  }, [state]),
-      _withLoading2 = (0, _slicedToArray2.default)(_withLoading, 2),
-      handleLogin = _withLoading2[0],
-      handleLoginLoading = _withLoading2[1];
+  }, [state]);
+  const {
+    closed,
+    close
+  } = Object(_hook__WEBPACK_IMPORTED_MODULE_1__["useClose"])(false); // render
 
-  var _useClose = (0, _hook.useClose)(false),
-      closed = _useClose.closed,
-      close = _useClose.close;
-
-  return _react.default.createElement(_component.ScreenLayout, {
-    title: "Password reset",
+  return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_2__["ScreenLayout"], {
+    title: `Password reset`,
     subtitle: email,
     loading: loading || closed,
     error: closed ? "Please close the window manually." : undefined,
@@ -4439,17 +3677,15 @@ var ResetPasswordEndScreen = function ResetPasswordEndScreen() {
       fileName: _jsxFileName,
       lineNumber: 26
     },
-    __self: this
-  }, _react.default.createElement(_component.Text, {
+    __self: undefined
+  }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_2__["Text"], {
     __source: {
       fileName: _jsxFileName,
       lineNumber: 49
     },
-    __self: this
+    __self: undefined
   }, "The account credential has been updated successfully."));
 };
-
-exports.ResetPasswordEndScreen = ResetPasswordEndScreen;
 
 /***/ }),
 
@@ -4457,54 +3693,40 @@ exports.ResetPasswordEndScreen = ResetPasswordEndScreen;
 /*!*********************************************!*\
   !*** ./src/screen/reset_password.index.tsx ***!
   \*********************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
+/*! exports provided: ResetPasswordIndexScreen */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-var _interopRequireDefault = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireDefault */ "../../node_modules/@babel/runtime/helpers/interopRequireDefault.js");
-
-var _interopRequireWildcard = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireWildcard */ "../../node_modules/@babel/runtime/helpers/interopRequireWildcard.js");
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.ResetPasswordIndexScreen = void 0;
-
-var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/slicedToArray */ "../../node_modules/@babel/runtime/helpers/esm/slicedToArray.js"));
-
-var _react = _interopRequireWildcard(__webpack_require__(/*! react */ "../../node_modules/react/index.js"));
-
-var _hook = __webpack_require__(/*! ../hook */ "./src/hook.ts");
-
-var _component = __webpack_require__(/*! ./component */ "./src/screen/component/index.ts");
-
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ResetPasswordIndexScreen", function() { return ResetPasswordIndexScreen; });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "../../node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _hook__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../hook */ "./src/hook.ts");
+/* harmony import */ var _component__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./component */ "./src/screen/component/index.ts");
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-app-renderer/src/screen/reset_password.index.tsx";
 
-var ResetPasswordIndexScreen = function ResetPasswordIndexScreen() {
-  var _useAppState = (0, _hook.useAppState)(),
-      _useAppState2 = (0, _slicedToArray2.default)(_useAppState, 2),
-      state = _useAppState2[0],
-      dispatch = _useAppState2[1];
 
-  var _useState = (0, _react.useState)(state.user && state.user.email || ""),
-      _useState2 = (0, _slicedToArray2.default)(_useState, 2),
-      email = _useState2[0],
-      setEmail = _useState2[1];
 
-  var _useNavigation = (0, _hook.useNavigation)(),
-      nav = _useNavigation.nav,
-      route = _useNavigation.route;
+const ResetPasswordIndexScreen = () => {
+  // states
+  const [state, dispatch] = Object(_hook__WEBPACK_IMPORTED_MODULE_1__["useAppState"])();
+  const [email, setEmail] = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])(state.user && state.user.email || "");
+  const {
+    nav,
+    route
+  } = Object(_hook__WEBPACK_IMPORTED_MODULE_1__["useNavigation"])(); // handlers
 
-  var _useWithLoading = (0, _hook.useWithLoading)(),
-      loading = _useWithLoading.loading,
-      errors = _useWithLoading.errors,
-      setErrors = _useWithLoading.setErrors,
-      withLoading = _useWithLoading.withLoading;
-
-  var _withLoading = withLoading(function () {
+  const {
+    loading,
+    errors,
+    setErrors,
+    withLoading
+  } = Object(_hook__WEBPACK_IMPORTED_MODULE_1__["useWithLoading"])();
+  const [handleCheckEmail, handleCheckEmailLoading] = withLoading(() => {
     dispatch("verify_email.check_email", {
-      email: email,
+      email,
       registered: true
-    }).then(function () {
+    }).then(() => {
       setErrors({});
       nav.navigate("verify_email.stack", {
         screen: "verify_email.verify",
@@ -4512,36 +3734,29 @@ var ResetPasswordIndexScreen = function ResetPasswordIndexScreen() {
           callback: "reset_password"
         }
       });
-    }).catch(function (errs) {
-      return setErrors(errs);
-    });
-  }, [email]),
-      _withLoading2 = (0, _slicedToArray2.default)(_withLoading, 2),
-      handleCheckEmail = _withLoading2[0],
-      handleCheckEmailLoading = _withLoading2[1];
-
-  var _withLoading3 = withLoading(function () {
+    }).catch(errs => setErrors(errs));
+  }, [email]);
+  const [handleCancel, handleCancelLoading] = withLoading(() => {
     nav.navigate("login.stack", {
       screen: "login.check_password",
       params: {
-        email: email
+        email
       }
     });
     setErrors({});
-  }, [email]),
-      _withLoading4 = (0, _slicedToArray2.default)(_withLoading3, 2),
-      handleCancel = _withLoading4[0],
-      handleCancelLoading = _withLoading4[1];
-
-  (0, _react.useEffect)(function () {
+  }, [email]);
+  Object(react__WEBPACK_IMPORTED_MODULE_0__["useEffect"])(() => {
+    // update email when route params updated
     if (route.params.email && route.params.email !== email) {
       setEmail(route.params.email || "");
       setErrors({});
     }
-  }, [nav, route]);
-  return _react.default.createElement(_component.ScreenLayout, {
-    title: "Reset password",
-    subtitle: "with email verification",
+  }, // eslint-disable-next-line react-hooks/exhaustive-deps
+  [nav, route]); // render
+
+  return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_2__["ScreenLayout"], {
+    title: `Reset password`,
+    subtitle: `with email verification`,
     loading: loading,
     error: errors.global,
     buttons: [{
@@ -4561,8 +3776,8 @@ var ResetPasswordIndexScreen = function ResetPasswordIndexScreen() {
       fileName: _jsxFileName,
       lineNumber: 52
     },
-    __self: this
-  }, _react.default.createElement(_component.Text, {
+    __self: undefined
+  }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_2__["Text"], {
     style: {
       marginBottom: 30
     },
@@ -4570,11 +3785,11 @@ var ResetPasswordIndexScreen = function ResetPasswordIndexScreen() {
       fileName: _jsxFileName,
       lineNumber: 74
     },
-    __self: this
-  }, "Verify your registered email address."), _react.default.createElement(_component.FormInput, {
+    __self: undefined
+  }, "Verify your registered email address."), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_2__["FormInput"], {
     autoFocus: true,
     tabIndex: 21,
-    label: "Email",
+    label: `Email`,
     keyboardType: "email-address",
     placeholder: "Enter your email address",
     autoCompleteType: "username",
@@ -4587,11 +3802,9 @@ var ResetPasswordIndexScreen = function ResetPasswordIndexScreen() {
       fileName: _jsxFileName,
       lineNumber: 77
     },
-    __self: this
+    __self: undefined
   }));
 };
-
-exports.ResetPasswordIndexScreen = ResetPasswordIndexScreen;
 
 /***/ }),
 
@@ -4599,87 +3812,62 @@ exports.ResetPasswordIndexScreen = ResetPasswordIndexScreen;
 /*!*******************************************!*\
   !*** ./src/screen/reset_password.set.tsx ***!
   \*******************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
+/*! exports provided: ResetPasswordSetScreen */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-var _interopRequireDefault = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireDefault */ "../../node_modules/@babel/runtime/helpers/interopRequireDefault.js");
-
-var _interopRequireWildcard = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireWildcard */ "../../node_modules/@babel/runtime/helpers/interopRequireWildcard.js");
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.ResetPasswordSetScreen = void 0;
-
-var _objectSpread2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/objectSpread2 */ "../../node_modules/@babel/runtime/helpers/esm/objectSpread2.js"));
-
-var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/slicedToArray */ "../../node_modules/@babel/runtime/helpers/esm/slicedToArray.js"));
-
-var _react = _interopRequireWildcard(__webpack_require__(/*! react */ "../../node_modules/react/index.js"));
-
-var _hook = __webpack_require__(/*! ../hook */ "./src/hook.ts");
-
-var _component = __webpack_require__(/*! ./component */ "./src/screen/component/index.ts");
-
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ResetPasswordSetScreen", function() { return ResetPasswordSetScreen; });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "../../node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _hook__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../hook */ "./src/hook.ts");
+/* harmony import */ var _component__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./component */ "./src/screen/component/index.ts");
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-app-renderer/src/screen/reset_password.set.tsx";
 
-var ResetPasswordSetScreen = function ResetPasswordSetScreen() {
-  var _useAppState = (0, _hook.useAppState)(),
-      _useAppState2 = (0, _slicedToArray2.default)(_useAppState, 2),
-      state = _useAppState2[0],
-      dispatch = _useAppState2[1];
 
-  var email = state.session.resetPassword.user.email;
 
-  var _useState = (0, _react.useState)({
+const ResetPasswordSetScreen = () => {
+  // states
+  const [state, dispatch] = Object(_hook__WEBPACK_IMPORTED_MODULE_1__["useAppState"])();
+  const email = state.session.resetPassword.user.email;
+  const [payload, setPayload] = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])({
     password: "",
     password_confirmation: ""
-  }),
-      _useState2 = (0, _slicedToArray2.default)(_useState, 2),
-      payload = _useState2[0],
-      setPayload = _useState2[1];
+  }); // handlers
 
-  var _useNavigation = (0, _hook.useNavigation)(),
-      nav = _useNavigation.nav;
-
-  var _useWithLoading = (0, _hook.useWithLoading)(),
-      loading = _useWithLoading.loading,
-      errors = _useWithLoading.errors,
-      setErrors = _useWithLoading.setErrors,
-      withLoading = _useWithLoading.withLoading;
-
-  var _withLoading = withLoading(function () {
-    return dispatch("reset_password.set", (0, _objectSpread2.default)({
-      email: email
-    }, payload)).then(function () {
+  const {
+    nav
+  } = Object(_hook__WEBPACK_IMPORTED_MODULE_1__["useNavigation"])();
+  const {
+    loading,
+    errors,
+    setErrors,
+    withLoading
+  } = Object(_hook__WEBPACK_IMPORTED_MODULE_1__["useWithLoading"])();
+  const [handleResetPassword, handleResetPasswordLoading] = withLoading(() => {
+    return dispatch("reset_password.set", {
+      email,
+      ...payload
+    }).then(() => {
       setErrors({});
       nav.navigate("reset_password.stack", {
         screen: "reset_password.end",
         params: {}
       });
-    }).catch(function (errs) {
-      return setErrors(errs);
-    });
-  }, [payload]),
-      _withLoading2 = (0, _slicedToArray2.default)(_withLoading, 2),
-      handleResetPassword = _withLoading2[0],
-      handleResetPasswordLoading = _withLoading2[1];
-
-  var _withLoading3 = withLoading(function () {
+    }).catch(errs => setErrors(errs));
+  }, [payload]);
+  const [handleCancel, handleCancelLoading] = withLoading(() => {
     nav.navigate("login.stack", {
       screen: "login.check_password",
       params: {
-        email: email
+        email
       }
     });
     setErrors({});
-  }, []),
-      _withLoading4 = (0, _slicedToArray2.default)(_withLoading3, 2),
-      handleCancel = _withLoading4[0],
-      handleCancelLoading = _withLoading4[1];
+  }, []); // render
 
-  return _react.default.createElement(_component.ScreenLayout, {
-    title: "Reset password",
+  return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_2__["ScreenLayout"], {
+    title: `Reset password`,
     subtitle: email,
     error: errors.global,
     loading: loading,
@@ -4700,8 +3888,8 @@ var ResetPasswordSetScreen = function ResetPasswordSetScreen() {
       fileName: _jsxFileName,
       lineNumber: 44
     },
-    __self: this
-  }, _react.default.createElement(_component.Text, {
+    __self: undefined
+  }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_2__["Text"], {
     style: {
       marginBottom: 30
     },
@@ -4709,15 +3897,15 @@ var ResetPasswordSetScreen = function ResetPasswordSetScreen() {
       fileName: _jsxFileName,
       lineNumber: 66
     },
-    __self: this
-  }, "Set a new password for your account."), _react.default.createElement(_component.Form, {
+    __self: undefined
+  }, "Set a new password for your account."), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_2__["Form"], {
     onSubmit: handleResetPassword,
     __source: {
       fileName: _jsxFileName,
       lineNumber: 69
     },
-    __self: this
-  }, _react.default.createElement(_component.FormInput, {
+    __self: undefined
+  }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_2__["FormInput"], {
     autoCompleteType: "username",
     value: email,
     style: {
@@ -4727,8 +3915,8 @@ var ResetPasswordSetScreen = function ResetPasswordSetScreen() {
       fileName: _jsxFileName,
       lineNumber: 71
     },
-    __self: this
-  }), _react.default.createElement(_component.FormInput, {
+    __self: undefined
+  }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_2__["FormInput"], {
     label: "Password",
     tabIndex: 41,
     autoFocus: true,
@@ -4736,13 +3924,9 @@ var ResetPasswordSetScreen = function ResetPasswordSetScreen() {
     autoCompleteType: "password",
     placeholder: "Enter new password",
     value: payload.password,
-    setValue: function setValue(v) {
-      return setPayload(function (p) {
-        return (0, _objectSpread2.default)({}, p, {
-          password: v
-        });
-      });
-    },
+    setValue: v => setPayload(p => ({ ...p,
+      password: v
+    })),
     error: errors.password,
     onEnter: handleResetPassword,
     style: {
@@ -4752,32 +3936,26 @@ var ResetPasswordSetScreen = function ResetPasswordSetScreen() {
       fileName: _jsxFileName,
       lineNumber: 76
     },
-    __self: this
-  }), _react.default.createElement(_component.FormInput, {
+    __self: undefined
+  }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_2__["FormInput"], {
     label: "Confirm",
     tabIndex: 42,
     secureTextEntry: true,
     autoCompleteType: "password",
     placeholder: "Confirm new password",
     value: payload.password_confirmation,
-    setValue: function setValue(v) {
-      return setPayload(function (p) {
-        return (0, _objectSpread2.default)({}, p, {
-          password_confirmation: v
-        });
-      });
-    },
+    setValue: v => setPayload(p => ({ ...p,
+      password_confirmation: v
+    })),
     error: errors.password_confirmation,
     onEnter: handleResetPassword,
     __source: {
       fileName: _jsxFileName,
       lineNumber: 89
     },
-    __self: this
+    __self: undefined
   })));
 };
-
-exports.ResetPasswordSetScreen = ResetPasswordSetScreen;
 
 /***/ }),
 
@@ -4785,37 +3963,30 @@ exports.ResetPasswordSetScreen = ResetPasswordSetScreen;
 /*!*****************************************!*\
   !*** ./src/screen/verify_email.end.tsx ***!
   \*****************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
+/*! exports provided: VerifyEmailEndScreen */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-var _interopRequireDefault = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireDefault */ "../../node_modules/@babel/runtime/helpers/interopRequireDefault.js");
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.VerifyEmailEndScreen = void 0;
-
-var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/slicedToArray */ "../../node_modules/@babel/runtime/helpers/esm/slicedToArray.js"));
-
-var _react = _interopRequireDefault(__webpack_require__(/*! react */ "../../node_modules/react/index.js"));
-
-var _hook = __webpack_require__(/*! ../hook */ "./src/hook.ts");
-
-var _component = __webpack_require__(/*! ./component */ "./src/screen/component/index.ts");
-
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "VerifyEmailEndScreen", function() { return VerifyEmailEndScreen; });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "../../node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _hook__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../hook */ "./src/hook.ts");
+/* harmony import */ var _component__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./component */ "./src/screen/component/index.ts");
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-app-renderer/src/screen/verify_email.end.tsx";
 
-var VerifyEmailEndScreen = function VerifyEmailEndScreen() {
-  var _useAppState = (0, _hook.useAppState)(),
-      _useAppState2 = (0, _slicedToArray2.default)(_useAppState, 1),
-      state = _useAppState2[0];
 
-  var _useClose = (0, _hook.useClose)(false),
-      close = _useClose.close,
-      closed = _useClose.closed;
 
-  return _react.default.createElement(_component.ScreenLayout, {
-    title: "Email address verified",
+const VerifyEmailEndScreen = () => {
+  // states
+  const [state] = Object(_hook__WEBPACK_IMPORTED_MODULE_1__["useAppState"])();
+  const {
+    close,
+    closed
+  } = Object(_hook__WEBPACK_IMPORTED_MODULE_1__["useClose"])(false); // render
+
+  return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_2__["ScreenLayout"], {
+    title: `Email address verified`,
     subtitle: state.session.verifyEmail.email,
     error: closed ? "Please close the window manually." : undefined,
     loading: closed,
@@ -4828,17 +3999,15 @@ var VerifyEmailEndScreen = function VerifyEmailEndScreen() {
       fileName: _jsxFileName,
       lineNumber: 12
     },
-    __self: this
-  }, _react.default.createElement(_component.Text, {
+    __self: undefined
+  }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_2__["Text"], {
     __source: {
       fileName: _jsxFileName,
       lineNumber: 25
     },
-    __self: this
+    __self: undefined
   }, "The account email address has been verified successfully."));
 };
-
-exports.VerifyEmailEndScreen = VerifyEmailEndScreen;
 
 /***/ }),
 
@@ -4846,75 +4015,59 @@ exports.VerifyEmailEndScreen = VerifyEmailEndScreen;
 /*!*******************************************!*\
   !*** ./src/screen/verify_email.index.tsx ***!
   \*******************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
+/*! exports provided: VerifyEmailIndexScreen */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-var _interopRequireDefault = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireDefault */ "../../node_modules/@babel/runtime/helpers/interopRequireDefault.js");
-
-var _interopRequireWildcard = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireWildcard */ "../../node_modules/@babel/runtime/helpers/interopRequireWildcard.js");
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.VerifyEmailIndexScreen = void 0;
-
-var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/slicedToArray */ "../../node_modules/@babel/runtime/helpers/esm/slicedToArray.js"));
-
-var _react = _interopRequireWildcard(__webpack_require__(/*! react */ "../../node_modules/react/index.js"));
-
-var _hook = __webpack_require__(/*! ../hook */ "./src/hook.ts");
-
-var _component = __webpack_require__(/*! ./component */ "./src/screen/component/index.ts");
-
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "VerifyEmailIndexScreen", function() { return VerifyEmailIndexScreen; });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "../../node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _hook__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../hook */ "./src/hook.ts");
+/* harmony import */ var _component__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./component */ "./src/screen/component/index.ts");
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-app-renderer/src/screen/verify_email.index.tsx";
 
-var VerifyEmailIndexScreen = function VerifyEmailIndexScreen() {
-  var _useAppState = (0, _hook.useAppState)(),
-      _useAppState2 = (0, _slicedToArray2.default)(_useAppState, 2),
-      state = _useAppState2[0],
-      dispatch = _useAppState2[1];
 
-  var _useState = (0, _react.useState)(""),
-      _useState2 = (0, _slicedToArray2.default)(_useState, 2),
-      email = _useState2[0],
-      setEmail = _useState2[1];
 
-  var _useNavigation = (0, _hook.useNavigation)(),
-      nav = _useNavigation.nav,
-      route = _useNavigation.route;
+const VerifyEmailIndexScreen = () => {
+  // states
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [state, dispatch] = Object(_hook__WEBPACK_IMPORTED_MODULE_1__["useAppState"])();
+  const [email, setEmail] = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])("");
+  const {
+    nav,
+    route
+  } = Object(_hook__WEBPACK_IMPORTED_MODULE_1__["useNavigation"])(); // handlers
 
-  var _useWithLoading = (0, _hook.useWithLoading)(),
-      loading = _useWithLoading.loading,
-      errors = _useWithLoading.errors,
-      setErrors = _useWithLoading.setErrors,
-      withLoading = _useWithLoading.withLoading;
-
-  var _withLoading = withLoading(function () {
+  const {
+    loading,
+    errors,
+    setErrors,
+    withLoading
+  } = Object(_hook__WEBPACK_IMPORTED_MODULE_1__["useWithLoading"])();
+  const [handleCheckEmail, handleCheckEmailLoading] = withLoading(() => {
     dispatch("verify_email.check_email", {
-      email: email,
+      email,
       registered: true
-    }).then(function () {
+    }).then(() => {
       setErrors({});
       nav.navigate("verify_email.stack", {
         screen: "verify_email.verify",
         params: {}
       });
-    }).catch(function (err) {
-      return setErrors(err);
-    });
-  }, [email]),
-      _withLoading2 = (0, _slicedToArray2.default)(_withLoading, 2),
-      handleCheckEmail = _withLoading2[0],
-      handleCheckEmailLoading = _withLoading2[1];
-
-  (0, _react.useEffect)(function () {
+    }).catch(err => setErrors(err));
+  }, [email]);
+  Object(react__WEBPACK_IMPORTED_MODULE_0__["useEffect"])(() => {
+    // update email when route params updated
     if (route.params.email !== email) {
       setEmail(route.params.email || "");
       setErrors({});
     }
-  }, [nav, route]);
-  return _react.default.createElement(_component.ScreenLayout, {
-    title: "Verify your email",
+  }, // eslint-disable-next-line react-hooks/exhaustive-deps
+  [nav, route]); // render
+
+  return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_2__["ScreenLayout"], {
+    title: `Verify your email`,
     loading: loading,
     error: errors.global,
     buttons: [{
@@ -4928,8 +4081,8 @@ var VerifyEmailIndexScreen = function VerifyEmailIndexScreen() {
       fileName: _jsxFileName,
       lineNumber: 41
     },
-    __self: this
-  }, _react.default.createElement(_component.Text, {
+    __self: undefined
+  }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_2__["Text"], {
     style: {
       marginBottom: 30
     },
@@ -4937,11 +4090,11 @@ var VerifyEmailIndexScreen = function VerifyEmailIndexScreen() {
       fileName: _jsxFileName,
       lineNumber: 55
     },
-    __self: this
-  }, "Verify your registered email address."), _react.default.createElement(_component.FormInput, {
+    __self: undefined
+  }, "Verify your registered email address."), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_2__["FormInput"], {
     autoFocus: true,
     tabIndex: 31,
-    label: "Email",
+    label: `Email`,
     keyboardType: "email-address",
     placeholder: "Enter your email address",
     autoCompleteType: "username",
@@ -4954,11 +4107,9 @@ var VerifyEmailIndexScreen = function VerifyEmailIndexScreen() {
       fileName: _jsxFileName,
       lineNumber: 58
     },
-    __self: this
+    __self: undefined
   }));
 };
-
-exports.VerifyEmailIndexScreen = VerifyEmailIndexScreen;
 
 /***/ }),
 
@@ -4966,93 +4117,71 @@ exports.VerifyEmailIndexScreen = VerifyEmailIndexScreen;
 /*!********************************************!*\
   !*** ./src/screen/verify_email.verify.tsx ***!
   \********************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
+/*! exports provided: VerifyEmailVerifyScreen */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-var _interopRequireDefault = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireDefault */ "../../node_modules/@babel/runtime/helpers/interopRequireDefault.js");
-
-var _interopRequireWildcard = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireWildcard */ "../../node_modules/@babel/runtime/helpers/interopRequireWildcard.js");
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.VerifyEmailVerifyScreen = void 0;
-
-var _toConsumableArray2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/toConsumableArray */ "../../node_modules/@babel/runtime/helpers/esm/toConsumableArray.js"));
-
-var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/slicedToArray */ "../../node_modules/@babel/runtime/helpers/esm/slicedToArray.js"));
-
-var _moment = _interopRequireDefault(__webpack_require__(/*! moment */ "../../node_modules/moment/moment.js"));
-
-var _react = _interopRequireWildcard(__webpack_require__(/*! react */ "../../node_modules/react/index.js"));
-
-var _reactNative = __webpack_require__(/*! react-native */ "./build.shim.rnw.tsx");
-
-var _hook = __webpack_require__(/*! ../hook */ "./src/hook.ts");
-
-var _component = __webpack_require__(/*! ./component */ "./src/screen/component/index.ts");
-
-var _screen_sent = _interopRequireDefault(__webpack_require__(/*! ../assets/screen_sent.svg */ "./src/assets/screen_sent.svg"));
-
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "VerifyEmailVerifyScreen", function() { return VerifyEmailVerifyScreen; });
+/* harmony import */ var moment__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! moment */ "../../node_modules/moment/moment.js");
+/* harmony import */ var moment__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(moment__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react */ "../../node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var react_native__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! react-native */ "../../node_modules/react-native-web/dist/index.js");
+/* harmony import */ var _hook__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../hook */ "./src/hook.ts");
+/* harmony import */ var _component__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./component */ "./src/screen/component/index.ts");
+/* harmony import */ var _assets_screen_sent_svg__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../assets/screen_sent.svg */ "./src/assets/screen_sent.svg");
+/* harmony import */ var _assets_screen_sent_svg__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_assets_screen_sent_svg__WEBPACK_IMPORTED_MODULE_5__);
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-app-renderer/src/screen/verify_email.verify.tsx";
 
-var VerifyEmailVerifyScreen = function VerifyEmailVerifyScreen() {
-  var _useAppState = (0, _hook.useAppState)(),
-      _useAppState2 = (0, _slicedToArray2.default)(_useAppState, 2),
-      state = _useAppState2[0],
-      dispatch = _useAppState2[1];
 
-  var email = state.session.verifyEmail.email;
-  var expiresAt = state.session.verifyEmail.expiresAt;
 
-  var _useState = (0, _react.useState)(state.session.dev && state.session.dev.verifyEmailSecret || ""),
-      _useState2 = (0, _slicedToArray2.default)(_useState, 2),
-      secret = _useState2[0],
-      setSecret = _useState2[1];
 
-  var _useState3 = (0, _react.useState)("00:00"),
-      _useState4 = (0, _slicedToArray2.default)(_useState3, 2),
-      remainingSeconds = _useState4[0],
-      setRemainingSeconds = _useState4[1];
 
-  var updateRemainingSeconds = (0, _react.useCallback)(function () {
-    var updated = "";
+
+const VerifyEmailVerifyScreen = () => {
+  // states
+  const [state, dispatch] = Object(_hook__WEBPACK_IMPORTED_MODULE_3__["useAppState"])();
+  const email = state.session.verifyEmail.email;
+  const expiresAt = state.session.verifyEmail.expiresAt;
+  const [secret, setSecret] = Object(react__WEBPACK_IMPORTED_MODULE_1__["useState"])(state.session.dev && state.session.dev.verifyEmailSecret || "");
+  const [remainingSeconds, setRemainingSeconds] = Object(react__WEBPACK_IMPORTED_MODULE_1__["useState"])("00:00");
+  const updateRemainingSeconds = Object(react__WEBPACK_IMPORTED_MODULE_1__["useCallback"])(() => {
+    let updated = "";
 
     if (expiresAt) {
-      var seconds = Math.max((0, _moment.default)(expiresAt).diff(_moment.default.now(), "s"), 0);
-      updated = Math.floor(seconds / 60).toString().padStart(2, "0") + ":" + (seconds % 60).toString().padStart(2, "0");
+      const seconds = Math.max(moment__WEBPACK_IMPORTED_MODULE_0___default()(expiresAt).diff(moment__WEBPACK_IMPORTED_MODULE_0___default.a.now(), "s"), 0);
+      updated = `${Math.floor(seconds / 60).toString().padStart(2, "0")}:${(seconds % 60).toString().padStart(2, "0")}`;
     }
 
     if (updated !== remainingSeconds) {
       setRemainingSeconds(updated);
     }
   }, [expiresAt, remainingSeconds]);
-  (0, _react.useEffect)(function () {
+  Object(react__WEBPACK_IMPORTED_MODULE_1__["useEffect"])(() => {
     updateRemainingSeconds();
-    var timer = setInterval(updateRemainingSeconds, 500);
-    return function () {
-      return clearInterval(timer);
-    };
-  }, [updateRemainingSeconds]);
+    const timer = setInterval(updateRemainingSeconds, 500);
+    return () => clearInterval(timer);
+  }, [updateRemainingSeconds]); // handlers
 
-  var _useWithLoading = (0, _hook.useWithLoading)(),
-      loading = _useWithLoading.loading,
-      errors = _useWithLoading.errors,
-      setErrors = _useWithLoading.setErrors,
-      withLoading = _useWithLoading.withLoading;
-
-  var _useNavigation = (0, _hook.useNavigation)(),
-      nav = _useNavigation.nav,
-      route = _useNavigation.route;
-
-  var _route$params$callbac = route.params.callback,
-      callback = _route$params$callbac === void 0 ? "" : _route$params$callbac;
-
-  var _withLoading = withLoading(function () {
+  const {
+    loading,
+    errors,
+    setErrors,
+    withLoading
+  } = Object(_hook__WEBPACK_IMPORTED_MODULE_3__["useWithLoading"])();
+  const {
+    nav,
+    route
+  } = Object(_hook__WEBPACK_IMPORTED_MODULE_3__["useNavigation"])();
+  const {
+    callback = ""
+  } = route.params;
+  const [handleSend, handleSendLoading] = withLoading(() => {
     return dispatch("verify_email.send", {
-      email: email
-    }).then(function (s) {
-      setErrors({});
+      email
+    }).then(s => {
+      setErrors({}); // for dev
 
       if (s.session.dev && s.session.dev.verifyEmailSecret) {
         console.debug("set secret automatically by dev mode");
@@ -5060,15 +4189,9 @@ var VerifyEmailVerifyScreen = function VerifyEmailVerifyScreen() {
       }
 
       updateRemainingSeconds();
-    }).catch(function (errs) {
-      return setErrors(errs);
-    });
-  }, [state]),
-      _withLoading2 = (0, _slicedToArray2.default)(_withLoading, 2),
-      handleSend = _withLoading2[0],
-      handleSendLoading = _withLoading2[1];
-
-  var _withLoading3 = withLoading(function () {
+    }).catch(errs => setErrors(errs));
+  }, [state]);
+  const [handleCancel, handleCancelLoading] = withLoading(() => {
     switch (callback) {
       case "reset_password":
         if (state.routes.login) {
@@ -5101,17 +4224,13 @@ var VerifyEmailVerifyScreen = function VerifyEmailVerifyScreen() {
     }
 
     setErrors({});
-  }, [callback]),
-      _withLoading4 = (0, _slicedToArray2.default)(_withLoading3, 2),
-      handleCancel = _withLoading4[0],
-      handleCancelLoading = _withLoading4[1];
-
-  var _withLoading5 = withLoading(function () {
+  }, [callback]);
+  const [handleVerify, handleVerifyLoading] = withLoading(() => {
     return dispatch("verify_email.verify", {
-      email: email,
-      secret: secret,
-      callback: callback
-    }).then(function () {
+      email,
+      secret,
+      callback
+    }).then(() => {
       setErrors({});
 
       switch (callback) {
@@ -5135,24 +4254,19 @@ var VerifyEmailVerifyScreen = function VerifyEmailVerifyScreen() {
             params: {}
           });
       }
-    }).catch(function (errs) {
-      return setErrors(errs);
-    });
-  }, [callback, state, secret]),
-      _withLoading6 = (0, _slicedToArray2.default)(_withLoading5, 2),
-      handleVerify = _withLoading6[0],
-      handleVerifyLoading = _withLoading6[1];
+    }).catch(errs => setErrors(errs));
+  }, [callback, state, secret]); // render
 
-  return _react.default.createElement(_component.ScreenLayout, {
-    title: "Verify email address",
+  return react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_4__["ScreenLayout"], {
+    title: `Verify email address`,
     subtitle: email,
-    buttons: [].concat((0, _toConsumableArray2.default)(expiresAt ? [{
+    buttons: [...(expiresAt ? [{
       status: "primary",
       children: "Verify",
       onPress: handleVerify,
       loading: handleVerifyLoading,
       tabIndex: 111
-    }] : []), [{
+    }] : []), {
       status: expiresAt ? "basic" : "primary",
       children: expiresAt ? "Resend" : "Send",
       onPress: handleSend,
@@ -5163,15 +4277,15 @@ var VerifyEmailVerifyScreen = function VerifyEmailVerifyScreen() {
       onPress: handleCancel,
       loading: handleCancelLoading,
       tabIndex: 113
-    }]),
+    }],
     loading: loading,
     error: errors.global,
     __source: {
       fileName: _jsxFileName,
       lineNumber: 118
     },
-    __self: this
-  }, expiresAt ? _react.default.createElement(_react.default.Fragment, null, _react.default.createElement(_component.Text, {
+    __self: undefined
+  }, expiresAt ? react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(react__WEBPACK_IMPORTED_MODULE_1___default.a.Fragment, null, react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_4__["Text"], {
     style: {
       marginBottom: 30
     },
@@ -5179,8 +4293,8 @@ var VerifyEmailVerifyScreen = function VerifyEmailVerifyScreen() {
       fileName: _jsxFileName,
       lineNumber: 148
     },
-    __self: this
-  }, "Enter the received 6-digit verification code."), _react.default.createElement(_component.FormInput, {
+    __self: undefined
+  }, "Enter the received 6-digit verification code."), react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_4__["FormInput"], {
     label: "Verification code",
     keyboardType: "number-pad",
     placeholder: "Enter the verification code",
@@ -5196,8 +4310,8 @@ var VerifyEmailVerifyScreen = function VerifyEmailVerifyScreen() {
       fileName: _jsxFileName,
       lineNumber: 151
     },
-    __self: this
-  })) : _react.default.createElement(_react.default.Fragment, null, _react.default.createElement(_component.Text, {
+    __self: undefined
+  })) : react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(react__WEBPACK_IMPORTED_MODULE_1___default.a.Fragment, null, react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_4__["Text"], {
     style: {
       marginBottom: 30
     },
@@ -5205,10 +4319,10 @@ var VerifyEmailVerifyScreen = function VerifyEmailVerifyScreen() {
       fileName: _jsxFileName,
       lineNumber: 167
     },
-    __self: this
-  }, "An email with a verification code will be sent to verify the email address."), _react.default.createElement(_reactNative.Image, {
+    __self: undefined
+  }, "An email with a verification code will be sent to verify the email address."), react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(react_native__WEBPACK_IMPORTED_MODULE_2__["Image"], {
     source: {
-      uri: _screen_sent.default
+      uri: _assets_screen_sent_svg__WEBPACK_IMPORTED_MODULE_5___default.a
     },
     style: {
       minHeight: 200,
@@ -5219,11 +4333,9 @@ var VerifyEmailVerifyScreen = function VerifyEmailVerifyScreen() {
       fileName: _jsxFileName,
       lineNumber: 170
     },
-    __self: this
+    __self: undefined
   })));
 };
-
-exports.VerifyEmailVerifyScreen = VerifyEmailVerifyScreen;
 
 /***/ }),
 
@@ -5231,37 +4343,30 @@ exports.VerifyEmailVerifyScreen = VerifyEmailVerifyScreen;
 /*!*****************************************!*\
   !*** ./src/screen/verify_phone.end.tsx ***!
   \*****************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
+/*! exports provided: VerifyPhoneEndScreen */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-var _interopRequireDefault = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireDefault */ "../../node_modules/@babel/runtime/helpers/interopRequireDefault.js");
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.VerifyPhoneEndScreen = void 0;
-
-var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/slicedToArray */ "../../node_modules/@babel/runtime/helpers/esm/slicedToArray.js"));
-
-var _react = _interopRequireDefault(__webpack_require__(/*! react */ "../../node_modules/react/index.js"));
-
-var _hook = __webpack_require__(/*! ../hook */ "./src/hook.ts");
-
-var _component = __webpack_require__(/*! ./component */ "./src/screen/component/index.ts");
-
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "VerifyPhoneEndScreen", function() { return VerifyPhoneEndScreen; });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "../../node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _hook__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../hook */ "./src/hook.ts");
+/* harmony import */ var _component__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./component */ "./src/screen/component/index.ts");
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-app-renderer/src/screen/verify_phone.end.tsx";
 
-var VerifyPhoneEndScreen = function VerifyPhoneEndScreen() {
-  var _useAppState = (0, _hook.useAppState)(),
-      _useAppState2 = (0, _slicedToArray2.default)(_useAppState, 1),
-      state = _useAppState2[0];
 
-  var _useClose = (0, _hook.useClose)(false),
-      close = _useClose.close,
-      closed = _useClose.closed;
 
-  return _react.default.createElement(_component.ScreenLayout, {
-    title: "Phone number verified",
+const VerifyPhoneEndScreen = () => {
+  // states
+  const [state] = Object(_hook__WEBPACK_IMPORTED_MODULE_1__["useAppState"])();
+  const {
+    close,
+    closed
+  } = Object(_hook__WEBPACK_IMPORTED_MODULE_1__["useClose"])(false); // render
+
+  return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_2__["ScreenLayout"], {
+    title: `Phone number verified`,
     subtitle: state.session.verifyPhone.phoneNumber,
     error: closed ? "Please close the window manually." : undefined,
     loading: closed,
@@ -5274,17 +4379,15 @@ var VerifyPhoneEndScreen = function VerifyPhoneEndScreen() {
       fileName: _jsxFileName,
       lineNumber: 12
     },
-    __self: this
-  }, _react.default.createElement(_component.Text, {
+    __self: undefined
+  }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_2__["Text"], {
     __source: {
       fileName: _jsxFileName,
       lineNumber: 25
     },
-    __self: this
+    __self: undefined
   }, "The account phone number has been verified successfully."));
 };
-
-exports.VerifyPhoneEndScreen = VerifyPhoneEndScreen;
 
 /***/ }),
 
@@ -5292,75 +4395,58 @@ exports.VerifyPhoneEndScreen = VerifyPhoneEndScreen;
 /*!*******************************************!*\
   !*** ./src/screen/verify_phone.index.tsx ***!
   \*******************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
+/*! exports provided: VerifyPhoneIndexScreen */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-var _interopRequireDefault = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireDefault */ "../../node_modules/@babel/runtime/helpers/interopRequireDefault.js");
-
-var _interopRequireWildcard = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireWildcard */ "../../node_modules/@babel/runtime/helpers/interopRequireWildcard.js");
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.VerifyPhoneIndexScreen = void 0;
-
-var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/slicedToArray */ "../../node_modules/@babel/runtime/helpers/esm/slicedToArray.js"));
-
-var _react = _interopRequireWildcard(__webpack_require__(/*! react */ "../../node_modules/react/index.js"));
-
-var _hook = __webpack_require__(/*! ../hook */ "./src/hook.ts");
-
-var _component = __webpack_require__(/*! ./component */ "./src/screen/component/index.ts");
-
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "VerifyPhoneIndexScreen", function() { return VerifyPhoneIndexScreen; });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "../../node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _hook__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../hook */ "./src/hook.ts");
+/* harmony import */ var _component__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./component */ "./src/screen/component/index.ts");
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-app-renderer/src/screen/verify_phone.index.tsx";
 
-var VerifyPhoneIndexScreen = function VerifyPhoneIndexScreen() {
-  var _useAppState = (0, _hook.useAppState)(),
-      _useAppState2 = (0, _slicedToArray2.default)(_useAppState, 2),
-      state = _useAppState2[0],
-      dispatch = _useAppState2[1];
 
-  var _useState = (0, _react.useState)(""),
-      _useState2 = (0, _slicedToArray2.default)(_useState, 2),
-      phoneNumber = _useState2[0],
-      setPhoneNumber = _useState2[1];
 
-  var _useNavigation = (0, _hook.useNavigation)(),
-      nav = _useNavigation.nav,
-      route = _useNavigation.route;
+const VerifyPhoneIndexScreen = () => {
+  // states
+  const [state, dispatch] = Object(_hook__WEBPACK_IMPORTED_MODULE_1__["useAppState"])();
+  const [phoneNumber, setPhoneNumber] = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])(""); // handlers
 
-  var _useWithLoading = (0, _hook.useWithLoading)(),
-      loading = _useWithLoading.loading,
-      errors = _useWithLoading.errors,
-      setErrors = _useWithLoading.setErrors,
-      withLoading = _useWithLoading.withLoading;
-
-  var _withLoading = withLoading(function () {
+  const {
+    nav,
+    route
+  } = Object(_hook__WEBPACK_IMPORTED_MODULE_1__["useNavigation"])();
+  const {
+    loading,
+    errors,
+    setErrors,
+    withLoading
+  } = Object(_hook__WEBPACK_IMPORTED_MODULE_1__["useWithLoading"])();
+  const [handleCheckPhoneNumber, handleCheckPhoneNumberLoading] = withLoading(() => {
     dispatch("verify_phone.check_phone", {
-      phone_number: state.locale.country + "|" + phoneNumber,
+      phone_number: `${state.locale.country}|${phoneNumber}`,
       registered: true
-    }).then(function () {
+    }).then(() => {
       setErrors({});
       nav.navigate("verify_phone.stack", {
         screen: "verify_phone.verify",
         params: {}
       });
-    }).catch(function (err) {
-      return setErrors(err);
-    });
-  }, [phoneNumber]),
-      _withLoading2 = (0, _slicedToArray2.default)(_withLoading, 2),
-      handleCheckPhoneNumber = _withLoading2[0],
-      handleCheckPhoneNumberLoading = _withLoading2[1];
-
-  (0, _react.useEffect)(function () {
+    }).catch(err => setErrors(err));
+  }, [phoneNumber]);
+  Object(react__WEBPACK_IMPORTED_MODULE_0__["useEffect"])(() => {
+    // update email when route params updated
     if (route.params.phone_number && route.params.phone_number !== phoneNumber) {
       setPhoneNumber(route.params.phone_number || "");
       setErrors({});
     }
-  }, [nav, route]);
-  return _react.default.createElement(_component.ScreenLayout, {
-    title: "Verify your phone",
+  }, // eslint-disable-next-line react-hooks/exhaustive-deps
+  [nav, route]); // render
+
+  return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_2__["ScreenLayout"], {
+    title: `Verify your phone`,
     loading: loading,
     error: errors.global,
     buttons: [{
@@ -5374,8 +4460,8 @@ var VerifyPhoneIndexScreen = function VerifyPhoneIndexScreen() {
       fileName: _jsxFileName,
       lineNumber: 39
     },
-    __self: this
-  }, _react.default.createElement(_component.Text, {
+    __self: undefined
+  }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_2__["Text"], {
     style: {
       marginBottom: 30
     },
@@ -5383,12 +4469,12 @@ var VerifyPhoneIndexScreen = function VerifyPhoneIndexScreen() {
       fileName: _jsxFileName,
       lineNumber: 53
     },
-    __self: this
-  }, "Verify your registered phone number."), _react.default.createElement(_component.FormInput, {
+    __self: undefined
+  }, "Verify your registered phone number."), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_2__["FormInput"], {
     autoFocus: true,
     tabIndex: 21,
-    label: "Phone number",
-    placeholder: "Enter your mobile phone number (" + state.locale.country + ")",
+    label: `Phone number`,
+    placeholder: `Enter your mobile phone number (${state.locale.country})`,
     blurOnSubmit: false,
     keyboardType: "phone-pad",
     autoCompleteType: "tel",
@@ -5400,11 +4486,9 @@ var VerifyPhoneIndexScreen = function VerifyPhoneIndexScreen() {
       fileName: _jsxFileName,
       lineNumber: 56
     },
-    __self: this
+    __self: undefined
   }));
 };
-
-exports.VerifyPhoneIndexScreen = VerifyPhoneIndexScreen;
 
 /***/ }),
 
@@ -5412,92 +4496,70 @@ exports.VerifyPhoneIndexScreen = VerifyPhoneIndexScreen;
 /*!********************************************!*\
   !*** ./src/screen/verify_phone.verify.tsx ***!
   \********************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
+/*! exports provided: VerifyPhoneVerifyScreen */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-var _interopRequireDefault = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireDefault */ "../../node_modules/@babel/runtime/helpers/interopRequireDefault.js");
-
-var _interopRequireWildcard = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireWildcard */ "../../node_modules/@babel/runtime/helpers/interopRequireWildcard.js");
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.VerifyPhoneVerifyScreen = void 0;
-
-var _toConsumableArray2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/toConsumableArray */ "../../node_modules/@babel/runtime/helpers/esm/toConsumableArray.js"));
-
-var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/slicedToArray */ "../../node_modules/@babel/runtime/helpers/esm/slicedToArray.js"));
-
-var _moment = _interopRequireDefault(__webpack_require__(/*! moment */ "../../node_modules/moment/moment.js"));
-
-var _react = _interopRequireWildcard(__webpack_require__(/*! react */ "../../node_modules/react/index.js"));
-
-var _reactNative = __webpack_require__(/*! react-native */ "./build.shim.rnw.tsx");
-
-var _component = __webpack_require__(/*! ./component */ "./src/screen/component/index.ts");
-
-var _hook = __webpack_require__(/*! ../hook */ "./src/hook.ts");
-
-var _screen_verify = _interopRequireDefault(__webpack_require__(/*! ../assets/screen_verify.svg */ "./src/assets/screen_verify.svg"));
-
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "VerifyPhoneVerifyScreen", function() { return VerifyPhoneVerifyScreen; });
+/* harmony import */ var moment__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! moment */ "../../node_modules/moment/moment.js");
+/* harmony import */ var moment__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(moment__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react */ "../../node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var react_native__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! react-native */ "../../node_modules/react-native-web/dist/index.js");
+/* harmony import */ var _component__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./component */ "./src/screen/component/index.ts");
+/* harmony import */ var _hook__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../hook */ "./src/hook.ts");
+/* harmony import */ var _assets_screen_verify_svg__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../assets/screen_verify.svg */ "./src/assets/screen_verify.svg");
+/* harmony import */ var _assets_screen_verify_svg__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_assets_screen_verify_svg__WEBPACK_IMPORTED_MODULE_5__);
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-app-renderer/src/screen/verify_phone.verify.tsx";
 
-var VerifyPhoneVerifyScreen = function VerifyPhoneVerifyScreen() {
-  var _useAppState = (0, _hook.useAppState)(),
-      _useAppState2 = (0, _slicedToArray2.default)(_useAppState, 2),
-      state = _useAppState2[0],
-      dispatch = _useAppState2[1];
 
-  var expiresAt = state.session.verifyPhone.expiresAt;
 
-  var _useState = (0, _react.useState)(state.session.dev && state.session.dev.verifyPhoneSecret || ""),
-      _useState2 = (0, _slicedToArray2.default)(_useState, 2),
-      secret = _useState2[0],
-      setSecret = _useState2[1];
 
-  var _useState3 = (0, _react.useState)("00:00"),
-      _useState4 = (0, _slicedToArray2.default)(_useState3, 2),
-      remainingSeconds = _useState4[0],
-      setRemainingSeconds = _useState4[1];
 
-  var updateRemainingSeconds = (0, _react.useCallback)(function () {
-    var updated = "";
+
+const VerifyPhoneVerifyScreen = () => {
+  // states
+  const [state, dispatch] = Object(_hook__WEBPACK_IMPORTED_MODULE_4__["useAppState"])();
+  const expiresAt = state.session.verifyPhone.expiresAt;
+  const [secret, setSecret] = Object(react__WEBPACK_IMPORTED_MODULE_1__["useState"])(state.session.dev && state.session.dev.verifyPhoneSecret || "");
+  const [remainingSeconds, setRemainingSeconds] = Object(react__WEBPACK_IMPORTED_MODULE_1__["useState"])("00:00");
+  const updateRemainingSeconds = Object(react__WEBPACK_IMPORTED_MODULE_1__["useCallback"])(() => {
+    let updated = "";
 
     if (expiresAt) {
-      var seconds = Math.max((0, _moment.default)(expiresAt).diff(_moment.default.now(), "s"), 0);
-      updated = Math.floor(seconds / 60).toString().padStart(2, "0") + ":" + (seconds % 60).toString().padStart(2, "0");
+      const seconds = Math.max(moment__WEBPACK_IMPORTED_MODULE_0___default()(expiresAt).diff(moment__WEBPACK_IMPORTED_MODULE_0___default.a.now(), "s"), 0);
+      updated = `${Math.floor(seconds / 60).toString().padStart(2, "0")}:${(seconds % 60).toString().padStart(2, "0")}`;
     }
 
     if (updated !== remainingSeconds) {
       setRemainingSeconds(updated);
     }
   }, [expiresAt, remainingSeconds]);
-  (0, _react.useEffect)(function () {
+  Object(react__WEBPACK_IMPORTED_MODULE_1__["useEffect"])(() => {
     updateRemainingSeconds();
-    var timer = setInterval(updateRemainingSeconds, 500);
-    return function () {
-      return clearInterval(timer);
-    };
-  }, [updateRemainingSeconds]);
+    const timer = setInterval(updateRemainingSeconds, 500);
+    return () => clearInterval(timer);
+  }, [updateRemainingSeconds]); // handlers
 
-  var _useWithLoading = (0, _hook.useWithLoading)(),
-      loading = _useWithLoading.loading,
-      errors = _useWithLoading.errors,
-      setErrors = _useWithLoading.setErrors,
-      withLoading = _useWithLoading.withLoading;
-
-  var _useNavigation = (0, _hook.useNavigation)(),
-      nav = _useNavigation.nav,
-      route = _useNavigation.route;
-
-  var _route$params$callbac = route.params.callback,
-      callback = _route$params$callbac === void 0 ? "" : _route$params$callbac;
-
-  var _withLoading = withLoading(function () {
+  const {
+    loading,
+    errors,
+    setErrors,
+    withLoading
+  } = Object(_hook__WEBPACK_IMPORTED_MODULE_4__["useWithLoading"])();
+  const {
+    nav,
+    route
+  } = Object(_hook__WEBPACK_IMPORTED_MODULE_4__["useNavigation"])();
+  const {
+    callback = ""
+  } = route.params;
+  const [handleSend, handleSendLoading] = withLoading(() => {
     return dispatch("verify_phone.send", {
       phone_number: state.session.verifyPhone.phoneNumber
-    }).then(function (s) {
-      setErrors({});
+    }).then(s => {
+      setErrors({}); // for dev
 
       if (s.session.dev && s.session.dev.verifyPhoneSecret) {
         console.debug("set secret automatically by dev mode");
@@ -5505,15 +4567,9 @@ var VerifyPhoneVerifyScreen = function VerifyPhoneVerifyScreen() {
       }
 
       updateRemainingSeconds();
-    }).catch(function (errs) {
-      return setErrors(errs);
-    });
-  }, [state]),
-      _withLoading2 = (0, _slicedToArray2.default)(_withLoading, 2),
-      handleSend = _withLoading2[0],
-      handleSendLoading = _withLoading2[1];
-
-  var _withLoading3 = withLoading(function () {
+    }).catch(errs => setErrors(errs));
+  }, [state]);
+  const [handleCancel, handleCancelLoading] = withLoading(() => {
     switch (callback) {
       case "find_email":
         nav.navigate("find_email.stack", {
@@ -5538,17 +4594,13 @@ var VerifyPhoneVerifyScreen = function VerifyPhoneVerifyScreen() {
     }
 
     setErrors({});
-  }, [callback]),
-      _withLoading4 = (0, _slicedToArray2.default)(_withLoading3, 2),
-      handleCancel = _withLoading4[0],
-      handleCancelLoading = _withLoading4[1];
-
-  var _withLoading5 = withLoading(function () {
+  }, [callback]);
+  const [handleVerify, handleVerifyLoading] = withLoading(() => {
     return dispatch("verify_phone.verify", {
       phone_number: state.session.verifyPhone.phoneNumber,
-      secret: secret,
-      callback: callback
-    }).then(function () {
+      secret,
+      callback
+    }).then(() => {
       setErrors({});
 
       switch (callback) {
@@ -5572,24 +4624,19 @@ var VerifyPhoneVerifyScreen = function VerifyPhoneVerifyScreen() {
             params: {}
           });
       }
-    }).catch(function (errs) {
-      return setErrors(errs);
-    });
-  }, [callback, state, secret, nav]),
-      _withLoading6 = (0, _slicedToArray2.default)(_withLoading5, 2),
-      handleVerify = _withLoading6[0],
-      handleVerifyLoading = _withLoading6[1];
+    }).catch(errs => setErrors(errs));
+  }, [callback, state, secret, nav]); // render
 
-  return _react.default.createElement(_component.ScreenLayout, {
-    title: "Verify phone number",
+  return react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_3__["ScreenLayout"], {
+    title: `Verify phone number`,
     subtitle: state.session.verifyPhone.phoneNumber,
-    buttons: [].concat((0, _toConsumableArray2.default)(expiresAt ? [{
+    buttons: [...(expiresAt ? [{
       status: "primary",
       children: "Verify",
       onPress: handleVerify,
       loading: handleVerifyLoading,
       tabIndex: 111
-    }] : []), [{
+    }] : []), {
       status: expiresAt ? "basic" : "primary",
       children: expiresAt ? "Resend" : "Send",
       onPress: handleSend,
@@ -5600,15 +4647,15 @@ var VerifyPhoneVerifyScreen = function VerifyPhoneVerifyScreen() {
       onPress: handleCancel,
       loading: handleCancelLoading,
       tabIndex: 113
-    }]),
+    }],
     loading: loading,
     error: errors.global,
     __source: {
       fileName: _jsxFileName,
       lineNumber: 110
     },
-    __self: this
-  }, expiresAt ? _react.default.createElement(_react.default.Fragment, null, _react.default.createElement(_component.Text, {
+    __self: undefined
+  }, expiresAt ? react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(react__WEBPACK_IMPORTED_MODULE_1___default.a.Fragment, null, react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_3__["Text"], {
     style: {
       marginBottom: 30
     },
@@ -5616,8 +4663,8 @@ var VerifyPhoneVerifyScreen = function VerifyPhoneVerifyScreen() {
       fileName: _jsxFileName,
       lineNumber: 140
     },
-    __self: this
-  }, "Enter the received 6-digit verification code."), _react.default.createElement(_component.FormInput, {
+    __self: undefined
+  }, "Enter the received 6-digit verification code."), react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_3__["FormInput"], {
     label: "Verification code",
     keyboardType: "number-pad",
     placeholder: "Enter the verification code",
@@ -5633,8 +4680,8 @@ var VerifyPhoneVerifyScreen = function VerifyPhoneVerifyScreen() {
       fileName: _jsxFileName,
       lineNumber: 143
     },
-    __self: this
-  })) : _react.default.createElement(_react.default.Fragment, null, _react.default.createElement(_component.Text, {
+    __self: undefined
+  })) : react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(react__WEBPACK_IMPORTED_MODULE_1___default.a.Fragment, null, react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_3__["Text"], {
     style: {
       marginBottom: 30
     },
@@ -5642,10 +4689,10 @@ var VerifyPhoneVerifyScreen = function VerifyPhoneVerifyScreen() {
       fileName: _jsxFileName,
       lineNumber: 159
     },
-    __self: this
-  }, "A text message with a verification code will be sent to verify the phone number."), _react.default.createElement(_reactNative.Image, {
+    __self: undefined
+  }, "A text message with a verification code will be sent to verify the phone number."), react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(react_native__WEBPACK_IMPORTED_MODULE_2__["Image"], {
     source: {
-      uri: _screen_verify.default
+      uri: _assets_screen_verify_svg__WEBPACK_IMPORTED_MODULE_5___default.a
     },
     style: {
       minHeight: 200,
@@ -5656,11 +4703,9 @@ var VerifyPhoneVerifyScreen = function VerifyPhoneVerifyScreen() {
       fileName: _jsxFileName,
       lineNumber: 162
     },
-    __self: this
+    __self: undefined
   })));
 };
-
-exports.VerifyPhoneVerifyScreen = VerifyPhoneVerifyScreen;
 
 /***/ }),
 
@@ -5668,39 +4713,54 @@ exports.VerifyPhoneVerifyScreen = VerifyPhoneVerifyScreen;
 /*!*******************************!*\
   !*** ./src/service-worker.ts ***!
   \*******************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
+/*! exports provided: register, unregister */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.register = register;
-exports.unregister = unregister;
-var isLocalhost = Boolean(window.location.hostname === "localhost" || window.location.hostname === "[::1]" || window.location.hostname.match(/^127(?:\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}$/));
-
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "register", function() { return register; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "unregister", function() { return unregister; });
+// This optional code is used to register a service worker.
+// register() is not called by default.
+// This lets the app load faster on subsequent visits in production, and gives
+// it offline capabilities. However, it also means that developers (and users)
+// will only see deployed updates on subsequent visits to a page, after all the
+// existing tabs open on the page have been closed, since previously cached
+// resources are updated in the background.
+// To learn more about the benefits of this model and instructions on how to
+// opt-in, read https://bit.ly/CRA-PWA
+const isLocalhost = Boolean(window.location.hostname === "localhost" || // [::1] is the IPv6 localhost address.
+window.location.hostname === "[::1]" || // 127.0.0.1/8 is considered localhost for IPv4.
+window.location.hostname.match(/^127(?:\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}$/));
 function register(config) {
-  if (false) { var publicUrl; }
+  if (false) {}
 }
 
 function registerValidSW(swUrl, config) {
-  navigator.serviceWorker.register(swUrl).then(function (registration) {
-    registration.onupdatefound = function () {
-      var installingWorker = registration.installing;
+  navigator.serviceWorker.register(swUrl).then(registration => {
+    registration.onupdatefound = () => {
+      const installingWorker = registration.installing;
 
       if (installingWorker == null) {
         return;
       }
 
-      installingWorker.onstatechange = function () {
+      installingWorker.onstatechange = () => {
         if (installingWorker.state === "installed") {
           if (navigator.serviceWorker.controller) {
-            console.log("New content is available and will be used when all " + "tabs for this page are closed. See https://bit.ly/CRA-PWA.");
+            // At this point, the updated precached content has been fetched,
+            // but the previous service worker will still serve the older
+            // content until all client tabs are closed.
+            console.log("New content is available and will be used when all " + "tabs for this page are closed. See https://bit.ly/CRA-PWA."); // Execute callback
 
             if (config && config.onUpdate) {
               config.onUpdate(registration);
             }
           } else {
-            console.log("Content is cached for offline use.");
+            // At this point, everything has been precached.
+            // It"s the perfect time to display a
+            // "Content is cached for offline use." message.
+            console.log("Content is cached for offline use."); // Execute callback
 
             if (config && config.onSuccess) {
               config.onSuccess(registration);
@@ -5709,32 +4769,36 @@ function registerValidSW(swUrl, config) {
         }
       };
     };
-  }).catch(function (error) {
+  }).catch(error => {
     console.error("Error during service worker registration:", error);
   });
 }
 
 function checkValidServiceWorker(swUrl, config) {
-  fetch(swUrl).then(function (response) {
-    var contentType = response.headers.get("content-type");
+  // Check if the service worker can be found. If it can"t reload the page.
+  fetch(swUrl).then(response => {
+    // Ensure service worker exists, and that we really are getting a JS file.
+    const contentType = response.headers.get("content-type");
 
     if (response.status === 404 || contentType != null && contentType.indexOf("javascript") === -1) {
-      navigator.serviceWorker.ready.then(function (registration) {
-        registration.unregister().then(function () {
+      // No service worker found. Probably a different app. Reload the page.
+      navigator.serviceWorker.ready.then(registration => {
+        registration.unregister().then(() => {
           window.location.reload();
         });
       });
     } else {
+      // Service worker found. Proceed as normal.
       registerValidSW(swUrl, config);
     }
-  }).catch(function () {
+  }).catch(() => {
     console.log("No internet connection found. App is running in offline mode.");
   });
 }
 
 function unregister() {
   if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.ready.then(function (registration) {
+    navigator.serviceWorker.ready.then(registration => {
       registration.unregister();
     });
   }

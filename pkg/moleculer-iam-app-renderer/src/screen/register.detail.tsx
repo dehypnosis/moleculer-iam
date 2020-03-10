@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ScreenLayout, Text, Form, FormInput, Datepicker, Icon, Popover } from "./component";
+import { ScreenLayout, Text, Form, FormInput, Datepicker, Icon } from "./component";
 import { useNavigation, useAppState, useWithLoading, useAppOptions } from "../hook";
 import moment from "moment";
 
@@ -81,23 +81,6 @@ export const RegisterDetailScreen: React.FunctionComponent = () => {
 
   // render
   return (
-    <>
-
-      <Popover
-        content={<Text>hello?</Text>}
-        visible={true}
-      >
-        <Text>btn?</Text>
-      </Popover>
-      <Datepicker
-        label={"Birthdate"}
-        size={"large"}
-        placement={"top"}
-        placeholder={"Select your birthdate"}
-        date={(payload.birthdate ? moment(payload.birthdate) : moment().subtract(20, "y")).toDate()}
-        onSelect={v => setPayload(p => ({...p, birthdate: moment(v).format("YYYY-MM-DD")}))}
-        icon={s => <Icon style={s} name="calendar" />}
-      />
     <ScreenLayout
       title={"Sign up"}
       subtitle={tmpClaims.email}
@@ -140,6 +123,16 @@ export const RegisterDetailScreen: React.FunctionComponent = () => {
           style={{marginBottom: 15}}
         />
 
+
+        <Datepicker
+          // label={"Birthdate"}
+          // size={"large"}
+          // placeholder={"Select your birthdate"}
+          date={(payload.birthdate ? moment(payload.birthdate) : moment().subtract(20, "y")).toDate()}
+          onSelect={v => setPayload(p => ({...p, birthdate: moment(v).format("YYYY-MM-DD")}))}
+          // icon={s => <Icon style={s} name="calendar" />}
+        />
+
         {/*<Dropdown*/}
         {/*  label="Gender"*/}
         {/*  selectedKey={payload.gender || undefined}*/}
@@ -156,6 +149,5 @@ export const RegisterDetailScreen: React.FunctionComponent = () => {
         {/*/>*/}
       </Form>
     </ScreenLayout>
-      </>
   );
 };

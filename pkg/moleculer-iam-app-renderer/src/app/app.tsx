@@ -1,4 +1,4 @@
-import React, { createContext, useContext } from "react";
+import React, { createContext, useContext, useState } from "react";
 import { createStackNavigator, StackNavigationOptions } from "@react-navigation/stack";
 import { useThemePalette } from "../screen/component";
 import { ConsentScreen } from "../screen/consent";
