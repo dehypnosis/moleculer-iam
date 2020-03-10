@@ -37,8 +37,10 @@ function buildApplication(builder, opts = {}) {
         },
     })
         .setExtraParams([
-        // support extra params for /login?change_account=true to not auto-fill signed in session account
+        // /login?change_account=true to not auto-fill signed in session account
         "change_account",
+        // /login?federate=google to automatically start federation process
+        "federate",
     ])
         // configure app
         .app

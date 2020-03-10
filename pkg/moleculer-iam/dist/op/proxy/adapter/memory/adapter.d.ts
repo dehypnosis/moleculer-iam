@@ -5,8 +5,8 @@ import { OIDCMemoryModelProxy } from "./model";
 export declare type OIDCMemoryAdapterProxyOptions = LRUCache.Options<string, any>;
 export declare class OIDCMemoryAdapterProxy extends OIDCAdapterProxy {
     protected readonly props: OIDCAdapterProxyProps;
-    protected readonly options?: LRUCache.Options<string, any> | undefined;
+    protected readonly options?: OIDCMemoryAdapterProxyOptions | undefined;
     readonly displayName = "Memory";
-    constructor(props: OIDCAdapterProxyProps, options?: LRUCache.Options<string, any> | undefined);
+    constructor(props: OIDCAdapterProxyProps, options?: OIDCMemoryAdapterProxyOptions | undefined);
     protected createModel(props: OIDCModelProxyProps): OIDCMemoryModelProxy;
 }

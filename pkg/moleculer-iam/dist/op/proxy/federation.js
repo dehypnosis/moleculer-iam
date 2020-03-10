@@ -68,6 +68,7 @@ class IdentityFederationBuilder {
         }
     }
     async handleRequest(ctx, next, provider) {
+        ctx.assert(this.providerNames.includes(provider));
         return new Promise((resolve, reject) => {
             this.passport.authenticate(provider, {
                 scope: this.scopes[provider],
@@ -80,6 +81,7 @@ class IdentityFederationBuilder {
         });
     }
     async handleCallback(ctx, next, provider) {
+        ctx.assert(this.providerNames.includes(provider));
         return new Promise((resolve, reject) => {
             this.passport.authenticate(provider, {
                 scope: this.scopes[provider],

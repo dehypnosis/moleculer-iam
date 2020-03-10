@@ -110,29 +110,25 @@ class OIDCProviderContextProxy {
     get sessionSecretState() {
         return this.session.state && this.session.state[SECRET] || {};
     }
-    async setSessionPublicState(update) {
+    setSessionPublicState(update) {
         return this.setSessionState(prevState => ({
             ...prevState,
             [PUBLIC]: update(prevState[PUBLIC] || {}),
         }));
     }
-    async setSessionSecretState(update) {
+    setSessionSecretState(update) {
         return this.setSessionState(prevState => ({
             ...prevState,
             [SECRET]: update(prevState[SECRET] || {}),
         }));
     }
-    async setSessionState(update) {
+    setSessionState(update) {
         this.session.state = update(this.session.state || {});
         this.shouldSaveSession = true;
     }
     async ensureSessionSaved() {
         if (this.shouldSaveSession) {
-            await session_1.default(this.ctx, () => {
-                // @ts-ignore to set Set-Cookie response header
-                this.session.touched = true;
-            });
-            // @ts-ignore store/update session in to adapter
+            // @ts-ignore
             await this.session.save();
             this.shouldSaveSession = false;
         }
@@ -193,7 +189,12 @@ class OIDCProviderContextProxy {
             Object.defineProperty(ctx, "oidc", { value: new hiddenProvider.OIDCContext(ctx) });
         }
         // @ts-ignore ensure session
-        this.session = ctx.oidc.session || await provider.Session.get(ctx);
+        await session_1.default(this.ctx, () => {
+            // @ts-ignore to set Set-Cookie response header
+            this.ctx.oidc.session.touched = true;
+            // @ts-ignore
+            this.session = this.ctx.oidc.session;
+        });
         // create metadata
         const configuration = hiddenProvider.configuration();
         this.metadata = {

@@ -180,7 +180,7 @@ export const RegisterIndexScreen: React.FunctionComponent = () => {
           onEnter={handlePayloadSubmit}
         />
       </Form>
-      <Text style={{marginTop: 30}}>When continue, you are agreeing to the terms of service and the privacy policy.</Text>
+      <Text style={{marginTop: 30}}>By continuing, you are agreeing to the terms of service and the privacy policy.</Text>
     </ScreenLayout>
   );
 };

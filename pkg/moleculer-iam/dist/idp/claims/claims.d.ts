@@ -16,7 +16,7 @@ export declare class IdentityClaimsManager {
     private readonly logger;
     private readonly options;
     constructor(props: IdentityClaimsManagerProps, opts?: Partial<IdentityClaimsManagerOptions>);
-    private readonly adapter;
+    private get adapter();
     start(): Promise<void>;
     stop(): Promise<void>;
     private hashClaimsSchemaPayload;
@@ -25,7 +25,7 @@ export declare class IdentityClaimsManager {
     private compileClaimsMigrationStrategy;
     readonly mandatoryScopes: ReadonlyArray<string>;
     private _supportedScopes;
-    readonly supportedScopes: {
+    get supportedScopes(): {
         [scope: string]: string[];
     };
     private syncSupportedScopes;

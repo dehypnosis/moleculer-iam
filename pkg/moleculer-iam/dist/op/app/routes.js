@@ -4,52 +4,22 @@ exports.createApplicationRoutesFactory = (builder, opts) => {
     // internal routes for logout, device_flow, ... are not described here
     const { getURL } = builder.app;
     const commonRoutes = {
-        // find email
-        "find_email": {
-            url: getURL("/find_email"),
-            method: "GET",
-            synchronous: true,
-        },
-        "find_email.check_phone": {
-            url: getURL("/find_email/check_phone"),
-            method: "POST",
-            payload: {
-                phone_number: "",
-            },
-        },
-        // verify phone
-        "verify_phone": {
-            url: getURL("/verify_phone/send"),
-            method: "GET",
-            synchronous: true,
-        },
-        "verify_phone.send": {
-            url: getURL("/verify_phone/send"),
-            method: "POST",
-            payload: {
-                phone_number: "",
-                register: false,
-                login: false,
-            },
-        },
-        "verify_phone.verify": {
-            url: getURL("/verify_phone/verify"),
-            method: "POST",
-            payload: {
-                phone_number: "",
-                secret: "",
-            },
-        },
         // register
         "register": {
             url: getURL("/register"),
             method: "GET",
             synchronous: true,
         },
-        "register.validate": {
-            url: getURL("/register/validate"),
+        "register.detail": {
+            url: getURL("/register/detail"),
+            method: "GET",
+            synchronous: true,
+        },
+        "register.submit": {
+            url: getURL("/register/submit"),
             method: "POST",
             payload: {
+                register: false,
                 claims: {
                     email: "",
                     name: "",
@@ -62,6 +32,87 @@ exports.createApplicationRoutesFactory = (builder, opts) => {
                     password_confirmation: "",
                 },
                 scope: ["email", "profile", "phone", "birthdate", "gender"],
+            },
+        },
+        // reset password
+        "reset_password": {
+            url: getURL("/reset_password"),
+            method: "GET",
+            synchronous: true,
+        },
+        "reset_password.set": {
+            url: getURL("/reset_password/set"),
+            method: "POST",
+            payload: {
+                email: "",
+                password: "",
+                password_confirmation: "",
+            },
+        },
+        // verify email
+        "verify_email": {
+            url: getURL("/verify_email"),
+            method: "GET",
+            synchronous: true,
+        },
+        "verify_email.check_email": {
+            url: getURL("/verify_email/check_email"),
+            method: "POST",
+            payload: {
+                email: "",
+                registered: false,
+            },
+        },
+        "verify_email.send": {
+            url: getURL("/verify_email/send"),
+            method: "POST",
+            payload: {
+                email: "",
+            },
+        },
+        "verify_email.verify": {
+            url: getURL("/verify_email/verify"),
+            method: "POST",
+            payload: {
+                email: "",
+                secret: "",
+                callback: "",
+            },
+        },
+        // find email
+        "find_email": {
+            url: getURL("/find_email"),
+            method: "GET",
+            synchronous: true,
+        },
+        // verify phone
+        "verify_phone": {
+            url: getURL("/verify_phone"),
+            method: "GET",
+            synchronous: true,
+        },
+        "verify_phone.check_phone": {
+            url: getURL("/verify_phone/check_phone"),
+            method: "POST",
+            payload: {
+                phone_number: "",
+                registered: false,
+            },
+        },
+        "verify_phone.send": {
+            url: getURL("/verify_phone/send"),
+            method: "POST",
+            payload: {
+                phone_number: "",
+            },
+        },
+        "verify_phone.verify": {
+            url: getURL("/verify_phone/verify"),
+            method: "POST",
+            payload: {
+                phone_number: "",
+                secret: "",
+                callback: "",
             },
         },
     };
@@ -101,6 +152,10 @@ exports.createApplicationRoutesFactory = (builder, opts) => {
                 provider: "",
             },
             synchronous: true,
+        },
+        "register.login": {
+            url: getURL("/register/login"),
+            method: "POST",
         },
     };
     // available for consent prompt only

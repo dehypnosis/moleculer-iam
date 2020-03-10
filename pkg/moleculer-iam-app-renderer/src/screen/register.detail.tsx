@@ -1,7 +1,6 @@
 import React, { useState } from "react";
-import { ScreenLayout, Text, Form, FormInput, Datepicker, Icon } from "./component";
+import { ScreenLayout, Text, Form, FormInput, FormDatePicker, Icon, FormSelect } from "./component";
 import { useNavigation, useAppState, useWithLoading, useAppOptions } from "../hook";
-import moment from "moment";
 
 export const RegisterDetailScreen: React.FunctionComponent = () => {
   // state
@@ -123,30 +122,25 @@ export const RegisterDetailScreen: React.FunctionComponent = () => {
           style={{marginBottom: 15}}
         />
 
-
-        <Datepicker
-          // label={"Birthdate"}
-          // size={"large"}
-          // placeholder={"Select your birthdate"}
-          date={(payload.birthdate ? moment(payload.birthdate) : moment().subtract(20, "y")).toDate()}
-          onSelect={v => setPayload(p => ({...p, birthdate: moment(v).format("YYYY-MM-DD")}))}
-          // icon={s => <Icon style={s} name="calendar" />}
+        <FormDatePicker
+          tabIndex={62}
+          label={"Birthdate"}
+          placeholder={"Select your birthdate"}
+          value={payload.birthdate}
+          setValue={v => setPayload(p => ({...p, birthdate: v}))}
+          error={errors.birthdate}
+          style={{marginBottom: 15}}
         />
 
-        {/*<Dropdown*/}
-        {/*  label="Gender"*/}
-        {/*  selectedKey={payload.gender || undefined}*/}
-        {/*  onChange={(e, v) => v && setPayload(p => ({...p, gender: v.key as any}))}*/}
-        {/*  placeholder="Select your gender"*/}
-        {/*  tabIndex={63}*/}
-        {/*  options={[*/}
-        {/*    {key: "male", text: "Male"},*/}
-        {/*    {key: "female", text: "Female"},*/}
-        {/*    {key: "other", text: "Other"},*/}
-        {/*  ]}*/}
-        {/*  errorMessage={errors.gender}*/}
-        {/*  styles={DropdownStyles.bold}*/}
-        {/*/>*/}
+        <FormSelect
+          tabIndex={63}
+          label={"Gender"}
+          placeholder={"Select your gender"}
+          data={[{value: "male", text: "Male"}, {value: "female", text: "Female"}, {value: "other", text:"Other"}]}
+          value={payload.gender}
+          setValue={v => setPayload(p => ({...p, gender: v}))}
+          error={errors.gender}
+        />
       </Form>
     </ScreenLayout>
   );

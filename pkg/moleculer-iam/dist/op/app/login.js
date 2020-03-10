@@ -4,7 +4,7 @@ const idp_1 = require("../../idp");
 function buildLoginRoutes(builder, opts) {
     builder.app.router // redirect to initial render page
         // initial render page
-        .get("/login", async (ctx) => {
+        .get("/login", async (ctx, next) => {
         const { user, userClaims, interaction } = ctx.op;
         ctx.op.assertPrompt(["login", "consent"], "Login prompt session not exists.");
         // already signed in and consent app
@@ -24,6 +24,11 @@ function buildLoginRoutes(builder, opts) {
                 return ctx.op.redirect(`/login?email=${encodeURIComponent(userClaims.email)}`);
             }
         }
+        // automatic federation
+        const federate = ctx.query.federate || interaction.params.federate;
+        if (federate) {
+            return builder.app.federation.handleRequest(ctx, next, federate);
+        }
         return ctx.op.render("login");
     })
         // check login email exists
@@ -31,7 +36,7 @@ function buildLoginRoutes(builder, opts) {
         const user = await ctx.idp.findOrFail({ claims: { email: ctx.request.body.email || "" } });
         // set login data to session state and response
         const userClaims = await ctx.op.getPublicUserProps(user);
-        await ctx.op.setSessionPublicState(prevState => ({
+        ctx.op.setSessionPublicState(prevState => ({
             ...prevState,
             login: { user: userClaims },
         }));
@@ -53,7 +58,7 @@ function buildLoginRoutes(builder, opts) {
             throw new idp_1.Errors.InvalidCredentialsError();
         }
         // clear login session state
-        await ctx.op.setSessionPublicState(prevState => ({
+        ctx.op.setSessionPublicState(prevState => ({
             ...prevState,
             login: undefined,
         }));

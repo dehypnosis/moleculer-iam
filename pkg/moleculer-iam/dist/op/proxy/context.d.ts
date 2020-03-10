@@ -17,11 +17,11 @@ export declare class OIDCProviderContextProxy {
     userClaims?: Partial<OIDCAccountClaims>;
     device?: DeviceInfo;
     constructor(ctx: ApplicationRequestContext, builder: ProviderConfigBuilder);
-    private readonly idp;
-    private readonly provider;
-    readonly getURL: (path: string, withHost?: true | undefined) => string;
+    private get idp();
+    private get provider();
+    get getURL(): (path: string, withHost?: true | undefined) => string;
     readonly getNamedURL: (name: string, opts?: any) => any;
-    readonly routes: ApplicationRoutes;
+    get routes(): ApplicationRoutes;
     render(name: string, error?: OIDCError, additionalRoutes?: ApplicationRoutes): Promise<void>;
     redirectWithUpdate(promptUpdate: Partial<InteractionResults> | {
         error: string;
@@ -29,14 +29,14 @@ export declare class OIDCProviderContextProxy {
     }, allowedPromptNames?: string[]): Promise<void>;
     redirect(url: string): Promise<void>;
     end(): Promise<void>;
-    readonly sessionPublicState: any;
-    readonly sessionSecretState: any;
-    setSessionPublicState(update: (prevPublicState: ApplicationSessionPublicState) => ApplicationSessionPublicState): Promise<void>;
-    setSessionSecretState(update: (prevSecretState: ApplicationSessionSecretState) => ApplicationSessionSecretState): Promise<void>;
+    get sessionPublicState(): any;
+    get sessionSecretState(): any;
+    setSessionPublicState(update: (prevPublicState: ApplicationSessionPublicState) => ApplicationSessionPublicState): void;
+    setSessionSecretState(update: (prevSecretState: ApplicationSessionSecretState) => ApplicationSessionSecretState): void;
     private setSessionState;
     private ensureSessionSaved;
     private shouldSaveSession;
-    private readonly isXHR;
+    private get isXHR();
     assertPrompt(allowedPromptNames?: string[], message?: string): void;
     getPublicClientProps(client?: Client): Promise<Partial<ClientMetadata> | undefined>;
     getPublicUserProps(id?: Identity): Promise<Partial<OIDCAccountClaims> | undefined>;
