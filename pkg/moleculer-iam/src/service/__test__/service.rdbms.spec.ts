@@ -17,7 +17,7 @@ const adapter = {
     database: env("TEST_RDBMS_DATABASE", "iam"),
     username: env("TEST_RDBMS_USERNAME", "iam"),
     password: env("TEST_RDBMS_PASSWORD", "iam"),
-    sqlLogLevel: env("TEST_RDBMS_LOG_LEVEL", "none"),
+    sqlLogLevel: "error" as any, //env("TEST_RDBMS_LOG_LEVEL", "none"),
   },
 };
 

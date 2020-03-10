@@ -6,5 +6,8 @@
       "pkg/*",
       "examples"
     ]
+  },
+  "scripts": {
+    "test-with-examples": "yarn workspace moleculer-iam test-with-examples"
   }
 }

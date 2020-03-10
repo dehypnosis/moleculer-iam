@@ -1,16 +1,19 @@
 import * as kleur from "kleur";
+import uuid from "uuid";
 import { pick as pickLanguage } from "accept-language-parser";
 import { Configuration, Provider } from "oidc-provider";
+import { FindOptions, WhereAttributeHash } from "../../helper/rdbms";
 import { IdentityProvider } from "../../idp";
 import { Logger } from "../../logger";
 import { buildApplication, ApplicationBuildOptions } from "../app";
-import { OIDCAdapterProxy } from "./adapter";
+import { OIDCAdapterProxy, OIDCModelName } from "./adapter";
 import { ProviderConfigBuilder, StaticConfiguration } from "./config";
+import { OIDCErrors } from "./error.types";
+import { DiscoveryMetadata, Client, ClientMetadata } from "./proxy.types";
 
 // ref: https://github.com/panva/node-oidc-provider/blob/9306f66bdbcdff01400773f26539cf35951b9ce8/lib/models/client.js#L385
 // @ts-ignore : need to hack oidc-provider private methods
 import getProviderHiddenProps from "oidc-provider/lib/helpers/weak_cache";
-import { DiscoveryMetadata } from "./proxy.types";
 
 export type OIDCProviderProxyProps = {
   logger: Logger;
@@ -88,16 +91,144 @@ export class OIDCProviderProxy {
   }
 
   // programmable interfaces
-  public deleteModels(...args: any[]): any {
+  public get Session() {
+    return this.adapter.getModel("Session")
+  }
+  public get AccessToken() {
+    return this.adapter.getModel("AccessToken")
+  }
+  public get AuthorizationCode() {
+    return this.adapter.getModel("AuthorizationCode")
+  }
+  public get RefreshToken() {
+    return this.adapter.getModel("RefreshToken")
+  }
+  public get DeviceCode() {
+    return this.adapter.getModel("DeviceCode")
+  }
+  public get ClientCredentials() {
+    return this.adapter.getModel("ClientCredentials")
+  }
+  public get Client() {
+    return this.adapter.getModel("Client")
+  }
+  public get InitialAccessToken() {
+    return this.adapter.getModel("InitialAccessToken")
+  }
+  public get RegistrationAccessToken() {
+    return this.adapter.getModel("RegistrationAccessToken")
+  }
+  public get Interaction() {
+    return this.adapter.getModel("Interaction")
+  }
+  public get ReplayDetection() {
+    return this.adapter.getModel("ReplayDetection")
+  }
+  public get PushedAuthorizationRequest() {
+    return this.adapter.getModel("PushedAuthorizationRequest")
   }
 
-  public countModels(...args: any[]): any {
-    return 10;
+  public async findClient(id: string) {
+    return this.Client.find(id);
+  }
+
+  public async findClientOrFail(id: string) {
+    const client = await this.findClient(id);
+    if (!client) {
+      throw new OIDCErrors.InvalidClient("client_not_found");
+    }
+    return client;
+  }
+
+  public async createClient(metadata: Omit<ClientMetadata, "client_secret">) {
+    if (metadata.client_id && await this.findClient(metadata.client_id)) {
+      throw new OIDCErrors.InvalidClient("client_id_duplicated");
+    }
+    this.logger.info(`create client ${kleur.cyan(metadata.client_id)}:`, metadata);
+
+    const client = await this.hidden.clientAdd({
+      ...metadata,
+      client_secret: OIDCProviderProxy.generateClientSecret(),
+    }, {store: true}) as Client;
+
+    return client.metadata();
+  }
+
+  public async updateClient(metadata: Omit<ClientMetadata, "client_secret"> & { reset_client_secret?: boolean }) {
+    const old = await this.findClient(metadata.client_id);
+
+    // update client_secret
+    if (metadata.reset_client_secret === true) {
+      metadata = {
+        ...metadata,
+        client_secret: OIDCProviderProxy.generateClientSecret(),
+      };
+      delete metadata.reset_client_secret;
+    }
+
+    this.logger.info(`update client ${kleur.cyan(metadata.client_id || "<unknown>")}:`, require("util").inspect(metadata));
+    const client = await this.hidden.clientAdd({
+      ...old,
+      ...metadata,
+    }, {store: true}) as Client;
+    return client.metadata();
+  }
+
+  public async deleteClient(id: string) {
+    await this.findClientOrFail(id);
+    this.logger.info(`delete client ${kleur.cyan(id)}`);
+    this.hidden.clientRemove(id);
+  }
+
+  public async getClients(args?: FindOptions) {
+    return this.Client.get(args);
+  }
+
+  public async countClients(args?: WhereAttributeHash) {
+    return this.Client.count(args);
+  }
+
+  private static generateClientSecret(): string {
+    return uuid().replace(/\-/g, "") + uuid().replace(/\-/g, "");
+  }
+
+  public static readonly volatileModelNames: ReadonlyArray<Exclude<OIDCModelName, "Client"|"ClientCredentials">> = [
+    "Session",
+    "AccessToken",
+    "AuthorizationCode",
+    "RefreshToken",
+    "DeviceCode",
+    "InitialAccessToken",
+    "RegistrationAccessToken",
+    "Interaction",
+    "ReplayDetection",
+    "PushedAuthorizationRequest",
+  ];
+
+  public async countModels(kind: (typeof OIDCProviderProxy.volatileModelNames)[number], args?: WhereAttributeHash) {
+    const model = this.adapter.getModel(kind);
+    return model.count(args);
+  }
+
+  public async getModels(kind: (typeof OIDCProviderProxy.volatileModelNames)[number], args?: FindOptions) {
+    const model = this.adapter.getModel(kind);
+    return model.get(args);
+  }
+
+  public async deleteModels(kind: (typeof OIDCProviderProxy.volatileModelNames)[number], args?: FindOptions) {
+    const model = this.adapter.getModel(kind);
+    return model.delete(args);
+  }
+
+  public async syncSupportedClaimsAndScopes(): Promise<void> {
+    // set available scopes and claims
+    const claimsSchemata = await this.props.idp.claims.getActiveClaimsSchemata();
+    this.updateSupportedClaimsAndScopes(claimsSchemata);
   }
 
   // set supported claims and scopes (hacky)
   // ref: https://github.com/panva/node-oidc-provider/blob/ae8a4589c582b96f4e9ca0432307da15792ac29d/lib/helpers/claims.js#L54
-  public syncSupportedClaimsAndScopes(defs: ReadonlyArray<{scope: string, key: string}>) {
+  private updateSupportedClaimsAndScopes(defs: ReadonlyArray<{scope: string, key: string}>) {
     const config = this.configuration;
     const claimsFilter = config.claims as unknown as Map<string, null | { [claim: string]: any }>;
     const claimsSupported = (config as any).claimsSupported as Set<string>;

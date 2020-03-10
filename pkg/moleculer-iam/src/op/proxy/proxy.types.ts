@@ -1,6 +1,8 @@
 import { AnyObject, SubjectTypes, ClaimsWithRejects, ClientAuthorizationState, InteractionResults } from "oidc-provider";
 import * as jose from "jose";
 
+export { ClientMetadata } from "oidc-provider";
+
 // export private types
 export type Interaction = {
   iat: number;

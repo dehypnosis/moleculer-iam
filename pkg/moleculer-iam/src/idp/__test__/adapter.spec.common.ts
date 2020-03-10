@@ -15,31 +15,35 @@ export function doCommonAdapterTest(idp: IdentityProvider) {
     await idp.start();
     await idp.claims.forceDeleteClaimsSchemata(...testSchemaKeys).catch(err => { });
 
-    try {
-      identity = await idp.create({
-        metadata: {federation: {}, softDeleted: false},
-        scope: ["openid", "profile", "email", "phone"],
-        claims: {email: testEmail, name: "Tester", phone_number: "010-7777-7777"},
-        credentials: {password: "12341234"},
-      });
-      // console.log(await identity.json());
-    } catch (error) {
-      console.error(error);
-    }
+    identity = await idp.create({
+      metadata: {federation: {}, softDeleted: false},
+      scope: ["openid", "profile", "email", "phone"],
+      claims: {email: testEmail, name: "Tester", phone_number: "KR|010-7777-7777"},
+      credentials: {password: "12341234"},
+    });
   });
 
   describe("CRUD identity", () => {
     it("identity should be created well with valid payload", () => {
-      expect(identity).toBeDefined();
+      return expect(identity.claims()).resolves.not.toThrow();
     });
 
-    it("identity should not be created with duplicate sub", async () => {
-      await expect(idp.create({
+    it("identity should not be created with duplicate sub, email, phone", () => {
+      return expect(idp.create({
         metadata: {},
         scope: ["openid", "profile", "email", "phone"],
-        claims: {sub: identity.id, email: testEmail, name: "Tester", phone_number: "010-7777-7777"},
+        claims: {sub: identity.id, email: testEmail, name: "Tester", phone_number: "KR|010-7777-7777"},
         credentials: {password: "12341234"},
-      })).rejects.toThrow();
+      })).rejects.toEqual(
+        expect.objectContaining({
+          status: 422,
+          entries: expect.arrayContaining([
+            expect.objectContaining({field: "sub", type: "duplicate"}),
+            expect.objectContaining({field: "email", type: "duplicate"}),
+            expect.objectContaining({field: "phone_number", type: "duplicate"}),
+          ]),
+        }),
+      );
     });
 
     it("identity should have metadata", async () => {
@@ -75,11 +79,11 @@ export function doCommonAdapterTest(idp: IdentityProvider) {
     it("identity could not update immutable claims", async () => {
       await expect(identity.updateClaims({
         sub: "abcdefg",
-      }, "openid")).rejects.toThrow();
+      }, "openid")).rejects.toBeTruthy();
 
       await expect(identity.updateClaims({
         email: `updating-${testEmail}`,
-      }, "email")).rejects.toThrow();
+      }, "email")).rejects.toBeTruthy();
     });
 
     it("identity could assert and update own credentials", async () => {
@@ -107,7 +111,7 @@ export function doCommonAdapterTest(idp: IdentityProvider) {
     it("identity could be fetched by id, email, phone_number", async () => {
       await expect(idp.findOrFail({id: identity.id}).then(id => id.claims())).resolves.toEqual(expect.objectContaining({sub: identity.id}));
       await expect(idp.findOrFail({claims: {sub: identity.id}}).then(id => id.claims())).resolves.toEqual(expect.objectContaining({sub: identity.id}));
-      await expect(idp.findOrFail({claims: {phone_number: "010 7777 7777"}}).then(id => id.claims())).resolves.toEqual(expect.objectContaining({phone_number: "+82 10-7777-7777"}));
+      await expect(idp.findOrFail({claims: {phone_number: "KR|010 7777 7777"}}).then(id => id.claims())).resolves.toEqual(expect.objectContaining({phone_number: "+82 10-7777-7777"}));
       await expect(idp.findOrFail({claims: {email: testEmail}}).then(id => id.claims())).resolves.toEqual(expect.objectContaining({email: testEmail.toLowerCase()}));
     });
 
@@ -343,7 +347,7 @@ export function doCommonAdapterTest(idp: IdentityProvider) {
         credentials: {password: "12341234"},
       });
       await expect(removal.delete(true)).resolves.not.toThrow();
-      await expect(idp.findOrFail({id: removal.id})).rejects.toThrow();
+      await expect(idp.findOrFail({id: removal.id})).rejects.toBeTruthy();
     });
   });
 

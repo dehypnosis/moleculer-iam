@@ -14,6 +14,34 @@ Also including default interaction React.js application for login/logout/registr
 
 ![Project Architecture Diagram](./docs/diagram.svg)
 
+
+# Features
+- Identity Provider
+    - based on RDBMS
+    - declarative claims schema definition for validation
+    - dynamic update for claims schema and scope
+    - versioned claims with robust claims schema migration support
+    - each identities are cached as JSON value for performance
+    - support complex query for fetching identity
+    - basic OpenID claims battery included
+    - ready for distributed system
+- OpenID Connect Provider
+    - based on `panva/node-oidc-provider`
+    - OpenID certified library
+    - ready for basic interactions for below react app
+    - federation presets for google and facebook, kakaotalk based on passport, also extendable
+    - support i18n; for now ko-KR, en-US
+- Moleculer integrated actions and events
+    - manage IDP claims schema and identity
+    - manage OP client and other models 
+- React App for OP interaction rendering
+    - based on `react-native-ui-kitten` and `react-navigation`
+    - session based
+    - support i18n; for now ko-KR, en-US 
+    - support login/logout/register/findEmail/resetPassword/verifyEmail/verifyPhone/consent
+    - support theming and various customization option without rebuild from server configuration
+    - this whole app can be replaced to custom one from server configuration
+
 # Usage
 ## 1. Documents
 - [Features and details: ./docs](./docs)
@@ -50,10 +78,11 @@ yarn add moleculer-iam
 - [x] 0.1.x Pre-alpha
     - [x] OAuth 2.0 and OpenID Connect Core 1.0 Provider
         - [x] hack `oidc-provider` module to be programmable
-    - [x] Interaction application (React.js)
+    - [x] Renderer app (React.js)
         - [x] token management
             - [x] login
             - [x] logout / change account
+            - [x] consent
         - [x] account management
             - [x] find email
             - [x] reset password
@@ -83,8 +112,8 @@ yarn add moleculer-iam
                 - [x] KakaoTalk
 - [] 0.3.x Beta
     - [] OAuth 2.0 and OpenID Connect Core 1.0 Provider
-        - [] (Refactor interaction codes)
-        - [] Device flow
+        - [x] Refactor `panva/oidc-provider` related codes
+        - [] test and support Device code flow, also QR code
     - [] Identity Provider
         - [] 2FA
     - [] Web client application components

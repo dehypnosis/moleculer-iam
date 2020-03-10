@@ -34,6 +34,26 @@ broker.createService(
         op_tos_uri: isDev ? "https://account.dev.qmit.pro/help/tos" : "https://account.qmit.pro/help/tos",
         service_documentation: isDev ? "https://account.dev.qmit.pro/help" : "https://account.qmit.pro/help",
       },
+      app: {
+        renderer: {
+          options: {
+            register: {
+              skipEmailVerification: true,
+              skipPhoneVerification: true,
+            },
+          },
+        },
+        verifyEmail: {
+          async send({logger, ...args}) {
+            logger.info(args);
+          },
+        },
+        verifyPhone: {
+          async send({logger, ...args}) {
+            logger.info(args);
+          },
+        },
+      },
     },
     server: {
       app,

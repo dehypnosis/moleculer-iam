@@ -55,11 +55,11 @@ export function IAMServiceSchema(opts: IAMServiceSchemaOptions): ServiceSchema {
       error: {
         "*"(ctx: any, err: any) {
           if (err.status === 422) {
-            throw new Errors.ValidationError(err.error_description!, null as any, err.fields);
+            throw new Errors.ValidationError(err.error_description!, null as any, err.entries);
           } else if (err.status <= 400 && err.status < 500) {
-            throw new Errors.MoleculerClientError(err.error_description!, err.statusCode, err.error);
+            throw new Errors.MoleculerClientError(err.error_description!, err.status, err.error);
           } else if (err.status >= 500) {
-            throw new Errors.MoleculerServerError(err.error_description!, err.statusCode, err.error);
+            throw new Errors.MoleculerServerError(err.error_description!, err.status, err.error);
           }
           throw err;
         },
@@ -75,17 +75,17 @@ export function IAMServiceSchema(opts: IAMServiceSchemaOptions): ServiceSchema {
         `,
         params: IAMServiceActionParams["client.create"],
         async handler(ctx) {
-          // const client = await oidc.createClient(ctx.params as any);
-          // this.broker.broadcast("iam.client.updated");
-          // return client;
+          const client = await op.createClient(ctx.params as any);
+          await this.broker.broadcast("iam.client.updated");
+          return client;
         },
       },
       "client.update": {
         params: IAMServiceActionParams["client.update"],
         async handler(ctx) {
-          // const client = await oidc.updateClient(ctx.params as any);
-          // this.broker.broadcast("iam.client.updated");
-          // return client;
+          const client = await op.updateClient(ctx.params as any);
+          await this.broker.broadcast("iam.client.updated");
+          return client;
         },
       },
       "client.delete": {
@@ -93,8 +93,8 @@ export function IAMServiceSchema(opts: IAMServiceSchemaOptions): ServiceSchema {
           id: "string",
         },
         async handler(ctx) {
-          // await oidc.deleteClient((ctx.params as any).id);
-          this.broker.broadcast("iam.client.deleted", ctx.params); // 'oidc-provider' has a hard coded LRU cache internally... using pub/sub to clear distributed nodes' cache
+          await op.deleteClient((ctx.params as any).id);
+          await this.broker.broadcast("iam.client.deleted", ctx.params); // 'oidc-provider' has a hard coded LRU cache internally... using pub/sub to clear distributed nodes' cache
           return true;
         },
       },
@@ -106,7 +106,7 @@ export function IAMServiceSchema(opts: IAMServiceSchemaOptions): ServiceSchema {
           id: "string",
         },
         async handler(ctx) {
-          // return oidc.findClient((ctx.params as any).id);
+          return op.findClient((ctx.params as any).id);
         },
       },
       "client.get": {
@@ -132,8 +132,8 @@ export function IAMServiceSchema(opts: IAMServiceSchemaOptions): ServiceSchema {
         async handler(ctx) {
           const {offset, limit, where} = ctx.params! as any;
           const [total, entries] = await Promise.all([
-            // oidc.countClients(where),
-            // oidc.getClients(ctx.params),
+            op.countClients(where),
+            op.getClients(ctx.params),
           ]);
           return {offset, limit, total, entries};
         },
@@ -149,7 +149,7 @@ export function IAMServiceSchema(opts: IAMServiceSchemaOptions): ServiceSchema {
           },
         },
         async handler(ctx) {
-          // return oidc.countClients(ctx.params && (ctx.params as any).where);
+          return op.countClients(ctx.params && (ctx.params as any).where);
         },
       },
 
@@ -181,8 +181,8 @@ export function IAMServiceSchema(opts: IAMServiceSchemaOptions): ServiceSchema {
         async handler(ctx) {
           const {offset, limit, kind, where, ...args} = ctx.params! as any;
           const [total, entries] = await Promise.all([
-            // oidc.countModels(kind, where),
-            // oidc.getModels(kind, {offset, limit, where, ...args}),
+            op.countModels(kind, where),
+            op.getModels(kind, {offset, limit, where, ...args}),
           ]);
           return {offset, limit, total, entries};
         },
@@ -303,7 +303,7 @@ export function IAMServiceSchema(opts: IAMServiceSchemaOptions): ServiceSchema {
           const oldSchema = await idp.claims.getClaimsSchema({key: payload.key, active: true});
           const schema = await idp.claims.defineClaimsSchema(payload);
           if (!oldSchema || oldSchema.version !== schema.version) {
-            this.broker.broadcast("iam.schema.updated");
+            await this.broker.broadcast("iam.schema.updated");
           }
           return schema;
         },
@@ -394,7 +394,7 @@ export function IAMServiceSchema(opts: IAMServiceSchemaOptions): ServiceSchema {
         async handler(ctx) {
           const id = await idp.create(ctx.params as any)
             .then(i => i.json());
-          this.broker.broadcast("iam.id.updated");
+          await this.broker.broadcast("iam.id.updated");
           return id;
         },
       },
@@ -467,7 +467,7 @@ export function IAMServiceSchema(opts: IAMServiceSchemaOptions): ServiceSchema {
               .then(i => i.update(scope, claims, metadata, credentials).then(() => i.json(scope)));
           }
 
-          this.broker.broadcast("iam.id.updated");
+          await this.broker.broadcast("iam.id.updated");
           return result;
         },
       },
@@ -718,7 +718,7 @@ export function IAMServiceSchema(opts: IAMServiceSchemaOptions): ServiceSchema {
           else if (Array.isArray(id)) ids = id;
 
           await idp.claims.forceReloadClaims({where, ids});
-          this.broker.broadcast("iam.id.updated");
+          await this.broker.broadcast("iam.id.updated");
         },
       },
     },
@@ -732,7 +732,7 @@ export function IAMServiceSchema(opts: IAMServiceSchemaOptions): ServiceSchema {
         async handler(ctx: any) {
           try {
             // to clear internal memory cache
-            // await oidc.deleteClient(ctx.params.id);
+            // await op.deleteClient(ctx.params.id);
           } catch (err) {
             // ...NOTHING
           } finally {
