@@ -9,7 +9,7 @@ export const VerifyPhoneVerifyScreen: React.FunctionComponent = () => {
   // states
   const [state, dispatch] = useAppState();
   const expiresAt = state.session.verifyPhone.expiresAt;
-  const [secret, setSecret] = useState(state.session.dev && state.session.dev.verifyPhoneSecret || "");
+  const [secret, setSecret] = useState((state.session.dev && state.session.dev.verifyPhoneSecret) || "");
   const [remainingSeconds, setRemainingSeconds] = useState("00:00");
   const updateRemainingSeconds = useCallback(() => {
     let updated = "";
@@ -26,7 +26,7 @@ export const VerifyPhoneVerifyScreen: React.FunctionComponent = () => {
     updateRemainingSeconds();
     const timer = setInterval(updateRemainingSeconds, 500);
     return () => clearInterval(timer);
-  }, [state]);
+  }, [updateRemainingSeconds]);
 
   // handlers
   const { loading, errors, setErrors, withLoading } = useWithLoading();
@@ -58,6 +58,12 @@ export const VerifyPhoneVerifyScreen: React.FunctionComponent = () => {
           params: {},
         });
         break;
+      case "register":
+        nav.navigate("register.stack", {
+          screen: "register.detail",
+          params: {},
+        });
+        break;
       default:
         nav.navigate("verify_phone.stack", {
           screen: "verify_phone.index",
@@ -82,7 +88,13 @@ export const VerifyPhoneVerifyScreen: React.FunctionComponent = () => {
               screen: "find_email.end",
               params: {},
             });
-          break;
+            break;
+          case "register":
+            nav.navigate("register.stack", {
+              screen: "register.detail",
+              params: {},
+            });
+            break;
           default:
             nav.navigate("verify_phone.stack", {
               screen: "verify_phone.end",

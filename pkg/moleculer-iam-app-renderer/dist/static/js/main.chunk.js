@@ -792,7 +792,7 @@ var AppNavigationProvider = function AppNavigationProvider(_ref) {
     ref: ref,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 48
+      lineNumber: 50
     },
     __self: this
   }, _react.default.createElement(_reactNative.View, {
@@ -802,7 +802,7 @@ var AppNavigationProvider = function AppNavigationProvider(_ref) {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 52
+      lineNumber: 54
     },
     __self: this
   }, children));
@@ -939,6 +939,11 @@ var AppOptionsProvider = function (_React$Component) {
       login: {
         federationOptionsVisible: false
       },
+      register: {
+        skipDetailClaims: false,
+        skipEmailVerification: false,
+        skipPhoneVerification: false
+      },
       theme: "light",
       palette: {
         light: _theme.lightTheme,
@@ -956,7 +961,7 @@ var AppOptionsProvider = function (_React$Component) {
         value: [this.state, this.setState.bind(this)],
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 37
+          lineNumber: 42
         },
         __self: this
       }, this.props.children);
@@ -1925,7 +1930,6 @@ var ScreenLayout = function ScreenLayout(_ref) {
       error = _ref$error === void 0 ? null : _ref$error,
       _ref$footer = _ref.footer,
       footer = _ref$footer === void 0 ? null : _ref$footer;
-  {}
 
   var _useNavigation = (0, _hook.useNavigation)(),
       nav = _useNavigation.nav;
@@ -1961,7 +1965,7 @@ var ScreenLayout = function ScreenLayout(_ref) {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 64
+      lineNumber: 65
     },
     __self: this
   }, _react.default.createElement(_reactNative.View, {
@@ -1971,7 +1975,7 @@ var ScreenLayout = function ScreenLayout(_ref) {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 69
+      lineNumber: 70
     },
     __self: this
   }, _react.default.createElement(_reactNative.Image, {
@@ -1985,7 +1989,7 @@ var ScreenLayout = function ScreenLayout(_ref) {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 70
+      lineNumber: 71
     },
     __self: this
   })), _react.default.createElement(_reactNative.View, {
@@ -1994,14 +1998,14 @@ var ScreenLayout = function ScreenLayout(_ref) {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 73
+      lineNumber: 74
     },
     __self: this
   }, _react.default.createElement(_index.Text, {
     category: "h5",
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 74
+      lineNumber: 75
     },
     __self: this
   }, title), subtitle && _react.default.createElement(_index.Text, {
@@ -2011,7 +2015,7 @@ var ScreenLayout = function ScreenLayout(_ref) {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 75
+      lineNumber: 76
     },
     __self: this
   }, subtitle)), children ? _react.default.createElement(_reactNative.View, {
@@ -2020,7 +2024,7 @@ var ScreenLayout = function ScreenLayout(_ref) {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 78
+      lineNumber: 79
     },
     __self: this
   }, children) : null, error ? _react.default.createElement(_index.Text, {
@@ -2031,7 +2035,7 @@ var ScreenLayout = function ScreenLayout(_ref) {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 80
+      lineNumber: 81
     },
     __self: this
   }, error) : null, buttons.length > 0 ? buttons.map(function (args, index) {
@@ -2047,7 +2051,7 @@ var ScreenLayout = function ScreenLayout(_ref) {
         text: typeof s.separator === "string" ? s.separator : undefined,
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 92
+          lineNumber: 93
         },
         __self: this
       });
@@ -2066,7 +2070,7 @@ var ScreenLayout = function ScreenLayout(_ref) {
         },
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 105
+          lineNumber: 106
         },
         __self: this
       }, _react.default.createElement(_index.ButtonGroup, (0, _extends2.default)({
@@ -2076,7 +2080,7 @@ var ScreenLayout = function ScreenLayout(_ref) {
       }, groupProps, {
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 109
+          lineNumber: 110
         },
         __self: this
       }), g.group.map(function (btn, key) {
@@ -2106,7 +2110,7 @@ var ScreenLayout = function ScreenLayout(_ref) {
           onLongPress: loading ? undefined : props.onLongPress,
           __source: {
             fileName: _jsxFileName,
-            lineNumber: 122
+            lineNumber: 123
           },
           __self: this
         }));
@@ -2125,7 +2129,7 @@ var ScreenLayout = function ScreenLayout(_ref) {
       },
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 153
+        lineNumber: 154
       },
       __self: this
     }, _react.default.createElement(_index.Button, (0, _extends2.default)({
@@ -2142,7 +2146,7 @@ var ScreenLayout = function ScreenLayout(_ref) {
       onLongPress: loading ? undefined : props.onLongPress,
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 157
+        lineNumber: 158
       },
       __self: this
     })));
@@ -2513,15 +2517,17 @@ function withAttrs() {
 function activateAutoFocus(ref) {
   withElements(function (elems) {
     elems.find(function (elem) {
-      if (elem.focus) {
-        if (elem.offsetParent === null) {
-          console.debug("autofocus DOM element focus failed", elem);
-          return false;
-        }
-
-        elem.focus();
-        return true;
+      if (!elem.focus) {
+        return false;
       }
+
+      if (elem.offsetParent === null) {
+        console.debug("autofocus DOM element focus failed", elem);
+        return false;
+      }
+
+      elem.focus();
+      return true;
     });
   }, "[autofocus]")(ref);
 }
@@ -3144,14 +3150,14 @@ var LoginCheckPasswordScreen = function LoginCheckPasswordScreen() {
     }],
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 50
+      lineNumber: 51
     },
     __self: this
   }, _react.default.createElement(_component.Form, {
     onSubmit: handleCheckLoginPassword,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 82
+      lineNumber: 83
     },
     __self: this
   }, _react.default.createElement(_component.FormInput, {
@@ -3162,7 +3168,7 @@ var LoginCheckPasswordScreen = function LoginCheckPasswordScreen() {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 84
+      lineNumber: 85
     },
     __self: this
   }), _react.default.createElement(_component.FormInput, {
@@ -3178,7 +3184,7 @@ var LoginCheckPasswordScreen = function LoginCheckPasswordScreen() {
     onEnter: handleCheckLoginPassword,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 89
+      lineNumber: 90
     },
     __self: this
   })));
@@ -3359,14 +3365,14 @@ var LoginIndexScreen = function LoginIndexScreen() {
     }]),
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 76
+      lineNumber: 77
     },
     __self: this
   }, _react.default.createElement(_component.Form, {
     onSubmit: handleCheckLoginEmail,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 129
+      lineNumber: 130
     },
     __self: this
   }, _react.default.createElement(_component.FormInput, {
@@ -3381,7 +3387,7 @@ var LoginIndexScreen = function LoginIndexScreen() {
     onEnter: handleCheckLoginEmail,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 130
+      lineNumber: 131
     },
     __self: this
   })));
@@ -3707,9 +3713,7 @@ var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehy
 
 var _react = _interopRequireWildcard(__webpack_require__(/*! react */ "../../node_modules/react/index.js"));
 
-var _layout = __webpack_require__(/*! ./component/layout */ "./src/screen/component/layout.tsx");
-
-var _styles = __webpack_require__(/*! ../styles */ "./src/styles.ts");
+var _component = __webpack_require__(/*! ./component */ "./src/screen/component/index.ts");
 
 var _hook = __webpack_require__(/*! ../hook */ "./src/hook.ts");
 
@@ -3718,36 +3722,30 @@ var _moment = _interopRequireDefault(__webpack_require__(/*! moment */ "../../no
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-app-renderer/src/screen/register.detail.tsx";
 
 var RegisterDetailScreen = function RegisterDetailScreen() {
-  var _useState = (0, _react.useState)({
-    phone_number: "",
-    birthdate: "",
-    gender: ""
-  }),
-      _useState2 = (0, _slicedToArray2.default)(_useState, 2),
-      payload = _useState2[0],
-      setPayload = _useState2[1];
-
   var _useAppState = (0, _hook.useAppState)(),
       _useAppState2 = (0, _slicedToArray2.default)(_useAppState, 2),
       state = _useAppState2[0],
       dispatch = _useAppState2[1];
 
-  var phoneNumberIsRequired = state.metadata.mandatoryScopes.includes("phone");
-  (0, _react.useEffect)(function () {
-    var stored = state.session.register;
+  var _useAppOptions = (0, _hook.useAppOptions)(),
+      _useAppOptions2 = (0, _slicedToArray2.default)(_useAppOptions, 1),
+      options = _useAppOptions2[0];
 
-    if (stored.scope && stored.scope.includes("birthdate") && stored.scope.includes("gender")) {
-      var _stored$claims = stored.claims,
-          phone_number = _stored$claims.phone_number,
-          birthdate = _stored$claims.birthdate,
-          gender = _stored$claims.gender;
-      setPayload({
-        phone_number: phone_number,
-        birthdate: birthdate,
-        gender: gender
-      });
-    }
-  }, []);
+  var tmpState = state.session.register || {};
+  var tmpClaims = tmpState.claims || {};
+  var tmpCreds = tmpState.credentials || {};
+
+  var _useState = (0, _react.useState)({
+    phone_number: tmpClaims.phone_number || "",
+    birthdate: tmpClaims.birthdate || "",
+    gender: tmpClaims.gender || ""
+  }),
+      _useState2 = (0, _slicedToArray2.default)(_useState, 2),
+      payload = _useState2[0],
+      setPayload = _useState2[1];
+
+  var phoneNumberVerified = state.session.verifyPhone && state.session.verifyPhone.phoneNumber === payload.phone_number && state.session.verifyPhone.verified;
+  var phoneNumberRequired = state.metadata.mandatoryScopes.includes("phone");
 
   var _useNavigation = (0, _hook.useNavigation)(),
       nav = _useNavigation.nav;
@@ -3759,35 +3757,45 @@ var RegisterDetailScreen = function RegisterDetailScreen() {
       withLoading = _useWithLoading.withLoading;
 
   var _withLoading = withLoading(function _callee() {
-    var stored, phone_number, birthdate, gender;
+    var phone_number, birthdate, gender, data;
     return _regenerator.default.async(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
-            stored = state.session.register;
             phone_number = payload.phone_number, birthdate = payload.birthdate, gender = payload.gender;
-            return _context.abrupt("return", dispatch("register.validate", {
-              claims: (0, _objectSpread2.default)({}, stored.claims, {
+            data = {
+              submit: false,
+              claims: (0, _objectSpread2.default)({
                 phone_number: phone_number ? state.locale.country + "|" + phone_number : undefined,
                 birthdate: birthdate,
                 gender: gender
-              }),
-              credentials: stored.credentials,
-              scope: ["email", "profile", "birthdate", "gender"].concat(phoneNumberIsRequired || phone_number ? "phone" : [])
-            }).then(function (newState) {
-              if (payload.phone_number) {
-                return dispatch("verify_phone.send", {
-                  phone_number: newState.session.register.claims.phone_number,
-                  register: true
+              }, tmpClaims),
+              credentials: tmpCreds,
+              scope: ["email", "profile", "birthdate", "gender"].concat(phoneNumberRequired || phone_number ? "phone" : [])
+            };
+            return _context.abrupt("return", dispatch("register.submit", data).then(function () {
+              setErrors({});
+
+              if (data.claims.phone_number && !options.register.skipPhoneVerification && !phoneNumberVerified) {
+                return dispatch("verify_phone.check_phone", {
+                  phone_number: data.claims.phone_number,
+                  registered: false
                 }).then(function () {
-                  nav.navigate("verify_phone", {
+                  nav.navigate("verify_phone.stack", {
                     screen: "verify_phone.verify",
-                    params: {}
+                    params: {
+                      callback: "register"
+                    }
                   });
                 });
               } else {
-                nav.navigate("register", {
-                  screen: "register.end"
+                return dispatch("register.submit", (0, _objectSpread2.default)({}, data, {
+                  register: true
+                })).then(function () {
+                  nav.navigate("register.stack", {
+                    screen: "register.end",
+                    params: {}
+                  });
                 });
               }
             }).catch(function (errs) {
@@ -3806,21 +3814,70 @@ var RegisterDetailScreen = function RegisterDetailScreen() {
       handlePayloadSubmitLoading = _withLoading2[1];
 
   var _withLoading3 = withLoading(function () {
-    nav.navigate("register", {
+    nav.navigate("register.stack", {
       screen: "register.index",
       params: {}
     });
     setErrors({});
-  }),
+  }, []),
       _withLoading4 = (0, _slicedToArray2.default)(_withLoading3, 2),
       handleCancel = _withLoading4[0],
       handleCancelLoading = _withLoading4[1];
 
-  var storedClaims = state.session.register.claims;
-  return _react.default.createElement(_layout.ScreenLayout, {
+  return _react.default.createElement(_react.default.Fragment, null, _react.default.createElement(_component.Popover, {
+    content: _react.default.createElement(_component.Text, {
+      __source: {
+        fileName: _jsxFileName,
+        lineNumber: 87
+      },
+      __self: this
+    }, "hello?"),
+    visible: true,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 86
+    },
+    __self: this
+  }, _react.default.createElement(_component.Text, {
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 90
+    },
+    __self: this
+  }, "btn?")), _react.default.createElement(_component.Datepicker, {
+    label: "Birthdate",
+    size: "large",
+    placement: "top",
+    placeholder: "Select your birthdate",
+    date: (payload.birthdate ? (0, _moment.default)(payload.birthdate) : (0, _moment.default)().subtract(20, "y")).toDate(),
+    onSelect: function onSelect(v) {
+      return setPayload(function (p) {
+        return (0, _objectSpread2.default)({}, p, {
+          birthdate: (0, _moment.default)(v).format("YYYY-MM-DD")
+        });
+      });
+    },
+    icon: function icon(s) {
+      return _react.default.createElement(_component.Icon, {
+        style: s,
+        name: "calendar",
+        __source: {
+          fileName: _jsxFileName,
+          lineNumber: 99
+        },
+        __self: this
+      });
+    },
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 92
+    },
+    __self: this
+  }), _react.default.createElement(_component.ScreenLayout, {
     title: "Sign up",
-    subtitle: storedClaims.email,
+    subtitle: tmpClaims.email,
     loading: loading,
+    error: errors.global,
     buttons: [{
       status: "primary",
       children: "Continue",
@@ -3833,129 +3890,62 @@ var RegisterDetailScreen = function RegisterDetailScreen() {
       loading: handleCancelLoading,
       tabIndex: 65
     }],
-    error: errors.global,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 83
+      lineNumber: 101
     },
     __self: this
-  }, _react.default.createElement("form", {
-    onSubmit: function onSubmit(e) {
-      e.preventDefault();
-      handlePayloadSubmit();
-    },
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 104
-    },
-    __self: this
-  }, _react.default.createElement(_styles.Stack, {
-    tokens: {
-      childrenGap: 15
+  }, _react.default.createElement(_component.Text, {
+    style: {
+      marginBottom: 30
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 108
+      lineNumber: 122
     },
     __self: this
-  }, _react.default.createElement(_styles.Text, {
+  }, "Please enter the phone number to find the your account for the case of lost."), _react.default.createElement(_component.Form, {
+    onSubmit: handlePayloadSubmit,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 109
+      lineNumber: 126
     },
     __self: this
-  }, "Please enter the phone number to find the your account for the case of lost."), _react.default.createElement(_styles.TextField, {
-    label: "Phone" + (phoneNumberIsRequired ? "" : " (optional)"),
-    type: "text",
-    inputMode: "tel",
-    placeholder: "Enter your mobile phone number",
-    autoFocus: true,
+  }, _react.default.createElement(_component.FormInput, {
+    autoFocus: !payload.phone_number,
     tabIndex: 61,
+    label: "Phone number" + (phoneNumberRequired ? "" : " (optional)"),
+    placeholder: "Enter your mobile phone number (" + state.locale.country + ")",
+    blurOnSubmit: false,
+    keyboardType: "phone-pad",
+    autoCompleteType: "tel",
     value: payload.phone_number,
-    errorMessage: errors.phone_number,
-    onChange: function onChange(e, v) {
+    setValue: function setValue(v) {
       return setPayload(function (p) {
         return (0, _objectSpread2.default)({}, p, {
           phone_number: v
         });
       });
     },
-    onKeyUp: function onKeyUp(e) {
-      return e.key === "Enter" && handlePayloadSubmit();
-    },
-    styles: _styles.TextFieldStyles.bold,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 110
-    },
-    __self: this
-  }), _react.default.createElement(_styles.DatePicker, {
-    label: "Birthdate",
-    placeholder: "Select your birthdate",
-    tabIndex: 62,
-    allowTextInput: true,
-    value: payload.birthdate ? (0, _moment.default)(payload.birthdate, "YYYY-MM-DD").toDate() : undefined,
-    onSelectDate: function onSelectDate(date) {
-      return date && setPayload(function (p) {
-        return (0, _objectSpread2.default)({}, p, {
-          birthdate: (0, _moment.default)(date).format("YYYY-MM-DD")
-        });
+    error: errors.phone_number,
+    onEnter: handlePayloadSubmit,
+    icon: phoneNumberVerified ? function (s) {
+      return _react.default.createElement(_component.Icon, {
+        name: "checkmark-circle-2-outline",
+        style: s,
+        __source: {
+          fileName: _jsxFileName,
+          lineNumber: 139
+        },
+        __self: this
       });
+    } : undefined,
+    style: {
+      marginBottom: 15
     },
-    onKeyUp: function onKeyUp(e) {
-      return e.key === "Enter" && handlePayloadSubmit();
-    },
-    formatDate: function formatDate(date) {
-      return date ? (0, _moment.default)(date).format("YYYY-MM-DD") : "";
-    },
-    initialPickerDate: (0, _moment.default)().subtract(20, "y").toDate(),
-    highlightCurrentMonth: true,
-    highlightSelectedMonth: true,
-    showGoToToday: false,
-    parseDateFromString: function parseDateFromString(str) {
-      var d = (0, _moment.default)(str, "YYYY-MM-DD");
-      return d.isValid() ? d.toDate() : null;
-    },
-    styles: _styles.DatePickerStyles.bold,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 124
-    },
-    __self: this
-  }), errors.birthdate ? _react.default.createElement(_styles.Label, {
-    styles: _styles.LabelStyles.fieldErrorMessage,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 143
-    },
-    __self: this
-  }, errors.birthdate) : null, _react.default.createElement(_styles.Dropdown, {
-    label: "Gender",
-    selectedKey: payload.gender || undefined,
-    onChange: function onChange(e, v) {
-      return v && setPayload(function (p) {
-        return (0, _objectSpread2.default)({}, p, {
-          gender: v.key
-        });
-      });
-    },
-    placeholder: "Select your gender",
-    tabIndex: 63,
-    options: [{
-      key: "male",
-      text: "Male"
-    }, {
-      key: "female",
-      text: "Female"
-    }, {
-      key: "other",
-      text: "Other"
-    }],
-    errorMessage: errors.gender,
-    styles: _styles.DropdownStyles.bold,
-    __source: {
-      fileName: _jsxFileName,
-      lineNumber: 145
+      lineNumber: 127
     },
     __self: this
   }))));
@@ -3979,76 +3969,83 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.RegisterEndScreen = void 0;
 
+var _extends2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/extends */ "../../node_modules/@babel/runtime/helpers/esm/extends.js"));
+
 var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/slicedToArray */ "../../node_modules/@babel/runtime/helpers/esm/slicedToArray.js"));
 
 var _react = _interopRequireDefault(__webpack_require__(/*! react */ "../../node_modules/react/index.js"));
 
-var _styles = __webpack_require__(/*! ../styles */ "./src/styles.ts");
-
 var _hook = __webpack_require__(/*! ../hook */ "./src/hook.ts");
 
-var _layout = __webpack_require__(/*! ./component/layout */ "./src/screen/component/layout.tsx");
+var _component = __webpack_require__(/*! ./component */ "./src/screen/component/index.ts");
 
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-app-renderer/src/screen/register.end.tsx";
 
 var RegisterEndScreen = function RegisterEndScreen() {
+  var _useAppState = (0, _hook.useAppState)(),
+      _useAppState2 = (0, _slicedToArray2.default)(_useAppState, 2),
+      state = _useAppState2[0],
+      dispatch = _useAppState2[1];
+
+  var user = state.session.registered || {};
+
+  var _useClose = (0, _hook.useClose)(false),
+      close = _useClose.close,
+      closed = _useClose.closed;
+
   var _useWithLoading = (0, _hook.useWithLoading)(),
       loading = _useWithLoading.loading,
       errors = _useWithLoading.errors,
       setErrors = _useWithLoading.setErrors,
       withLoading = _useWithLoading.withLoading;
 
-  var _useNavigation = (0, _hook.useNavigation)(),
-      nav = _useNavigation.nav,
-      route = _useNavigation.route;
-
-  var _route$params$email = route.params.email,
-      email = _route$params$email === void 0 ? "" : _route$params$email;
-
   var _withLoading = withLoading(function () {
-    nav.navigate("login", {
-      screen: "login.index",
-      params: {
-        email: email
-      }
+    return dispatch("register.login").catch(function (errs) {
+      return setErrors(errs);
     });
   }),
       _withLoading2 = (0, _slicedToArray2.default)(_withLoading, 2),
-      handleContinue = _withLoading2[0],
-      handleContinueLoading = _withLoading2[1];
+      handleSignIn = _withLoading2[0],
+      handleSignInLoading = _withLoading2[1];
 
-  return _react.default.createElement(_layout.ScreenLayout, {
+  return _react.default.createElement(_component.ScreenLayout, {
     title: "Signed up",
-    subtitle: email,
+    loading: loading || closed,
+    error: errors.global || (closed ? "Please close the window manually." : undefined),
     buttons: [{
       status: "primary",
-      children: "Done",
-      onPress: handleContinue,
-      loading: handleContinueLoading,
-      tabIndex: 1
+      children: "Sign in",
+      onPress: handleSignIn,
+      loading: handleSignInLoading,
+      tabIndex: 91,
+      hidden: !state.routes.login
+    }, {
+      children: "Close",
+      onPress: close,
+      loading: closed,
+      tabIndex: 92
     }],
-    error: errors.global,
-    loading: loading,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 25
+      lineNumber: 20
     },
     __self: this
-  }, _react.default.createElement(_styles.Text, {
+  }, _react.default.createElement(_component.Persona, (0, _extends2.default)({}, user, {
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 40
+      lineNumber: 41
     },
     __self: this
-  }, "Congratulations! The account has been registered. This email account can be used to sign in to multiple services. So don't forget it please. ", _react.default.createElement("span", {
-    role: "img",
-    "aria-label": "smile",
+  })), _react.default.createElement(_component.Text, {
+    style: {
+      marginTop: 30
+    },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 40
+      lineNumber: 42
     },
     __self: this
-  }, "\uD83D\uDE42")));
+  }, "Congratulations! The account has been registered successfully."));
 };
 
 exports.RegisterEndScreen = RegisterEndScreen;
@@ -4071,15 +4068,13 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.RegisterIndexScreen = void 0;
 
-var _objectSpread2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/objectSpread2 */ "../../node_modules/@babel/runtime/helpers/esm/objectSpread2.js"));
-
 var _regenerator = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/regenerator */ "../../node_modules/@babel/runtime/regenerator/index.js"));
+
+var _objectSpread2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/objectSpread2 */ "../../node_modules/@babel/runtime/helpers/esm/objectSpread2.js"));
 
 var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/slicedToArray */ "../../node_modules/@babel/runtime/helpers/esm/slicedToArray.js"));
 
 var _react = _interopRequireWildcard(__webpack_require__(/*! react */ "../../node_modules/react/index.js"));
-
-var _layout = __webpack_require__(/*! ./component/layout */ "./src/screen/component/layout.tsx");
 
 var _component = __webpack_require__(/*! ./component */ "./src/screen/component/index.ts");
 
@@ -4088,51 +4083,33 @@ var _hook = __webpack_require__(/*! ../hook */ "./src/hook.ts");
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-app-renderer/src/screen/register.index.tsx";
 
 var RegisterIndexScreen = function RegisterIndexScreen() {
-  var _useNavigation = (0, _hook.useNavigation)(),
-      nav = _useNavigation.nav;
-
-  var _useState = (0, _react.useState)({
-    name: "",
-    email: "",
-    password: "",
-    password_confirmation: ""
-  }),
-      _useState2 = (0, _slicedToArray2.default)(_useState, 2),
-      payload = _useState2[0],
-      setPayload = _useState2[1];
-
   var _useAppState = (0, _hook.useAppState)(),
       _useAppState2 = (0, _slicedToArray2.default)(_useAppState, 2),
       state = _useAppState2[0],
       dispatch = _useAppState2[1];
 
-  (0, _react.useEffect)(function () {
-    var stored = state.session.register;
+  var _useAppOptions = (0, _hook.useAppOptions)(),
+      _useAppOptions2 = (0, _slicedToArray2.default)(_useAppOptions, 1),
+      options = _useAppOptions2[0];
 
-    if (stored && stored.credentials && stored.scope && stored.scope.includes("email") && stored.scope.includes("profile")) {
-      var _stored$claims = stored.claims,
-          name = _stored$claims.name,
-          email = _stored$claims.email;
-      var _stored$credentials = stored.credentials,
-          password = _stored$credentials.password,
-          password_confirmation = _stored$credentials.password_confirmation;
-      setPayload({
-        name: name,
-        email: email,
-        password: password,
-        password_confirmation: password_confirmation
-      });
-      nav.navigate("register", {
-        screen: "register.detail",
-        params: {}
-      });
-    }
-  }, []);
+  var tmpState = state.session.register || {};
+  var tmpClaims = tmpState.claims || {};
+  var tmpCreds = tmpState.credentials || {};
 
-  var _useState3 = (0, _react.useState)(false),
-      _useState4 = (0, _slicedToArray2.default)(_useState3, 2),
-      passwordVisible = _useState4[0],
-      setPasswordVisible = _useState4[1];
+  var _useState = (0, _react.useState)({
+    name: tmpClaims.name || "",
+    email: tmpClaims.email || "",
+    password: tmpCreds.password || "",
+    password_confirmation: tmpCreds.password_confirmation || ""
+  }),
+      _useState2 = (0, _slicedToArray2.default)(_useState, 2),
+      payload = _useState2[0],
+      setPayload = _useState2[1];
+
+  var emailVerified = state.session.verifyEmail && state.session.verifyEmail.email === payload.email && state.session.verifyEmail.verified;
+
+  var _useNavigation = (0, _hook.useNavigation)(),
+      nav = _useNavigation.nav;
 
   var _useWithLoading = (0, _hook.useWithLoading)(),
       loading = _useWithLoading.loading,
@@ -4141,13 +4118,14 @@ var RegisterIndexScreen = function RegisterIndexScreen() {
       withLoading = _useWithLoading.withLoading;
 
   var _withLoading = withLoading(function _callee() {
-    var name, email, password, password_confirmation;
+    var name, email, password, password_confirmation, data;
     return _regenerator.default.async(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
             name = payload.name, email = payload.email, password = payload.password, password_confirmation = payload.password_confirmation;
-            return _context.abrupt("return", dispatch("register.validate", {
+            data = {
+              submit: false,
               claims: {
                 name: name,
                 email: email
@@ -4157,43 +4135,69 @@ var RegisterIndexScreen = function RegisterIndexScreen() {
                 password_confirmation: password_confirmation
               },
               scope: ["email", "profile"]
-            }).then(function () {
+            };
+            return _context.abrupt("return", dispatch("register.submit", data).then(function () {
               setErrors({});
-              nav.navigate("register", {
-                screen: "register.detail",
-                params: {}
-              });
-            }).catch(function (err) {
-              return setErrors(err);
+
+              if (!options.register.skipEmailVerification && !emailVerified) {
+                return dispatch("verify_email.check_email", {
+                  email: data.claims.email,
+                  registered: false
+                }).then(function () {
+                  nav.navigate("verify_email.stack", {
+                    screen: "verify_email.verify",
+                    params: {
+                      callback: "register"
+                    }
+                  });
+                });
+              } else if (!options.register.skipDetailClaims) {
+                nav.navigate("register.stack", {
+                  screen: "register.detail",
+                  params: {}
+                });
+              } else {
+                return dispatch("register.submit", (0, _objectSpread2.default)({}, data, {
+                  register: true
+                })).then(function () {
+                  nav.navigate("register.stack", {
+                    screen: "register.end",
+                    params: {}
+                  });
+                });
+              }
+            }).catch(function (errs) {
+              return setErrors(errs);
             }));
 
-          case 2:
+          case 3:
           case "end":
             return _context.stop();
         }
       }
     });
-  }, [nav, payload]),
+  }, [payload]),
       _withLoading2 = (0, _slicedToArray2.default)(_withLoading, 2),
       handlePayloadSubmit = _withLoading2[0],
       handlePayloadSubmitLoading = _withLoading2[1];
 
   var _withLoading3 = withLoading(function () {
-    nav.navigate("login", {
+    nav.navigate("login.stack", {
       screen: "login.index",
       params: {}
     });
     setErrors({});
-  }, [nav]),
+  }, []),
       _withLoading4 = (0, _slicedToArray2.default)(_withLoading3, 2),
       handleCancel = _withLoading4[0],
       handleCancelLoading = _withLoading4[1];
 
   var discovery = state.metadata.discovery;
-  return _react.default.createElement(_layout.ScreenLayout, {
+  return _react.default.createElement(_component.ScreenLayout, {
     title: "Sign up",
     subtitle: "Create an account",
     loading: loading,
+    error: errors.global,
     buttons: [{
       status: "primary",
       children: "Continue",
@@ -4201,136 +4205,157 @@ var RegisterIndexScreen = function RegisterIndexScreen() {
       loading: handlePayloadSubmitLoading,
       tabIndex: 55
     }, {
+      size: "medium",
+      group: [{
+        children: "Privacy policy",
+        onPress: function onPress() {
+          return window.open(discovery.op_policy_uri, "_blank");
+        },
+        disabled: !discovery.op_policy_uri,
+        tabIndex: 4
+      }, {
+        children: "Terms of service",
+        onPress: function onPress() {
+          return window.open(discovery.op_tos_uri, "_blank");
+        },
+        disabled: !discovery.op_tos_uri,
+        tabIndex: 5
+      }]
+    }, {
+      size: "medium",
       children: "Cancel",
       onPress: handleCancel,
       loading: handleCancelLoading,
-      hidden: state.name === "register",
+      hidden: !state.routes.login,
       tabIndex: 56
     }],
-    error: errors.global,
-    footer: _react.default.createElement(_react.default.Fragment, null, _react.default.createElement(_component.Text, {
-      __source: {
-        fileName: _jsxFileName,
-        lineNumber: 97
-      },
-      __self: this
-    }, "When you sign up as a member, you agree to the ", _react.default.createElement("a", {
-      href: discovery.op_tos_uri,
-      target: "_blank",
-      __source: {
-        fileName: _jsxFileName,
-        lineNumber: 97
-      },
-      __self: this
-    }, "terms of service"), " and the ", _react.default.createElement("a", {
-      href: discovery.op_policy_uri,
-      target: "_blank",
-      __source: {
-        fileName: _jsxFileName,
-        lineNumber: 97
-      },
-      __self: this
-    }, "privacy policy"), ".")),
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 74
+      lineNumber: 92
     },
     __self: this
-  }, _react.default.createElement("form", {
-    noValidate: true,
-    onSubmit: function onSubmit(e) {
-      e.preventDefault();
-      handlePayloadSubmit();
-    },
+  }, _react.default.createElement(_component.Form, {
+    onSubmit: handlePayloadSubmit,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 101
+      lineNumber: 132
     },
     __self: this
-  }, _react.default.createElement(_component.Input, {
+  }, _react.default.createElement(_component.FormInput, {
     label: "Name",
+    tabIndex: 51,
+    keyboardType: "default",
     placeholder: "Enter your name",
+    autoCompleteType: "name",
+    autoFocus: !payload.name,
     value: payload.name,
-    caption: errors.name,
-    onChangeText: function onChangeText(v) {
+    setValue: function setValue(v) {
       return setPayload(function (p) {
         return (0, _objectSpread2.default)({}, p, {
           name: v
         });
       });
     },
-    onKeyPress: function onKeyPress(e) {
-      return e.nativeEvent.key === "Enter" && handlePayloadSubmit();
+    error: errors.name,
+    onEnter: handlePayloadSubmit,
+    style: {
+      marginBottom: 15
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 105
+      lineNumber: 133
     },
     __self: this
-  }), _react.default.createElement(_component.Input, {
+  }), _react.default.createElement(_component.FormInput, {
     label: "Email",
-    placeholder: "Enter your email",
+    tabIndex: 52,
+    keyboardType: "email-address",
+    placeholder: "Enter your email address",
     autoCompleteType: "username",
     value: payload.email,
-    caption: errors.email,
-    onChangeText: function onChangeText(v) {
+    setValue: function setValue(v) {
       return setPayload(function (p) {
         return (0, _objectSpread2.default)({}, p, {
           email: v
         });
       });
     },
-    onKeyPress: function onKeyPress(e) {
-      return e.nativeEvent.key === "Enter" && handlePayloadSubmit();
+    icon: emailVerified ? function (s) {
+      return _react.default.createElement(_component.Icon, {
+        name: "checkmark-circle-2-outline",
+        style: s,
+        __source: {
+          fileName: _jsxFileName,
+          lineNumber: 154
+        },
+        __self: this
+      });
+    } : undefined,
+    error: errors.email,
+    onEnter: handlePayloadSubmit,
+    style: {
+      marginBottom: 15
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 115
+      lineNumber: 146
     },
     __self: this
-  }), _react.default.createElement(_component.Input, {
+  }), _react.default.createElement(_component.FormInput, {
     label: "Password",
+    tabIndex: 53,
+    secureTextEntry: true,
     autoCompleteType: "password",
-    placeholder: "Enter your password",
+    placeholder: "Enter password",
     value: payload.password,
-    caption: errors.password,
-    onChangeText: function onChangeText(v) {
+    setValue: function setValue(v) {
       return setPayload(function (p) {
         return (0, _objectSpread2.default)({}, p, {
           password: v
         });
       });
     },
-    onKeyPress: function onKeyPress(e) {
-      return e.nativeEvent.key === "Enter" && handlePayloadSubmit();
+    error: errors.password,
+    onEnter: handlePayloadSubmit,
+    style: {
+      marginBottom: 15
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 126
+      lineNumber: 159
     },
     __self: this
-  }), _react.default.createElement(_component.Input, {
+  }), _react.default.createElement(_component.FormInput, {
     label: "Confirm",
+    tabIndex: 54,
+    secureTextEntry: true,
     autoCompleteType: "password",
-    placeholder: "Confirm your password",
+    placeholder: "Confirm password",
     value: payload.password_confirmation,
-    caption: errors.password_confirmation,
-    onChangeText: function onChangeText(v) {
+    setValue: function setValue(v) {
       return setPayload(function (p) {
         return (0, _objectSpread2.default)({}, p, {
           password_confirmation: v
         });
       });
     },
-    onKeyPress: function onKeyPress(e) {
-      return e.nativeEvent.key === "Enter" && handlePayloadSubmit();
+    error: errors.password_confirmation,
+    onEnter: handlePayloadSubmit,
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 171
+    },
+    __self: this
+  })), _react.default.createElement(_component.Text, {
+    style: {
+      marginTop: 30
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 139
+      lineNumber: 183
     },
     __self: this
-  })));
+  }, "When continue, you are agreeing to the terms of service and the privacy policy."));
 };
 
 exports.RegisterIndexScreen = RegisterIndexScreen;
@@ -4355,11 +4380,9 @@ var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehy
 
 var _react = _interopRequireDefault(__webpack_require__(/*! react */ "../../node_modules/react/index.js"));
 
-var _styles = __webpack_require__(/*! ../styles */ "./src/styles.ts");
-
 var _hook = __webpack_require__(/*! ../hook */ "./src/hook.ts");
 
-var _layout = __webpack_require__(/*! ./component/layout */ "./src/screen/component/layout.tsx");
+var _component = __webpack_require__(/*! ./component */ "./src/screen/component/index.ts");
 
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-app-renderer/src/screen/reset_password.end.tsx";
 
@@ -4393,7 +4416,7 @@ var ResetPasswordEndScreen = function ResetPasswordEndScreen() {
       closed = _useClose.closed,
       close = _useClose.close;
 
-  return _react.default.createElement(_layout.ScreenLayout, {
+  return _react.default.createElement(_component.ScreenLayout, {
     title: "Password reset",
     subtitle: email,
     loading: loading || closed,
@@ -4414,13 +4437,13 @@ var ResetPasswordEndScreen = function ResetPasswordEndScreen() {
     }],
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 27
+      lineNumber: 26
     },
     __self: this
-  }, _react.default.createElement(_styles.Text, {
+  }, _react.default.createElement(_component.Text, {
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 50
+      lineNumber: 49
     },
     __self: this
   }, "The account credential has been updated successfully."));
@@ -4536,7 +4559,7 @@ var ResetPasswordIndexScreen = function ResetPasswordIndexScreen() {
     }],
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 50
+      lineNumber: 52
     },
     __self: this
   }, _react.default.createElement(_component.Text, {
@@ -4545,7 +4568,7 @@ var ResetPasswordIndexScreen = function ResetPasswordIndexScreen() {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 72
+      lineNumber: 74
     },
     __self: this
   }, "Verify your registered email address."), _react.default.createElement(_component.FormInput, {
@@ -4562,7 +4585,7 @@ var ResetPasswordIndexScreen = function ResetPasswordIndexScreen() {
     onEnter: handleCheckEmail,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 75
+      lineNumber: 77
     },
     __self: this
   }));
@@ -4903,7 +4926,7 @@ var VerifyEmailIndexScreen = function VerifyEmailIndexScreen() {
     }],
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 38
+      lineNumber: 41
     },
     __self: this
   }, _react.default.createElement(_component.Text, {
@@ -4912,7 +4935,7 @@ var VerifyEmailIndexScreen = function VerifyEmailIndexScreen() {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 52
+      lineNumber: 55
     },
     __self: this
   }, "Verify your registered email address."), _react.default.createElement(_component.FormInput, {
@@ -4929,7 +4952,7 @@ var VerifyEmailIndexScreen = function VerifyEmailIndexScreen() {
     onEnter: handleCheckEmail,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 55
+      lineNumber: 58
     },
     __self: this
   }));
@@ -5010,7 +5033,7 @@ var VerifyEmailVerifyScreen = function VerifyEmailVerifyScreen() {
     return function () {
       return clearInterval(timer);
     };
-  }, [state]);
+  }, [updateRemainingSeconds]);
 
   var _useWithLoading = (0, _hook.useWithLoading)(),
       loading = _useWithLoading.loading,
@@ -5062,6 +5085,13 @@ var VerifyEmailVerifyScreen = function VerifyEmailVerifyScreen() {
 
         break;
 
+      case "register":
+        nav.navigate("register.stack", {
+          screen: "register.index",
+          params: {}
+        });
+        break;
+
       default:
         nav.navigate("verify_email.stack", {
           screen: "verify_email.index",
@@ -5088,6 +5118,13 @@ var VerifyEmailVerifyScreen = function VerifyEmailVerifyScreen() {
         case "reset_password":
           nav.navigate("reset_password.stack", {
             screen: "reset_password.set",
+            params: {}
+          });
+          break;
+
+        case "register":
+          nav.navigate("register.stack", {
+            screen: "register.index",
             params: {}
           });
           break;
@@ -5131,7 +5168,7 @@ var VerifyEmailVerifyScreen = function VerifyEmailVerifyScreen() {
     error: errors.global,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 106
+      lineNumber: 118
     },
     __self: this
   }, expiresAt ? _react.default.createElement(_react.default.Fragment, null, _react.default.createElement(_component.Text, {
@@ -5140,7 +5177,7 @@ var VerifyEmailVerifyScreen = function VerifyEmailVerifyScreen() {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 136
+      lineNumber: 148
     },
     __self: this
   }, "Enter the received 6-digit verification code."), _react.default.createElement(_component.FormInput, {
@@ -5157,7 +5194,7 @@ var VerifyEmailVerifyScreen = function VerifyEmailVerifyScreen() {
     onEnter: handleVerify,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 139
+      lineNumber: 151
     },
     __self: this
   })) : _react.default.createElement(_react.default.Fragment, null, _react.default.createElement(_component.Text, {
@@ -5166,7 +5203,7 @@ var VerifyEmailVerifyScreen = function VerifyEmailVerifyScreen() {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 155
+      lineNumber: 167
     },
     __self: this
   }, "An email with a verification code will be sent to verify the email address."), _react.default.createElement(_reactNative.Image, {
@@ -5180,7 +5217,7 @@ var VerifyEmailVerifyScreen = function VerifyEmailVerifyScreen() {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 158
+      lineNumber: 170
     },
     __self: this
   })));
@@ -5335,7 +5372,7 @@ var VerifyPhoneIndexScreen = function VerifyPhoneIndexScreen() {
     }],
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 38
+      lineNumber: 39
     },
     __self: this
   }, _react.default.createElement(_component.Text, {
@@ -5344,7 +5381,7 @@ var VerifyPhoneIndexScreen = function VerifyPhoneIndexScreen() {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 52
+      lineNumber: 53
     },
     __self: this
   }, "Verify your registered phone number."), _react.default.createElement(_component.FormInput, {
@@ -5361,7 +5398,7 @@ var VerifyPhoneIndexScreen = function VerifyPhoneIndexScreen() {
     onEnter: handleCheckPhoneNumber,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 55
+      lineNumber: 56
     },
     __self: this
   }));
@@ -5441,7 +5478,7 @@ var VerifyPhoneVerifyScreen = function VerifyPhoneVerifyScreen() {
     return function () {
       return clearInterval(timer);
     };
-  }, [state]);
+  }, [updateRemainingSeconds]);
 
   var _useWithLoading = (0, _hook.useWithLoading)(),
       loading = _useWithLoading.loading,
@@ -5485,6 +5522,13 @@ var VerifyPhoneVerifyScreen = function VerifyPhoneVerifyScreen() {
         });
         break;
 
+      case "register":
+        nav.navigate("register.stack", {
+          screen: "register.detail",
+          params: {}
+        });
+        break;
+
       default:
         nav.navigate("verify_phone.stack", {
           screen: "verify_phone.index",
@@ -5511,6 +5555,13 @@ var VerifyPhoneVerifyScreen = function VerifyPhoneVerifyScreen() {
         case "find_email":
           nav.navigate("find_email.stack", {
             screen: "find_email.end",
+            params: {}
+          });
+          break;
+
+        case "register":
+          nav.navigate("register.stack", {
+            screen: "register.detail",
             params: {}
           });
           break;
@@ -5554,7 +5605,7 @@ var VerifyPhoneVerifyScreen = function VerifyPhoneVerifyScreen() {
     error: errors.global,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 98
+      lineNumber: 110
     },
     __self: this
   }, expiresAt ? _react.default.createElement(_react.default.Fragment, null, _react.default.createElement(_component.Text, {
@@ -5563,7 +5614,7 @@ var VerifyPhoneVerifyScreen = function VerifyPhoneVerifyScreen() {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 128
+      lineNumber: 140
     },
     __self: this
   }, "Enter the received 6-digit verification code."), _react.default.createElement(_component.FormInput, {
@@ -5580,7 +5631,7 @@ var VerifyPhoneVerifyScreen = function VerifyPhoneVerifyScreen() {
     onEnter: handleVerify,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 131
+      lineNumber: 143
     },
     __self: this
   })) : _react.default.createElement(_react.default.Fragment, null, _react.default.createElement(_component.Text, {
@@ -5589,7 +5640,7 @@ var VerifyPhoneVerifyScreen = function VerifyPhoneVerifyScreen() {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 147
+      lineNumber: 159
     },
     __self: this
   }, "A text message with a verification code will be sent to verify the phone number."), _react.default.createElement(_reactNative.Image, {
@@ -5603,7 +5654,7 @@ var VerifyPhoneVerifyScreen = function VerifyPhoneVerifyScreen() {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 150
+      lineNumber: 162
     },
     __self: this
   })));
@@ -5688,161 +5739,6 @@ function unregister() {
     });
   }
 }
-
-/***/ }),
-
-/***/ "./src/styles.ts":
-/*!***********************!*\
-  !*** ./src/styles.ts ***!
-  \***********************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-var _interopRequireDefault = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/interopRequireDefault */ "../../node_modules/@babel/runtime/helpers/interopRequireDefault.js");
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-var _exportNames = {
-  ThemeStyles: true,
-  TextFieldStyles: true,
-  DropdownStyles: true,
-  DatePickerStyles: true,
-  LabelStyles: true,
-  ButtonStyles: true
-};
-exports.ButtonStyles = exports.LabelStyles = exports.DatePickerStyles = exports.DropdownStyles = exports.TextFieldStyles = exports.ThemeStyles = void 0;
-
-var _objectSpread2 = _interopRequireDefault(__webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer-iam/node_modules/@babel/runtime/helpers/esm/objectSpread2 */ "../../node_modules/@babel/runtime/helpers/esm/objectSpread2.js"));
-
-var _lib = __webpack_require__(/*! office-ui-fabric-react/lib */ "../../node_modules/office-ui-fabric-react/lib/index.js");
-
-Object.keys(_lib).forEach(function (key) {
-  if (key === "default" || key === "__esModule") return;
-  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
-  Object.defineProperty(exports, key, {
-    enumerable: true,
-    get: function get() {
-      return _lib[key];
-    }
-  });
-});
-
-var _icons = __webpack_require__(/*! @uifabric/icons */ "../../node_modules/@uifabric/icons/lib/index.js");
-
-(0, _icons.initializeIcons)();
-var ThemeStyles = (0, _lib.getTheme)();
-exports.ThemeStyles = ThemeStyles;
-var TextFieldStyles = {
-  bold: {
-    fieldGroup: {
-      height: "50px"
-    },
-    field: {
-      fontSize: _lib.FontSizes.large,
-      padding: "0 15px",
-      selectors: {
-        "&::placeholder": {
-          fontSize: _lib.FontSizes.large
-        }
-      }
-    },
-    icon: {
-      lineHeight: "1.5em",
-      fontSize: "1.5em",
-      padding: "0.1em 0.5em",
-      pointerEvents: "auto",
-      userSelect: "none"
-    }
-  }
-};
-exports.TextFieldStyles = TextFieldStyles;
-var DropdownStyles = {
-  bold: {
-    dropdown: {
-      selectors: {
-        ".ms-Dropdown-title": {
-          height: "48px",
-          lineHeight: "48px",
-          fontSize: _lib.FontSizes.large,
-          padding: "0 15px"
-        },
-        ".ms-Dropdown-caretDownWrapper": {
-          lineHeight: "1.5em",
-          fontSize: "1.5em",
-          padding: "0.2em 0.5em"
-        }
-      }
-    }
-  }
-};
-exports.DropdownStyles = DropdownStyles;
-var DatePickerStyles = {
-  bold: {
-    root: {
-      outline: "none"
-    },
-    textField: {
-      selectors: {
-        ".ms-TextField-fieldGroup": {
-          height: "50px"
-        },
-        "input": {
-          padding: "0 15px",
-          height: "48px",
-          fontSize: _lib.FontSizes.large
-        },
-        "input::placeholder": {
-          fontSize: _lib.FontSizes.large
-        }
-      }
-    },
-    icon: {
-      lineHeight: "1.5em",
-      fontSize: "1.5em",
-      padding: "0.5em"
-    }
-  }
-};
-exports.DatePickerStyles = DatePickerStyles;
-var LabelStyles = {
-  fieldErrorMessage: {
-    root: (0, _objectSpread2.default)({}, ThemeStyles.fonts.small, {
-      color: ThemeStyles.palette.redDark,
-      paddingBottom: 0,
-      marginTop: "0 !important"
-    })
-  }
-};
-exports.LabelStyles = LabelStyles;
-var ButtonStyles = {
-  large: {
-    root: {
-      height: "50px",
-      fontSize: _lib.FontSizes.mediumPlus,
-      fontWeight: _lib.FontWeights.light
-    }
-  },
-  largeThin: {
-    root: {
-      height: "50px",
-      fontSize: _lib.FontSizes.mediumPlus,
-      fontWeight: _lib.FontWeights.light
-    },
-    label: {
-      fontWeight: 500
-    }
-  },
-  largeFull: {
-    root: {
-      height: "50px",
-      fontSize: _lib.FontSizes.mediumPlus,
-      fontWeight: _lib.FontWeights.light,
-      width: "100%"
-    }
-  }
-};
-exports.ButtonStyles = ButtonStyles;
 
 /***/ }),
 

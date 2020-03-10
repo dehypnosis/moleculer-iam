@@ -1,43 +1,45 @@
 import React from "react";
-import { Text } from "../styles";
-import { useWithLoading, useNavigation } from "../hook";
-import { ScreenLayout } from "./component/layout";
+import { useWithLoading, useAppState, useClose } from "../hook";
+import { ScreenLayout, Persona, Text } from "./component";
 
 export const RegisterEndScreen: React.FunctionComponent = () => {
   // states
-  const {loading, errors, setErrors, withLoading} = useWithLoading();
-  const { nav, route } = useNavigation();
-  const { email = "" } = route.params;
+  const [state, dispatch] = useAppState();
+  const user = state.session.registered || {};
 
   // handlers
-  const [handleContinue, handleContinueLoading] = withLoading(() => {
-    // ... login
-    nav.navigate("login", {
-      screen: "login.index",
-      params: {
-        email,
-      },
-    })
+  const { close, closed } = useClose(false);
+  const {loading, errors, setErrors, withLoading} = useWithLoading();
+  const [handleSignIn, handleSignInLoading] = withLoading(() => {
+    return dispatch("register.login")
+      .catch(errs => setErrors(errs));
   });
 
   // render
   return (
     <ScreenLayout
       title={"Signed up"}
-      subtitle={email}
+      loading={loading || closed}
+      error={errors.global || (closed ? "Please close the window manually." : undefined)}
       buttons={[
         {
           status: "primary",
-          children: "Done",
-          onPress: handleContinue,
-          loading: handleContinueLoading,
-          tabIndex: 1,
+          children: "Sign in",
+          onPress: handleSignIn,
+          loading: handleSignInLoading,
+          tabIndex: 91,
+          hidden: !state.routes.login,
+        },
+        {
+          children: "Close",
+          onPress: close,
+          loading: closed,
+          tabIndex: 92,
         },
       ]}
-      error={errors.global}
-      loading={loading}
     >
-      <Text>Congratulations! The account has been registered. This email account can be used to sign in to multiple services. So don't forget it please. <span role="img" aria-label="smile">🙂</span></Text>
+      <Persona {...user} />
+      <Text style={{marginTop: 30}}>Congratulations! The account has been registered successfully.</Text>
     </ScreenLayout>
   );
 };

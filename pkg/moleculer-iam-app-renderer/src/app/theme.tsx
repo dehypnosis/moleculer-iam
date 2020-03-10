@@ -1,5 +1,5 @@
-import * as _ from "lodash";
-import React, { useLayoutEffect } from "react";
+import React from "react";
+// import { View } from "react-native";
 import { ApplicationProvider as EvaThemeProvider, IconRegistry, Layout } from "@ui-kitten/components";
 import { SchemaType } from '@eva-design/dss';
 import { EvaIconsPack } from "@ui-kitten/eva-icons";
@@ -20,7 +20,7 @@ const customMapping: SchemaType = {
 export const ApplicationThemeProvider: React.FunctionComponent = ({ children }) => {
   const [appOptions] = useAppOptions();
   const { theme, palette } = appOptions;
-  const currentTheme: ApplicationThemePalette = palette && theme && palette[theme] || light || dark;
+  const currentTheme: ApplicationThemePalette = (palette && theme && palette[theme]) || light || dark;
 
   return (
     <>

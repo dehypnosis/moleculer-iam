@@ -3,13 +3,18 @@ import { ApplicationThemePalette } from "./theme";
 
 export type ApplicationOptions = {
   logo: {
-    uri: string | null,
-    align: "center" | "flex-start" | "flex-end",
-    height: string,
-    width: string,
+    uri: string | null;
+    align: "center" | "flex-start" | "flex-end";
+    height: string;
+    width: string;
   },
   login: {
-    federationOptionsVisible: boolean,
+    federationOptionsVisible: boolean;
+  },
+  register: {
+    skipDetailClaims: boolean;
+    skipPhoneVerification: boolean;
+    skipEmailVerification: boolean;
   },
   theme: string;
   palette: {

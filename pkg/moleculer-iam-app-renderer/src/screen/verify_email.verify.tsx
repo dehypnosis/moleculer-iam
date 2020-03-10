@@ -10,7 +10,7 @@ export const VerifyEmailVerifyScreen: React.FunctionComponent = () => {
   const [state, dispatch] = useAppState();
   const email = state.session.verifyEmail.email;
   const expiresAt = state.session.verifyEmail.expiresAt;
-  const [secret, setSecret] = useState(state.session.dev && state.session.dev.verifyEmailSecret || "");
+  const [secret, setSecret] = useState((state.session.dev && state.session.dev.verifyEmailSecret) || "");
   const [remainingSeconds, setRemainingSeconds] = useState("00:00");
   const updateRemainingSeconds = useCallback(() => {
     let updated = "";
@@ -27,7 +27,7 @@ export const VerifyEmailVerifyScreen: React.FunctionComponent = () => {
     updateRemainingSeconds();
     const timer = setInterval(updateRemainingSeconds, 500);
     return () => clearInterval(timer);
-  }, [state]);
+  }, [updateRemainingSeconds]);
 
   // handlers
   const { loading, errors, setErrors, withLoading } = useWithLoading();
@@ -66,6 +66,12 @@ export const VerifyEmailVerifyScreen: React.FunctionComponent = () => {
           });
         }
         break;
+      case "register":
+        nav.navigate("register.stack", {
+          screen: "register.index",
+          params: {},
+        });
+        break;
       default:
         nav.navigate("verify_email.stack", {
           screen: "verify_email.index",
@@ -88,6 +94,12 @@ export const VerifyEmailVerifyScreen: React.FunctionComponent = () => {
           case "reset_password":
             nav.navigate("reset_password.stack", {
               screen: "reset_password.set",
+              params: {},
+            });
+            break;
+          case "register":
+            nav.navigate("register.stack", {
+              screen: "register.index",
               params: {},
             });
             break;

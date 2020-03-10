@@ -4,6 +4,7 @@ import { ScreenLayout, FormInput, Text } from "./component";
 
 export const VerifyEmailIndexScreen: React.FunctionComponent = () => {
   // states
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [state, dispatch] = useAppState();
   const [email, setEmail] = useState("");
   const { nav, route } = useNavigation();
@@ -31,7 +32,9 @@ export const VerifyEmailIndexScreen: React.FunctionComponent = () => {
       setEmail(route.params.email || "");
       setErrors({});
     }
-  }, [nav, route]);
+  },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [nav, route]);
 
   // render
   return (

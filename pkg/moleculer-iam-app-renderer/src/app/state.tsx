@@ -105,10 +105,12 @@ export class AppStateProvider extends React.Component<{}> {
             if (data.error) { // got error response
               if (res.status === 422 && data.error.fields) { // got validation error
                 console.error("validation error", data.error);
+                // eslint-disable-next-line no-throw-literal
                 throw data.error.fields;
               } else {
                 const err = {global: typeof data.error === "object" ? (data.error.error_description || data.error.error || JSON.stringify(data.error)) : (data.error as any).toString()};
                 console.error("global error", err, data);
+                // eslint-disable-next-line no-throw-literal
                 throw err;
               }
 
@@ -134,10 +136,12 @@ export class AppStateProvider extends React.Component<{}> {
             return this.state.appState;
           }, err => {
             console.error("failed to parse xhr response", err);
+            // eslint-disable-next-line no-throw-literal
             throw {global: err.message || err.name};
           });
       }, err => {
         console.error("failed to get response", err);
+        // eslint-disable-next-line no-throw-literal
         throw {global: err.message || err.name};
       });
   };

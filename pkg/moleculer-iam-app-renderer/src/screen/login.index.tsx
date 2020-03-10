@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { ViewStyle, TextStyle } from "react-native";
 import { useNavigation, useAppState, useWithLoading, useAppOptions } from "../hook";
-import { Icon, Form, FormInput, ScreenLayout } from "./component";
+import { Form, FormInput, ScreenLayout } from "./component";
 
 
 export const LoginIndexScreen: React.FunctionComponent = () => {
@@ -69,7 +69,8 @@ export const LoginIndexScreen: React.FunctionComponent = () => {
     return nav.addListener("blur", () => {
       setTimeout(() => setFederationOptionsVisible(false), 500);
     });
-  }, [nav, route]);
+  }, // eslint-disable-next-line react-hooks/exhaustive-deps
+    [nav, route]);
 
 
   return (

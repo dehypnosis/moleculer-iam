@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useAppState, useWithLoading, useNavigation } from "../hook";
 import { ScreenLayout, Text, FormInput } from "./component";
 

@@ -6,6 +6,37 @@ export const createApplicationRoutesFactory = (builder: ProviderConfigBuilder, o
   const {getURL} = builder.app;
 
   const commonRoutes: ApplicationRoutes = {
+    // register
+    "register": {
+      url: getURL("/register"),
+      method: "GET",
+      synchronous: true,
+    },
+    "register.detail": {
+      url: getURL("/register/detail"),
+      method: "GET",
+      synchronous: true,
+    },
+    "register.submit": {
+      url: getURL("/register/submit"),
+      method: "POST",
+      payload: {
+        register: false, // true for register, false for validation
+        claims: {
+          email: "",
+          name: "",
+          phone_number: "",
+          birthdate: "",
+          gender: "",
+        },
+        credentials: {
+          password: "",
+          password_confirmation: "",
+        },
+        scope: ["email", "profile", "phone", "birthdate", "gender"],
+      },
+    },
+
     // reset password
     "reset_password": {
       url: getURL("/reset_password"),
@@ -90,31 +121,6 @@ export const createApplicationRoutesFactory = (builder: ProviderConfigBuilder, o
         callback: "", // find_email, register, (verify), ...
       },
     },
-
-    // register
-    "register": {
-      url: getURL("/register"),
-      method: "GET",
-      synchronous: true,
-    },
-    "register.validate": {
-      url: getURL("/register/validate"),
-      method: "POST",
-      payload: {
-        claims: {
-          email: "",
-          name: "",
-          phone_number: "",
-          birthdate: "",
-          gender: "",
-        },
-        credentials: {
-          password: "",
-          password_confirmation: "",
-        },
-        scope: ["email", "profile", "phone", "birthdate", "gender"],
-      },
-    },
   };
 
   // available for login/consent prompt only
@@ -153,6 +159,10 @@ export const createApplicationRoutesFactory = (builder: ProviderConfigBuilder, o
         provider: "",
       },
       synchronous: true,
+    },
+    "register.login": {
+      url: getURL("/register/login"),
+      method: "POST",
     },
   };
 

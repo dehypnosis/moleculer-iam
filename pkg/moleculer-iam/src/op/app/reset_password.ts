@@ -32,7 +32,6 @@ export function buildResetPasswordRoutes(builder: ProviderConfigBuilder, opts: A
       await ctx.idp.validateEmailOrPhoneNumber(claims); // normalized email
 
       const publicState = ctx.op.sessionPublicState;
-      console.log(publicState.resetPassword);
       if(!(
         publicState && publicState.resetPassword
         && publicState.resetPassword.user

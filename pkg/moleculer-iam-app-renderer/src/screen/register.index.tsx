@@ -1,45 +1,29 @@
-import React, { useEffect, useState } from "react";
-import { ScreenLayout } from "./component/layout";
-import { Input, Text } from "./component";
-import { useNavigation, useAppState, useWithLoading } from "../hook";
+import React, { useState } from "react";
+import { ScreenLayout, Text, Form, FormInput, Icon } from "./component";
+import { useNavigation, useAppState, useWithLoading, useAppOptions } from "../hook";
 
 export const RegisterIndexScreen: React.FunctionComponent = () => {
-  const { nav } = useNavigation();
-  const [payload, setPayload] = useState({
-    name: "",
-    email: "",
-    password: "",
-    password_confirmation: "",
-  });
+  // state
   const [state, dispatch] = useAppState();
+  const [options] = useAppOptions();
+  const tmpState = state.session.register || {};
+  const tmpClaims = tmpState.claims || {};
+  const tmpCreds = tmpState.credentials || {};
+  const [payload, setPayload] = useState({
+    name: tmpClaims.name || "",
+    email: tmpClaims.email || "",
+    password: tmpCreds.password || "",
+    password_confirmation: tmpCreds.password_confirmation || "",
+  });
+  const emailVerified = state.session.verifyEmail && state.session.verifyEmail.email === payload.email && state.session.verifyEmail.verified;
 
-  // skip if claims already saved
-  useEffect(() => {
-    const stored = state.session.register;
-
-    if (stored && stored.credentials && stored.scope && stored.scope.includes("email") && stored.scope.includes("profile")) {
-      const { name, email } = stored.claims;
-      const { password, password_confirmation } = stored.credentials;
-      setPayload({
-        name,
-        email,
-        password,
-        password_confirmation,
-      });
-
-      nav.navigate("register", {
-        screen: "register.detail",
-        params: {},
-      });
-    }
-  }, []);
-
-  const [passwordVisible, setPasswordVisible] = useState(false);
+  // handlers
+  const { nav } = useNavigation();
   const {loading, errors, setErrors, withLoading} = useWithLoading();
-
   const [handlePayloadSubmit, handlePayloadSubmitLoading] = withLoading(async () => {
     const { name, email, password, password_confirmation } = payload;
-    return dispatch("register.validate", {
+    const data = {
+      submit: false,
       claims: {
         name,
         email,
@@ -49,24 +33,58 @@ export const RegisterIndexScreen: React.FunctionComponent = () => {
         password_confirmation,
       },
       scope: ["email", "profile"],
-    })
+    };
+
+    return dispatch("register.submit", data)
       .then(() => {
         setErrors({});
-        nav.navigate("register", {
-          screen: "register.detail",
-          params: {},
-        });
+
+        // verify email
+        if (!options.register.skipEmailVerification && !emailVerified) {
+          return dispatch("verify_email.check_email", {
+            email: data.claims.email,
+            registered: false,
+          })
+            .then(() => {
+              nav.navigate("verify_email.stack", {
+                screen: "verify_email.verify",
+                params: {
+                  callback: "register",
+                },
+              });
+            });
+
+        // enter detail claims
+        } else if (!options.register.skipDetailClaims) {
+          nav.navigate("register.stack", {
+            screen: "register.detail",
+            params: {},
+          });
+
+        // register user
+        } else {
+          return dispatch("register.submit", {
+            ...data,
+            register: true,
+          })
+            .then(() => {
+              nav.navigate("register.stack", {
+                screen: "register.end",
+                params: {},
+              });
+            });
+        }
       })
-      .catch((err: any) => setErrors(err));
-  }, [nav, payload]);
+      .catch(errs => setErrors(errs));
+  }, [payload]);
 
   const [handleCancel, handleCancelLoading] = withLoading(() => {
-    nav.navigate("login", {
+    nav.navigate("login.stack", {
       screen: "login.index",
       params: {},
     });
     setErrors({});
-  }, [nav]);
+  }, []);
 
   // render
   const discovery = state.metadata.discovery;
@@ -75,6 +93,7 @@ export const RegisterIndexScreen: React.FunctionComponent = () => {
       title={"Sign up"}
       subtitle={"Create an account"}
       loading={loading}
+      error={errors.global}
       buttons={[
         {
           status: "primary",
@@ -84,71 +103,84 @@ export const RegisterIndexScreen: React.FunctionComponent = () => {
           tabIndex: 55,
         },
         {
+          size: "medium",
+          group: [
+            {
+              children: "Privacy policy",
+              onPress: () => window.open(discovery.op_policy_uri!, "_blank"),
+              disabled: !discovery.op_policy_uri,
+              tabIndex: 4,
+            },
+            {
+              children: "Terms of service",
+              onPress: () => window.open(discovery.op_tos_uri!, "_blank"),
+              disabled: !discovery.op_tos_uri,
+              tabIndex: 5,
+            },
+          ],
+        },
+        {
+          size: "medium",
           children: "Cancel",
           onPress: handleCancel,
           loading: handleCancelLoading,
-          hidden: state.name === "register",
+          hidden: !state.routes.login,
           tabIndex: 56,
         },
       ]}
-      error={errors.global}
-      footer={
-        <>
-          <Text>When you sign up as a member, you agree to the <a href={discovery.op_tos_uri!} target="_blank">terms of service</a> and the <a href={discovery.op_policy_uri!} target="_blank">privacy policy</a>.</Text>
-        </>
-      }
     >
-      <form noValidate onSubmit={(e) => {
-        e.preventDefault();
-        handlePayloadSubmit();
-      }}>
-        <Input
-          label="Name"
-          // inputMode="text"
+      <Form onSubmit={handlePayloadSubmit}>
+        <FormInput
+          label={"Name"}
+          tabIndex={51}
+          keyboardType={"default"}
           placeholder="Enter your name"
-          // tabIndex={51}
+          autoCompleteType={"name"}
+          autoFocus={!payload.name}
           value={payload.name}
-          caption={errors.name}
-          onChangeText={v => setPayload(p => ({...p, name: v!}))}
-          onKeyPress={e => e.nativeEvent.key === "Enter" && handlePayloadSubmit()}
+          setValue={v => setPayload(p => ({...p, name: v}))}
+          error={errors.name}
+          onEnter={handlePayloadSubmit}
+          style={{marginBottom: 15}}
         />
-        <Input
-          label="Email"
-          // inputMode="email"
-          placeholder="Enter your email"
-          autoCompleteType="username"
-          // tabIndex={52}
+        <FormInput
+          label={"Email"}
+          tabIndex={52}
+          keyboardType={"email-address"}
+          placeholder="Enter your email address"
+          autoCompleteType={"username"}
           value={payload.email}
-          caption={errors.email}
-          onChangeText={v => setPayload(p => ({...p, email: v!}))}
-          onKeyPress={e => e.nativeEvent.key === "Enter" && handlePayloadSubmit()}
+          setValue={v => setPayload(p => ({...p, email: v}))}
+          icon={emailVerified ? (s) => <Icon name={"checkmark-circle-2-outline"} style={s}/> : undefined}
+          error={errors.email}
+          onEnter={handlePayloadSubmit}
+          style={{marginBottom: 15}}
         />
-        <Input
+        <FormInput
           label="Password"
-          // type={passwordVisible ? "text" : "password"}
-          // inputMode="text"
-          autoCompleteType="password"
-          placeholder="Enter your password"
-          // iconProps={{iconName: passwordVisible ? "redEye" : "hide", style: {cursor: "pointer"}, onPress: () => setPasswordVisible(!passwordVisible)}}
-          // tabIndex={53}
+          tabIndex={53}
+          secureTextEntry
+          autoCompleteType={"password"}
+          placeholder="Enter password"
           value={payload.password}
-          caption={errors.password}
-          onChangeText={v => setPayload(p => ({...p, password: v!}))}
-          onKeyPress={e => e.nativeEvent.key === "Enter" && handlePayloadSubmit()}
+          setValue={v => setPayload(p => ({...p, password: v }))}
+          error={errors.password}
+          onEnter={handlePayloadSubmit}
+          style={{marginBottom: 15}}
         />
-        <Input
+        <FormInput
           label="Confirm"
-          // type="password"
-          // inputMode="text"
-          autoCompleteType="password"
-          placeholder="Confirm your password"
-          // tabIndex={54}
+          tabIndex={54}
+          secureTextEntry
+          autoCompleteType={"password"}
+          placeholder="Confirm password"
           value={payload.password_confirmation}
-          caption={errors.password_confirmation}
-          onChangeText={v => setPayload(p => ({...p, password_confirmation: v!}))}
-          onKeyPress={e => e.nativeEvent.key === "Enter" && handlePayloadSubmit()}
+          setValue={v => setPayload(p => ({...p, password_confirmation: v }))}
+          error={errors.password_confirmation}
+          onEnter={handlePayloadSubmit}
         />
-      </form>
+      </Form>
+      <Text style={{marginTop: 30}}>When continue, you are agreeing to the terms of service and the privacy policy.</Text>
     </ScreenLayout>
   );
 };

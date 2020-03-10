@@ -5,8 +5,6 @@ import { ApplicationBuildOptions } from "./index";
 export type IdentityRegisterOptions = {
   allowedScopes?: string[]; // ["email", "profile", "birthdate", "gender", "phone"]
   forbiddenClaims?: string[]; // ["email_verified", "phone_number_verified"]
-  phoneVerificationRequired?: boolean, // false
-  emailVerificationRequired?: boolean, // false
 }
 
 export function buildRegisterRoutes(builder: ProviderConfigBuilder, opts: ApplicationBuildOptions): void {
@@ -14,8 +12,6 @@ export function buildRegisterRoutes(builder: ProviderConfigBuilder, opts: Applic
   const { allowedScopes, forbiddenClaims } = _.defaultsDeep(opts.register || {}, {
     allowedScopes: ["email", "profile", "birthdate", "gender", "phone"],
     forbiddenClaims: ["email_verified", "phone_number_verified"],
-    phoneVerificationRequired: false,
-    emailVerificationRequired: false,
   }) as IdentityRegisterOptions;
 
   function filterClaims(claims: any) {
@@ -39,7 +35,7 @@ export function buildRegisterRoutes(builder: ProviderConfigBuilder, opts: Applic
   }
 
   async function validatePayload(ctx: ApplicationRequestContext) {
-    const { scope = [], claims = {}, credentials } = ctx.request.body;
+    const { scope = [], claims = {}, credentials = {} } = ctx.request.body;
     const payload = {
       scope: filterScopes(scope),
       claims: filterClaims(claims),
@@ -51,31 +47,99 @@ export function buildRegisterRoutes(builder: ProviderConfigBuilder, opts: Applic
   }
 
   builder.app.router
-    // redirect to initial render page
-    .get("/register/:any+", async ctx => {
-      return ctx.op.redirect("/register" + (ctx.search || ""));
-    })
-
     // initial render page
     .get("/register", async ctx => {
 
       // create empty object into register state
-      ctx.op.setSessionPublicState(prevState => ({
-        register: {},
-        ...prevState,
-      }));
+      if (!ctx.op.sessionPublicState.register) {
+        ctx.op.setSessionPublicState(prevState => ({
+          ...prevState,
+          register: {},
+        }));
+      }
 
       return ctx.op.render("register");
     })
 
+    // redirect to initial render page
+    .get("/register/detail", async ctx => {
+      const state = ctx.op.sessionPublicState.register;
+      if (!(state && state.claims && state.claims.email)) {
+        return ctx.op.redirect("/register");
+      }
+      return ctx.op.render("register");
+    })
+
+    // redirect to initial render page
+    .get("/register/end", async ctx => {
+      if (!ctx.op.sessionPublicState.registered) {
+        return ctx.op.redirect("/register");
+      }
+      return ctx.op.render("register");
+    })
+
     // validate claims and credentials
-    .post("/register/validate", async ctx => {
-      const register = await validatePayload(ctx);
+    .post("/register/submit", async ctx => {
+      const payload = await validatePayload(ctx);
+
+      // store the current payload
+      if (!ctx.request.body.register) {
+        ctx.op.setSessionPublicState(prevState => ({
+          ...prevState,
+          register: payload,
+        }));
+
+        return ctx.op.end();
+      }
+
+      // create account
+      const { claims = {}, credentials = {}, scope = [] } = payload;
+
+      const state = ctx.op.sessionPublicState;
+      if (state.verifyEmail && state.verifyEmail.email === payload.claims.email && state.verifyEmail.verified) {
+        claims.email_verified = true;
+      }
+      if (state.verifyPhone && state.verifyPhone.phoneNumber === payload.claims.phone_number && state.verifyPhone.verified) {
+        claims.phone_number_verified = true;
+      }
+
+      const user = await ctx.idp.create({
+        metadata: {},
+        claims,
+        credentials,
+        scope,
+      });
+
+      // reset session state
+      const userClaims = await ctx.op.getPublicUserProps(user);
       ctx.op.setSessionPublicState(prevState => ({
         ...prevState,
-        register,
+        register: {},
+        registered: {
+          id: user.id,
+          ...userClaims,
+        },
       }));
 
       return ctx.op.end();
-    });
+    })
+
+    // easy sign in for just registered user
+    .post("/register/login", async ctx => {
+      ctx.assert(!!ctx.op.sessionPublicState.registered);
+      ctx.op.assertPrompt(["login", "consent"]);
+
+      const userClaims = ctx.op.sessionPublicState.registered;
+      ctx.op.setSessionPublicState(prevState => ({
+        ...prevState,
+        registered: undefined,
+      }));
+
+      return ctx.op.redirectWithUpdate({
+        login: {
+          account: userClaims.id,
+          remember: true,
+        },
+      });
+    })
 }

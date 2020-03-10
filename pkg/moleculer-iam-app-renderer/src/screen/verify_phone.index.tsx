@@ -31,7 +31,8 @@ export const VerifyPhoneIndexScreen: React.FunctionComponent = () => {
       setPhoneNumber(route.params.phone_number || "");
       setErrors({});
     }
-  }, [nav, route]);
+  }, // eslint-disable-next-line react-hooks/exhaustive-deps
+   [nav, route]);
 
   // render
   return (

@@ -5,7 +5,7 @@ import { Text, ScreenLayout, FormInput } from "./component";
 export const ResetPasswordIndexScreen: React.FunctionComponent = () => {
   // states
   const [state, dispatch] = useAppState();
-  const [email, setEmail] = useState(state.user && state.user.email || "");
+  const [email, setEmail] = useState((state.user && state.user.email) || "");
   const { nav, route } = useNavigation();
 
   // handlers
@@ -43,7 +43,9 @@ export const ResetPasswordIndexScreen: React.FunctionComponent = () => {
       setEmail(route.params.email || "");
       setErrors({});
     }
-  }, [nav, route]);
+  },
+   // eslint-disable-next-line react-hooks/exhaustive-deps
+   [nav, route]);
 
   // render
   return (

@@ -1,4 +1,3 @@
-import * as _ from "lodash";
 import ReactDOM from "react-dom";
 import { useTheme } from "@ui-kitten/components";
 import { ApplicationThemePalette } from "../../../theme";
@@ -58,22 +57,24 @@ export function withAttrs(attrs: {[key: string]: string|number|boolean|null} = {
 export function activateAutoFocus(ref: React.Component) {
   withElements(elems => {
     elems.find(elem => {
-      if ((elem as any).focus) {
-        if ((elem as any).offsetParent === null) { // check visibility
-          console.debug("autofocus DOM element focus failed", elem);
-          return false;
-        }
-
-        (elem as any).focus();
-        // console.debug("autofocus DOM element focused", elem);
-        return true;
+      if (!(elem as any).focus) {
+        return false;
       }
+
+      if ((elem as any).offsetParent === null) { // check visibility
+        console.debug("autofocus DOM element focus failed", elem);
+        return false;
+      }
+
+      (elem as any).focus();
+      // console.debug("autofocus DOM element focused", elem);
+      return true;
     });
   }, "[autofocus]")(ref);
 }
 
 export const isTouchDevice = (() => {
-  if (("ontouchstart" in window) || (window as any).DocumentTouch && document instanceof (window as any).DocumentTouch) {
+  if (("ontouchstart" in window) || ((window as any).DocumentTouch && document instanceof (window as any).DocumentTouch)) {
     return true;
   }
   const prefixes = " -webkit- -moz- -o- -ms- ".split(" ");

@@ -23,6 +23,11 @@ export class AppOptionsProvider extends React.Component<{}, ApplicationOptions &
     login: {
       federationOptionsVisible: false,
     },
+    register: {
+      skipDetailClaims: false,
+      skipEmailVerification: false,
+      skipPhoneVerification: false,
+    },
     theme: "light",
     palette: {
       light: lightTheme,

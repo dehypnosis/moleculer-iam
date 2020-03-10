@@ -10,6 +10,11 @@ export declare type ApplicationOptions = {
     login: {
         federationOptionsVisible: boolean;
     };
+    register: {
+        skipDetailClaims: boolean;
+        skipPhoneVerification: boolean;
+        skipEmailVerification: boolean;
+    };
     theme: string;
     palette: {
         [theme: string]: ApplicationThemePalette;

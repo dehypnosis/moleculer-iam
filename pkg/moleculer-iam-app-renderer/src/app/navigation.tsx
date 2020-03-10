@@ -38,7 +38,9 @@ export const AppNavigationProvider: React.FunctionComponent<{
       .getInitialState()
       .then(nav => setInitialState(nav), err => console.error(err))
       .finally(() => setLoading(false));
-  }, []);
+  },
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+    []);
 
   if (loading) {
     return null;

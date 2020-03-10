@@ -37,7 +37,9 @@ export function useWithLoading() {
           }, 100);
         }
       }, 100);
-    }, [callback, ...deps]);
+    },
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      [callback, ...deps]);
     return [callWithLoading, callbackLoading] as [typeof callWithLoading, boolean];
   };
 

@@ -22,6 +22,22 @@ type LayoutFooterSeparatorProps = {
   hidden?: boolean;
 }
 
+/*
+<View
+  style={{
+    top: 0, right: 0, zIndex: 1000, alignItems: "flex-end", flex: 0,
+    ...({
+      position: "sticky",
+      transition: "opacity 1s",
+      opacity: loading ? 0.3 : 0,
+    } as unknown as ViewStyle)
+  }}>
+  <View style={{margin: 20}}>
+    <Spinner size={"tiny"} status={"primary"} />
+  </View>
+</View>
+*/
+
 export const ScreenLayout: React.FunctionComponent<{
   title?: string | ReactElement,
   subtitle?: string | ReactElement,
@@ -30,21 +46,6 @@ export const ScreenLayout: React.FunctionComponent<{
   footer?: ReactElement,
   error?: string,
 }> = ({title = "undefined", subtitle = null, loading = false, children = null, buttons = [], error = null, footer = null}) => {
-
-  {/*<View style={{
-        top: 0, right: 0, zIndex: 1000, alignItems: "flex-end", flex: 0,
-        ...({
-          position: "sticky",
-          transition: "opacity 1s",
-          opacity: loading ? 0.3 : 0,
-        } as unknown as ViewStyle)
-      }}>
-        <View style={{margin: 20}}>
-          <Spinner size={"tiny"} status={"primary"} />
-        </View>
-      </View>*/
-  }
-
   const { nav } = useNavigation();
   const scrollableRef = useRef<ScrollView|null>(null);
   useEffect(() => {

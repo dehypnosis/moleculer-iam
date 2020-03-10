@@ -6,6 +6,7 @@ export const LoginCheckPasswordScreen: React.FunctionComponent = () => {
   // state
   const [password, setPassword] = useState("");
   const [state, dispatch] = useAppState();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { email, name, picture } = state.session.login.user;
 
   // handlers

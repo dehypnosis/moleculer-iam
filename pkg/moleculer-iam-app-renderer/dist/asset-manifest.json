@@ -6,6 +6,7 @@
     "main.js.map": "/static/js/main.chunk.js.map",
     "runtime-main.js": "/static/js/bundle.js",
     "runtime-main.js.map": "/static/js/bundle.js.map",
+    "favicon.ico": "/favicon.ico",
     "index.html": "/index.html",
     "static/media/logo.svg": "/static/media/logo.060b0e6c.svg",
     "static/media/screen_sent.svg": "/static/media/screen_sent.1ae0604c.svg",
@@ -14,7 +15,6 @@
   "entrypoints": [
     "static/js/bundle.js",
     "static/js/0.chunk.js",
-    "static/js/main.chunk.js",
-    "main.df4a83fc8d00790b4e5f.hot-update.js"
+    "static/js/main.chunk.js"
   ]
 }
