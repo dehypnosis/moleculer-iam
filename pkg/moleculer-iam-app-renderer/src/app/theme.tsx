@@ -1,10 +1,9 @@
 import React from "react";
-// import { View } from "react-native";
 import { ApplicationProvider as EvaThemeProvider, IconRegistry, Layout } from "@ui-kitten/components";
 import { SchemaType } from '@eva-design/dss';
 import { EvaIconsPack } from "@ui-kitten/eva-icons";
 import { mapping, light, dark } from "@eva-design/eva";
-import { ApplicationThemePalette } from "../../theme";
+import { ApplicationThemePalette } from "../../common";
 import { useAppOptions } from "./options";
 import "./theme.css";
 

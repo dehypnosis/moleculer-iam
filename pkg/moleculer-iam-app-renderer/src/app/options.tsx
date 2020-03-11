@@ -1,7 +1,8 @@
 import * as _ from "lodash";
 import React, { createContext, useContext } from "react";
-import { ApplicationOptions, getAppDev, getAppOptions } from "../../inject";
-import { darkTheme, lightTheme } from "../../theme";
+import { getAppDev, getAppOptions } from "../../client";
+import { ApplicationOptions } from "../../common";
+import { darkTheme, lightTheme } from "./theme.palette";
 
 export const AppOptionsContext = createContext<[ApplicationOptions & { dev: boolean }, AppOptionsProvider["setState"]]>([] as any);
 

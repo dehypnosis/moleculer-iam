@@ -1,5 +1,5 @@
 import { LinkingOptions } from "@react-navigation/native/lib/typescript/src/types";
-import { getAppPrefix } from "../../inject";
+import { getAppPrefix } from "../../client";
 
 let prefix = getAppPrefix();
 prefix = prefix.startsWith("/") ? prefix.substr(1) : prefix;

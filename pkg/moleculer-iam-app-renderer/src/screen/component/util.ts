@@ -1,6 +1,6 @@
 import ReactDOM from "react-dom";
 import { useTheme } from "@ui-kitten/components";
-import { ApplicationThemePalette } from "../../../theme";
+import { ApplicationThemePalette } from "../../../common";
 
 /* for DOM manipulation */
 export function withElements(callback: (elems: Element[]) => void, selector: string) {

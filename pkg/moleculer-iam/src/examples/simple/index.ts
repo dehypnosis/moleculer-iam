@@ -4,22 +4,6 @@ import { ServiceBroker } from "moleculer";
 import { app } from "./app";
 import { IAMServiceSchema } from "../../"; // "moleculer-iam";
 
-// import Renderer from "moleculer-iam-app-renderer";
-// tslint:disable-next-line:no-var-requires to avoid circular deps in our monorepo workspace
-const rendererFactory = require("moleculer-iam-app-renderer");
-
-// can use any alternative renderer rather than this default one
-
-// const testRendererAdapter: InteractionRendererAdapter<{test: number}> = {
-//   render(state) {
-//     console.log(state);
-//     return JSON.stringify(state);
-//   },
-//   routes () {
-//     return [];
-//   },
-// };
-
 // create moleculer service (optional)
 const broker = new ServiceBroker({
   transporter: {

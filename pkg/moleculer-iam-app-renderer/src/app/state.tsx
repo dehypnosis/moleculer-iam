@@ -1,7 +1,7 @@
 import { ApplicationResponse, ApplicationState } from "moleculer-iam";
 import React, { createContext, useContext } from "react";
 import { ClientErrorScreen } from "../screen/error";
-import { getInitialAppState } from "../../inject";
+import { getInitialAppState } from "../../client";
 import { AppOptionsContext } from "./options";
 
 // read server state and create endpoint request helper

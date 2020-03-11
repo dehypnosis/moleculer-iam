@@ -17,7 +17,8 @@
     "baseUrl": "./",
     "rootDir": "./src",
     "outDir": "./dist",
-    "downlevelIteration": true
+    "downlevelIteration": true,
+    "allowJs": true
   },
   "include": ["src"]
 }

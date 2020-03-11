@@ -5,18 +5,27 @@
     "type": "git",
     "url": "https://github.com/qmit-pro/moleculer-iam.git"
   },
-  "main": "index.js",
-  "type": "index.d.ts",
+  "main": "server.js",
+  "type": "server.d.ts",
   "license": "MIT",
   "files": [
     "dist",
-    "index.d.ts",
-    "index.js",
-    "config.d.ts",
-    "config.js",
-    "inject.d.ts",
-    "inject.js"
+    "server.d.ts",
+    "server.js",
+    "server.config.js",
+    "common.d.ts"
   ],
+  "scripts": {
+    "dev": "rm -rf ./dist && SKIP_PREFLIGHT_CHECK=true react-app-rewired start",
+    "build": "rm -rf ./dist && SKIP_PREFLIGHT_CHECK=true react-app-rewired build",
+    "build-server": "tsc -p server.tsconfig.json",
+    "test": "react-app-rewired test",
+    "eject": "react-scripts eject"
+  },
+  "config-overrides-path": "client.build.js",
+  "eslintConfig": {
+    "extends": "react-app"
+  },
   "dependencies": {
     "@eva-design/eva": "^1.4.0",
     "@react-native-community/masked-view": "^0.1.7",
@@ -36,17 +45,6 @@
     "react-native-svg": "^12.0.0",
     "react-native-web": "^0.12.2",
     "react-scripts": "3.4.0"
-  },
-  "scripts": {
-    "dev": "rm -rf ./dist && react-app-rewired start",
-    "build": "rm -rf ./dist && SKIP_PREFLIGHT_CHECK=true react-app-rewired build",
-    "build-server": "tsc -p tsconfig.server.json",
-    "test": "react-app-rewired test",
-    "eject": "react-scripts eject"
-  },
-  "config-overrides-path": "build.js",
-  "eslintConfig": {
-    "extends": "react-app"
   },
   "browserslist": {
     "production": [
