@@ -16,10 +16,10 @@ export const en = {
   "button.close": "Close",
 
   // FindEmailEndScreen
-  "findEmail.findYourAccount": "Find your account",
+  "findEmail.findYourAccount": "Find account",
   "findEmail.byPhone": "With phone verification",
   "button.signIn": "Sign in",
-  "findEmail.foundYourAccount": "Found your account",
+  "findEmail.foundYourAccount": "Have found your account.",
 
   // FindEmailIndexScreen
   "payload.phoneNumber": "phone number",
@@ -30,6 +30,7 @@ export const en = {
   // LoginCheckPasswordScreen
   "payload.email": "email",
   "payload.password": "password",
+  "login.signIn": "Sign in",
   "login.hiName": "Hi, {name}",
   "login.resetPassword": "Forgot password?",
   "placeholder.password": "Enter your password",

@@ -1,9 +1,9 @@
 import { ButtonGroupProps } from "@ui-kitten/components";
 import React, { ReactElement, useEffect, useRef, useState } from "react";
 import { ScrollView, Image, View, ViewProps } from "react-native";
-import { useAppOptions, supportedLanguages, useNavigation } from "../../hook";
-import { Text, Button, ButtonGroup, ButtonProps, withAttrs, Separator, activateAutoFocus, isTouchDevice, OverflowMenu, Icon } from "./index";
+import { useAppOptions, useAppLanguages, useNavigation } from "../../hook";
 import logo from "../../assets/logo.svg";
+import { Text, Button, ButtonGroup, ButtonProps, withAttrs, Separator, activateAutoFocus, isTouchDevice, OverflowMenu, Icon } from "./index";
 
 type LayoutFooterButtonGroupProps = {
   hidden?: boolean;
@@ -38,6 +38,9 @@ type LayoutFooterSeparatorProps = {
 </View>
 */
 
+// ref: ../../app/theme.css
+const setScrollContainerRole = withAttrs({"data-role": "scroll-container"});
+
 export const ScreenLayout: React.FunctionComponent<{
   title?: string | ReactElement,
   subtitle?: string | ReactElement,
@@ -64,7 +67,12 @@ export const ScreenLayout: React.FunctionComponent<{
   const [options] = useAppOptions();
   return (
     <ScrollView
-      ref={ref => {scrollableRef.current = ref;}}
+      ref={ref => {
+        scrollableRef.current = ref;
+        if (ref) {
+          setScrollContainerRole(ref);
+        }
+      }}
       style={{width: "100%"}}
       contentContainerStyle={{width: "100%", marginVertical: "auto", padding: 30}}
     >
@@ -185,17 +193,18 @@ export const ScreenLayout: React.FunctionComponent<{
   );
 };
 
-const languageSelectorData = Object.keys(supportedLanguages).map(language => {
-  return {
-    title: supportedLanguages[language].of(language),
-    value: language,
-  };
-});
-
 const LanguageSelector: React.FunctionComponent<ViewProps & { reloadOnLocaleChange?: boolean }> = ({ style, reloadOnLocaleChange }) => {
   const [visible, setVisible] = useState(false);
   const [options, setOptions] = useAppOptions();
-  const language = languageSelectorData.find(d => d.value === options.locale.language);
+  const appLanguages = useAppLanguages();
+  const languageSelectorData = Object.keys(appLanguages).map(language => {
+    return {
+      title: appLanguages[language].of(language),
+      value: language,
+    };
+  });
+  const selectedItem = languageSelectorData.find(d => d.value === options.locale.language);
+
   return (
     <View style={style}>
       <View style={{flexDirection: "row"}}>
@@ -203,7 +212,7 @@ const LanguageSelector: React.FunctionComponent<ViewProps & { reloadOnLocaleChan
         <OverflowMenu
           data={languageSelectorData}
           visible={visible}
-          selectedIndex={language ? languageSelectorData.indexOf(language) : undefined}
+          selectedIndex={selectedItem ? languageSelectorData.indexOf(selectedItem) : undefined}
           onSelect={index => {
             setOptions(o => ({...o, locale: { ...o.locale, language: languageSelectorData[index].value}}));
             setVisible(false);

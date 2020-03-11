@@ -56,6 +56,7 @@ export const AppNavigationProvider: React.FunctionComponent<{
   )
 };
 
+
 // enhance navigation instance methods
 export function useNavigation() {
   // set undefined params as empty object
@@ -73,13 +74,7 @@ export function useNavigation() {
       const stackName = args[0];
       const screenName = args[1] && args[1].screen;
       if (stackName && screenName) {
-        const rootNav = nav.dangerouslyGetParent();
-        if (rootNav) {
-          const stackState = rootNav.dangerouslyGetState().routes.find(s => s.name === stackName);
-          if (stackState && stackState.state && stackState.state.routes[0] && stackState.state.routes[0].name !== screenName) {
-            navigate(...args as any);
-          }
-        }
+        setTimeout(() => navigate(...args as any));
       }
     };
     // @ts-ignore

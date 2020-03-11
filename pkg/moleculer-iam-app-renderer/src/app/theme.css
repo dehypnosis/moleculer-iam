@@ -29,7 +29,7 @@ body {
 }
 
 @media (pointer:none) and (max-width: 640px), (pointer:coarse) and (max-width: 640px) {
-  [data-role="scroll-container"] {
+  [data-role="scroll-container"] > div {
     margin-top: 50px !important;
     margi-bottom: 0px !important;
   }

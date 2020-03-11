@@ -78,7 +78,7 @@ export const LoginIndexScreen: React.FunctionComponent = () => {
 
   return (
     <ScreenLayout
-      title={"Sign In"}
+      title={f({id: "login.signIn"})}
       subtitle={state.client!.client_name}
       error={errors.global}
       loading={loading}

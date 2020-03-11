@@ -28,7 +28,7 @@ export const FindEmailIndexScreen: React.FunctionComponent = () => {
           },
         });
       })
-      .catch((err: any) => setErrors(err))
+      .catch(errs => setErrors(errs))
   }, [phoneNumber, options]);
 
   const [handleCancel, handleCancelLoading] = withLoading(() => {

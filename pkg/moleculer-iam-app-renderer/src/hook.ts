@@ -1,6 +1,6 @@
 import { DependencyList, useCallback, useEffect, useRef, useState } from "react";
-import { useNavigation, useAppState, useAppOptions, useI18N, supportedLanguages } from "./app";
-export { useNavigation, useAppState, useAppOptions, useI18N, supportedLanguages };
+import { useNavigation, useAppState, useAppOptions, useI18N, useAppLanguages } from "./app";
+export { useNavigation, useAppState, useAppOptions, useI18N, useAppLanguages };
 
 // do async job with loading state
 export function useWithLoading() {

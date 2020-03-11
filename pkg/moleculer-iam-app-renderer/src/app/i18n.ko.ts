@@ -30,6 +30,7 @@ export const ko: I18NResource = {
   // LoginCheckPasswordScreen
   "payload.email": "이메일",
   "payload.password": "패스워드",
+  "login.signIn": "로그인",
   "login.hiName": "{name}님, 안녕하세요.",
   "login.resetPassword": "패스워드를 분실하셨나요?",
   "placeholder.password": "패스워드를 입력하세요.",

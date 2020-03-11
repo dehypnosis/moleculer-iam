@@ -60,7 +60,7 @@ const AppStacks = () => {
       backgroundColor,
     },
     gestureEnabled: false,
-    // animationEnabled: false,
+    animationEnabled: false,
     // transitionSpec: {
     //   open: RevealFromBottomAndroid,
     //   close: RevealFromBottomAndroid,

@@ -4,6 +4,7 @@ import bcrypt from "bcrypt";
 import DataLoader from "dataloader";
 import moment from "moment";
 import { FindOptions, Sequelize, Op, WhereAttributeHash, RDBMSManager, RDBMSManagerOptions, Transaction } from "../../../helper/rdbms";
+import { createValidationError } from "../../../helper/validator";
 import { IDPAdapter, IDPAdapterProps } from "../adapter";
 import { IdentityMetadata } from "../../metadata";
 import { IdentityClaimsSchema } from "../../claims";
@@ -218,7 +219,9 @@ export class IDP_RDBMS_Adapter extends IDPAdapter {
     }
 
     const hashedCredentials = model.get({plain: true}) as OIDCAccountCredentials;
-    if (credentials.password) {
+
+    // password
+    if (typeof credentials.password !== "undefined" && typeof hashedCredentials.password !== "undefined") {
       return bcrypt.compare(credentials.password, hashedCredentials.password)
         .catch(error => {
           this.logger.error(error);
