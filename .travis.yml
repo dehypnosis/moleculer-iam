@@ -15,4 +15,4 @@ install:
 env:
   - TEST_RDBMS_DIALECT=mysql TEST_RDBMS_HOST=127.0.0.1 TEST_RDBMS_DATABASE=iam TEST_RDBMS_USERNAME=travis TEST_RDBMS_PASSWORD= TEST_RDBMS_LOG_LEVEL=none
 after_success:
-  - yarn workspace moleculer-iam coverall
+  - yarn coverall

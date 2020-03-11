@@ -79,7 +79,7 @@ yarn add moleculer-iam
 
 # Release Road-map
 - [x] 0.1.x Pre-alpha
-    - [x] OAuth 2.0 and OpenID Connect Core 1.0 Provider
+    - [x] OIDC Provider
         - [x] hack `oidc-provider` module to be programmable
 - [x] 0.2.x Alpha
     - [x] Identity Provider
@@ -114,18 +114,13 @@ yarn add moleculer-iam
             - [x] email verification
             - [x] registration
 - [] 0.3.x Beta
-    - [] OAuth 2.0 and OpenID Connect Core 1.0 Provider
-        - [x] Refactor `panva/oidc-provider` related codes
+    - [] Application renderer simple test cases
+    - [] OIDC Provider
         - [] test and support Device code flow, also QR code
     - [] Identity Provider
         - [] 2FA
-    - [] Web client application components
-        - [] manage profile
-        - [] manage session
-        - [] manage credentials
-        - [] manage devices
-        - [] manage connected services
-        - [] remove account
+    - [] Account manager application
+        - [] manage profile/session/credentials/devices/grants
 - [] 1.0.x First Stable Release
     - [] Rate limiter
     - [] IP filter

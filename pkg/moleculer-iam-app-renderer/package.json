@@ -19,7 +19,7 @@
     "dev": "rm -rf ./dist && SKIP_PREFLIGHT_CHECK=true react-app-rewired start",
     "build": "rm -rf ./dist && SKIP_PREFLIGHT_CHECK=true react-app-rewired build",
     "build-server": "tsc -p server.tsconfig.json",
-    "test": "react-app-rewired test",
+    "test": "SKIP_PREFLIGHT_CHECK=true react-app-rewired test",
     "eject": "react-scripts eject"
   },
   "config-overrides-path": "client.build.js",
