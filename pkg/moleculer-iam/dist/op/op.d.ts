@@ -19,5 +19,4 @@ export declare class OIDCProvider {
     private working;
     start(): Promise<void>;
     stop(): Promise<void>;
-    syncSupportedClaimsAndScopes(): Promise<void>;
 }

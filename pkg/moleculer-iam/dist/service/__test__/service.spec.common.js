@@ -27,13 +27,14 @@ function doCommonServiceTest(broker, service) {
             await expect(broker.call("iam.client.find", { id: params.client_id })).resolves.toEqual(expect.objectContaining(params));
             await expect(broker.call("iam.client.update", { ...params, client_name: "updated" })).resolves.toEqual(expect.objectContaining({ ...params, client_name: "updated" }));
             await expect(broker.call("iam.client.delete", { id: params.client_id })).resolves.not.toThrow();
+            await new Promise(resolve => setTimeout(resolve, 1000));
             await expect(broker.call("iam.client.find", { id: params.client_id })).resolves.toBeFalsy();
         });
     });
     describe("iam.model.*", () => {
         for (const kind of op_1.OIDCProvider.volatileModelNames) {
             it(`iam.model.get/count/delete for ${kind}`, async () => {
-                const where = { exp: { $gte: Math.floor(new Date().getTime() / 1000) } };
+                const where = { exp: { $neq: null, $and: { $lt: Math.floor(new Date().getTime() / 1000) } } };
                 const entries = await broker.call("iam.model.get", { kind, where });
                 if (entries.total > 0) {
                     expect(entries).toEqual(expect.objectContaining({

@@ -2,9 +2,11 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
 const kleur = tslib_1.__importStar(require("kleur"));
+const uuid_1 = tslib_1.__importDefault(require("uuid"));
 const accept_language_parser_1 = require("accept-language-parser");
 const app_1 = require("../app");
 const config_1 = require("./config");
+const error_types_1 = require("./error.types");
 // ref: https://github.com/panva/node-oidc-provider/blob/9306f66bdbcdff01400773f26539cf35951b9ce8/lib/models/client.js#L385
 // @ts-ignore : need to hack oidc-provider private methods
 const weak_cache_1 = tslib_1.__importDefault(require("oidc-provider/lib/helpers/weak_cache"));
@@ -55,14 +57,114 @@ class OIDCProviderProxy {
         return this.adapter.stop();
     }
     // programmable interfaces
-    deleteModels(...args) {
+    get Session() {
+        return this.adapter.getModel("Session");
     }
-    countModels(...args) {
-        return 10;
+    get AccessToken() {
+        return this.adapter.getModel("AccessToken");
+    }
+    get AuthorizationCode() {
+        return this.adapter.getModel("AuthorizationCode");
+    }
+    get RefreshToken() {
+        return this.adapter.getModel("RefreshToken");
+    }
+    get DeviceCode() {
+        return this.adapter.getModel("DeviceCode");
+    }
+    get ClientCredentials() {
+        return this.adapter.getModel("ClientCredentials");
+    }
+    get Client() {
+        return this.adapter.getModel("Client");
+    }
+    get InitialAccessToken() {
+        return this.adapter.getModel("InitialAccessToken");
+    }
+    get RegistrationAccessToken() {
+        return this.adapter.getModel("RegistrationAccessToken");
+    }
+    get Interaction() {
+        return this.adapter.getModel("Interaction");
+    }
+    get ReplayDetection() {
+        return this.adapter.getModel("ReplayDetection");
+    }
+    get PushedAuthorizationRequest() {
+        return this.adapter.getModel("PushedAuthorizationRequest");
+    }
+    async findClient(id) {
+        return this.Client.find(id);
+    }
+    async findClientOrFail(id) {
+        const client = await this.findClient(id);
+        if (!client) {
+            throw new error_types_1.OIDCErrors.InvalidClient("client_not_found");
+        }
+        return client;
+    }
+    async createClient(metadata) {
+        if (metadata.client_id && await this.findClient(metadata.client_id)) {
+            throw new error_types_1.OIDCErrors.InvalidClient("client_id_duplicated");
+        }
+        this.logger.info(`create client ${kleur.cyan(metadata.client_id)}:`, metadata);
+        const client = await this.hidden.clientAdd({
+            ...metadata,
+            client_secret: OIDCProviderProxy.generateClientSecret(),
+        }, { store: true });
+        return client.metadata();
+    }
+    async updateClient(metadata) {
+        const old = await this.findClient(metadata.client_id);
+        // update client_secret
+        if (metadata.reset_client_secret === true) {
+            metadata = {
+                ...metadata,
+                client_secret: OIDCProviderProxy.generateClientSecret(),
+            };
+            delete metadata.reset_client_secret;
+        }
+        this.logger.info(`update client ${kleur.cyan(metadata.client_id || "<unknown>")}:`, require("util").inspect(metadata));
+        const client = await this.hidden.clientAdd({
+            ...old,
+            ...metadata,
+        }, { store: true });
+        return client.metadata();
+    }
+    async deleteClient(id) {
+        await this.findClientOrFail(id);
+        this.logger.info(`delete client ${kleur.cyan(id)}`);
+        this.hidden.clientRemove(id);
+    }
+    async getClients(args) {
+        return this.Client.get(args);
+    }
+    async countClients(args) {
+        return this.Client.count(args);
+    }
+    static generateClientSecret() {
+        return uuid_1.default().replace(/\-/g, "") + uuid_1.default().replace(/\-/g, "");
+    }
+    async countModels(kind, args) {
+        const model = this.adapter.getModel(kind);
+        return model.count(args);
+    }
+    async getModels(kind, args) {
+        const model = this.adapter.getModel(kind);
+        return model.get(args);
+    }
+    async deleteModels(kind, args) {
+        const model = this.adapter.getModel(kind);
+        return model.delete(args);
+    }
+    async syncSupportedClaimsAndScopes() {
+        // set available scopes and claims
+        const claimsSchemata = await this.props.idp.claims.getActiveClaimsSchemata();
+        this.updateSupportedClaimsAndScopes(claimsSchemata);
     }
     // set supported claims and scopes (hacky)
     // ref: https://github.com/panva/node-oidc-provider/blob/ae8a4589c582b96f4e9ca0432307da15792ac29d/lib/helpers/claims.js#L54
-    syncSupportedClaimsAndScopes(defs) {
+    updateSupportedClaimsAndScopes(defs) {
         const config = this.configuration;
         const claimsFilter = config.claims;
         const claimsSupported = config.claimsSupported;
@@ -99,4 +201,16 @@ class OIDCProviderProxy {
     }
 }
 exports.OIDCProviderProxy = OIDCProviderProxy;
+OIDCProviderProxy.volatileModelNames = [
+    "Session",
+    "AccessToken",
+    "AuthorizationCode",
+    "RefreshToken",
+    "DeviceCode",
+    "InitialAccessToken",
+    "RegistrationAccessToken",
+    "Interaction",
+    "ReplayDetection",
+    "PushedAuthorizationRequest",
+];
 //# sourceMappingURL=proxy.js.map

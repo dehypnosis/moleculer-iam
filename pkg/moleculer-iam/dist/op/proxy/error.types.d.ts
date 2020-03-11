@@ -1,5 +1,6 @@
 import { ValidationError as ValidationErrorEntry } from "fastest-validator";
-import { ErrorOut } from "oidc-provider";
+import { ErrorOut, errors } from "oidc-provider";
+export declare const OIDCErrors: typeof errors;
 export interface OIDCError extends ErrorOut {
     error: string;
     error_description?: string;

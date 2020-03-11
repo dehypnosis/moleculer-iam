@@ -93,10 +93,11 @@ class IdentityProvider {
         }
         // validate args to normalize email and phone number
         if (where.claims) {
-            const result = this.validateEmailOrPhoneNumber(where.claims);
-            if (result !== true) {
-                throw new (error_1.Errors.ValidationError)(result);
-            }
+            this.validateEmailOrPhoneNumber(where.claims);
+            // const result =
+            // if (result !== true) {
+            //   throw new (Errors.ValidationError)(result);
+            // }
         }
         return this.adapter.find(where).then(id => id ? new identity_1.Identity({ id, provider: this }) : undefined);
     }
@@ -118,10 +119,11 @@ class IdentityProvider {
         }
         // validate args to normalize email and phone number
         if (where.claims) {
-            const result = this.validateEmailOrPhoneNumber(where.claims);
-            if (result !== true) {
-                throw new error_1.Errors.ValidationError(result);
-            }
+            this.validateEmailOrPhoneNumber(where.claims);
+            // const result =
+            // if (result !== true) {
+            //   throw new Errors.ValidationError(result);
+            // }
         }
         return this.adapter.count(where);
     }
@@ -138,10 +140,11 @@ class IdentityProvider {
             }
             // validate args to normalize email and phone number
             if (where.claims) {
-                const result = this.validateEmailOrPhoneNumber(where.claims);
-                if (result !== true) {
-                    throw new error_1.Errors.ValidationError(result);
-                }
+                this.validateEmailOrPhoneNumber(where.claims);
+                // const result =
+                // if (result !== true) {
+                //   throw new Errors.ValidationError(result);
+                // }
             }
         }
         return this.adapter.get(args)

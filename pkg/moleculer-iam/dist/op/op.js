@@ -43,9 +43,6 @@ class OIDCProvider {
         this.working = false;
         this.logger.info(`oidc provider has been stopped`);
     }
-    // set available scopes and claims dynamically
-    async syncSupportedClaimsAndScopes() {
-    }
 }
 exports.OIDCProvider = OIDCProvider;
 OIDCProvider.modelNames = proxy_1.OIDCModelNames;
