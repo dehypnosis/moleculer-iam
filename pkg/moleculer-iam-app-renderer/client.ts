@@ -11,8 +11,8 @@ export function getInitialAppState(): ApplicationState {
   return ((window as any).__APP_STATE__ || {
     name: "error",
     error: {
-      error: "UnexpectedError",
-      error_description: "Unexpected Error.",
+      error: "Unexpected Error",
+      error_description: "Cannot read application state.",
     },
     session: {},
     locale: {

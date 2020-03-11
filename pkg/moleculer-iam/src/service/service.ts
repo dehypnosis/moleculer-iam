@@ -7,7 +7,7 @@
 import { Errors, ServiceSchema } from "moleculer";
 import { I18N } from "../helper/i18n";
 import { IdentityProvider, IdentityProviderOptions, IdentityClaimsSchemaPayload } from "../idp";
-import { OIDCProvider, OIDCProviderOptions } from "../op";
+import { OIDCError, OIDCProvider, OIDCProviderOptions } from "../op";
 import { IAMServer, IAMServerOptions } from "../server";
 import { IAMServiceActionParams } from "./params";
 
@@ -58,12 +58,15 @@ export function IAMServiceSchema(opts: IAMServiceSchemaOptions): ServiceSchema {
       // transform OIDC provider error
       error: {
         "*"(ctx: any, err: any) {
-          if (err.status === 422) {
-            throw new Errors.ValidationError(err.error_description!, null as any, err.entries);
-          } else if (err.status <= 400 && err.status < 500) {
-            throw new Errors.MoleculerClientError(err.error_description!, err.status, err.error);
-          } else if (err.status >= 500) {
-            throw new Errors.MoleculerServerError(err.error_description!, err.status, err.error);
+          if (err.error) {
+            const e: OIDCError = err;
+            if (e.status === 422) {
+              throw new Errors.ValidationError(e.error_description!, null as any, e.data!);
+            } else if (e.status <= 400 && e.status < 500) {
+              throw new Errors.MoleculerClientError(e.error_description!, e.status, e.error);
+            } else if (e.status >= 500) {
+              throw new Errors.MoleculerServerError(e.error_description!, e.status, e.error);
+            }
           }
           throw err;
         },

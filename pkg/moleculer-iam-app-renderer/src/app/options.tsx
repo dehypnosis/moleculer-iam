@@ -46,7 +46,7 @@ export class AppOptionsProvider extends React.Component<{}, AppOptions> {
       || (document.cookie.split("; ").find(s => s.trim().startsWith("theme=")) || "").split("=")[1]  // cookie second
     if (theme && theme !== this.state.theme && Object.keys(this.state.palette).includes(theme)) {
       console.debug("app theme options from querystring/cookie:", theme);
-      document.cookie = `theme=${theme}; path=/; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
+      document.cookie = `theme=${theme}; path=/`; // as session cookie
       this.setState({ theme });
     }
   }
