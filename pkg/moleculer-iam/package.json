@@ -1,6 +1,6 @@
 {
   "name": "moleculer-iam",
-  "version": "0.1.11",
+  "version": "0.1.12",
   "description": "Centralized IAM module for moleculer.\nIncluding a certified OIDC provider and an Identity provider for user profile, credentials, and custom claims management.\nCustom claims could be defined/updated by declarative schema which contains claims validation and migration strategy.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

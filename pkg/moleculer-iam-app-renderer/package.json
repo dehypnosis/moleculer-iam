@@ -39,7 +39,7 @@
   },
   "scripts": {
     "dev": "rm -rf ./dist && react-app-rewired start",
-    "build": "rm -rf ./dist && react-app-rewired build",
+    "build": "rm -rf ./dist && SKIP_PREFLIGHT_CHECK=true react-app-rewired build",
     "build-server": "tsc -p tsconfig.server.json",
     "test": "react-app-rewired test",
     "eject": "react-scripts eject"
