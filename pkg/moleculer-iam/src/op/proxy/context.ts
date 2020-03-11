@@ -1,6 +1,7 @@
 import { ClientAuthorizationState, ClientMetadata, Configuration, InteractionResults } from "oidc-provider";
 import { Identity } from "../../idp";
 import { ProviderConfigBuilder } from "./config";
+import { OIDCProviderProxyErrors } from "./error";
 import { OIDCError } from "./error.types";
 import { OIDCAccountClaims } from "./identity.types";
 import { ApplicationRequestContext, ApplicationState, ApplicationResponse, ApplicationSessionPublicState, ApplicationMetadata, ApplicationRoutes, ApplicationSessionSecretState } from "./app.types";
@@ -102,8 +103,8 @@ export class OIDCProviderContextProxy {
     await this.ensureSessionSaved();
 
     // finish interaction prompt
-    const { ctx, interaction, provider } = this;
-    ctx.assert(interaction && (!allowedPromptNames || allowedPromptNames.includes(interaction.prompt.name)));
+    const { ctx, provider } = this;
+    this.assertPrompt();
 
     const mergedResult = {...this.interaction!.result, ...promptUpdate};
     const redirectURL = await provider.interactionResult(ctx.req, ctx.res, mergedResult, { mergeWithLastSubmission: true });
@@ -181,9 +182,11 @@ export class OIDCProviderContextProxy {
     return this.ctx.accepts(JSON, HTML) === JSON;
   }
 
-  public assertPrompt(allowedPromptNames?: string[], message?: string): void {
-    const { ctx, interaction } = this;
-    ctx.assert(interaction && (!allowedPromptNames || allowedPromptNames.includes(interaction.prompt.name)), 400, message);
+  public assertPrompt(allowedPromptNames?: string[]): void {
+    const { interaction } = this;
+    if (!(interaction && (!allowedPromptNames || allowedPromptNames.includes(interaction.prompt.name)))) {
+      throw new OIDCProviderProxyErrors.InvalidPromptSession();
+    }
   }
 
   public async getPublicClientProps(client?: Client): Promise<Partial<ClientMetadata> | undefined> {

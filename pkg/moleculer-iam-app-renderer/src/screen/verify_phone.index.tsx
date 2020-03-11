@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { useNavigation, useAppState, useWithLoading } from "../hook";
+import { useNavigation, useAppState, useWithLoading, useAppOptions } from "../hook";
 import { Text, ScreenLayout, FormInput } from "./component";
 
 export const VerifyPhoneIndexScreen: React.FunctionComponent = () => {
   // states
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [state, dispatch] = useAppState();
+  const [options] = useAppOptions();
   const [phoneNumber, setPhoneNumber] = useState("");
 
   // handlers
@@ -12,7 +14,7 @@ export const VerifyPhoneIndexScreen: React.FunctionComponent = () => {
   const { loading, errors, setErrors, withLoading } = useWithLoading();
   const [handleCheckPhoneNumber, handleCheckPhoneNumberLoading] = withLoading(() => {
     dispatch("verify_phone.check_phone", {
-      phone_number: `${state.locale.country}|${phoneNumber}`,
+      phone_number: `${options.locale.country}|${phoneNumber}`,
       registered: true,
     }, {
       phone_number: "핸드폰 번호",
@@ -25,7 +27,7 @@ export const VerifyPhoneIndexScreen: React.FunctionComponent = () => {
         });
       })
       .catch((err: any) => setErrors(err))
-  }, [phoneNumber]);
+  }, [phoneNumber, options]);
 
   useEffect(() => {
     // update email when route params updated
@@ -59,7 +61,7 @@ export const VerifyPhoneIndexScreen: React.FunctionComponent = () => {
         autoFocus
         tabIndex={21}
         label={`Phone number`}
-        placeholder={`Enter your mobile phone number (${state.locale.country})`}
+        placeholder={`Enter your mobile phone number (${options.locale.country})`}
         blurOnSubmit={false}
         keyboardType={"phone-pad"}
         autoCompleteType={"tel"}

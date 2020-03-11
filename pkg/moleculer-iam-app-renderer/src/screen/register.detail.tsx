@@ -25,7 +25,7 @@ export const RegisterDetailScreen: React.FunctionComponent = () => {
     const data = {
       submit: false,
       claims: {
-        phone_number: phone_number ? `${state.locale.country}|${phone_number}` : undefined,
+        phone_number: phone_number ? `${options.locale.country}|${phone_number}` : undefined,
         birthdate,
         gender,
         ...tmpClaims,
@@ -72,7 +72,7 @@ export const RegisterDetailScreen: React.FunctionComponent = () => {
         }
       })
       .catch(errs => setErrors(errs));
-  }, [payload]);
+  }, [payload, options]);
 
   const [handleCancel, handleCancelLoading] = withLoading(() => {
     nav.navigate("register.stack", {
@@ -114,7 +114,7 @@ export const RegisterDetailScreen: React.FunctionComponent = () => {
           autoFocus={!payload.phone_number}
           tabIndex={61}
           label={`Phone number${phoneNumberRequired ? "" : " (optional)"}`}
-          placeholder={`Enter your mobile phone number (${state.locale.country})`}
+          placeholder={`Enter your mobile phone number (${options.locale.country})`}
           blurOnSubmit={false}
           keyboardType={"phone-pad"}
           autoCompleteType={"tel"}

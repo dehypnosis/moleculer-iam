@@ -1,6 +1,6 @@
 import { StrategyOption, Strategy, Profile } from "passport-kakao";
 import { IdentityFederationProviderConfiguration, OIDCAccountClaims } from "../../proxy";
-import { IAMErrors } from "../../../idp";
+import { OIDCProviderProxyErrors } from "../../proxy/error";
 
 export type KakaoProviderConfiguration = IdentityFederationProviderConfiguration<Profile, StrategyOption>;
 
@@ -28,7 +28,7 @@ export const kakaoProviderConfiguration: KakaoProviderConfiguration = {
     };
 
     if (!claims.email) {
-      throw new IAMErrors.UnexpectedError("cannot federate without an email address");
+      throw new OIDCProviderProxyErrors.FederationRequestWithoutEmailPayload();
     }
 
     if (!claims.email_verified) {
@@ -57,7 +57,7 @@ export const kakaoProviderConfiguration: KakaoProviderConfiguration = {
     const upsertScopes = idp.claims.mandatoryScopes as string[];
     if (identity) {
       if (await identity.isSoftDeleted()) {
-        throw new IAMErrors.UnexpectedError("cannot federate a deleted account");
+        throw new OIDCProviderProxyErrors.FederationRequestForDeletedAccount();
       }
 
       await identity.updateMetadata(metadata);

@@ -1,7 +1,7 @@
 import request from "request-promise-native";
 import { IOAuth2StrategyOption as StrategyOption, OAuth2Strategy as Strategy, Profile } from "passport-google-oauth";
 import { IdentityFederationProviderConfiguration, OIDCAccountClaims } from "../../proxy";
-import { IAMErrors } from "../../../idp";
+import { OIDCProviderProxyErrors } from "../../proxy/error";
 
 export type GoogleProviderConfiguration = IdentityFederationProviderConfiguration<Profile, StrategyOption>;
 
@@ -26,7 +26,7 @@ export const googleProviderConfiguration: GoogleProviderConfiguration = {
     delete claims.hd;
 
     if (!claims.email) {
-      throw new IAMErrors.UnexpectedError("cannot federate without an email address");
+      throw new OIDCProviderProxyErrors.FederationRequestWithoutEmailPayload();
     }
 
     if (!claims.email_verified) {
@@ -54,7 +54,7 @@ export const googleProviderConfiguration: GoogleProviderConfiguration = {
     // if has existing identity
     if (identity) {
       if (await identity.isSoftDeleted()) {
-        throw new IAMErrors.UnexpectedError("cannot federate a deleted account");
+        throw new OIDCProviderProxyErrors.FederationRequestForDeletedAccount();
       }
 
       // if phone scope is requested

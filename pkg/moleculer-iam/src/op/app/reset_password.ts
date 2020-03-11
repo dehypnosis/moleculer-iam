@@ -1,5 +1,6 @@
 import moment from "moment";
 import { ProviderConfigBuilder } from "../proxy";
+import { ApplicationErrors } from "./error";
 import { ApplicationBuildOptions } from "./index";
 
 export function buildResetPasswordRoutes(builder: ProviderConfigBuilder, opts: ApplicationBuildOptions): void {
@@ -39,7 +40,7 @@ export function buildResetPasswordRoutes(builder: ProviderConfigBuilder, opts: A
         && publicState.resetPassword.expiresAt
         && moment().isBefore(publicState.resetPassword.expiresAt)
       )) {
-        ctx.throw(400, "Reset password session has expired or incorrect.");
+        throw new ApplicationErrors.ResetPasswordSessionExpired();
       }
 
       const identity = await ctx.idp.findOrFail({ claims });

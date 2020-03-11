@@ -14,6 +14,11 @@ export function getInitialAppState(): ApplicationState {
       error: "UnexpectedError",
       error_description: "Unexpected Error.",
     },
+    session: {},
+    locale: {
+      language: "ko",
+      country: "KR",
+    },
   }) as ApplicationState;
 }
 

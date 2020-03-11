@@ -3,20 +3,96 @@ import { ValidationErrorMessages } from "./validator";
 
 const en = {
   error: {
+    // ref: https://github.com/panva/node-oidc-provider/blob/ed81fc64b5d6119489ef1021aebd71f2db44018e/lib/helpers/err_out.js#L13
+    ServerError: {
+      name: "Internal Server Error",
+      description: "An unexpected internal error has occurred.",
+    },
+    // koa
+    InternalServerError: {
+      name: "Internal Server Error",
+      description: "An unexpected internal error has occurred.",
+    },
+    // ref: https://github.com/panva/node-oidc-provider/blob/master/lib/helpers/errors.js#L20
+    InvalidToken: {
+      name: "Invalid Token",
+    },
+    InvalidClientMetadata: {
+      name: "Invalid Client Metadata",
+    },
+    InvalidScope: {
+      name: "Invalid Scope",
+    },
+    InvalidRequest: {
+      name: "Invalid Request",
+    },
+    SessionNotFound: {
+      name: "Session Error",
+      description: "Cannot find the session.",
+    },
+    InvalidClientAuth: {
+      name: "Invalid Client Auth",
+    },
+    InvalidGrant: {
+      name: "Invalid Grant",
+    },
+
+    // OIDCProviderProxyErrors
+    InvalidPromptSession: {
+      name: "Internal Error",
+      description: "The login session has expired or invalid.",
+    },
+    InvalidFederationProvider: {
+      name: "Federation Error",
+      description: "Cannot federate account with the invalid provider.",
+    },
+    FederationRequestWithoutEmailPayload: {
+      name: "Federation Error",
+      description: "Cannot federate without an email address.",
+    },
+    FederationRequestForDeletedAccount: {
+      name: "Federation Error",
+      description: "Cannot federate a deleted account.",
+    },
+
+    // ApplicationErrors
+    ResetPasswordSessionExpired: {
+      name: "Session Error",
+      description: "Reset password session has expired or incorrect.",
+    },
+    TooMuchVerificationCodeRequest: {
+      name: "Session Error",
+      description: "Cannot resend an verification code until previous one expires.",
+    },
+    InvalidVerificationCode: {
+      name: "Validation Error",
+      description: "The verification code has expired or incorrect.",
+    },
+    UnauthenticatedSession: {
+      name: "Session Error",
+      description: "The session is not authenticated.",
+    },
+
+    // IAMErrors
     IdentityNotExists: {
+      name: "Validation Error",
       description: "The account not exists.",
     },
     IdentityAlreadyExists: {
+      name: "Validation Error",
       description: "The account already exists.",
     },
     InvalidCredentials: {
+      name: "Validation Error",
       description: "The account and credentials are incorrect.",
     },
     UnsupportedCredentials: {
+      name: "Validation Error",
       description: "The account cannot use the given type of credentials.",
     },
     ValidationFailed: {
-      description: "Validation failed.",
+      name: "Validation Error",
+      description: "Failed to validate given payload.",
       data: {
         required: "The [field] field is required.",
         string: "The [field] field must be a string.",

@@ -1,17 +1,18 @@
 import React, { useState } from "react";
-import { useAppState, useWithLoading, useNavigation } from "../hook";
+import { useAppState, useWithLoading, useNavigation, useAppOptions } from "../hook";
 import { ScreenLayout, Text, FormInput } from "./component";
 
 export const FindEmailIndexScreen: React.FunctionComponent = () => {
   const { nav } = useNavigation();
   const [state, dispatch] = useAppState();
+  const [options] = useAppOptions();
   const [phoneNumber, setPhoneNumber] = useState("");
 
   // handlers
   const { loading, errors, setErrors, withLoading } = useWithLoading();
   const [handleCheckPhoneNumber, handleCheckPhoneNumberLoading] = withLoading(() => {
     dispatch("verify_phone.check_phone", {
-      phone_number: `${state.locale.country}|${phoneNumber}`,
+      phone_number: `${options.locale.country}|${phoneNumber}`,
       registered: true,
     }, {
       phone_number: "핸드폰 번호",
@@ -26,7 +27,7 @@ export const FindEmailIndexScreen: React.FunctionComponent = () => {
         });
       })
       .catch((err: any) => setErrors(err))
-  }, [phoneNumber]);
+  }, [phoneNumber, options]);
 
   const [handleCancel, handleCancelLoading] = withLoading(() => {
     nav.navigate("login.stack", {
@@ -67,7 +68,7 @@ export const FindEmailIndexScreen: React.FunctionComponent = () => {
         autoFocus
         tabIndex={21}
         label={`Phone number`}
-        placeholder={`Enter your mobile phone number (${state.locale.country})`}
+        placeholder={`Enter your mobile phone number (${options.locale.country})`}
         blurOnSubmit={false}
         keyboardType={"phone-pad"}
         autoCompleteType={"tel"}

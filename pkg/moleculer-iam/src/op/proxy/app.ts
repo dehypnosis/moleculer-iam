@@ -109,10 +109,12 @@ export class ProviderApplicationBuilder {
   ]);
 
   private translateError(ctx: IAMServerRequestContext, error: OIDCError): OIDCError {
-    error.error_description = I18N.translate(`${error.error}.description`, error.error_description, {
+    const opts = {
       ns: "error",
       lng: ctx.locale.language,
-    });
+    };
+    error.error_description = I18N.translate(`${error.error}.description`, error.error_description, opts);
+    error.error = I18N.translate(`${error.error}.name`, error.error, opts);
 
     // translate validation error data
     if (error.error === IAMErrors.ValidationError.name && error.data) {
@@ -139,8 +141,7 @@ export class ProviderApplicationBuilder {
       for (const entry of error.data) {
         const { actual, expected, type, field } = entry;
         entry.message = I18N.translate(`${error.error}.data.${type}`, entry.message, {
-          ns: "error",
-          lng: ctx.locale.language,
+          ...opts,
           // @ts-ignore
           actual,
           expected: (expected && type === "equalField" && labels && labels[expected]) || expected,
@@ -224,7 +225,7 @@ export class ProviderApplicationBuilder {
   private readonly logoutSourceProxy: NonNullable<DynamicConfiguration["logoutSource"]> = (ctx) => {
     return this.wrapContext(ctx as any, () => {
       const op: ApplicationRequestContext["op"] = ctx.op as any;
-      ctx.assert(op.user, 400, "Account session not exists.");
+      ctx.assert(op.user);
 
       const xsrf = op.session.state && op.session.state.secret;
       return this.renderLogout(ctx as any, xsrf);

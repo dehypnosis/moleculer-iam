@@ -67,14 +67,12 @@ export class AppStateProvider extends React.Component<{}> {
 
     // merge user payload with hint payload
     const {url, synchronous = false, method, payload} = route;
-    const localeQuery = (window.location.search.substr(1).split("&").find(s => s.startsWith("locale=")) || "").split("=")[1];
-    const urlWithLocale = localeQuery ? `${url}?locale=` + localeQuery : url;
     const mergedPayload = {...payload, ...userPayload};
 
     // form submission required (application/x-www-form-urlencoded)
     if (synchronous) {
       const form = document.createElement("form");
-      form.action = urlWithLocale;
+      form.action = url;
       form.method = method;
       form.style.display = "none";
       // tslint:disable-next-line:forin
@@ -91,7 +89,7 @@ export class AppStateProvider extends React.Component<{}> {
     }
 
     // as xhr
-    return fetch(urlWithLocale, {
+    return fetch(url, {
       headers: {
         "Accept": "application/json",
         "Content-Type": "application/json;charset=UTF-8",

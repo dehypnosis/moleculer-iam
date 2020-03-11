@@ -39,7 +39,7 @@ broker.createService(
           options: {
             register: {
               skipEmailVerification: true,
-              skipPhoneVerification: true,
+              skipPhoneVerification: false,
             },
           },
         },

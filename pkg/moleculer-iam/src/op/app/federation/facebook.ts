@@ -1,6 +1,6 @@
 import { StrategyOption, Strategy, Profile } from "passport-facebook";
 import { IdentityFederationProviderConfiguration, OIDCAccountClaims } from "../../proxy";
-import { IAMErrors } from "../../../idp";
+import { OIDCProviderProxyErrors } from "../../proxy/error";
 
 export type FacebookProviderConfiguration = IdentityFederationProviderConfiguration<Profile, StrategyOption>;
 
@@ -31,7 +31,7 @@ export const facebookProviderConfiguration: FacebookProviderConfiguration = {
     };
 
     if (!claims.email) {
-      throw new IAMErrors.UnexpectedError("cannot federate without an email address");
+      throw new OIDCProviderProxyErrors.FederationRequestWithoutEmailPayload();
     }
 
     if (!claims.picture) {
@@ -56,7 +56,7 @@ export const facebookProviderConfiguration: FacebookProviderConfiguration = {
     const upsertScopes = idp.claims.mandatoryScopes as string[];
     if (identity) {
       if (await identity.isSoftDeleted()) {
-        throw new IAMErrors.UnexpectedError("cannot federate a deleted account");
+        throw new OIDCProviderProxyErrors.FederationRequestForDeletedAccount();
       }
 
       await identity.updateMetadata(metadata);

@@ -4,6 +4,7 @@ import { ProviderConfigBuilder } from "./config";
 import { ApplicationRequestContext } from "./app.types";
 import { Logger } from "../../helper/logger";
 import { Identity, IAMErrors, IdentityProvider } from "../../idp";
+import { OIDCProviderProxyErrors } from "./error";
 
 export interface IdentityFederationProviderConfigurationMap {
   [provider: string]: IdentityFederationProviderConfiguration<any, any>;
@@ -124,8 +125,14 @@ export class IdentityFederationBuilder {
     }
   }
 
+  private assertProvider(provider: string) {
+    if (!this.providerNames.includes(provider)) {
+      throw new OIDCProviderProxyErrors.InvalidFederationProvider();
+    }
+  }
+
   public async handleRequest(ctx: ApplicationRequestContext, next: () => Promise<void>, provider: string): Promise<void> {
-    ctx.assert(this.providerNames.includes(provider));
+    this.assertProvider(provider);
     return new Promise((resolve, reject) => {
       this.passport.authenticate(provider, {
         scope: this.scopes[provider],
@@ -139,7 +146,7 @@ export class IdentityFederationBuilder {
   }
 
   public async handleCallback(ctx: ApplicationRequestContext, next: () => Promise<void>, provider: string): Promise<Identity> {
-    ctx.assert(this.providerNames.includes(provider));
+    this.assertProvider(provider);
     return new Promise((resolve, reject) => {
       this.passport.authenticate(provider, {
         scope: this.scopes[provider],

@@ -2,20 +2,90 @@ import { I18NPostProcessor, I18NResource } from "./i18n.en";
 
 const ko: I18NResource = {
   error: {
+    ServerError: {
+      name: "서버 오류",
+      description: "예기치 못한 서버 오류가 발생했습니다.",
+    },
+    InternalServerError: {
+      name: "서버 오류",
+      description: "예기치 못한 서버 오류가 발생했습니다.",
+    },
+    InvalidToken: {
+      name: "유효하지 않은 토큰",
+    },
+    InvalidClientMetadata: {
+      name: "유효하지 않은 클라이언트 정보",
+    },
+    InvalidScope: {
+      name: "유효하지 않은 스코프",
+    },
+    InvalidRequest: {
+      name: "처리 할 수 없는 요청",
+    },
+    SessionNotFound: {
+      name: "세션 오류",
+      description: "유효한 세션을 찾을 수 없습니다.",
+    },
+    InvalidClientAuth: {
+      name: "유효하지 않은 클라이언트 인증",
+    },
+    InvalidGrant: {
+      name: "유효하지 않은 인가",
+    },
+
+    InvalidPromptSession: {
+      name: "세션 오류",
+      description: "로그인 세션이 만료되었거나 유효하지 않습니다.",
+    },
+    InvalidFederationProvider: {
+      name: "계정 연동 오류",
+      description: "지원되지 않는 계정 연동 제공자입니다.",
+    },
+    FederationRequestWithoutEmailPayload: {
+      name: "계정 연동 오류",
+      description: "이메일 주소가 없는 계정으로 연동 할 수 없습니다.",
+    },
+    FederationRequestForDeletedAccount: {
+      name: "계정 연동 오류",
+      description: "삭제된 계정과 연동 할 수 없습니다.",
+    },
+
+    ResetPasswordSessionExpired: {
+      name: "세션 오류",
+      description: "패스워드 재설정 세션이 만료되었거나 유효하지 않습니다.",
+    },
+    TooMuchVerificationCodeRequest: {
+      name: "검증 오류",
+      description: "이전 인증 코드가 아직 만료되지 않았습니다.",
+    },
+    InvalidVerificationCode: {
+      name: "검증 오류",
+      description: "인증 코드가 만료되었거나 유효하지 않습니다.",
+    },
+    UnauthenticatedSession: {
+      name: "세션 오류",
+      description: "인증된 세션이 아닙니다.",
+    },
+
     IdentityNotExists: {
+      name: "검증 오류",
       description: "계정이 존재하지 않습니다.",
     },
     IdentityAlreadyExists: {
+      name: "검증 오류",
       description: "이미 존재하는 계정입니다.",
     },
     InvalidCredentials: {
+      name: "검증 오류",
       description: "계정 혹은 자격 증명이 올바르지 않습니다.",
     },
     UnsupportedCredentials: {
+      name: "검증 오류",
       description: "계정이 제공된 자격 증명을 사용 할 수 없습니다.",
     },
     ValidationFailed: {
-      description: "데이터 검증 실패.",
+      name: "검증 오류",
+      description: "데이터 검증에 실패하였습니다.",
       data: {
         required: "[field]이/가 필요합니다.",
 
@@ -95,12 +165,16 @@ const patterns = {
 };
 
 export const processKoreanJosa: I18NPostProcessor = (value, keys, options) => {
-  if (options.lng !== "ko") return value;
+  if (options.lng !== "ko") {
+    return value;
+  }
 
   for (const [pattern, josas] of Object.entries(patterns)) {
     const tokens = value.split(pattern).filter(t => !!t);
     const lastToken = tokens.pop();
-    if (tokens.length === 0) continue;
+    if (tokens.length === 0) {
+      continue;
+    }
     let tmp = "";
     for (const token of tokens) {
       const charCode = token.charCodeAt(token.length - 1);

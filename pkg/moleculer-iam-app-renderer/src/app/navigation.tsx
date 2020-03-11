@@ -61,18 +61,25 @@ export function useNavigation() {
   // set undefined params as empty object
   const route = useRoute() as ReturnType<typeof useRoute> & { params: {[key: string]: any} };
 
-  // override nav methods to include locale query for navigation
+  // override nav methods to fix bug
   const nav = useOriginalNavigation();
   const navigate = nav.navigate;
   // @ts-ignore
   if (!navigate.__enhanced) {
     nav.navigate = (...args: any[]) => {
-      includeLocaleQuery(args, route);
       navigate(...args as any);
 
       // call navigate twice as a workaround to fix a bug which does not update existing screen's params
-      if (args[1] && args[1].screen && nav.dangerouslyGetState().routes.every(r => r.name !== args[1].screen)) {
-        navigate(...args as any);
+      const stackName = args[0];
+      const screenName = args[1] && args[1].screen;
+      if (stackName && screenName) {
+        const rootNav = nav.dangerouslyGetParent();
+        if (rootNav) {
+          const stackState = rootNav.dangerouslyGetState().routes.find(s => s.name === stackName);
+          if (stackState && stackState.state && stackState.state.routes[0] && stackState.state.routes[0].name !== screenName) {
+            navigate(...args as any);
+          }
+        }
       }
     };
     // @ts-ignore
@@ -89,16 +96,3 @@ export function useNavigation() {
   return { nav, route };
 }
 
-function includeLocaleQuery(args: any, route: any) {
-  if (route.params && route.params.locale) {
-    if (!args[1] || !args[1].params || !args[1].params.locale) {
-      if (!args[1]) {
-        args[1] = {};
-      }
-      if (!args[1].params) {
-        args[1].params = {};
-      }
-      args[1].params.locale = route.params.locale;
-    }
-  }
-}

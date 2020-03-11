@@ -43,6 +43,11 @@ function getInitialAppState() {
     error: {
       error: "UnexpectedError",
       error_description: "Unexpected Error."
+    },
+    session: {},
+    locale: {
+      language: "ko",
+      country: "KR"
     }
   };
 }
@@ -641,18 +646,28 @@ const AppNavigationProvider = ({
 
 function useNavigation() {
   // set undefined params as empty object
-  const route = Object(_react_navigation_native__WEBPACK_IMPORTED_MODULE_2__["useRoute"])(); // override nav methods to include locale query for navigation
+  const route = Object(_react_navigation_native__WEBPACK_IMPORTED_MODULE_2__["useRoute"])(); // override nav methods to fix bug
 
   const nav = Object(_react_navigation_core__WEBPACK_IMPORTED_MODULE_1__["useNavigation"])();
   const navigate = nav.navigate; // @ts-ignore
 
   if (!navigate.__enhanced) {
     nav.navigate = (...args) => {
-      includeLocaleQuery(args, route);
       navigate(...args); // call navigate twice as a workaround to fix a bug which does not update existing screen's params
 
-      if (args[1] && args[1].screen && nav.dangerouslyGetState().routes.every(r => r.name !== args[1].screen)) {
-        navigate(...args);
+      const stackName = args[0];
+      const screenName = args[1] && args[1].screen;
+
+      if (stackName && screenName) {
+        const rootNav = nav.dangerouslyGetParent();
+
+        if (rootNav) {
+          const stackState = rootNav.dangerouslyGetState().routes.find(s => s.name === stackName);
+
+          if (stackState && stackState.state && stackState.state.routes[0] && stackState.state.routes[0].name !== screenName) {
+            navigate(...args);
+          }
+        }
       }
     }; // @ts-ignore
 
@@ -672,22 +687,6 @@ function useNavigation() {
     nav,
     route
   };
-}
-
-function includeLocaleQuery(args, route) {
-  if (route.params && route.params.locale) {
-    if (!args[1] || !args[1].params || !args[1].params.locale) {
-      if (!args[1]) {
-        args[1] = {};
-      }
-
-      if (!args[1].params) {
-        args[1].params = {};
-      }
-
-      args[1].params.locale = route.params.locale;
-    }
-  }
 }
 
 /***/ }),
@@ -723,7 +722,8 @@ class AppOptionsProvider extends react__WEBPACK_IMPORTED_MODULE_1___default.a.Co
   constructor(...args) {
     super(...args);
     this.state = lodash__WEBPACK_IMPORTED_MODULE_0__["defaultsDeep"]({ ...Object(_client__WEBPACK_IMPORTED_MODULE_2__["getAppOptions"])(),
-      dev: Object(_client__WEBPACK_IMPORTED_MODULE_2__["getAppDev"])()
+      dev: Object(_client__WEBPACK_IMPORTED_MODULE_2__["getAppDev"])(),
+      locale: Object(_client__WEBPACK_IMPORTED_MODULE_2__["getInitialAppState"])().locale
     }, {
       logo: {
         uri: null,
@@ -748,12 +748,15 @@ class AppOptionsProvider extends react__WEBPACK_IMPORTED_MODULE_1___default.a.Co
   }
 
   render() {
-    console.debug("app options update:", this.state);
+    console.debug("app options update:", this.state); // set locale cookie
+
+    const locale = `${this.state.locale.language || "ko"}-${this.state.locale.country || "KR"}`;
+    document.cookie = `locale=${locale}; path=/; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
     return react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(AppOptionsContext.Provider, {
       value: [this.state, this.setState.bind(this)],
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 43
+        lineNumber: 48
       },
       __self: this
     }, this.props.children);
@@ -893,15 +896,13 @@ class AppStateProvider extends react__WEBPACK_IMPORTED_MODULE_0___default.a.Comp
         method,
         payload
       } = route;
-      const localeQuery = (window.location.search.substr(1).split("&").find(s => s.startsWith("locale=")) || "").split("=")[1];
-      const urlWithLocale = localeQuery ? `${url}?locale=` + localeQuery : url;
       const mergedPayload = { ...payload,
         ...userPayload
       }; // form submission required (application/x-www-form-urlencoded)
 
       if (synchronous) {
         const form = document.createElement("form");
-        form.action = urlWithLocale;
+        form.action = url;
         form.method = method;
         form.style.display = "none"; // tslint:disable-next-line:forin
 
@@ -919,7 +920,7 @@ class AppStateProvider extends react__WEBPACK_IMPORTED_MODULE_0___default.a.Comp
       } // as xhr
 
 
-      return fetch(urlWithLocale, {
+      return fetch(url, {
         headers: {
           "Accept": "application/json",
           "Content-Type": "application/json;charset=UTF-8",
@@ -3286,6 +3287,7 @@ const FindEmailIndexScreen = () => {
     nav
   } = Object(_hook__WEBPACK_IMPORTED_MODULE_1__["useNavigation"])();
   const [state, dispatch] = Object(_hook__WEBPACK_IMPORTED_MODULE_1__["useAppState"])();
+  const [options] = Object(_hook__WEBPACK_IMPORTED_MODULE_1__["useAppOptions"])();
   const [phoneNumber, setPhoneNumber] = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])(""); // handlers
 
   const {
@@ -3296,7 +3298,7 @@ const FindEmailIndexScreen = () => {
   } = Object(_hook__WEBPACK_IMPORTED_MODULE_1__["useWithLoading"])();
   const [handleCheckPhoneNumber, handleCheckPhoneNumberLoading] = withLoading(() => {
     dispatch("verify_phone.check_phone", {
-      phone_number: `${state.locale.country}|${phoneNumber}`,
+      phone_number: `${options.locale.country}|${phoneNumber}`,
       registered: true
     }, {
       phone_number: "핸드폰 번호"
@@ -3309,7 +3311,7 @@ const FindEmailIndexScreen = () => {
         }
       });
     }).catch(err => setErrors(err));
-  }, [phoneNumber]);
+  }, [phoneNumber, options]);
   const [handleCancel, handleCancelLoading] = withLoading(() => {
     nav.navigate("login.stack", {
       screen: "login.index",
@@ -3338,7 +3340,7 @@ const FindEmailIndexScreen = () => {
     error: errors.global,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 41
+      lineNumber: 42
     },
     __self: undefined
   }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_2__["Text"], {
@@ -3347,14 +3349,14 @@ const FindEmailIndexScreen = () => {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 63
+      lineNumber: 64
     },
     __self: undefined
   }, "Have you registered a phone number?"), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_2__["FormInput"], {
     autoFocus: true,
     tabIndex: 21,
     label: `Phone number`,
-    placeholder: `Enter your mobile phone number (${state.locale.country})`,
+    placeholder: `Enter your mobile phone number (${options.locale.country})`,
     blurOnSubmit: false,
     keyboardType: "phone-pad",
     autoCompleteType: "tel",
@@ -3364,7 +3366,7 @@ const FindEmailIndexScreen = () => {
     onEnter: handleCheckPhoneNumber,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 66
+      lineNumber: 67
     },
     __self: undefined
   }));
@@ -3979,7 +3981,7 @@ const RegisterDetailScreen = () => {
     const data = {
       submit: false,
       claims: {
-        phone_number: phone_number ? `${state.locale.country}|${phone_number}` : undefined,
+        phone_number: phone_number ? `${options.locale.country}|${phone_number}` : undefined,
         birthdate,
         gender,
         ...tmpClaims
@@ -4017,7 +4019,7 @@ const RegisterDetailScreen = () => {
         });
       }
     }).catch(errs => setErrors(errs));
-  }, [payload]);
+  }, [payload, options]);
   const [handleCancel, handleCancelLoading] = withLoading(() => {
     nav.navigate("register.stack", {
       screen: "register.index",
@@ -4068,7 +4070,7 @@ const RegisterDetailScreen = () => {
     autoFocus: !payload.phone_number,
     tabIndex: 61,
     label: `Phone number${phoneNumberRequired ? "" : " (optional)"}`,
-    placeholder: `Enter your mobile phone number (${state.locale.country})`,
+    placeholder: `Enter your mobile phone number (${options.locale.country})`,
     blurOnSubmit: false,
     keyboardType: "phone-pad",
     autoCompleteType: "tel",
@@ -5282,7 +5284,9 @@ var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-ia
 
 const VerifyPhoneIndexScreen = () => {
   // states
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [state, dispatch] = Object(_hook__WEBPACK_IMPORTED_MODULE_1__["useAppState"])();
+  const [options] = Object(_hook__WEBPACK_IMPORTED_MODULE_1__["useAppOptions"])();
   const [phoneNumber, setPhoneNumber] = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])(""); // handlers
 
   const {
@@ -5297,7 +5301,7 @@ const VerifyPhoneIndexScreen = () => {
   } = Object(_hook__WEBPACK_IMPORTED_MODULE_1__["useWithLoading"])();
   const [handleCheckPhoneNumber, handleCheckPhoneNumberLoading] = withLoading(() => {
     dispatch("verify_phone.check_phone", {
-      phone_number: `${state.locale.country}|${phoneNumber}`,
+      phone_number: `${options.locale.country}|${phoneNumber}`,
       registered: true
     }, {
       phone_number: "핸드폰 번호"
@@ -5308,7 +5312,7 @@ const VerifyPhoneIndexScreen = () => {
         params: {}
       });
     }).catch(err => setErrors(err));
-  }, [phoneNumber]);
+  }, [phoneNumber, options]);
   Object(react__WEBPACK_IMPORTED_MODULE_0__["useEffect"])(() => {
     // update email when route params updated
     if (route.params.phone_number && route.params.phone_number !== phoneNumber) {
@@ -5331,7 +5335,7 @@ const VerifyPhoneIndexScreen = () => {
     }],
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 41
+      lineNumber: 43
     },
     __self: undefined
   }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_2__["Text"], {
@@ -5340,14 +5344,14 @@ const VerifyPhoneIndexScreen = () => {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 55
+      lineNumber: 57
     },
     __self: undefined
   }, "Verify your registered phone number."), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_2__["FormInput"], {
     autoFocus: true,
     tabIndex: 21,
     label: `Phone number`,
-    placeholder: `Enter your mobile phone number (${state.locale.country})`,
+    placeholder: `Enter your mobile phone number (${options.locale.country})`,
     blurOnSubmit: false,
     keyboardType: "phone-pad",
     autoCompleteType: "tel",
@@ -5357,7 +5361,7 @@ const VerifyPhoneIndexScreen = () => {
     onEnter: handleCheckPhoneNumber,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 58
+      lineNumber: 60
     },
     __self: undefined
   }));
@@ -5698,5 +5702,5 @@ module.exports = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer
 
 /***/ })
 
-},[[1,"runtime-main",1]]]);
+},[[1,"runtime-main",0]]]);
 //# sourceMappingURL=main.chunk.js.map

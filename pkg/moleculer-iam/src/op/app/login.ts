@@ -8,7 +8,7 @@ export function buildLoginRoutes(builder: ProviderConfigBuilder, opts: Applicati
     // initial render page
     .get("/login", async (ctx, next) => {
       const { user, userClaims, interaction } = ctx.op;
-      ctx.op.assertPrompt(["login", "consent"], "Login prompt session not exists.");
+      ctx.op.assertPrompt(["login", "consent"]);
 
       // already signed in and consent app
       if (user) {

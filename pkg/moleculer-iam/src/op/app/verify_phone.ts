@@ -1,8 +1,9 @@
 import * as _ from "lodash";
 import moment from "moment";
-import { Identity } from "../../idp";
+import { IAMErrors, Identity } from "../../idp";
 import { Logger } from "../../helper/logger";
 import { ProviderConfigBuilder } from "../proxy";
+import { ApplicationErrors } from "./error";
 import { ApplicationBuildOptions } from "./index";
 
 export type IdentityPhoneVerificationArgs = {
@@ -45,9 +46,9 @@ export function buildVerifyPhoneRoutes(builder: ProviderConfigBuilder, opts: App
       // assert user with the phone number
       const user = await ctx.idp.find({ claims: { phone_number: claims.phone_number || "" } });
       if (registered && !user) {
-        ctx.throw(400, "Not a registered phone number.");
+        throw new IAMErrors.IdentityNotExistsError();
       } else if (!registered && user) {
-        ctx.throw(400, "Already registered phone number.");
+        throw new IAMErrors.IdentityAlreadyExistsError();
       }
 
       // update session
@@ -85,7 +86,7 @@ export function buildVerifyPhoneRoutes(builder: ProviderConfigBuilder, opts: App
         const verifyState = publicState.verifyPhone;
 
         if (verifyState.phoneNumber === claims.phone_number && verifyState.expiresAt && moment().isBefore(verifyState.expiresAt)) {
-          ctx.throw(400, "Cannot resend a phone verification code until previous one expires.");
+          throw new ApplicationErrors.TooMuchVerificationCodeRequest();
         }
       }
 
@@ -143,7 +144,7 @@ export function buildVerifyPhoneRoutes(builder: ProviderConfigBuilder, opts: App
       const publicState = ctx.op.sessionPublicState.verifyPhone || {};
       const secretState = ctx.op.sessionSecretState.verifyPhone || {};
       if (publicState.phoneNumber !== claims.phone_number || moment().isAfter(publicState.expiresAt) || secretState.secret !== secret) {
-        ctx.throw("400", "Verification code has expired or incorrect.");
+        throw new ApplicationErrors.InvalidVerificationCode();
       }
 
       ctx.op.setSessionPublicState(prevState => ({
