@@ -1,8 +1,9 @@
 import { ButtonGroupProps } from "@ui-kitten/components";
-import React, { ReactElement, useEffect, useRef } from "react";
+import React, { ReactElement, useEffect, useRef, useState } from "react";
 import { ScrollView, Image, View } from "react-native";
-import { useAppOptions, useNavigation } from "../../hook";
-import { Text, Button, ButtonGroup, ButtonProps, withAttrs, Separator, activateAutoFocus, isTouchDevice } from "./index";
+import { getInitialAppState } from "../../../client";
+import { useAppOptions, useAppState, useNavigation } from "../../hook";
+import { Text, Button, ButtonGroup, ButtonProps, withAttrs, Separator, activateAutoFocus, isTouchDevice, OverflowMenu, Icon } from "./index";
 import logo from "../../assets/logo.svg";
 
 type LayoutFooterButtonGroupProps = {
@@ -178,6 +179,49 @@ export const ScreenLayout: React.FunctionComponent<{
       ) : null}
 
       {footer}
+
+      <LanguageSelector/>
     </ScrollView>
   );
 };
+
+const appInitialState = getInitialAppState();
+const languages = [...new Set((appInitialState.metadata.discovery.ui_locales_supported || [appInitialState.locale.language]).map(locale => locale.split("-")[0]))].sort();
+
+const LanguageSelector: React.FunctionComponent = () => {
+  const [visible, setVisible] = useState(false);
+  const [options, setOptions] = useAppOptions();
+  const data = languages.map(value => {
+    return {
+      title: value.toUpperCase(),
+      value,
+    }
+  });
+  return (
+    <View style={{flexDirection: "row"}}>
+      <View style={{flexGrow: 1}}/>
+      <OverflowMenu
+        data={data}
+        visible={visible}
+        selectedIndex={data.findIndex(d => d.value === options.locale.language)}
+        onSelect={index => {
+          setOptions(o => ({...o, locale: { ...o.locale, language: data[index].value}}));
+          setVisible(false);
+        }}
+        onBackdropPress={() => setVisible(false)}
+        placement={"top end"}
+      >
+        <Button
+          appearance={"ghost"}
+          status={"basic"}
+          size={"tiny"}
+          onPress={() => setVisible(!visible)}
+          icon={s => <Icon style={s} name={visible ? "chevron-up-outline" : "chevron-down-outline"} />}
+          style={{ flexDirection: "row-reverse" }}
+        >
+          {options.locale.language}
+        </Button>
+      </OverflowMenu>
+    </View>
+  );
+}

@@ -5,13 +5,15 @@ import { getAppDev, getAppOptions, getInitialAppState } from "../../client";
 import { ApplicationOptions } from "../../common";
 import { darkTheme, lightTheme } from "./theme.palette";
 
-export const AppOptionsContext = createContext<[ApplicationOptions & { dev: boolean, locale: ParsedLocale }, AppOptionsProvider["setState"]]>([] as any);
+type AppOptions = ApplicationOptions & { dev: boolean, locale: ParsedLocale };
+
+export const AppOptionsContext = createContext<[AppOptions, AppOptionsProvider["setState"]]>([] as any);
 
 export function useAppOptions() {
   return useContext(AppOptionsContext);
 }
 
-export class AppOptionsProvider extends React.Component<{}, ApplicationOptions & { dev: boolean }> {
+export class AppOptionsProvider extends React.Component<{}, AppOptions> {
   state = _.defaultsDeep({
     ...getAppOptions(),
     dev: getAppDev(),

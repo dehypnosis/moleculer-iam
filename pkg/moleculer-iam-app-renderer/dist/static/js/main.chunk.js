@@ -756,7 +756,7 @@ class AppOptionsProvider extends react__WEBPACK_IMPORTED_MODULE_1___default.a.Co
       value: [this.state, this.setState.bind(this)],
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 48
+        lineNumber: 50
       },
       __self: this
     }, this.props.children);
@@ -2426,11 +2426,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "../../node_modules/react/index.js");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var react_native__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react-native */ "../../node_modules/react-native-web/dist/index.js");
-/* harmony import */ var _hook__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../hook */ "./src/hook.ts");
-/* harmony import */ var _index__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./index */ "./src/screen/component/index.ts");
-/* harmony import */ var _assets_logo_svg__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../assets/logo.svg */ "./src/assets/logo.svg");
-/* harmony import */ var _assets_logo_svg__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_assets_logo_svg__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var _client__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../client */ "./client.ts");
+/* harmony import */ var _hook__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../hook */ "./src/hook.ts");
+/* harmony import */ var _index__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./index */ "./src/screen/component/index.ts");
+/* harmony import */ var _assets_logo_svg__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../assets/logo.svg */ "./src/assets/logo.svg");
+/* harmony import */ var _assets_logo_svg__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_assets_logo_svg__WEBPACK_IMPORTED_MODULE_5__);
 var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-iam-app-renderer/src/screen/component/layout.tsx";
+
 
 
 
@@ -2463,20 +2465,20 @@ const ScreenLayout = ({
 }) => {
   const {
     nav
-  } = Object(_hook__WEBPACK_IMPORTED_MODULE_2__["useNavigation"])();
+  } = Object(_hook__WEBPACK_IMPORTED_MODULE_3__["useNavigation"])();
   const scrollableRef = Object(react__WEBPACK_IMPORTED_MODULE_0__["useRef"])(null);
   Object(react__WEBPACK_IMPORTED_MODULE_0__["useEffect"])(() => {
-    if (_index__WEBPACK_IMPORTED_MODULE_3__["isTouchDevice"]) return;
+    if (_index__WEBPACK_IMPORTED_MODULE_4__["isTouchDevice"]) return;
     return nav.addListener("focus", () => {
       if (scrollableRef.current) {
         const node = scrollableRef.current.getInnerViewNode();
         setTimeout(() => {
-          Object(_index__WEBPACK_IMPORTED_MODULE_3__["activateAutoFocus"])(node);
+          Object(_index__WEBPACK_IMPORTED_MODULE_4__["activateAutoFocus"])(node);
         }, 300); // delay for transition animation
       }
     });
   }, [nav]);
-  const [options] = Object(_hook__WEBPACK_IMPORTED_MODULE_2__["useAppOptions"])();
+  const [options] = Object(_hook__WEBPACK_IMPORTED_MODULE_3__["useAppOptions"])();
   return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_native__WEBPACK_IMPORTED_MODULE_1__["ScrollView"], {
     ref: ref => {
       scrollableRef.current = ref;
@@ -2491,7 +2493,7 @@ const ScreenLayout = ({
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 65
+      lineNumber: 66
     },
     __self: undefined
   }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_native__WEBPACK_IMPORTED_MODULE_1__["View"], {
@@ -2501,12 +2503,12 @@ const ScreenLayout = ({
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 70
+      lineNumber: 71
     },
     __self: undefined
   }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_native__WEBPACK_IMPORTED_MODULE_1__["Image"], {
     source: {
-      uri: options.logo.uri || _assets_logo_svg__WEBPACK_IMPORTED_MODULE_4___default.a
+      uri: options.logo.uri || _assets_logo_svg__WEBPACK_IMPORTED_MODULE_5___default.a
     },
     style: {
       height: options.logo.height,
@@ -2515,7 +2517,7 @@ const ScreenLayout = ({
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 71
+      lineNumber: 72
     },
     __self: undefined
   })), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_native__WEBPACK_IMPORTED_MODULE_1__["View"], {
@@ -2524,24 +2526,24 @@ const ScreenLayout = ({
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 74
-    },
-    __self: undefined
-  }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_index__WEBPACK_IMPORTED_MODULE_3__["Text"], {
-    category: "h5",
-    __source: {
-      fileName: _jsxFileName,
       lineNumber: 75
     },
     __self: undefined
-  }, title), subtitle && react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_index__WEBPACK_IMPORTED_MODULE_3__["Text"], {
+  }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_index__WEBPACK_IMPORTED_MODULE_4__["Text"], {
+    category: "h5",
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 76
+    },
+    __self: undefined
+  }, title), subtitle && react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_index__WEBPACK_IMPORTED_MODULE_4__["Text"], {
     category: "s2",
     style: {
       marginTop: 5
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 76
+      lineNumber: 77
     },
     __self: undefined
   }, subtitle)), children ? react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_native__WEBPACK_IMPORTED_MODULE_1__["View"], {
@@ -2550,10 +2552,10 @@ const ScreenLayout = ({
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 79
+      lineNumber: 80
     },
     __self: undefined
-  }, children) : null, error ? react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_index__WEBPACK_IMPORTED_MODULE_3__["Text"], {
+  }, children) : null, error ? react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_index__WEBPACK_IMPORTED_MODULE_4__["Text"], {
     status: "danger",
     category: "c2",
     style: {
@@ -2561,7 +2563,7 @@ const ScreenLayout = ({
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 81
+      lineNumber: 82
     },
     __self: undefined
   }, error) : null, buttons.length > 0 ? buttons.map((args, index) => {
@@ -2573,12 +2575,12 @@ const ScreenLayout = ({
     const s = args;
 
     if (s.separator) {
-      return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_index__WEBPACK_IMPORTED_MODULE_3__["Separator"], {
+      return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_index__WEBPACK_IMPORTED_MODULE_4__["Separator"], {
         key: index,
         text: typeof s.separator === "string" ? s.separator : undefined,
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 93
+          lineNumber: 94
         },
         __self: undefined
       });
@@ -2601,10 +2603,10 @@ const ScreenLayout = ({
         },
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 106
+          lineNumber: 107
         },
         __self: undefined
-      }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_index__WEBPACK_IMPORTED_MODULE_3__["ButtonGroup"] // default
+      }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_index__WEBPACK_IMPORTED_MODULE_4__["ButtonGroup"] // default
       , Object.assign({
         status: "basic",
         size: "large",
@@ -2613,7 +2615,7 @@ const ScreenLayout = ({
       }, groupProps, {
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 110
+          lineNumber: 111
         },
         __self: undefined
       }), g.group.map((btn, key) => {
@@ -2624,8 +2626,8 @@ const ScreenLayout = ({
           loading,
           ...props
         } = btn;
-        return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_index__WEBPACK_IMPORTED_MODULE_3__["Button"], Object.assign({
-          ref: Object(_index__WEBPACK_IMPORTED_MODULE_3__["withAttrs"])({
+        return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_index__WEBPACK_IMPORTED_MODULE_4__["Button"], Object.assign({
+          ref: Object(_index__WEBPACK_IMPORTED_MODULE_4__["withAttrs"])({
             tabindex: tabIndex || null
           }),
           key: key // default
@@ -2649,7 +2651,7 @@ const ScreenLayout = ({
           onLongPress: loading ? undefined : props.onLongPress,
           __source: {
             fileName: _jsxFileName,
-            lineNumber: 123
+            lineNumber: 124
           },
           __self: undefined
         }));
@@ -2671,11 +2673,11 @@ const ScreenLayout = ({
       },
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 154
+        lineNumber: 155
       },
       __self: undefined
-    }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_index__WEBPACK_IMPORTED_MODULE_3__["Button"], Object.assign({
-      ref: Object(_index__WEBPACK_IMPORTED_MODULE_3__["withAttrs"])({
+    }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_index__WEBPACK_IMPORTED_MODULE_4__["Button"], Object.assign({
+      ref: Object(_index__WEBPACK_IMPORTED_MODULE_4__["withAttrs"])({
         tabindex: tabIndex || null
       }) // default
       ,
@@ -2691,11 +2693,90 @@ const ScreenLayout = ({
       onLongPress: loading ? undefined : props.onLongPress,
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 158
+        lineNumber: 159
       },
       __self: undefined
     })));
-  }) : null, footer);
+  }) : null, footer, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(LanguageSelector, {
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 183
+    },
+    __self: undefined
+  }));
+};
+const appInitialState = Object(_client__WEBPACK_IMPORTED_MODULE_2__["getInitialAppState"])();
+const languages = [...new Set((appInitialState.metadata.discovery.ui_locales_supported || [appInitialState.locale.language]).map(locale => locale.split("-")[0]))].sort();
+
+const LanguageSelector = () => {
+  const [visible, setVisible] = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])(false);
+  const [options, setOptions] = Object(_hook__WEBPACK_IMPORTED_MODULE_3__["useAppOptions"])();
+  const data = languages.map(value => {
+    return {
+      title: value.toUpperCase(),
+      value
+    };
+  });
+  return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_native__WEBPACK_IMPORTED_MODULE_1__["View"], {
+    style: {
+      flexDirection: "row"
+    },
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 201
+    },
+    __self: undefined
+  }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_native__WEBPACK_IMPORTED_MODULE_1__["View"], {
+    style: {
+      flexGrow: 1
+    },
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 202
+    },
+    __self: undefined
+  }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_index__WEBPACK_IMPORTED_MODULE_4__["OverflowMenu"], {
+    data: data,
+    visible: visible,
+    selectedIndex: data.findIndex(d => d.value === options.locale.language),
+    onSelect: index => {
+      setOptions(o => ({ ...o,
+        locale: { ...o.locale,
+          language: data[index].value
+        }
+      }));
+      setVisible(false);
+    },
+    onBackdropPress: () => setVisible(false),
+    placement: "top end",
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 203
+    },
+    __self: undefined
+  }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_index__WEBPACK_IMPORTED_MODULE_4__["Button"], {
+    appearance: "ghost",
+    status: "basic",
+    size: "tiny",
+    onPress: () => setVisible(!visible),
+    icon: s => react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_index__WEBPACK_IMPORTED_MODULE_4__["Icon"], {
+      style: s,
+      name: visible ? "chevron-up-outline" : "chevron-down-outline",
+      __source: {
+        fileName: _jsxFileName,
+        lineNumber: 219
+      },
+      __self: undefined
+    }),
+    style: {
+      flexDirection: "row-reverse"
+    },
+    __source: {
+      fileName: _jsxFileName,
+      lineNumber: 214
+    },
+    __self: undefined
+  }, options.locale.language)));
 };
 
 /***/ }),
@@ -5836,5 +5917,5 @@ module.exports = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer
 
 /***/ })
 
-},[[1,"runtime-main",0]]]);
+},[[1,"runtime-main",1]]]);
 //# sourceMappingURL=main.chunk.js.map
