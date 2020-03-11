@@ -1,13 +1,13 @@
 import * as _ from "lodash";
 import { FindOptions, WhereAttributeHash } from "../helper/rdbms";
-import { Logger } from "../logger";
+import { Logger } from "../helper/logger";
 import { Identity } from "./identity";
-import { Errors } from "./error";
+import { IAMErrors } from "./error";
 import { IDPAdapter, IDPAdapterConstructors, IDPAdapterConstructorOptions, Transaction } from "./adapter";
 import { OIDCAccountClaims, OIDCAccountCredentials } from "../op";
 import { IdentityClaimsManager, IdentityClaimsManagerOptions } from "./claims";
 import { IdentityMetadata } from "./metadata";
-import { validator, ValidationError } from "../validator";
+import { validator, ValidationError } from "../helper/validator";
 
 export type IdentityProviderProps = {
   logger?: Logger,
@@ -125,7 +125,7 @@ export class IdentityProvider {
       this.validateEmailOrPhoneNumber(where.claims);
       // const result =
       // if (result !== true) {
-      //   throw new (Errors.ValidationError)(result);
+      //   throw new (IAMErrors.ValidationError)(result);
       // }
     }
 
@@ -135,7 +135,7 @@ export class IdentityProvider {
   public async findOrFail(args: WhereAttributeHash): Promise<Identity> {
     const identity = await this.find(args);
     if (!identity) {
-      throw new Errors.IdentityNotExistsError();
+      throw new IAMErrors.IdentityNotExistsError();
     }
     return identity;
   }
@@ -155,7 +155,7 @@ export class IdentityProvider {
       this.validateEmailOrPhoneNumber(where.claims);
       // const result =
       // if (result !== true) {
-      //   throw new Errors.ValidationError(result);
+      //   throw new IAMErrors.ValidationError(result);
       // }
     }
 
@@ -180,7 +180,7 @@ export class IdentityProvider {
         this.validateEmailOrPhoneNumber(where.claims);
         // const result =
         // if (result !== true) {
-        //   throw new Errors.ValidationError(result);
+        //   throw new IAMErrors.ValidationError(result);
         // }
       }
     }

@@ -2,9 +2,10 @@ import * as kleur from "kleur";
 import uuid from "uuid";
 import { pick as pickLanguage } from "accept-language-parser";
 import { Configuration, Provider } from "oidc-provider";
+import { I18N } from "../../helper/i18n";
 import { FindOptions, WhereAttributeHash } from "../../helper/rdbms";
+import { Logger } from "../../helper/logger";
 import { IdentityProvider } from "../../idp";
-import { Logger } from "../../logger";
 import { buildApplication, ApplicationBuildOptions } from "../app";
 import { OIDCAdapterProxy, OIDCModelName } from "./adapter";
 import { ProviderConfigBuilder, StaticConfiguration } from "./config";
@@ -66,8 +67,12 @@ export class OIDCProviderProxy {
     return this.hidden.configuration();
   }
 
+  private _supportedLocales?: string[];
   public get supportedLocales(): string[] {
-    return (this.configuration.discovery as DiscoveryMetadata).ui_locales_supported || [];
+    if (!this._supportedLocales) {
+      this._supportedLocales = [...new Set([...(this.configuration.discovery as DiscoveryMetadata).ui_locales_supported || [], ...I18N.supportedLanguages])];
+    }
+    return this._supportedLocales;
   }
 
   public parseLocale(locale?: string): ParsedLocale {
@@ -75,15 +80,16 @@ export class OIDCProviderProxy {
     const raw = pickLanguage(locales, locale || "", { loose: true }) || locales[0] || "ko-KR";
     const [language, country] = raw.split("-");
     const [_, requestCountry] = (locale || "").split("-"); // request locale country will take precedence over matched one
-    return { language: language || "ko", country: requestCountry || country || "KR" };
+    return { language, country: requestCountry || country || "KR" };
   }
 
   public get issuer() {
     return this.provider!.issuer;
   }
 
-  public start() {
-    return this.adapter.start();
+  public async start() {
+    await this.adapter.start();
+    await this.syncSupportedClaimsAndScopes();
   }
 
   public stop() {

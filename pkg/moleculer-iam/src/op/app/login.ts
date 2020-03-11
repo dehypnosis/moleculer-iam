@@ -1,4 +1,4 @@
-import { Errors } from "../../idp";
+import { IAMErrors } from "../../idp";
 import { ProviderConfigBuilder } from "../proxy";
 import { ApplicationBuildOptions } from "./index";
 
@@ -65,8 +65,11 @@ export function buildLoginRoutes(builder: ProviderConfigBuilder, opts: Applicati
 
       // check account and password
       const user = await ctx.idp.findOrFail({claims: {email: email || ""}});
-      if (!await user.assertCredentials({password: password || ""})) {
-        throw new Errors.InvalidCredentialsError();
+      const verified = await user.assertCredentials({password: password || ""});
+      if (verified === null) {
+        throw new IAMErrors.UnsupportedCredentialsError();
+      } else if (!verified) {
+        throw new IAMErrors.InvalidCredentialsError();
       }
 
       // clear login session state

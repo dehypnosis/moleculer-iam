@@ -161,12 +161,14 @@ export class IDP_MemoryAdapter extends IDPAdapter {
     return true;
   }
 
-  public async assertCredentials(id: string, credentials: Partial<OIDCAccountCredentials>): Promise<boolean> {
+  public async assertCredentials(id: string, credentials: Partial<OIDCAccountCredentials>): Promise<boolean|null> {
     const cred = this.identityCredentialsMap.get(id);
-    if (!cred) return false;
+    if (!cred) return null;
 
     for (const [type, value] of Object.entries(credentials)) {
-      if (cred[type as keyof OIDCAccountCredentials] !== value) return false;
+      const answer = cred[type as keyof OIDCAccountCredentials];
+      if (typeof answer === "undefined") return null;
+      if (answer !== value) return false;
     }
     return true;
   }

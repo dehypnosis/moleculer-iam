@@ -2,7 +2,7 @@ import * as _ from "lodash";
 import { OIDCAccount, OIDCAccountClaims, OIDCAccountCredentials, OIDCClaimsInfo } from "../op";
 import { Transaction } from "./adapter";
 import { defaultIdentityMetadata, IdentityMetadata } from "./metadata";
-import { Errors } from "./error";
+import { IAMErrors } from "./error";
 import { IdentityProvider } from "./idp";
 
 export interface IdentityProps {
@@ -48,7 +48,7 @@ export class Identity implements OIDCAccount {
     const scopes = (typeof scope === "string" ? scope.split(" ").filter(s => !!s) : scope);
     const mandatoryScopes = this.props.provider.claims.mandatoryScopes;
     if (scopes.some(s => mandatoryScopes.includes(s))) {
-      throw new Errors.BadRequestError(`cannot delete mandatory scopes: ${mandatoryScopes}`);
+      throw new IAMErrors.BadRequestError(`cannot delete mandatory scopes: ${mandatoryScopes}`);
     }
 
     await this.adapter.deleteClaims(this.id, scopes, transaction);
@@ -57,7 +57,7 @@ export class Identity implements OIDCAccount {
   /* identity metadata (federation information, etc. not-versioned) */
   public async metadata(): Promise<IdentityMetadata> {
     const metadata = await this.adapter.getMetadata(this.id);
-    if (!metadata) throw new Errors.UnexpectedError(`empty metadata: ${this.id}`);
+    if (!metadata) throw new IAMErrors.UnexpectedError(`empty metadata: ${this.id}`);
     return metadata;
   }
 
@@ -66,7 +66,7 @@ export class Identity implements OIDCAccount {
   }
 
   /* credentials */
-  public async assertCredentials(credentials: Partial<OIDCAccountCredentials>): Promise<boolean> {
+  public async assertCredentials(credentials: Partial<OIDCAccountCredentials>): Promise<boolean|null> {
     return this.adapter.assertCredentials(this.id, credentials);
   }
 

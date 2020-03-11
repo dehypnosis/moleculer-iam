@@ -1,5 +1,5 @@
 import { IdentityProvider } from "../idp";
-import { Logger } from "../logger";
+import { Logger } from "../helper/logger";
 import { OIDCModelNames, OIDCVolatileModelNames, OIDCProviderProxy, OIDCProviderProxyOptions, ClientMetadata, OIDCErrors } from "./proxy";
 
 export type OIDCProviderProps = {

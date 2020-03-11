@@ -6,8 +6,7 @@ export const OIDCErrors = errors;
 export interface OIDCError extends ErrorOut {
   error: string;
   error_description?: string;
-  fields?: {field: string, message: string, type: string, actual: any, expected: any}[];
-  entries?: ValidationErrorEntry[];
+  data?: ValidationErrorEntry[];
   debug?: any;
   [key: string]: any;
 }

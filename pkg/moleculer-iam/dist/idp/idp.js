@@ -6,7 +6,7 @@ const identity_1 = require("./identity");
 const error_1 = require("./error");
 const adapter_1 = require("./adapter");
 const claims_1 = require("./claims");
-const validator_1 = require("../validator");
+const validator_1 = require("../helper/validator");
 class IdentityProvider {
     constructor(props, opts) {
         this.props = props;

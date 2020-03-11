@@ -18,6 +18,10 @@ export const ResetPasswordSetScreen: React.FunctionComponent = () => {
     return dispatch("reset_password.set", {
       email,
       ...payload,
+    }, {
+      email: "이메일",
+      password: "패스워드",
+      password_confirmation: "패스워드 확인",
     })
       .then(() => {
         setErrors({});

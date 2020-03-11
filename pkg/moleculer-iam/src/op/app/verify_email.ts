@@ -1,7 +1,7 @@
 import * as _ from "lodash";
 import moment from "moment";
 import { Identity } from "../../idp";
-import { Logger } from "../../logger";
+import { Logger } from "../../helper/logger";
 import { ProviderConfigBuilder } from "../proxy";
 import { ApplicationBuildOptions } from "./index";
 

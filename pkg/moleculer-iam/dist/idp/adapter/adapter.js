@@ -4,7 +4,7 @@ const tslib_1 = require("tslib");
 const _ = tslib_1.__importStar(require("lodash"));
 const kleur_1 = tslib_1.__importDefault(require("kleur"));
 const metadata_1 = require("../metadata");
-const validator_1 = require("../../validator");
+const validator_1 = require("../../helper/validator");
 const error_1 = require("../error");
 const uuid_1 = tslib_1.__importDefault(require("uuid"));
 class IDPAdapter {
@@ -29,12 +29,11 @@ class IDPAdapter {
                     const value = object[key];
                     const holderId = await this.find({ claims: { [key]: value } });
                     if (holderId && id !== holderId) {
-                        errors.push({
+                        errors.push(validator_1.createValidationError({
                             type: "duplicate",
                             field: key,
-                            message: `The '${key}' field value is already used by other account.`,
                             actual: value,
-                        });
+                        }));
                     }
                 }
                 return errors.length > 0 ? errors : true;

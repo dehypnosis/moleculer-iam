@@ -13,6 +13,8 @@ export const FindEmailIndexScreen: React.FunctionComponent = () => {
     dispatch("verify_phone.check_phone", {
       phone_number: `${state.locale.country}|${phoneNumber}`,
       registered: true,
+    }, {
+      phone_number: "핸드폰 번호",
     })
       .then(() => {
         setErrors({});

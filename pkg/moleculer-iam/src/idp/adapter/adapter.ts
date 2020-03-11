@@ -1,12 +1,12 @@
 import * as _ from "lodash";
 import kleur from "kleur";
-import { Logger } from "../../logger";
+import { Logger } from "../../helper/logger";
 import { FindOptions, WhereAttributeHash } from "../../helper/rdbms";
 import { OIDCAccountClaims, OIDCAccountCredentials } from "../../op";
 import { defaultIdentityMetadata, IdentityMetadata } from "../metadata";
 import { IdentityClaimsSchema } from "../claims";
-import { ValidationSchema, ValidationError, validator } from "../../validator";
-import { Errors } from "../error";
+import { ValidationSchema, ValidationError, validator, createValidationError } from "../../helper/validator";
+import { IAMErrors } from "../error";
 import uuid from "uuid";
 
 export type IDPAdapterProps = {
@@ -80,7 +80,7 @@ export abstract class IDPAdapter {
     }
 
     if (mergedResult.length > 0) {
-      throw new Errors.ValidationError(mergedResult);
+      throw new IAMErrors.ValidationError(mergedResult);
     }
   }
 
@@ -163,12 +163,11 @@ export abstract class IDPAdapter {
           const value = object[key];
           const holderId = await this.find({claims: {[key]: value}});
           if (holderId && id !== holderId) {
-            errors.push({
+            errors.push(createValidationError({
               type: "duplicate",
               field: key,
-              message: `The '${key}' field value is already used by other account.`,
               actual: value,
-            });
+            }));
           }
         }
         return errors.length > 0 ? errors : true;
@@ -379,7 +378,7 @@ export abstract class IDPAdapter {
   public abstract async createOrUpdateMetadata(id: string, metadata: Partial<IdentityMetadata>, transaction?: Transaction): Promise<void>;
 
   /* identity credentials */
-  public abstract async assertCredentials(id: string, credentials: Partial<OIDCAccountCredentials>): Promise<boolean>;
+  public abstract async assertCredentials(id: string, credentials: Partial<OIDCAccountCredentials>): Promise<boolean|null>;
 
   protected abstract async createOrUpdateCredentials(id: string, credentials: Partial<OIDCAccountCredentials>, transaction?: Transaction): Promise<boolean>;
 
@@ -429,7 +428,7 @@ export abstract class IDPAdapter {
   public async validateCredentials(credentials: Partial<OIDCAccountCredentials>): Promise<void> {
     const result = this.testCredentials(credentials);
     if (result !== true) {
-      throw new Errors.ValidationError(result);
+      throw new IAMErrors.ValidationError(result);
     }
   }
 

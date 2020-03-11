@@ -1,7 +1,7 @@
 import * as _ from "lodash";
-import { interactionPolicy, errors } from "oidc-provider";
+import { interactionPolicy } from "oidc-provider";
 import { ProviderConfigBuilder } from "../proxy";
-import { ApplicationRendererFactory, ApplicationRendererFactoryFactoryOptions } from "../proxy";
+import { ApplicationRendererFactory, ApplicationRendererFactoryFactoryOptions, OIDCErrors } from "../proxy";
 import { IdentityFederationProviderOptions, identityFederationProviderOptionsPreset } from "./federation";
 import { createApplicationRoutesFactory } from "./routes";
 import { buildAbortRoutes } from "./abort";
@@ -41,12 +41,12 @@ export function buildApplication(builder: ProviderConfigBuilder, opts: Applicati
         switch (k) {
           case "skip_consent":
             if (typeof v !== "boolean") {
-              // throw new errors.InvalidClientMetadata("skip_consent should be boolean type value");
+              // throw new OIDCErrors.InvalidClientMetadata("skip_consent should be boolean type value");
               meta.skip_consent = false;
             }
             break;
           default:
-            throw new errors.InvalidClientMetadata("unknown client property: " + k);
+            throw new OIDCErrors.InvalidClientMetadata("unknown client property: " + k);
         }
       },
     })

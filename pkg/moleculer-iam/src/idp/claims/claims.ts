@@ -2,9 +2,9 @@ import * as _ from "lodash";
 import * as vm from "vm";
 import Terser from "terser";
 import hashObject from "object-hash";
-import { validator, ValidationError } from "../../validator";
-import { Logger } from "../../logger";
-import { Errors } from "../error";
+import { validator, ValidationError } from "../../helper/validator";
+import { Logger } from "../../helper/logger";
+import { IAMErrors } from "../error";
 import { IDPAdapter } from "../adapter";
 import { IdentityClaimsSchema, IdentityClaimsSchemaPayload, IdentityClaimsSchemaPayloadValidationSchema } from "./types";
 import { OIDCAccountClaims } from "../../op";
@@ -83,7 +83,7 @@ export class IdentityClaimsManager {
   private createClaimsSchema(payload: IdentityClaimsSchemaPayload) {
     const result = this.validatePayload(payload);
     if (result !== true) {
-      throw new Errors.ValidationError(result, {
+      throw new IAMErrors.ValidationError(result, {
         payload,
       });
     }
@@ -113,7 +113,7 @@ export class IdentityClaimsManager {
     return (claims: { [claimKey: string]: any }): void => {
       const result = validate(claims);
       if (result !== true) {
-        throw new Errors.ValidationError(result, claims);
+        throw new IAMErrors.ValidationError(result, claims);
       }
     };
   }
@@ -133,7 +133,7 @@ export class IdentityClaimsManager {
         return script.runInNewContext({oldClaim, claims});
       };
     } catch (error) {
-      throw new Errors.ValidationError([], {migration: schema.migration, error});
+      throw new IAMErrors.ValidationError([], {migration: schema.migration, error});
     }
   }
 
@@ -322,7 +322,7 @@ export class IdentityClaimsManager {
       if (schema.parentVersion) { // from specific version
         parentSchema = await this.adapter.getClaimsSchema({key: schema.key, version: schema.parentVersion});
         if (!parentSchema) {
-          throw new Errors.ValidationError([], {parentVersion: schema.parentVersion});
+          throw new IAMErrors.ValidationError([], {parentVersion: schema.parentVersion});
         }
       } else {
         parentSchema = activeSchema;
@@ -387,7 +387,7 @@ export class IdentityClaimsManager {
             } catch (error) {
               const detail = {id, oldClaim, newClaim, error, index: index + offset};
               this.logger.error("failed to update user claims", detail);
-              throw new Errors.ValidationError([], detail);
+              throw new IAMErrors.ValidationError([], detail);
             }
           }));
 

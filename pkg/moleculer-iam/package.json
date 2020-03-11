@@ -42,6 +42,7 @@
     "change-case": "^4.1.1",
     "dataloader": "^2.0.0",
     "fastest-validator": "^1.0.0-beta4",
+    "i18next": "^19.3.2",
     "jose": "latest",
     "kleur": "^3.0.3",
     "koa-bodyparser": "^4.2.1",

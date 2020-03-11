@@ -1,4 +1,4 @@
-import { Errors } from "../../idp";
+import { IAMErrors } from "../../idp";
 import { ProviderConfigBuilder } from "../proxy";
 import { ApplicationBuildOptions } from "./index";
 
@@ -17,7 +17,7 @@ export function buildFederateRoutes(builder: ProviderConfigBuilder, opts: Applic
       const provider = ctx.params.provider;
       const user = await federation.handleCallback(ctx, next, provider);
       if (!user) {
-        throw new Errors.IdentityNotExistsError();
+        throw new IAMErrors.IdentityNotExistsError();
       }
 
       // make user signed in

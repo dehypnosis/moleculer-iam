@@ -54,7 +54,7 @@ export class AppStateProvider extends React.Component<{}> {
   }
 
   // call xhr request and update app state
-  dispatch = async (name: string, userPayload: any = {}): Promise<ApplicationState> => {
+  dispatch = async (name: string, userPayload: any = {}, payloadLabels: any = {}): Promise<ApplicationState> => {
     const routes = this.state.appState.routes;
     const route = routes && routes[name];
 
@@ -67,12 +67,14 @@ export class AppStateProvider extends React.Component<{}> {
 
     // merge user payload with hint payload
     const {url, synchronous = false, method, payload} = route;
+    const localeQuery = (window.location.search.substr(1).split("&").find(s => s.startsWith("locale=")) || "").split("=")[1];
+    const urlWithLocale = localeQuery ? `${url}?locale=` + localeQuery : url;
     const mergedPayload = {...payload, ...userPayload};
 
     // form submission required (application/x-www-form-urlencoded)
     if (synchronous) {
       const form = document.createElement("form");
-      form.action = url;
+      form.action = urlWithLocale;
       form.method = method;
       form.style.display = "none";
       // tslint:disable-next-line:forin
@@ -89,10 +91,11 @@ export class AppStateProvider extends React.Component<{}> {
     }
 
     // as xhr
-    return fetch(url, {
+    return fetch(urlWithLocale, {
       headers: {
         "Accept": "application/json",
         "Content-Type": "application/json;charset=UTF-8",
+        "Payload-Labels": Buffer.from(JSON.stringify(payloadLabels), "utf8").toString("base64"),
       },
       credentials: "same-origin",
       method,
@@ -103,10 +106,14 @@ export class AppStateProvider extends React.Component<{}> {
         return res.json()
           .then((data: ApplicationResponse): ApplicationState => {
             if (data.error) { // got error response
-              if (res.status === 422 && data.error.fields) { // got validation error
-                console.error("validation error", data.error);
+              if (res.status === 422 && data.error.data) { // got validation error
+                const fields = data.error.data.reduce((obj, entry) => {
+                  obj[entry.field] = obj[entry.field] || entry.message;
+                  return obj;
+                }, {} as {[field: string]: string});
+                console.error("validation error", data.error, fields);
                 // eslint-disable-next-line no-throw-literal
-                throw data.error.fields;
+                throw fields;
               } else {
                 const err = {global: typeof data.error === "object" ? (data.error.error_description || data.error.error || JSON.stringify(data.error)) : (data.error as any).toString()};
                 console.error("global error", err, data);

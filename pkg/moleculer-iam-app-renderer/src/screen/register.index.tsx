@@ -35,7 +35,12 @@ export const RegisterIndexScreen: React.FunctionComponent = () => {
       scope: ["email", "profile"],
     };
 
-    return dispatch("register.submit", data)
+    return dispatch("register.submit", data, {
+      name: "이름",
+      email: "이메일",
+      password: "패스워드",
+      password_confirmation: "패스워드 확인",
+    })
       .then(() => {
         setErrors({});
 

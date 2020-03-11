@@ -211,10 +211,10 @@ export class IDP_RDBMS_Adapter extends IDPAdapter {
     return true;
   }
 
-  public async assertCredentials(id: string, credentials: Partial<OIDCAccountCredentials>): Promise<boolean> {
+  public async assertCredentials(id: string, credentials: Partial<OIDCAccountCredentials>): Promise<boolean|null> {
     const model = await this.IdentityCredentials.findOne({where: {id}});
     if (!model) {
-      return false;
+      return null;
     }
 
     const hashedCredentials = model.get({plain: true}) as OIDCAccountCredentials;
@@ -227,7 +227,7 @@ export class IDP_RDBMS_Adapter extends IDPAdapter {
     }
 
     this.logger.error(`unimplemented credentials type: ${Object.keys(credentials)}`);
-    return false;
+    return null;
   }
 
   /* claims schema */

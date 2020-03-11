@@ -5,7 +5,6 @@ const koa_bodyparser_1 = tslib_1.__importDefault(require("koa-bodyparser"));
 const koa_compose_1 = tslib_1.__importDefault(require("koa-compose"));
 const koa_router_1 = tslib_1.__importDefault(require("koa-router"));
 const koajs_nocache_1 = tslib_1.__importDefault(require("koajs-nocache"));
-const change_case_1 = require("change-case");
 const context_1 = require("./context");
 const federation_1 = require("./federation");
 const renderer_1 = require("./renderer");
@@ -37,12 +36,12 @@ class ProviderApplicationBuilder {
                 if (isNaN(normalizedStatus))
                     normalizedStatus = 500;
                 const normalizedError = {
-                    error: change_case_1.snakeCase(error || name),
+                    error: error || name,
                     error_description: error_description || message || "Unexpected error.",
                     ...((expose || this.builder.dev) ? otherProps : {}),
                 };
                 if (!normalizedError.error) {
-                    normalizedError.error = "invalid_request";
+                    normalizedError.error = "UnexpectedError";
                 }
                 ctx.status = normalizedStatus;
                 return ctx.op.render("error", normalizedError);
@@ -263,7 +262,7 @@ class ProviderApplicationBuilder {
         // normalize xhr error response, ref: https://github.com/panva/node-oidc-provider/blob/master/lib/shared/error_handler.js#L49
         this.op.app.middleware.unshift(async (ctx, next) => {
             await next();
-            if (ctx.body && ctx.body.error_description) {
+            if (ctx.body && typeof ctx.body.error === "string") {
                 ctx.body = { error: ctx.body };
             }
         });

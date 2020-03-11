@@ -36,6 +36,8 @@ export const VerifyEmailVerifyScreen: React.FunctionComponent = () => {
   const [handleSend, handleSendLoading] = withLoading(() => {
     return dispatch("verify_email.send", {
       email,
+    }, {
+      email: "이메일",
     })
       .then((s) => {
         setErrors({});

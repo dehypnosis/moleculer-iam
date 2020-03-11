@@ -35,6 +35,8 @@ export const VerifyPhoneVerifyScreen: React.FunctionComponent = () => {
   const [handleSend, handleSendLoading] = withLoading(() => {
     return dispatch("verify_phone.send", {
       phone_number: state.session.verifyPhone.phoneNumber,
+    }, {
+      phone_number: "핸드폰 번호",
     })
       .then((s) => {
         setErrors({});
@@ -79,6 +81,9 @@ export const VerifyPhoneVerifyScreen: React.FunctionComponent = () => {
       phone_number: state.session.verifyPhone.phoneNumber,
       secret,
       callback,
+    }, {
+      phone_number: "핸드폰 번호",
+      secret: "인증 코드",
     })
       .then(() => {
         setErrors({});

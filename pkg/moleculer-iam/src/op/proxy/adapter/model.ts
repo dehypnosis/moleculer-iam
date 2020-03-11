@@ -1,6 +1,6 @@
 import { Adapter, AdapterPayload } from "oidc-provider";
 import { FindOptions, WhereAttributeHash } from "../../../helper/rdbms";
-import { Logger } from "../../../logger";
+import { Logger } from "../../../helper/logger";
 
 export type OIDCModelName = "Session" | "AccessToken" | "AuthorizationCode" | "RefreshToken" | "DeviceCode" | "ClientCredentials" | "Client" |
   "InitialAccessToken" | "RegistrationAccessToken" | "Interaction" | "ReplayDetection" | "PushedAuthorizationRequest";

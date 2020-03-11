@@ -5,7 +5,7 @@ import { IDPAdapter, IDPAdapterConstructorOptions, Transaction } from "./adapter
 import { OIDCAccountClaims, OIDCAccountCredentials } from "../op";
 import { IdentityClaimsManager, IdentityClaimsManagerOptions } from "./claims";
 import { IdentityMetadata } from "./metadata";
-import { ValidationError } from "../validator";
+import { ValidationError } from "../helper/validator";
 export declare type IdentityProviderProps = {
     logger?: Logger;
 };

@@ -1,7 +1,7 @@
 import request from "request-promise-native";
 import { IOAuth2StrategyOption as StrategyOption, OAuth2Strategy as Strategy, Profile } from "passport-google-oauth";
 import { IdentityFederationProviderConfiguration, OIDCAccountClaims } from "../../proxy";
-import { Errors } from "../../../idp";
+import { IAMErrors } from "../../../idp";
 
 export type GoogleProviderConfiguration = IdentityFederationProviderConfiguration<Profile, StrategyOption>;
 
@@ -26,7 +26,7 @@ export const googleProviderConfiguration: GoogleProviderConfiguration = {
     delete claims.hd;
 
     if (!claims.email) {
-      throw new Errors.UnexpectedError("cannot federate without an email address");
+      throw new IAMErrors.UnexpectedError("cannot federate without an email address");
     }
 
     if (!claims.email_verified) {
@@ -46,7 +46,7 @@ export const googleProviderConfiguration: GoogleProviderConfiguration = {
       // if (identity) {
       //   const oldClaims = await identity.claims("userinfo", "email");
       //   if (!oldClaims.email_verified) {
-      //     throw new Errors.UnexpectedError("cannot federate an existing account with non-verified email address");
+      //     throw new IAMErrors.UnexpectedError("cannot federate an existing account with non-verified email address");
       //   }
       // }
     }
@@ -54,7 +54,7 @@ export const googleProviderConfiguration: GoogleProviderConfiguration = {
     // if has existing identity
     if (identity) {
       if (await identity.isSoftDeleted()) {
-        throw new Errors.UnexpectedError("cannot federate a deleted account");
+        throw new IAMErrors.UnexpectedError("cannot federate a deleted account");
       }
 
       // if phone scope is requested

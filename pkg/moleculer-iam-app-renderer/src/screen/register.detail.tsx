@@ -34,7 +34,11 @@ export const RegisterDetailScreen: React.FunctionComponent = () => {
       scope: ["email", "profile", "birthdate", "gender"].concat((phoneNumberRequired || phone_number) ? "phone" : []),
     };
 
-    return dispatch("register.submit", data)
+    return dispatch("register.submit", data, {
+      phone_number: "핸드폰 번호",
+      birthdate: "생년월일",
+      gender: "성별",
+    })
       .then(() => {
         setErrors({});
 

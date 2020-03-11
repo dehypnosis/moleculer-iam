@@ -2,8 +2,8 @@ import { Authenticator, Strategy } from "passport";
 import { KoaPassport } from "koa-passport";
 import { ProviderConfigBuilder } from "./config";
 import { ApplicationRequestContext } from "./app.types";
-import { Logger } from "../../logger";
-import { Identity, Errors, IdentityProvider } from "../../idp";
+import { Logger } from "../../helper/logger";
+import { Identity, IAMErrors, IdentityProvider } from "../../idp";
 
 export interface IdentityFederationProviderConfigurationMap {
   [provider: string]: IdentityFederationProviderConfiguration<any, any>;
@@ -160,7 +160,7 @@ export class IdentityFederationBuilder {
           });
 
           if (!identity) {
-            throw new Errors.IdentityNotExistsError();
+            throw new IAMErrors.IdentityNotExistsError();
           }
           resolve(identity);
         } catch (error) {

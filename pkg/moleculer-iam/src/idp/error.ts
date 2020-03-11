@@ -1,7 +1,7 @@
 // tslint:disable:max-classes-per-file
 // tslint:disable:variable-name
 import { OIDCError } from "../op";
-import { ValidationError as ValidationErrorEntry } from "../validator";
+import { ValidationError as ValidationErrorEntry } from "../helper/validator";
 
 class IdentityProviderError implements OIDCError {
   constructor(
@@ -14,56 +14,58 @@ class IdentityProviderError implements OIDCError {
 
 class IdentityAlreadyExistsError extends IdentityProviderError {
   constructor() {
-    super(400, "identity_already_exists", "The account already exists.");
+    super(400, "IdentityAlreadyExists", "The account already exists.");
   }
 }
 
 class IdentityNotExistsError extends IdentityProviderError {
   constructor() {
-    super(400, "identity_not_exists", "The account does not exists.");
+    super(400, "IdentityNotExists", "The account does not exists.");
   }
 }
 
 class InvalidCredentialsError extends IdentityProviderError {
   constructor() {
-    super(400, "invalid_credentials", "Invalid credentials.");
+    super(400, "InvalidCredentials", "Invalid credentials.");
+  }
+}
+
+class UnsupportedCredentialsError extends IdentityProviderError {
+  constructor() {
+    super(400, "UnsupportedCredentials", "Cannot use the given type of credentials.");
   }
 }
 
 class ValidationError extends IdentityProviderError {
-  public readonly fields: {[field: string]: string};
-  constructor(public readonly entries: ValidationErrorEntry[], public readonly debug?: object) {
-    super(422, "validation_failed", "Validation failed.");
-    this.fields = entries.reduce((fields, entry) => {
-      fields[entry.field] = fields[entry.field] || entry.message;
-      return fields;
-    }, {} as {[field: string]: string});
+  constructor(public readonly data: ValidationErrorEntry[], public readonly debug?: object) {
+    super(422, "ValidationFailed", "Validation failed.");
   }
 }
 
 class MigrationError extends IdentityProviderError {
   constructor(desc: string) {
-    super(500, "migration_error", desc);
+    super(500, "MigrationError", desc);
   }
 }
 
 class UnexpectedError extends IdentityProviderError {
   constructor(message: string = "Unexpected Error.", status: number = 500) {
-    super(status, "unexpected_error", message);
+    super(status, "UnexpectedError", message);
   }
 }
 
 class BadRequestError extends IdentityProviderError {
   constructor(message: string = "Bad Request", status: number = 400) {
-    super(status, "bad_request", message);
+    super(status, "BadRequest", message);
   }
 }
 
-export const Errors = {
+export const IAMErrors = {
   IdentityProviderError,
   IdentityAlreadyExistsError,
   IdentityNotExistsError,
   InvalidCredentialsError,
+  UnsupportedCredentialsError,
   ValidationError,
   MigrationError,
   UnexpectedError,

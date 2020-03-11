@@ -3,7 +3,7 @@ import * as _ from "lodash";
 import readline from "readline";
 import Umzug, { DownToOptions, UpDownMigrationsOptions, UpToOptions } from "umzug";
 import { Sequelize, Options, Model, ModelAttributes, ModelOptions, STRING, Op } from "sequelize";
-import { Logger, LogLevel } from "../logger";
+import { Logger, LogLevel } from "./logger";
 
 // ignore deprecation warning for string operator alias
 // tslint:disable-next-line:no-var-requires

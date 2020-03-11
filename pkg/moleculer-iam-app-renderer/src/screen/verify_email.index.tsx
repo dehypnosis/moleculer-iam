@@ -15,6 +15,8 @@ export const VerifyEmailIndexScreen: React.FunctionComponent = () => {
     dispatch("verify_email.check_email", {
       email,
       registered: true,
+    }, {
+      email: "이메일",
     })
       .then(() => {
         setErrors({});

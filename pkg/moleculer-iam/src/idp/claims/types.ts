@@ -1,4 +1,4 @@
-import { ValidationRule, ValidationSchema } from "../../validator";
+import { ValidationRule, ValidationSchema } from "../../helper/validator";
 import { OIDCAccountClaims } from "../../op";
 
 export interface IdentityClaimsSchema extends IdentityClaimsSchemaPayload {

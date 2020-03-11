@@ -9,43 +9,39 @@ class IdentityProviderError {
 }
 class IdentityAlreadyExistsError extends IdentityProviderError {
     constructor() {
-        super(400, "identity_already_exists", "The account already exists.");
+        super(400, "IdentityAlreadyExists", "The account already exists.");
     }
 }
 class IdentityNotExistsError extends IdentityProviderError {
     constructor() {
-        super(400, "identity_not_exists", "The account does not exists.");
+        super(400, "IdentityNotExists", "The account does not exists.");
     }
 }
 class InvalidCredentialsError extends IdentityProviderError {
     constructor() {
-        super(400, "invalid_credentials", "Invalid credentials.");
+        super(400, "InvalidCredentials", "Invalid credentials.");
     }
 }
 class ValidationError extends IdentityProviderError {
-    constructor(entries, debug) {
-        super(422, "validation_failed", "Validation failed.");
-        this.entries = entries;
+    constructor(data, debug) {
+        super(422, "ValidationFailed", "Validation failed.");
+        this.data = data;
         this.debug = debug;
-        this.fields = entries.reduce((fields, entry) => {
-            fields[entry.field] = fields[entry.field] || entry.message;
-            return fields;
-        }, {});
     }
 }
 class MigrationError extends IdentityProviderError {
     constructor(desc) {
-        super(500, "migration_error", desc);
+        super(500, "MigrationError", desc);
     }
 }
 class UnexpectedError extends IdentityProviderError {
     constructor(message = "Unexpected Error.", status = 500) {
-        super(status, "unexpected_error", message);
+        super(status, "UnexpectedError", message);
     }
 }
 class BadRequestError extends IdentityProviderError {
     constructor(message = "Bad Request", status = 400) {
-        super(status, "bad_request", message);
+        super(status, "BadRequest", message);
     }
 }
 exports.Errors = {

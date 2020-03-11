@@ -14,7 +14,10 @@ export const LoginCheckPasswordScreen: React.FunctionComponent = () => {
   const { loading, errors, setErrors, withLoading } = useWithLoading();
 
   const [handleCheckLoginPassword, handleCheckLoginPasswordLoading] = withLoading(async () => {
-    return dispatch("login.check_password", { email, password })
+    return dispatch("login.check_password", { email, password }, {
+      email: "이메일",
+      password: "패스워드",
+    })
       .catch((err: any) => setErrors(err));
   }, [password]);
 

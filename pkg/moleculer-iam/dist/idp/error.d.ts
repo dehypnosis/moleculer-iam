@@ -1,5 +1,5 @@
 import { OIDCError } from "../op";
-import { ValidationError as ValidationErrorEntry } from "../validator";
+import { ValidationError as ValidationErrorEntry } from "../helper/validator";
 declare class IdentityProviderError implements OIDCError {
     readonly status: number;
     readonly error: string;
@@ -16,12 +16,9 @@ declare class InvalidCredentialsError extends IdentityProviderError {
     constructor();
 }
 declare class ValidationError extends IdentityProviderError {
-    readonly entries: ValidationErrorEntry[];
+    readonly data: ValidationErrorEntry[];
     readonly debug?: object | undefined;
-    readonly fields: {
-        [field: string]: string;
-    };
-    constructor(entries: ValidationErrorEntry[], debug?: object | undefined);
+    constructor(data: ValidationErrorEntry[], debug?: object | undefined);
 }
 declare class MigrationError extends IdentityProviderError {
     constructor(desc: string);

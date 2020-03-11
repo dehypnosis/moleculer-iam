@@ -4,11 +4,11 @@ import { useAppState, useClose } from "../hook";
 
 export const ErrorScreen: React.FunctionComponent = () => {
   const [state] = useAppState();
-  const error = state.error || { error: "unexpected_server_error", error_description: "unrecognized state received from server." };
+  const error = state.error!;
   const {closed, close} = useClose();
   return (
     <ScreenLayout
-      title={error.error.split("_").map((w: string) => w[0].toUpperCase()+w.substr(1)).join(" ")}
+      title={error.error}
       subtitle={error.error_description}
       error={closed ? "Please close the window manually." : undefined}
       loading={closed}

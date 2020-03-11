@@ -22,7 +22,9 @@ export const LoginIndexScreen: React.FunctionComponent = () => {
   // });
 
   const [handleCheckLoginEmail, handleCheckLoginEmailLoading] = withLoading(() => {
-    return dispatch("login.check_email", { email })
+    return dispatch("login.check_email", { email }, {
+      email: "이메일",
+    })
       .then(() => {
         setErrors({});
         nav.navigate("login.stack", {

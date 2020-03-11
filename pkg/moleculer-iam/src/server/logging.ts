@@ -1,7 +1,7 @@
 import * as kleur from "kleur";
 import * as _ from "lodash";
 import morgan from "koa-morgan";
-import { Logger, LogLevel } from "../logger";
+import { Logger, LogLevel } from "../helper/logger";
 
 export type LoggingOptions = {
   format?: morgan.FormatFn | string,

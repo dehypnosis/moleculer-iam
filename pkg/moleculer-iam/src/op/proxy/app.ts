@@ -3,13 +3,16 @@ import compose from "koa-compose";
 import Router, { IMiddleware } from "koa-router";
 import noCache from "koajs-nocache";
 import { interactionPolicy } from "oidc-provider";
-import { snakeCase } from "change-case";
+import { pascalCase } from "change-case";
+import { IAMErrors } from "../../idp";
+import { IAMServerRequestContext } from "../../server";
 import { OIDCProviderContextProxy } from "./context";
+import { OIDCError } from "./error.types";
 import { IdentityFederationBuilder } from "./federation";
 import { ApplicationRoutes, ApplicationRoutesFactory, ApplicationRequestContext } from "./app.types";
-import { OIDCError } from "./error.types";
 import { DeviceInfo } from "./proxy.types";
-import { Logger } from "../../logger";
+import { Logger } from "../../helper/logger";
+import { I18N } from "../../helper/i18n";
 import { dummyAppStateRendererFactory, ApplicationRenderer, ApplicationRendererFactory } from "./renderer";
 import { DeviceFlowConfiguration, DynamicConfiguration, ProviderConfigBuilder } from "./config";
 
@@ -80,22 +83,19 @@ export class ProviderApplicationBuilder {
     } catch (err) {
       this.logger.error("app error", err);
 
-      // normalize error
+      // normalize and translate error
       const { error, name, message, status, statusCode, code, status_code, error_description, expose, ...otherProps } = err;
+
+      // set status
       let normalizedStatus = status || statusCode || code || status_code || 500;
       if (isNaN(normalizedStatus)) normalizedStatus = 500;
+      ctx.status = normalizedStatus;
 
-      const normalizedError = {
-        error: snakeCase(error || name),
+      const normalizedError = this.translateError(ctx, {
+        error: pascalCase(error || name || "UnexpectedError"),
         error_description: error_description || message || "Unexpected error.",
         ...((expose || this.builder.dev) ? otherProps : {}),
-      };
-
-      if (!normalizedError.error) {
-        normalizedError.error = "invalid_request";
-      }
-
-      ctx.status = normalizedStatus;
+      });
 
       return ctx.op.render("error", normalizedError);
     }
@@ -107,6 +107,50 @@ export class ProviderApplicationBuilder {
     this.wrapContext,
     this.errorHandler,
   ]);
+
+  private translateError(ctx: IAMServerRequestContext, error: OIDCError): OIDCError {
+    error.error_description = I18N.translate(`${error.error}.description`, error.error_description, {
+      ns: "error",
+      lng: ctx.locale.language,
+    });
+
+    // translate validation error data
+    if (error.error === IAMErrors.ValidationError.name && error.data) {
+      /* to translate validation error field labels, send request like..
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json;charset=UTF-8",
+        "Payload-Labels": Buffer.from(JSON.stringify({
+          "email": "이메일",
+          "password": "패스워드",
+          "nested.field": "...",
+        }), "utf8").toString("base64"),
+      },
+      */
+      let labels: any;
+      try {
+        const encodedLabels = ctx.request.get("Payload-Labels");
+        if (encodedLabels) {
+          labels = JSON.parse(Buffer.from(encodedLabels, "base64").toString("utf8"));
+        }
+      } catch (err) {
+        this.logger.error(err);
+      }
+      for (const entry of error.data) {
+        const { actual, expected, type, field } = entry;
+        entry.message = I18N.translate(`${error.error}.data.${type}`, entry.message, {
+          ns: "error",
+          lng: ctx.locale.language,
+          // @ts-ignore
+          actual,
+          expected: (expected && type === "equalField" && labels && labels[expected]) || expected,
+          field: (field && labels && labels[field]) || field,
+        });
+      }
+    }
+
+    return error;
+  }
 
   // default render function
   public setRendererFactory<F extends ApplicationRendererFactory>(factory: F, options?: F extends ApplicationRendererFactory<infer O> ? O : never) {
@@ -314,11 +358,12 @@ export class ProviderApplicationBuilder {
   public _dangerouslyBuild() {
     this.builder.assertBuilding();
 
-    // normalize xhr error response, ref: https://github.com/panva/node-oidc-provider/blob/master/lib/shared/error_handler.js#L49
+    // normalize oidc-provider original error for xhr error response, ref: https://github.com/panva/node-oidc-provider/blob/master/lib/shared/error_handler.js#L49
     this.op.app.middleware.unshift(async (ctx, next) => {
       await next();
-      if (ctx.body && ctx.body.error_description) {
-        ctx.body = { error: ctx.body };
+      if (ctx.body && typeof ctx.body.error === "string") {
+        ctx.body.error = pascalCase(ctx.body.error);
+        ctx.body = { error: this.translateError(ctx as any, ctx.body as OIDCError) };
       }
     });
 

@@ -73,13 +73,6 @@ class SinglePageApplicationRenderer implements ApplicationRenderer {
         dynamic: this.props.dev,
         preload: !this.props.dev,
       }),
-      (ctx, next) => {
-        if (ctx.path === "/") {
-          ctx.body = "<html><body><a href='/op/auth?client_id=localhost-9090&response_type=id_token&scope=openid+email&nonce=foobar&prompt=login&redirect_uri=http://localhost:9090'><h1>sign in</h1></a></body></html>";
-          return;
-        }
-        return next();
-      },
     ];
   };
 }

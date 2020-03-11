@@ -6,8 +6,8 @@ export const defaultStaticConfig: StaticConfiguration = {
     claim_types_supported: [
       "normal",
     ],
-    claims_locales_supported: ["en-US"],
-    ui_locales_supported: ["en-US"],
+    claims_locales_supported: ["en-US", "ko-KR"],
+    ui_locales_supported: ["en-US", "ko-KR"],
     display_values_supported: ["page", "popup"],
     op_tos_uri: null,
     op_policy_uri: null,

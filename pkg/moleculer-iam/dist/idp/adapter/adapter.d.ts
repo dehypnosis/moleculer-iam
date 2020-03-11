@@ -4,7 +4,7 @@ import { FindOptions, WhereAttributeHash } from "../../helper/rdbms";
 import { OIDCAccountClaims, OIDCAccountCredentials } from "../../op";
 import { IdentityMetadata } from "../metadata";
 import { IdentityClaimsSchema } from "../claims";
-import { ValidationError } from "../../validator";
+import { ValidationError } from "../../helper/validator";
 export declare type IDPAdapterProps = {
     logger?: Logger;
 };

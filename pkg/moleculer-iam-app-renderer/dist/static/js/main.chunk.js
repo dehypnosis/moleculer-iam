@@ -41,8 +41,8 @@ function getInitialAppState() {
   return window.__APP_STATE__ || {
     name: "error",
     error: {
-      error: "unexpected_error",
-      error_description: "Unrecognized state received from server."
+      error: "UnexpectedError",
+      error_description: "Unexpected Error."
     }
   };
 }
@@ -847,7 +847,7 @@ const routeConfig = {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "AppStateContext", function() { return AppStateContext; });
+/* WEBPACK VAR INJECTION */(function(Buffer) {/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "AppStateContext", function() { return AppStateContext; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "useAppState", function() { return useAppState; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "AppStateProvider", function() { return AppStateProvider; });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "../../node_modules/react/index.js");
@@ -873,7 +873,7 @@ class AppStateProvider extends react__WEBPACK_IMPORTED_MODULE_0___default.a.Comp
       appState: Object(_client__WEBPACK_IMPORTED_MODULE_2__["getInitialAppState"])()
     };
 
-    this.dispatch = async (name, userPayload = {}) => {
+    this.dispatch = async (name, userPayload = {}, payloadLabels = {}) => {
       const routes = this.state.appState.routes;
       const route = routes && routes[name];
 
@@ -893,13 +893,15 @@ class AppStateProvider extends react__WEBPACK_IMPORTED_MODULE_0___default.a.Comp
         method,
         payload
       } = route;
+      const localeQuery = (window.location.search.substr(1).split("&").find(s => s.startsWith("locale=")) || "").split("=")[1];
+      const urlWithLocale = localeQuery ? `${url}?locale=` + localeQuery : url;
       const mergedPayload = { ...payload,
         ...userPayload
       }; // form submission required (application/x-www-form-urlencoded)
 
       if (synchronous) {
         const form = document.createElement("form");
-        form.action = url;
+        form.action = urlWithLocale;
         form.method = method;
         form.style.display = "none"; // tslint:disable-next-line:forin
 
@@ -917,10 +919,11 @@ class AppStateProvider extends react__WEBPACK_IMPORTED_MODULE_0___default.a.Comp
       } // as xhr
 
 
-      return fetch(url, {
+      return fetch(urlWithLocale, {
         headers: {
           "Accept": "application/json",
-          "Content-Type": "application/json;charset=UTF-8"
+          "Content-Type": "application/json;charset=UTF-8",
+          "Payload-Labels": Buffer.from(JSON.stringify(payloadLabels), "utf8").toString("base64")
         },
         credentials: "same-origin",
         method,
@@ -930,11 +933,15 @@ class AppStateProvider extends react__WEBPACK_IMPORTED_MODULE_0___default.a.Comp
         return res.json().then(data => {
           if (data.error) {
             // got error response
-            if (res.status === 422 && data.error.fields) {
+            if (res.status === 422 && data.error.data) {
               // got validation error
-              console.error("validation error", data.error); // eslint-disable-next-line no-throw-literal
+              const fields = data.error.data.reduce((obj, entry) => {
+                obj[entry.field] = obj[entry.field] || entry.message;
+                return obj;
+              }, {});
+              console.error("validation error", data.error, fields); // eslint-disable-next-line no-throw-literal
 
-              throw data.error.fields;
+              throw fields;
             } else {
               const err = {
                 global: typeof data.error === "object" ? data.error.error_description || data.error.error || JSON.stringify(data.error) : data.error.toString()
@@ -1037,6 +1044,7 @@ class AppStateProvider extends react__WEBPACK_IMPORTED_MODULE_0___default.a.Comp
 
 }
 AppStateProvider.contextType = _options__WEBPACK_IMPORTED_MODULE_3__["AppOptionsContext"];
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./../../../../node_modules/buffer/index.js */ "../../node_modules/buffer/index.js").Buffer))
 
 /***/ }),
 
@@ -3121,16 +3129,13 @@ var _jsxFileName = "/Users/dehypnosis/Synced/qmit/moleculer-iam/pkg/moleculer-ia
 
 const ErrorScreen = () => {
   const [state] = Object(_hook__WEBPACK_IMPORTED_MODULE_2__["useAppState"])();
-  const error = state.error || {
-    error: "unexpected_server_error",
-    error_description: "unrecognized state received from server."
-  };
+  const error = state.error;
   const {
     closed,
     close
   } = Object(_hook__WEBPACK_IMPORTED_MODULE_2__["useClose"])();
   return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component_layout__WEBPACK_IMPORTED_MODULE_1__["ScreenLayout"], {
-    title: error.error.split("_").map(w => w[0].toUpperCase() + w.substr(1)).join(" "),
+    title: error.error,
     subtitle: error.error_description,
     error: closed ? "Please close the window manually." : undefined,
     loading: closed,
@@ -3293,6 +3298,8 @@ const FindEmailIndexScreen = () => {
     dispatch("verify_phone.check_phone", {
       phone_number: `${state.locale.country}|${phoneNumber}`,
       registered: true
+    }, {
+      phone_number: "핸드폰 번호"
     }).then(() => {
       setErrors({});
       nav.navigate("verify_phone.stack", {
@@ -3331,7 +3338,7 @@ const FindEmailIndexScreen = () => {
     error: errors.global,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 39
+      lineNumber: 41
     },
     __self: undefined
   }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_2__["Text"], {
@@ -3340,7 +3347,7 @@ const FindEmailIndexScreen = () => {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 61
+      lineNumber: 63
     },
     __self: undefined
   }, "Have you registered a phone number?"), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_2__["FormInput"], {
@@ -3357,7 +3364,7 @@ const FindEmailIndexScreen = () => {
     onEnter: handleCheckPhoneNumber,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 64
+      lineNumber: 66
     },
     __self: undefined
   }));
@@ -3407,6 +3414,9 @@ const LoginCheckPasswordScreen = () => {
     return dispatch("login.check_password", {
       email,
       password
+    }, {
+      email: "이메일",
+      password: "패스워드"
     }).catch(err => setErrors(err));
   }, [password]);
   const [handleResetPassword, handleResetPasswordLoading] = withLoading(() => {
@@ -3462,14 +3472,14 @@ const LoginCheckPasswordScreen = () => {
     }],
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 51
+      lineNumber: 54
     },
     __self: undefined
   }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_2__["Form"], {
     onSubmit: handleCheckLoginPassword,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 83
+      lineNumber: 86
     },
     __self: undefined
   }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_2__["FormInput"], {
@@ -3480,7 +3490,7 @@ const LoginCheckPasswordScreen = () => {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 85
+      lineNumber: 88
     },
     __self: undefined
   }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_2__["FormInput"], {
@@ -3496,7 +3506,7 @@ const LoginCheckPasswordScreen = () => {
     onEnter: handleCheckLoginPassword,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 90
+      lineNumber: 93
     },
     __self: undefined
   })));
@@ -3547,6 +3557,8 @@ const LoginIndexScreen = () => {
   const [handleCheckLoginEmail, handleCheckLoginEmailLoading] = withLoading(() => {
     return dispatch("login.check_email", {
       email
+    }, {
+      email: "이메일"
     }).then(() => {
       setErrors({});
       nav.navigate("login.stack", {
@@ -3635,14 +3647,14 @@ const LoginIndexScreen = () => {
     }],
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 77
+      lineNumber: 79
     },
     __self: undefined
   }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_2__["Form"], {
     onSubmit: handleCheckLoginEmail,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 130
+      lineNumber: 132
     },
     __self: undefined
   }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_2__["FormInput"], {
@@ -3657,7 +3669,7 @@ const LoginIndexScreen = () => {
     onEnter: handleCheckLoginEmail,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 131
+      lineNumber: 133
     },
     __self: undefined
   })));
@@ -3975,7 +3987,11 @@ const RegisterDetailScreen = () => {
       credentials: tmpCreds,
       scope: ["email", "profile", "birthdate", "gender"].concat(phoneNumberRequired || phone_number ? "phone" : [])
     };
-    return dispatch("register.submit", data).then(() => {
+    return dispatch("register.submit", data, {
+      phone_number: "핸드폰 번호",
+      birthdate: "생년월일",
+      gender: "성별"
+    }).then(() => {
       setErrors({}); // verify email
 
       if (data.claims.phone_number && !options.register.skipPhoneVerification && !phoneNumberVerified) {
@@ -4029,7 +4045,7 @@ const RegisterDetailScreen = () => {
     }],
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 83
+      lineNumber: 87
     },
     __self: undefined
   }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_1__["Text"], {
@@ -4038,14 +4054,14 @@ const RegisterDetailScreen = () => {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 104
+      lineNumber: 108
     },
     __self: undefined
   }, "Please enter the phone number to find the your account for the case of lost."), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_1__["Form"], {
     onSubmit: handlePayloadSubmit,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 108
+      lineNumber: 112
     },
     __self: undefined
   }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_1__["FormInput"], {
@@ -4067,7 +4083,7 @@ const RegisterDetailScreen = () => {
       style: s,
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 121
+        lineNumber: 125
       },
       __self: undefined
     }) : undefined,
@@ -4076,7 +4092,7 @@ const RegisterDetailScreen = () => {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 109
+      lineNumber: 113
     },
     __self: undefined
   }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_1__["FormDatePicker"], {
@@ -4093,7 +4109,7 @@ const RegisterDetailScreen = () => {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 125
+      lineNumber: 129
     },
     __self: undefined
   }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_1__["FormSelect"], {
@@ -4117,7 +4133,7 @@ const RegisterDetailScreen = () => {
     error: errors.gender,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 135
+      lineNumber: 139
     },
     __self: undefined
   })));
@@ -4265,7 +4281,12 @@ const RegisterIndexScreen = () => {
       },
       scope: ["email", "profile"]
     };
-    return dispatch("register.submit", data).then(() => {
+    return dispatch("register.submit", data, {
+      name: "이름",
+      email: "이메일",
+      password: "패스워드",
+      password_confirmation: "패스워드 확인"
+    }).then(() => {
       setErrors({}); // verify email
 
       if (!options.register.skipEmailVerification && !emailVerified) {
@@ -4340,14 +4361,14 @@ const RegisterIndexScreen = () => {
     }],
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 92
+      lineNumber: 97
     },
     __self: undefined
   }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_1__["Form"], {
     onSubmit: handlePayloadSubmit,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 132
+      lineNumber: 137
     },
     __self: undefined
   }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_1__["FormInput"], {
@@ -4368,7 +4389,7 @@ const RegisterIndexScreen = () => {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 133
+      lineNumber: 138
     },
     __self: undefined
   }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_1__["FormInput"], {
@@ -4386,7 +4407,7 @@ const RegisterIndexScreen = () => {
       style: s,
       __source: {
         fileName: _jsxFileName,
-        lineNumber: 154
+        lineNumber: 159
       },
       __self: undefined
     }) : undefined,
@@ -4397,7 +4418,7 @@ const RegisterIndexScreen = () => {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 146
+      lineNumber: 151
     },
     __self: undefined
   }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_1__["FormInput"], {
@@ -4417,7 +4438,7 @@ const RegisterIndexScreen = () => {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 159
+      lineNumber: 164
     },
     __self: undefined
   }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_1__["FormInput"], {
@@ -4434,7 +4455,7 @@ const RegisterIndexScreen = () => {
     onEnter: handlePayloadSubmit,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 171
+      lineNumber: 176
     },
     __self: undefined
   })), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_1__["Text"], {
@@ -4443,7 +4464,7 @@ const RegisterIndexScreen = () => {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 183
+      lineNumber: 188
     },
     __self: undefined
   }, "By continuing, you are agreeing to the terms of service and the privacy policy."));
@@ -4566,6 +4587,8 @@ const ResetPasswordIndexScreen = () => {
     dispatch("verify_email.check_email", {
       email,
       registered: true
+    }, {
+      email: "이메일"
     }).then(() => {
       setErrors({});
       nav.navigate("verify_email.stack", {
@@ -4614,7 +4637,7 @@ const ResetPasswordIndexScreen = () => {
     }],
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 52
+      lineNumber: 54
     },
     __self: undefined
   }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_2__["Text"], {
@@ -4623,7 +4646,7 @@ const ResetPasswordIndexScreen = () => {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 74
+      lineNumber: 76
     },
     __self: undefined
   }, "Verify your registered email address."), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_2__["FormInput"], {
@@ -4640,7 +4663,7 @@ const ResetPasswordIndexScreen = () => {
     onEnter: handleCheckEmail,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 77
+      lineNumber: 79
     },
     __self: undefined
   }));
@@ -4688,6 +4711,10 @@ const ResetPasswordSetScreen = () => {
     return dispatch("reset_password.set", {
       email,
       ...payload
+    }, {
+      email: "이메일",
+      password: "패스워드",
+      password_confirmation: "패스워드 확인"
     }).then(() => {
       setErrors({});
       nav.navigate("reset_password.stack", {
@@ -4726,7 +4753,7 @@ const ResetPasswordSetScreen = () => {
     }],
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 44
+      lineNumber: 48
     },
     __self: undefined
   }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_2__["Text"], {
@@ -4735,14 +4762,14 @@ const ResetPasswordSetScreen = () => {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 66
+      lineNumber: 70
     },
     __self: undefined
   }, "Set a new password for your account."), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_2__["Form"], {
     onSubmit: handleResetPassword,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 69
+      lineNumber: 73
     },
     __self: undefined
   }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_2__["FormInput"], {
@@ -4753,7 +4780,7 @@ const ResetPasswordSetScreen = () => {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 71
+      lineNumber: 75
     },
     __self: undefined
   }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_2__["FormInput"], {
@@ -4774,7 +4801,7 @@ const ResetPasswordSetScreen = () => {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 76
+      lineNumber: 80
     },
     __self: undefined
   }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_2__["FormInput"], {
@@ -4791,7 +4818,7 @@ const ResetPasswordSetScreen = () => {
     onEnter: handleResetPassword,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 89
+      lineNumber: 93
     },
     __self: undefined
   })));
@@ -4889,6 +4916,8 @@ const VerifyEmailIndexScreen = () => {
     dispatch("verify_email.check_email", {
       email,
       registered: true
+    }, {
+      email: "이메일"
     }).then(() => {
       setErrors({});
       nav.navigate("verify_email.stack", {
@@ -4919,7 +4948,7 @@ const VerifyEmailIndexScreen = () => {
     }],
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 41
+      lineNumber: 43
     },
     __self: undefined
   }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_2__["Text"], {
@@ -4928,7 +4957,7 @@ const VerifyEmailIndexScreen = () => {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 55
+      lineNumber: 57
     },
     __self: undefined
   }, "Verify your registered email address."), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_2__["FormInput"], {
@@ -4945,7 +4974,7 @@ const VerifyEmailIndexScreen = () => {
     onEnter: handleCheckEmail,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 58
+      lineNumber: 60
     },
     __self: undefined
   }));
@@ -5020,6 +5049,8 @@ const VerifyEmailVerifyScreen = () => {
   const [handleSend, handleSendLoading] = withLoading(() => {
     return dispatch("verify_email.send", {
       email
+    }, {
+      email: "이메일"
     }).then(s => {
       setErrors({}); // for dev
 
@@ -5122,7 +5153,7 @@ const VerifyEmailVerifyScreen = () => {
     error: errors.global,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 118
+      lineNumber: 120
     },
     __self: undefined
   }, expiresAt ? react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(react__WEBPACK_IMPORTED_MODULE_1___default.a.Fragment, null, react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_4__["Text"], {
@@ -5131,7 +5162,7 @@ const VerifyEmailVerifyScreen = () => {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 148
+      lineNumber: 150
     },
     __self: undefined
   }, "Enter the received 6-digit verification code."), react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_4__["FormInput"], {
@@ -5148,7 +5179,7 @@ const VerifyEmailVerifyScreen = () => {
     onEnter: handleVerify,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 151
+      lineNumber: 153
     },
     __self: undefined
   })) : react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(react__WEBPACK_IMPORTED_MODULE_1___default.a.Fragment, null, react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_4__["Text"], {
@@ -5157,7 +5188,7 @@ const VerifyEmailVerifyScreen = () => {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 167
+      lineNumber: 169
     },
     __self: undefined
   }, "An email with a verification code will be sent to verify the email address."), react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(react_native__WEBPACK_IMPORTED_MODULE_2__["Image"], {
@@ -5171,7 +5202,7 @@ const VerifyEmailVerifyScreen = () => {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 170
+      lineNumber: 172
     },
     __self: undefined
   })));
@@ -5268,6 +5299,8 @@ const VerifyPhoneIndexScreen = () => {
     dispatch("verify_phone.check_phone", {
       phone_number: `${state.locale.country}|${phoneNumber}`,
       registered: true
+    }, {
+      phone_number: "핸드폰 번호"
     }).then(() => {
       setErrors({});
       nav.navigate("verify_phone.stack", {
@@ -5298,7 +5331,7 @@ const VerifyPhoneIndexScreen = () => {
     }],
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 39
+      lineNumber: 41
     },
     __self: undefined
   }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_2__["Text"], {
@@ -5307,7 +5340,7 @@ const VerifyPhoneIndexScreen = () => {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 53
+      lineNumber: 55
     },
     __self: undefined
   }, "Verify your registered phone number."), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_2__["FormInput"], {
@@ -5324,7 +5357,7 @@ const VerifyPhoneIndexScreen = () => {
     onEnter: handleCheckPhoneNumber,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 56
+      lineNumber: 58
     },
     __self: undefined
   }));
@@ -5398,6 +5431,8 @@ const VerifyPhoneVerifyScreen = () => {
   const [handleSend, handleSendLoading] = withLoading(() => {
     return dispatch("verify_phone.send", {
       phone_number: state.session.verifyPhone.phoneNumber
+    }, {
+      phone_number: "핸드폰 번호"
     }).then(s => {
       setErrors({}); // for dev
 
@@ -5440,6 +5475,9 @@ const VerifyPhoneVerifyScreen = () => {
       phone_number: state.session.verifyPhone.phoneNumber,
       secret,
       callback
+    }, {
+      phone_number: "핸드폰 번호",
+      secret: "인증 코드"
     }).then(() => {
       setErrors({});
 
@@ -5492,7 +5530,7 @@ const VerifyPhoneVerifyScreen = () => {
     error: errors.global,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 110
+      lineNumber: 115
     },
     __self: undefined
   }, expiresAt ? react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(react__WEBPACK_IMPORTED_MODULE_1___default.a.Fragment, null, react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_3__["Text"], {
@@ -5501,7 +5539,7 @@ const VerifyPhoneVerifyScreen = () => {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 140
+      lineNumber: 145
     },
     __self: undefined
   }, "Enter the received 6-digit verification code."), react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_3__["FormInput"], {
@@ -5518,7 +5556,7 @@ const VerifyPhoneVerifyScreen = () => {
     onEnter: handleVerify,
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 143
+      lineNumber: 148
     },
     __self: undefined
   })) : react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(react__WEBPACK_IMPORTED_MODULE_1___default.a.Fragment, null, react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(_component__WEBPACK_IMPORTED_MODULE_3__["Text"], {
@@ -5527,7 +5565,7 @@ const VerifyPhoneVerifyScreen = () => {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 159
+      lineNumber: 164
     },
     __self: undefined
   }, "A text message with a verification code will be sent to verify the phone number."), react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(react_native__WEBPACK_IMPORTED_MODULE_2__["Image"], {
@@ -5541,7 +5579,7 @@ const VerifyPhoneVerifyScreen = () => {
     },
     __source: {
       fileName: _jsxFileName,
-      lineNumber: 162
+      lineNumber: 167
     },
     __self: undefined
   })));
@@ -5660,5 +5698,5 @@ module.exports = __webpack_require__(/*! /Users/dehypnosis/Synced/qmit/moleculer
 
 /***/ })
 
-},[[1,"runtime-main",0]]]);
+},[[1,"runtime-main",1]]]);
 //# sourceMappingURL=main.chunk.js.map

@@ -11,8 +11,8 @@ export function getInitialAppState(): ApplicationState {
   return ((window as any).__APP_STATE__ || {
     name: "error",
     error: {
-      error: "unexpected_error",
-      error_description: "Unrecognized state received from server.",
+      error: "UnexpectedError",
+      error_description: "Unexpected Error.",
     },
   }) as ApplicationState;
 }

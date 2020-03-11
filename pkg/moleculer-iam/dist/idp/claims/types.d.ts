@@ -1,4 +1,4 @@
-import { ValidationRule, ValidationSchema } from "../../validator";
+import { ValidationRule, ValidationSchema } from "../../helper/validator";
 export interface IdentityClaimsSchema extends IdentityClaimsSchemaPayload {
     version: string;
     active: boolean;

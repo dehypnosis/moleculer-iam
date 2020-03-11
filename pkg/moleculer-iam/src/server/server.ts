@@ -13,7 +13,7 @@ import compose from "koa-compose";
 import redirectTrailingSlash from "koa-no-trailing-slash";
 // @ts-ignore
 import useLocale from "koa-locale";
-import { Logger } from "../logger";
+import { Logger } from "../helper/logger";
 import { OIDCProvider, ParsedLocale } from "../op";
 import { logging, LoggingOptions } from "./logging";
 
@@ -96,12 +96,13 @@ export class IAMServer {
       return next()
         .then(() => {
           // reassign locale query for redirection response
-          if (ctx.headerSent || !ctx.query.locale) return;
-          const redirect = ctx.response.get("Location");
-          if (redirect.startsWith("/") || redirect.startsWith(op.issuer)) {
-            const { protocol, auth, slashes, host, hash, query, pathname } = url.parse(redirect, true);
-            query.locale = ctx.query.locale;
-            ctx.response.set("Location", url.format({ protocol, auth, slashes, host, hash, query, pathname }));
+          if (!ctx.headerSent && ctx.query.locale) {
+            const redirect = ctx.response.get("Location");
+            if (redirect.startsWith("/") || redirect.startsWith(op.issuer)) {
+              const { protocol, auth, slashes, host, hash, query, pathname } = url.parse(redirect, true);
+              query.locale = ctx.query.locale;
+              ctx.response.set("Location", url.format({ protocol, auth, slashes, host, hash, query, pathname }));
+            }
           }
         });
     });
@@ -124,15 +125,13 @@ export class IAMServer {
     const { op } = this.props;
     await op.start();
 
-    // FIXME: change extending app signature....
     // mount optional app routes and oidc provider routes
-    const opRoutes = mount(op.app);
     if (this.options.app) {
-      const appRoutes = await this.options.app(op);
-      this.app.use(compose([appRoutes, opRoutes]));
-    } else {
-      this.app.use(opRoutes);
+      this.app.use(await this.options.app(op));
     }
+
+    // mount op app
+    this.app.use(mount(op.app));
 
     // start servers
     const config = this.options;
