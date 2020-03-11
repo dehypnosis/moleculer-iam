@@ -1,1 +1,0 @@
-{"version":3,"file":"adapter.memory.spec.js","sourceRoot":"","sources":["../../../src/idp/__test__/adapter.memory.spec.ts"],"names":[],"mappings":";;AAAA,gCAA0C;AAC1C,+DAA4D;AAE5D,MAAM,GAAG,GAAG,IAAI,sBAAgB,CAAC;IAC/B,MAAM,EAAE,OAAO;CAChB,EAAE;IACD,OAAO,EAAE;QACP,IAAI,EAAE,QAAQ;QACd,OAAO,EAAE,EAAE;KACZ;CACF,CAAC,CAAC;AAEH,yCAAmB,CAAC,GAAG,CAAC,CAAC"}

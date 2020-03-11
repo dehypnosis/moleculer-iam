@@ -1,1 +1,0 @@
-{"version":3,"file":"app.js","sourceRoot":"","sources":["../../../src/examples/qmit/app.ts"],"names":[],"mappings":";;;AAAA,oEAAgC;AAGnB,QAAA,GAAG,GAAG,KAAK,EAAE,EAAgB,EAAE,EAAE;IAC5C,MAAM,MAAM,GAAG,IAAI,oBAAM,CAAC;QACxB,SAAS,EAAE,KAAK;QAChB,MAAM,EAAE,KAAK;KACd,CAAC,CAAC;IAEH,cAAc;IAEd,OAAO,MAAM,CAAC,MAAM,EAAE,CAAC;AACzB,CAAC,CAAC"}

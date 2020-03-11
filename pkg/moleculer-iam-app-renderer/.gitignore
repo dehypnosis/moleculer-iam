@@ -1,2 +1,2 @@
 *.hot-update.*
-./dist
+dist/*
