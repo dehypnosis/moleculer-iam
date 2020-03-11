@@ -57,6 +57,9 @@ yarn add moleculer-iam
 
 
 # Development
+## build
+- `yarn build-all`
+
 ## 1. moleculer-iam
 ### OIDC Provider + IDP + Moleculer service
 - `yarn workspace moleculer-iam dev [example=simple]` - Start development with [./examples](./examples) (nodemon with ts-node)

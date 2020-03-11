@@ -1,2 +1,2 @@
 *.hot-update.*
-build
+./dist
