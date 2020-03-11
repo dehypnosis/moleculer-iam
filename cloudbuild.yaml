@@ -32,7 +32,7 @@ steps:
       - '-c'
       - |
         (docker pull ${_IMAGE}:latest || true) \
-          && docker build . -f ./pkg/moleculer-iam/src/examples/qmit/Dockerfile -t ${_IMAGE}:ci-${SHORT_SHA} --cache-from ${_IMAGE}:latest \
+          && docker build . -f ./Dockerfile -t ${_IMAGE}:ci-${SHORT_SHA} --cache-from ${_IMAGE}:latest \
           && docker push ${_IMAGE}:ci-${SHORT_SHA} \
           && echo "DONE: ${_IMAGE}:ci-${SHORT_SHA} pushed"
 
@@ -52,7 +52,7 @@ steps:
           --generator=run-pod/v1 \
           --image ${_IMAGE}:ci-${SHORT_SHA} \
           --rm -i --restart=Never --attach --pod-running-timeout=5m \
-          -- npm run test-with-examples
+          -- yarn workspace moleculer-iam test-with-examples
 
   - id: '[develop] push the temporary image with :latest tag'
     name: 'gcr.io/cloud-builders/docker'
