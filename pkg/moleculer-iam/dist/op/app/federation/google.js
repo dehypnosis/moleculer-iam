@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
 const request_promise_native_1 = tslib_1.__importDefault(require("request-promise-native"));
 const passport_google_oauth_1 = require("passport-google-oauth");
-const idp_1 = require("../../../idp");
+const error_1 = require("../../proxy/error");
 // add https://www.googleapis.com/auth/user.phonenumbers.read
 // to get phone number with user confirmation
 exports.googleProviderConfiguration = {
@@ -23,7 +23,7 @@ exports.googleProviderConfiguration = {
         delete claims.sub;
         delete claims.hd;
         if (!claims.email) {
-            throw new idp_1.Errors.UnexpectedError("cannot federate without an email address");
+            throw new error_1.OIDCProviderProxyErrors.FederationRequestWithoutEmailPayload();
         }
         if (!claims.email_verified) {
             delete claims.email_verified;
@@ -39,14 +39,14 @@ exports.googleProviderConfiguration = {
             // if (identity) {
             //   const oldClaims = await identity.claims("userinfo", "email");
             //   if (!oldClaims.email_verified) {
-            //     throw new Errors.UnexpectedError("cannot federate an existing account with non-verified email address");
+            //     throw new IAMErrors.UnexpectedError("cannot federate an existing account with non-verified email address");
             //   }
             // }
         }
         // if has existing identity
         if (identity) {
             if (await identity.isSoftDeleted()) {
-                throw new idp_1.Errors.UnexpectedError("cannot federate a deleted account");
+                throw new error_1.OIDCProviderProxyErrors.FederationRequestForDeletedAccount();
             }
             // if phone scope is requested
             if (props.scope.some(s => s.includes("phone"))) {

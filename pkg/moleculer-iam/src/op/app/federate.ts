@@ -17,7 +17,7 @@ export function buildFederateRoutes(builder: ProviderConfigBuilder, opts: Applic
       const provider = ctx.params.provider;
       const user = await federation.handleCallback(ctx, next, provider);
       if (!user) {
-        throw new IAMErrors.IdentityNotExistsError();
+        throw new IAMErrors.IdentityNotExists();
       }
 
       // make user signed in

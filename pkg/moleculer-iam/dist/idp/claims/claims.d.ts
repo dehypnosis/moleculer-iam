@@ -1,4 +1,4 @@
-import { Logger } from "../../logger";
+import { Logger } from "../../helper/logger";
 import { IDPAdapter } from "../adapter";
 import { IdentityClaimsSchema, IdentityClaimsSchemaPayload } from "./types";
 import { WhereAttributeHash } from "../../helper/rdbms";
@@ -16,7 +16,7 @@ export declare class IdentityClaimsManager {
     private readonly logger;
     private readonly options;
     constructor(props: IdentityClaimsManagerProps, opts?: Partial<IdentityClaimsManagerOptions>);
-    private get adapter();
+    private readonly adapter;
     start(): Promise<void>;
     stop(): Promise<void>;
     private hashClaimsSchemaPayload;
@@ -25,7 +25,7 @@ export declare class IdentityClaimsManager {
     private compileClaimsMigrationStrategy;
     readonly mandatoryScopes: ReadonlyArray<string>;
     private _supportedScopes;
-    get supportedScopes(): {
+    readonly supportedScopes: {
         [scope: string]: string[];
     };
     private syncSupportedScopes;

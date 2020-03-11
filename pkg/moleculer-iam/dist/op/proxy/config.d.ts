@@ -1,6 +1,6 @@
 import { Provider, Configuration } from "oidc-provider";
 import { IdentityProvider } from "../../idp";
-import { Logger } from "../../logger";
+import { Logger } from "../../helper/logger";
 import { OIDCAdapterProxy, OIDCAdapterProxyConstructorOptions } from "./adapter";
 import { ProviderApplicationBuilder } from "./app";
 import { DiscoveryMetadata } from "./proxy.types";

@@ -10,7 +10,6 @@ const koa_1 = tslib_1.__importDefault(require("koa"));
 const koa_helmet_1 = tslib_1.__importDefault(require("koa-helmet"));
 const koa_json_1 = tslib_1.__importDefault(require("koa-json"));
 const koa_mount_1 = tslib_1.__importDefault(require("koa-mount"));
-const koa_compose_1 = tslib_1.__importDefault(require("koa-compose"));
 // @ts-ignore
 const koa_no_trailing_slash_1 = tslib_1.__importDefault(require("koa-no-trailing-slash"));
 // @ts-ignore
@@ -46,13 +45,13 @@ class IAMServer {
             return next()
                 .then(() => {
                 // reassign locale query for redirection response
-                if (ctx.headerSent || !ctx.query.locale)
-                    return;
-                const redirect = ctx.response.get("Location");
-                if (redirect.startsWith("/") || redirect.startsWith(op.issuer)) {
-                    const { protocol, auth, slashes, host, hash, query, pathname } = url.parse(redirect, true);
-                    query.locale = ctx.query.locale;
-                    ctx.response.set("Location", url.format({ protocol, auth, slashes, host, hash, query, pathname }));
+                if (!ctx.headerSent && ctx.query.locale) {
+                    const redirect = ctx.response.get("Location");
+                    if (redirect.startsWith("/") || redirect.startsWith(op.issuer)) {
+                        const { protocol, auth, slashes, host, hash, query, pathname } = url.parse(redirect, true);
+                        query.locale = ctx.query.locale;
+                        ctx.response.set("Location", url.format({ protocol, auth, slashes, host, hash, query, pathname }));
+                    }
                 }
             });
         });
@@ -64,16 +63,12 @@ class IAMServer {
         // start op
         const { op } = this.props;
         await op.start();
-        // FIXME: change extending app signature....
         // mount optional app routes and oidc provider routes
-        const opRoutes = koa_mount_1.default(op.app);
         if (this.options.app) {
-            const appRoutes = await this.options.app(op);
-            this.app.use(koa_compose_1.default([appRoutes, opRoutes]));
+            this.app.use(await this.options.app(op));
         }
-        else {
-            this.app.use(opRoutes);
-        }
+        // mount op app
+        this.app.use(koa_mount_1.default(op.app));
         // start servers
         const config = this.options;
         const handler = this.app.callback();

@@ -180,7 +180,7 @@ class IDP_RDBMS_Adapter extends adapter_1.IDPAdapter {
     async assertCredentials(id, credentials) {
         const model = await this.IdentityCredentials.findOne({ where: { id } });
         if (!model) {
-            return false;
+            return null;
         }
         const hashedCredentials = model.get({ plain: true });
         if (credentials.password) {
@@ -191,7 +191,7 @@ class IDP_RDBMS_Adapter extends adapter_1.IDPAdapter {
             });
         }
         this.logger.error(`unimplemented credentials type: ${Object.keys(credentials)}`);
-        return false;
+        return null;
     }
     /* claims schema */
     get IdentityClaimsSchema() {

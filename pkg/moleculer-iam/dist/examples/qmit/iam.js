@@ -38,7 +38,7 @@ exports.broker.createService(__1.IAMServiceSchema(_.defaultsDeep({
                 options: {
                     register: {
                         skipEmailVerification: true,
-                        skipPhoneVerification: true,
+                        skipPhoneVerification: false,
                     },
                 },
             },

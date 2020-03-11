@@ -4,6 +4,7 @@ const tslib_1 = require("tslib");
 const kleur = tslib_1.__importStar(require("kleur"));
 const uuid_1 = tslib_1.__importDefault(require("uuid"));
 const accept_language_parser_1 = require("accept-language-parser");
+const i18n_1 = require("../../helper/i18n");
 const app_1 = require("../app");
 const config_1 = require("./config");
 const error_types_1 = require("./error.types");
@@ -38,20 +39,24 @@ class OIDCProviderProxy {
         return this.hidden.configuration();
     }
     get supportedLocales() {
-        return this.configuration.discovery.ui_locales_supported || [];
+        if (!this._supportedLocales) {
+            this._supportedLocales = [...new Set([...this.configuration.discovery.ui_locales_supported || [], ...i18n_1.I18N.supportedLanguages])];
+        }
+        return this._supportedLocales;
     }
     parseLocale(locale) {
         const locales = this.supportedLocales;
         const raw = accept_language_parser_1.pick(locales, locale || "", { loose: true }) || locales[0] || "ko-KR";
         const [language, country] = raw.split("-");
         const [_, requestCountry] = (locale || "").split("-"); // request locale country will take precedence over matched one
-        return { language: language || "ko", country: requestCountry || country || "KR" };
+        return { language, country: requestCountry || country || "KR" };
     }
     get issuer() {
         return this.provider.issuer;
     }
-    start() {
-        return this.adapter.start();
+    async start() {
+        await this.adapter.start();
+        await this.syncSupportedClaimsAndScopes();
     }
     stop() {
         return this.adapter.stop();

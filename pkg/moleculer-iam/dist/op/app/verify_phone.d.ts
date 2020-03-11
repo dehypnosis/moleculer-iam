@@ -1,4 +1,4 @@
-import { Logger } from "../../logger";
+import { Logger } from "../../helper/logger";
 import { ProviderConfigBuilder } from "../proxy";
 import { ApplicationBuildOptions } from "./index";
 export declare type IdentityPhoneVerificationArgs = {

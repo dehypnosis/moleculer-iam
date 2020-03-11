@@ -22,36 +22,24 @@ class InvalidCredentialsError extends IdentityProviderError {
         super(400, "InvalidCredentials", "Invalid credentials.");
     }
 }
+class UnsupportedCredentialsError extends IdentityProviderError {
+    constructor() {
+        super(400, "UnsupportedCredentials", "Cannot use the given type of credentials.");
+    }
+}
 class ValidationError extends IdentityProviderError {
     constructor(data, debug) {
-        super(422, "ValidationFailed", "Validation failed.");
+        super(422, "ValidationFailed", "Failed to validate given payload.");
         this.data = data;
         this.debug = debug;
     }
 }
-class MigrationError extends IdentityProviderError {
-    constructor(desc) {
-        super(500, "MigrationError", desc);
-    }
-}
-class UnexpectedError extends IdentityProviderError {
-    constructor(message = "Unexpected Error.", status = 500) {
-        super(status, "UnexpectedError", message);
-    }
-}
-class BadRequestError extends IdentityProviderError {
-    constructor(message = "Bad Request", status = 400) {
-        super(status, "BadRequest", message);
-    }
-}
-exports.Errors = {
+exports.IAMErrors = {
     IdentityProviderError,
     IdentityAlreadyExistsError,
     IdentityNotExistsError,
     InvalidCredentialsError,
+    UnsupportedCredentialsError,
     ValidationError,
-    MigrationError,
-    UnexpectedError,
-    BadRequestError,
 };
 //# sourceMappingURL=error.js.map

@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const koa_passport_1 = require("koa-passport");
 const idp_1 = require("../../idp");
+const error_1 = require("./error");
 class IdentityFederationBuilder {
     constructor(builder) {
         this.builder = builder;
@@ -67,8 +68,13 @@ class IdentityFederationBuilder {
             this.builder.logger.info(`enable identity federation from ${provider} with ${this.scopes[provider].join(", ")} scopes: ${callbackURL}`);
         }
     }
+    assertProvider(provider) {
+        if (!this.providerNames.includes(provider)) {
+            throw new error_1.OIDCProviderProxyErrors.InvalidFederationProvider();
+        }
+    }
     async handleRequest(ctx, next, provider) {
-        ctx.assert(this.providerNames.includes(provider));
+        this.assertProvider(provider);
         return new Promise((resolve, reject) => {
             this.passport.authenticate(provider, {
                 scope: this.scopes[provider],
@@ -81,7 +87,7 @@ class IdentityFederationBuilder {
         });
     }
     async handleCallback(ctx, next, provider) {
-        ctx.assert(this.providerNames.includes(provider));
+        this.assertProvider(provider);
         return new Promise((resolve, reject) => {
             this.passport.authenticate(provider, {
                 scope: this.scopes[provider],
@@ -100,7 +106,7 @@ class IdentityFederationBuilder {
                         ...args,
                     });
                     if (!identity) {
-                        throw new idp_1.Errors.IdentityNotExistsError();
+                        throw new idp_1.IAMErrors.IdentityNotExistsError();
                     }
                     resolve(identity);
                 }

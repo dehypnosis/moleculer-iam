@@ -59,7 +59,7 @@ class IdentityClaimsManager {
     createClaimsSchema(payload) {
         const result = this.validatePayload(payload);
         if (result !== true) {
-            throw new error_1.Errors.ValidationError(result, {
+            throw new error_1.IAMErrors.ValidationError(result, {
                 payload,
             });
         }
@@ -84,7 +84,7 @@ class IdentityClaimsManager {
         return (claims) => {
             const result = validate(claims);
             if (result !== true) {
-                throw new error_1.Errors.ValidationError(result, claims);
+                throw new error_1.IAMErrors.ValidationError(result, claims);
             }
         };
     }
@@ -102,7 +102,7 @@ class IdentityClaimsManager {
             };
         }
         catch (error) {
-            throw new error_1.Errors.ValidationError([], { migration: schema.migration, error });
+            throw new error_1.IAMErrors.ValidationError([], { migration: schema.migration, error });
         }
     }
     get supportedScopes() {
@@ -270,7 +270,7 @@ class IdentityClaimsManager {
             if (schema.parentVersion) { // from specific version
                 parentSchema = await this.adapter.getClaimsSchema({ key: schema.key, version: schema.parentVersion });
                 if (!parentSchema) {
-                    throw new error_1.Errors.ValidationError([], { parentVersion: schema.parentVersion });
+                    throw new error_1.IAMErrors.ValidationError([], { parentVersion: schema.parentVersion });
                 }
             }
             else {
@@ -328,7 +328,7 @@ class IdentityClaimsManager {
                         catch (error) {
                             const detail = { id, oldClaim, newClaim, error, index: index + offset };
                             this.logger.error("failed to update user claims", detail);
-                            throw new error_1.Errors.ValidationError([], detail);
+                            throw new error_1.IAMErrors.ValidationError([], detail);
                         }
                     }));
                     // notice current migration is alive

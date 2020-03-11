@@ -6,6 +6,7 @@
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 const moleculer_1 = require("moleculer");
+const i18n_1 = require("../helper/i18n");
 const idp_1 = require("../idp");
 const op_1 = require("../op");
 const server_1 = require("../server");
@@ -30,6 +31,8 @@ function IAMServiceSchema(opts) {
                 op,
                 logger: this.broker.getLogger("server"),
             }, opts.server);
+            // set logger for i18n singleton
+            i18n_1.I18N.setLogger(this.broker.getLogger("i18n"));
         },
         async started() {
             await server.start();

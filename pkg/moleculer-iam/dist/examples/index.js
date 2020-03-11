@@ -6,7 +6,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     result["default"] = mod;
     return result;
 };
-const moduleName = process.argv[2] || "simple";
+const moduleName = process.argv[2] || "memory";
 process.argv.splice(2, 1);
 process.env.DEBUG = "oidc-provider:*";
 Promise.resolve().then(() => __importStar(require("./" + moduleName)));

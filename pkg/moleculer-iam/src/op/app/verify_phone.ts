@@ -46,9 +46,9 @@ export function buildVerifyPhoneRoutes(builder: ProviderConfigBuilder, opts: App
       // assert user with the phone number
       const user = await ctx.idp.find({ claims: { phone_number: claims.phone_number || "" } });
       if (registered && !user) {
-        throw new IAMErrors.IdentityNotExistsError();
+        throw new IAMErrors.IdentityNotExists();
       } else if (!registered && user) {
-        throw new IAMErrors.IdentityAlreadyExistsError();
+        throw new IAMErrors.IdentityAlreadyExists();
       }
 
       // update session

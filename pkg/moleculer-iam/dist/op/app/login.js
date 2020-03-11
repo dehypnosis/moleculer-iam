@@ -6,7 +6,7 @@ function buildLoginRoutes(builder, opts) {
         // initial render page
         .get("/login", async (ctx, next) => {
         const { user, userClaims, interaction } = ctx.op;
-        ctx.op.assertPrompt(["login", "consent"], "Login prompt session not exists.");
+        ctx.op.assertPrompt(["login", "consent"]);
         // already signed in and consent app
         if (user) {
             const changeAccount = ctx.query.change_account === "true" || interaction.params.change_account === "true";
@@ -54,8 +54,12 @@ function buildLoginRoutes(builder, opts) {
         const { email, password } = ctx.request.body;
         // check account and password
         const user = await ctx.idp.findOrFail({ claims: { email: email || "" } });
-        if (!await user.assertCredentials({ password: password || "" })) {
-            throw new idp_1.Errors.InvalidCredentialsError();
+        const verified = await user.assertCredentials({ password: password || "" });
+        if (verified === null) {
+            throw new idp_1.IAMErrors.UnsupportedCredentialsError();
+        }
+        else if (!verified) {
+            throw new idp_1.IAMErrors.InvalidCredentialsError();
         }
         // clear login session state
         ctx.op.setSessionPublicState(prevState => ({

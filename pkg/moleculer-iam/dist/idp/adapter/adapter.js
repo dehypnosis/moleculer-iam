@@ -131,7 +131,7 @@ class IDPAdapter {
             }
         }
         if (mergedResult.length > 0) {
-            throw new error_1.Errors.ValidationError(mergedResult);
+            throw new error_1.IAMErrors.ValidationError(mergedResult);
         }
     }
     async create(args, transaction, ignoreUndefinedClaims) {
@@ -314,7 +314,7 @@ class IDPAdapter {
     async validateCredentials(credentials) {
         const result = this.testCredentials(credentials);
         if (result !== true) {
-            throw new error_1.Errors.ValidationError(result);
+            throw new error_1.IAMErrors.ValidationError(result);
         }
     }
 }

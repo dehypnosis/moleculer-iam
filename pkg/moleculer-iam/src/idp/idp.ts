@@ -125,7 +125,7 @@ export class IdentityProvider {
       this.validateEmailOrPhoneNumber(where.claims);
       // const result =
       // if (result !== true) {
-      //   throw new (IAMErrors.ValidationError)(result);
+      //   throw new (IAMErrors.ValidationFailed)(result);
       // }
     }
 
@@ -135,7 +135,7 @@ export class IdentityProvider {
   public async findOrFail(args: WhereAttributeHash): Promise<Identity> {
     const identity = await this.find(args);
     if (!identity) {
-      throw new IAMErrors.IdentityNotExistsError();
+      throw new IAMErrors.IdentityNotExists();
     }
     return identity;
   }
@@ -155,7 +155,7 @@ export class IdentityProvider {
       this.validateEmailOrPhoneNumber(where.claims);
       // const result =
       // if (result !== true) {
-      //   throw new IAMErrors.ValidationError(result);
+      //   throw new IAMErrors.ValidationFailed(result);
       // }
     }
 
@@ -180,7 +180,7 @@ export class IdentityProvider {
         this.validateEmailOrPhoneNumber(where.claims);
         // const result =
         // if (result !== true) {
-        //   throw new IAMErrors.ValidationError(result);
+        //   throw new IAMErrors.ValidationFailed(result);
         // }
       }
     }

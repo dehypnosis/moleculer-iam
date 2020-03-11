@@ -29,7 +29,7 @@ export declare class IDP_MemoryAdapter extends IDPAdapter {
     }[]): Promise<Partial<OIDCAccountClaims>>;
     private readonly identityCredentialsMap;
     createOrUpdateCredentials(id: string, credentials: Partial<OIDCAccountCredentials>, transaction?: Transaction): Promise<boolean>;
-    assertCredentials(id: string, credentials: Partial<OIDCAccountCredentials>): Promise<boolean>;
+    assertCredentials(id: string, credentials: Partial<OIDCAccountCredentials>): Promise<boolean | null>;
     private schemata;
     createClaimsSchema(schema: IdentityClaimsSchema, transaction?: Transaction): Promise<void>;
     forceDeleteClaimsSchema(key: string): Promise<void>;

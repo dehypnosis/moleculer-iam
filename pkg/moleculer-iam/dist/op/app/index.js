@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
 const _ = tslib_1.__importStar(require("lodash"));
 const oidc_provider_1 = require("oidc-provider");
+const proxy_1 = require("../proxy");
 const federation_1 = require("./federation");
 const routes_1 = require("./routes");
 const abort_1 = require("./abort");
@@ -27,12 +28,12 @@ function buildApplication(builder, opts = {}) {
             switch (k) {
                 case "skip_consent":
                     if (typeof v !== "boolean") {
-                        // throw new errors.InvalidClientMetadata("skip_consent should be boolean type value");
+                        // throw new OIDCErrors.InvalidClientMetadata("skip_consent should be boolean type value");
                         meta.skip_consent = false;
                     }
                     break;
                 default:
-                    throw new oidc_provider_1.errors.InvalidClientMetadata("unknown client property: " + k);
+                    throw new proxy_1.OIDCErrors.InvalidClientMetadata("unknown client property: " + k);
             }
         },
     })

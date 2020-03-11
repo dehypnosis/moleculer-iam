@@ -1,5 +1,5 @@
 import { FindOptions, WhereAttributeHash } from "../helper/rdbms";
-import { Logger } from "../logger";
+import { Logger } from "../helper/logger";
 import { Identity } from "./identity";
 import { IDPAdapter, IDPAdapterConstructorOptions, Transaction } from "./adapter";
 import { OIDCAccountClaims, OIDCAccountCredentials } from "../op";

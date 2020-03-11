@@ -80,7 +80,7 @@ export abstract class IDPAdapter {
     }
 
     if (mergedResult.length > 0) {
-      throw new IAMErrors.ValidationError(mergedResult);
+      throw new IAMErrors.ValidationFailed(mergedResult);
     }
   }
 
@@ -428,7 +428,7 @@ export abstract class IDPAdapter {
   public async validateCredentials(credentials: Partial<OIDCAccountCredentials>): Promise<void> {
     const result = this.testCredentials(credentials);
     if (result !== true) {
-      throw new IAMErrors.ValidationError(result);
+      throw new IAMErrors.ValidationFailed(result);
     }
   }
 

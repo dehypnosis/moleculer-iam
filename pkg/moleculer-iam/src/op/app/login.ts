@@ -67,9 +67,9 @@ export function buildLoginRoutes(builder: ProviderConfigBuilder, opts: Applicati
       const user = await ctx.idp.findOrFail({claims: {email: email || ""}});
       const verified = await user.assertCredentials({password: password || ""});
       if (verified === null) {
-        throw new IAMErrors.UnsupportedCredentialsError();
+        throw new IAMErrors.UnsupportedCredentials();
       } else if (!verified) {
-        throw new IAMErrors.InvalidCredentialsError();
+        throw new IAMErrors.InvalidCredentials();
       }
 
       // clear login session state

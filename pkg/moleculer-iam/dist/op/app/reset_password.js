@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
 const moment_1 = tslib_1.__importDefault(require("moment"));
+const error_1 = require("./error");
 function buildResetPasswordRoutes(builder, opts) {
     builder.app.router
         // initial render page
@@ -31,7 +32,7 @@ function buildResetPasswordRoutes(builder, opts) {
             && publicState.resetPassword.user.email === claims.email
             && publicState.resetPassword.expiresAt
             && moment_1.default().isBefore(publicState.resetPassword.expiresAt))) {
-            ctx.throw(400, "Reset password session has expired or incorrect.");
+            throw new error_1.ApplicationErrors.ResetPasswordSessionExpired();
         }
         const identity = await ctx.idp.findOrFail({ claims });
         await identity.updateCredentials({

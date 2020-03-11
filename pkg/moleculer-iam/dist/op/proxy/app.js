@@ -5,8 +5,11 @@ const koa_bodyparser_1 = tslib_1.__importDefault(require("koa-bodyparser"));
 const koa_compose_1 = tslib_1.__importDefault(require("koa-compose"));
 const koa_router_1 = tslib_1.__importDefault(require("koa-router"));
 const koajs_nocache_1 = tslib_1.__importDefault(require("koajs-nocache"));
+const change_case_1 = require("change-case");
+const idp_1 = require("../../idp");
 const context_1 = require("./context");
 const federation_1 = require("./federation");
+const i18n_1 = require("../../helper/i18n");
 const renderer_1 = require("./renderer");
 class ProviderApplicationBuilder {
     constructor(builder) {
@@ -30,20 +33,18 @@ class ProviderApplicationBuilder {
             }
             catch (err) {
                 this.logger.error("app error", err);
-                // normalize error
+                // normalize and translate error
                 const { error, name, message, status, statusCode, code, status_code, error_description, expose, ...otherProps } = err;
+                // set status
                 let normalizedStatus = status || statusCode || code || status_code || 500;
                 if (isNaN(normalizedStatus))
                     normalizedStatus = 500;
-                const normalizedError = {
-                    error: error || name,
+                ctx.status = normalizedStatus;
+                const normalizedError = this.translateError(ctx, {
+                    error: change_case_1.pascalCase(error || name || "UnexpectedError"),
                     error_description: error_description || message || "Unexpected error.",
                     ...((expose || this.builder.dev) ? otherProps : {}),
-                };
-                if (!normalizedError.error) {
-                    normalizedError.error = "UnexpectedError";
-                }
-                ctx.status = normalizedStatus;
+                });
                 return ctx.op.render("error", normalizedError);
             }
         };
@@ -89,7 +90,7 @@ class ProviderApplicationBuilder {
         this.logoutSourceProxy = (ctx) => {
             return this.wrapContext(ctx, () => {
                 const op = ctx.op;
-                ctx.assert(op.user, 400, "Account session not exists.");
+                ctx.assert(op.user);
                 const xsrf = op.session.state && op.session.state.secret;
                 return this.renderLogout(ctx, xsrf);
             });
@@ -209,6 +210,49 @@ class ProviderApplicationBuilder {
     get op() {
         return this.builder._dagerouslyGetProvider();
     }
+    translateError(ctx, error) {
+        const opts = {
+            ns: "error",
+            lng: ctx.locale.language,
+        };
+        error.error_description = i18n_1.I18N.translate(`${error.error}.description`, error.error_description, opts);
+        error.error = i18n_1.I18N.translate(`${error.error}.name`, error.error, opts);
+        // translate validation error data
+        if (error.error === idp_1.IAMErrors.ValidationError.name && error.data) {
+            /* to translate validation error field labels, send request like..
+            headers: {
+              "Accept": "application/json",
+              "Content-Type": "application/json;charset=UTF-8",
+              "Payload-Labels": Buffer.from(JSON.stringify({
+                "email": "이메일",
+                "password": "패스워드",
+                "nested.field": "...",
+              }), "utf8").toString("base64"),
+            },
+            */
+            let labels;
+            try {
+                const encodedLabels = ctx.request.get("Payload-Labels");
+                if (encodedLabels) {
+                    labels = JSON.parse(Buffer.from(encodedLabels, "base64").toString("utf8"));
+                }
+            }
+            catch (err) {
+                this.logger.error(err);
+            }
+            for (const entry of error.data) {
+                const { actual, expected, type, field } = entry;
+                entry.message = i18n_1.I18N.translate(`${error.error}.data.${type}`, entry.message, {
+                    ...opts,
+                    // @ts-ignore
+                    actual,
+                    expected: (expected && type === "equalField" && labels && labels[expected]) || expected,
+                    field: (field && labels && labels[field]) || field,
+                });
+            }
+        }
+        return error;
+    }
     // default render function
     setRendererFactory(factory, options) {
         this._appRenderer = factory({
@@ -259,11 +303,12 @@ class ProviderApplicationBuilder {
     }
     _dangerouslyBuild() {
         this.builder.assertBuilding();
-        // normalize xhr error response, ref: https://github.com/panva/node-oidc-provider/blob/master/lib/shared/error_handler.js#L49
+        // normalize oidc-provider original error for xhr error response, ref: https://github.com/panva/node-oidc-provider/blob/master/lib/shared/error_handler.js#L49
         this.op.app.middleware.unshift(async (ctx, next) => {
             await next();
             if (ctx.body && typeof ctx.body.error === "string") {
-                ctx.body = { error: ctx.body };
+                ctx.body.error = change_case_1.pascalCase(ctx.body.error);
+                ctx.body = { error: this.translateError(ctx, ctx.body) };
             }
         });
         // mount app renderer and app

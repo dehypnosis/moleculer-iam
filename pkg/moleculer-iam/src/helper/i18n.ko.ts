@@ -73,7 +73,7 @@ const ko: I18NResource = {
     },
     IdentityAlreadyExists: {
       name: "검증 오류",
-      description: "이미 존재하는 계정입니다.",
+      description: "이미 등록된 계정입니다.",
     },
     InvalidCredentials: {
       name: "검증 오류",
@@ -118,7 +118,7 @@ const ko: I18NResource = {
         arrayLength: "[field]에 [expected]개의 항목이 필요합니다.",
         arrayContains: "[field]에 [expected] 항목이 필요합니다.",
         arrayUnique: "[field]의 [actual] 값은 [expected]에서 유일해야합니다.",
-        arrayEnum: "[field]의 [actual] 값이 [expected] 중에 해당되지 않습니다.",
+        arrayEnum: "[field]의 [actual] 값은 [expected]에 속해야합니다.",
 
         boolean: "[field]이/가 부울 값이 아닙니다.",
 
@@ -126,7 +126,7 @@ const ko: I18NResource = {
         dateMin: "[field]이/가 [expected] 보다 이전입니다.",
         dateMax: "[field]이/가 [expected] 보다 이후입니다.",
 
-        enumValue: "[field]이/가 [expected] 중에 해당되어지 않습니다.",
+        enumValue: "[field]을/를 [expected] 중에 입력해주세요.",
 
         equalValue: "[field]이/가 [expected] 값과 일치하지 않습니다.",
         equalField: "[field]이/가 입력된 [expected]와/과 일치하지 않습니다.",
@@ -151,7 +151,7 @@ const ko: I18NResource = {
 
         phone: `입력한 [field]이/가 올바른 양식이 아닙니다.`,
 
-        duplicate: `[field]이/가 이미 사용중입니다.`,
+        duplicate: `이미 사용중인 [field]입니다.`,
       },
     },
   },
@@ -162,6 +162,7 @@ const patterns = {
   "을/를": ["을", "를"],
   "이/가": ["이", "가"],
   "와/과": ["과", "와"],
+  "은/는": ["은", "는"],
 };
 
 export const processKoreanJosa: I18NPostProcessor = (value, keys, options) => {

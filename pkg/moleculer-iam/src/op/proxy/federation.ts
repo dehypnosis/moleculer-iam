@@ -167,7 +167,7 @@ export class IdentityFederationBuilder {
           });
 
           if (!identity) {
-            throw new IAMErrors.IdentityNotExistsError();
+            throw new IAMErrors.IdentityNotExists();
           }
           resolve(identity);
         } catch (error) {

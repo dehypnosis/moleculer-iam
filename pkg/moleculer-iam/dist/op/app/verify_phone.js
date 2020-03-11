@@ -3,6 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
 const _ = tslib_1.__importStar(require("lodash"));
 const moment_1 = tslib_1.__importDefault(require("moment"));
+const idp_1 = require("../../idp");
+const error_1 = require("./error");
 async function defaultSend({ logger, ...args }) {
     logger.warn("should implement op.app.verifyPhone.send option to send phone verification message", args);
 }
@@ -25,10 +27,10 @@ function buildVerifyPhoneRoutes(builder, opts) {
         // assert user with the phone number
         const user = await ctx.idp.find({ claims: { phone_number: claims.phone_number || "" } });
         if (registered && !user) {
-            ctx.throw(400, "Not a registered phone number.");
+            throw new idp_1.IAMErrors.IdentityNotExistsError();
         }
         else if (!registered && user) {
-            ctx.throw(400, "Already registered phone number.");
+            throw new idp_1.IAMErrors.IdentityAlreadyExistsError();
         }
         // update session
         if (!ctx.op.sessionPublicState.verifyPhone
@@ -58,7 +60,7 @@ function buildVerifyPhoneRoutes(builder, opts) {
         if (publicState && publicState.verifyPhone) {
             const verifyState = publicState.verifyPhone;
             if (verifyState.phoneNumber === claims.phone_number && verifyState.expiresAt && moment_1.default().isBefore(verifyState.expiresAt)) {
-                ctx.throw(400, "Cannot resend a phone verification code until previous one expires.");
+                throw new error_1.ApplicationErrors.TooMuchVerificationCodeRequest();
             }
         }
         // create and send code
@@ -107,7 +109,7 @@ function buildVerifyPhoneRoutes(builder, opts) {
         const publicState = ctx.op.sessionPublicState.verifyPhone || {};
         const secretState = ctx.op.sessionSecretState.verifyPhone || {};
         if (publicState.phoneNumber !== claims.phone_number || moment_1.default().isAfter(publicState.expiresAt) || secretState.secret !== secret) {
-            ctx.throw("400", "Verification code has expired or incorrect.");
+            throw new error_1.ApplicationErrors.InvalidVerificationCode();
         }
         ctx.op.setSessionPublicState(prevState => ({
             ...prevState,

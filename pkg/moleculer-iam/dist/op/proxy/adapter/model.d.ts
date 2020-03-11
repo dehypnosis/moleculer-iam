@@ -1,6 +1,6 @@
 import { Adapter, AdapterPayload } from "oidc-provider";
 import { FindOptions, WhereAttributeHash } from "../../../helper/rdbms";
-import { Logger } from "../../../logger";
+import { Logger } from "../../../helper/logger";
 export declare type OIDCModelName = "Session" | "AccessToken" | "AuthorizationCode" | "RefreshToken" | "DeviceCode" | "ClientCredentials" | "Client" | "InitialAccessToken" | "RegistrationAccessToken" | "Interaction" | "ReplayDetection" | "PushedAuthorizationRequest";
 export declare const OIDCModelNames: ReadonlyArray<OIDCModelName>;
 export declare const OIDCGrantModelNames: ReadonlyArray<OIDCModelName>;
@@ -25,7 +25,7 @@ export declare abstract class OIDCModelProxy implements Adapter {
      */
     constructor(props: OIDCModelProxyProps, options?: any);
     protected readonly logger: Logger;
-    get name(): OIDCModelName;
+    readonly name: OIDCModelName;
     /**
      *
      * Query instances of an oidc-provider model.

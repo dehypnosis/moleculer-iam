@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const passport_kakao_1 = require("passport-kakao");
-const idp_1 = require("../../../idp");
+const error_1 = require("../../proxy/error");
 // Kakao is not a OIDC provider; openid scope not supported
 // phone scope not supported
 exports.kakaoProviderConfiguration = {
@@ -23,7 +23,7 @@ exports.kakaoProviderConfiguration = {
             email_verified: profile._json.kakao_account.is_email_verified,
         };
         if (!claims.email) {
-            throw new idp_1.Errors.UnexpectedError("cannot federate without an email address");
+            throw new error_1.OIDCProviderProxyErrors.FederationRequestWithoutEmailPayload();
         }
         if (!claims.email_verified) {
             delete claims.email_verified;
@@ -39,7 +39,7 @@ exports.kakaoProviderConfiguration = {
             // if (identity) {
             //   const oldClaims = await identity.claims("userinfo", "email");
             //   if (!oldClaims.email_verified) {
-            //     throw new Errors.UnexpectedError("cannot federate an existing account with non-verified email address");
+            //     throw new IAMErrors.UnexpectedError("cannot federate an existing account with non-verified email address");
             //   }
             // }
         }
@@ -47,7 +47,7 @@ exports.kakaoProviderConfiguration = {
         const upsertScopes = idp.claims.mandatoryScopes;
         if (identity) {
             if (await identity.isSoftDeleted()) {
-                throw new idp_1.Errors.UnexpectedError("cannot federate a deleted account");
+                throw new error_1.OIDCProviderProxyErrors.FederationRequestForDeletedAccount();
             }
             await identity.updateMetadata(metadata);
             await identity.updateClaims(claims, upsertScopes, undefined, true);

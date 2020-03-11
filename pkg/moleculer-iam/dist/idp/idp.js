@@ -96,7 +96,7 @@ class IdentityProvider {
             this.validateEmailOrPhoneNumber(where.claims);
             // const result =
             // if (result !== true) {
-            //   throw new (Errors.ValidationError)(result);
+            //   throw new (IAMErrors.ValidationError)(result);
             // }
         }
         return this.adapter.find(where).then(id => id ? new identity_1.Identity({ id, provider: this }) : undefined);
@@ -104,7 +104,7 @@ class IdentityProvider {
     async findOrFail(args) {
         const identity = await this.find(args);
         if (!identity) {
-            throw new error_1.Errors.IdentityNotExistsError();
+            throw new error_1.IAMErrors.IdentityNotExistsError();
         }
         return identity;
     }
@@ -122,7 +122,7 @@ class IdentityProvider {
             this.validateEmailOrPhoneNumber(where.claims);
             // const result =
             // if (result !== true) {
-            //   throw new Errors.ValidationError(result);
+            //   throw new IAMErrors.ValidationError(result);
             // }
         }
         return this.adapter.count(where);
@@ -143,7 +143,7 @@ class IdentityProvider {
                 this.validateEmailOrPhoneNumber(where.claims);
                 // const result =
                 // if (result !== true) {
-                //   throw new Errors.ValidationError(result);
+                //   throw new IAMErrors.ValidationError(result);
                 // }
             }
         }

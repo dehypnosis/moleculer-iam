@@ -113,11 +113,16 @@ export class ProviderApplicationBuilder {
       ns: "error",
       lng: ctx.locale.language,
     };
-    error.error_description = I18N.translate(`${error.error}.description`, error.error_description, opts);
-    error.error = I18N.translate(`${error.error}.name`, error.error, opts);
+
+    const errorType = error.error;
+    error.error = I18N.translate(`${errorType}.name`, errorType, opts);
+    if (error.error !== errorType) {
+      error._error = errorType;
+    }
+    error.error_description = I18N.translate(`${errorType}.description`, error.error_description, opts);
 
     // translate validation error data
-    if (error.error === IAMErrors.ValidationError.name && error.data) {
+    if (errorType === IAMErrors.ValidationFailed.name && error.data) {
       /* to translate validation error field labels, send request like..
       headers: {
         "Accept": "application/json",
@@ -126,6 +131,7 @@ export class ProviderApplicationBuilder {
           "email": "이메일",
           "password": "패스워드",
           "nested.field": "...",
+          "some_field.expected": "남성", // override expected value of any field
         }), "utf8").toString("base64"),
       },
       */
@@ -140,11 +146,12 @@ export class ProviderApplicationBuilder {
       }
       for (const entry of error.data) {
         const { actual, expected, type, field } = entry;
-        entry.message = I18N.translate(`${error.error}.data.${type}`, entry.message, {
+        console.log(`$${expected}`);
+        entry.message = I18N.translate(`${errorType}.data.${type}`, entry.message, {
           ...opts,
           // @ts-ignore
           actual,
-          expected: (expected && type === "equalField" && labels && labels[expected]) || expected,
+          expected: (expected && labels && (labels[`${field}.expected`] || type === "equalField" && labels[expected])) || expected,
           field: (field && labels && labels[field]) || field,
         });
       }

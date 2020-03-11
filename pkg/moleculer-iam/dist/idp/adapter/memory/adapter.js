@@ -146,9 +146,12 @@ class IDP_MemoryAdapter extends adapter_1.IDPAdapter {
     async assertCredentials(id, credentials) {
         const cred = this.identityCredentialsMap.get(id);
         if (!cred)
-            return false;
+            return null;
         for (const [type, value] of Object.entries(credentials)) {
-            if (cred[type] !== value)
+            const answer = cred[type];
+            if (typeof answer === "undefined")
+                return null;
+            if (answer !== value)
                 return false;
         }
         return true;

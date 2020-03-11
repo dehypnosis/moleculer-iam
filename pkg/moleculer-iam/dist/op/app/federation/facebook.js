@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const passport_facebook_1 = require("passport-facebook");
-const idp_1 = require("../../../idp");
+const error_1 = require("../../proxy/error");
 // facebook is not a OIDC provider; openid scope not supported
 // phone scope is not supported (seems only for the whatsapp platform apps)
 exports.facebookProviderConfiguration = {
@@ -25,7 +25,7 @@ exports.facebookProviderConfiguration = {
             email_verified: true,
         };
         if (!claims.email) {
-            throw new idp_1.Errors.UnexpectedError("cannot federate without an email address");
+            throw new error_1.OIDCProviderProxyErrors.FederationRequestWithoutEmailPayload();
         }
         if (!claims.picture) {
             delete claims.picture;
@@ -38,7 +38,7 @@ exports.facebookProviderConfiguration = {
             // if (identity) {
             //   const oldClaims = await identity.claims("userinfo", "email");
             //   if (!oldClaims.email_verified) {
-            //     throw new Errors.UnexpectedError("cannot federate an existing account with non-verified email address");
+            //     throw new IAMErrors.UnexpectedError("cannot federate an existing account with non-verified email address");
             //   }
             // }
         }
@@ -46,7 +46,7 @@ exports.facebookProviderConfiguration = {
         const upsertScopes = idp.claims.mandatoryScopes;
         if (identity) {
             if (await identity.isSoftDeleted()) {
-                throw new idp_1.Errors.UnexpectedError("cannot federate a deleted account");
+                throw new error_1.OIDCProviderProxyErrors.FederationRequestForDeletedAccount();
             }
             await identity.updateMetadata(metadata);
             await identity.updateClaims(claims, upsertScopes, undefined, true);

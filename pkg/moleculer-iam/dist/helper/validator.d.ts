@@ -50,6 +50,7 @@ declare const messages: {
     phone: string;
     duplicate: string;
 };
+export declare type ValidationErrorMessages = typeof messages;
 export declare const validator: Validator;
 export declare function createValidationError(args: {
     type: keyof typeof messages;

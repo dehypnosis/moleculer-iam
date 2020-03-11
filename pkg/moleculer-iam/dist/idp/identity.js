@@ -3,7 +3,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
 const _ = tslib_1.__importStar(require("lodash"));
 const metadata_1 = require("./metadata");
-const error_1 = require("./error");
 class Identity {
     constructor(props) {
         this.props = props;
@@ -37,7 +36,7 @@ class Identity {
         const scopes = (typeof scope === "string" ? scope.split(" ").filter(s => !!s) : scope);
         const mandatoryScopes = this.props.provider.claims.mandatoryScopes;
         if (scopes.some(s => mandatoryScopes.includes(s))) {
-            throw new error_1.Errors.BadRequestError(`cannot delete mandatory scopes: ${mandatoryScopes}`);
+            throw new Error(`cannot delete mandatory scopes: ${mandatoryScopes}`);
         }
         await this.adapter.deleteClaims(this.id, scopes, transaction);
     }
@@ -45,7 +44,7 @@ class Identity {
     async metadata() {
         const metadata = await this.adapter.getMetadata(this.id);
         if (!metadata)
-            throw new error_1.Errors.UnexpectedError(`empty metadata: ${this.id}`);
+            throw new Error(`empty metadata: ${this.id}`);
         return metadata;
     }
     async updateMetadata(metadata, transaction) {

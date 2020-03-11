@@ -1,6 +1,7 @@
 import moment from "moment";
 import React, { useRef, useState } from "react";
-import { Input, InputProps, Icon, Datepicker, DatepickerProps, Select, SelectProps, Text } from "./index";
+import { View } from "react-native";
+import { Input, InputProps, Icon, Datepicker, DatepickerProps, Select, SelectProps, Text, Autocomplete, AutocompleteProps } from "./index";
 import { withAttrs } from "./util";
 
 type FormInputAliasProps = {
@@ -157,7 +158,7 @@ export const FormSelect: React.FunctionComponent<FormSelectAliasProps> = (props)
         size={"large"}
         data={data}
         selectedOption={data.find(d => d.value === value)}
-        onSelect={v => setValue ? props.setValue!((v as any).value) : undefined}
+        onSelect={v => setValue ? setValue!((v as any).value) : undefined}
 
         // custom
         {...restProps}
@@ -167,7 +168,56 @@ export const FormSelect: React.FunctionComponent<FormSelectAliasProps> = (props)
       />
       {(error || caption) ? (
         <Text category={"c1"} status={error ? "danger" : (restProps.status || "basic")}>{error || caption}</Text>
-      ): null}
+      ) : null}
     </>
-  )
+  );
+};
+
+type FormAutoCompleteAliasProps = {
+  value?: string;
+  setValue?: (text: string) => void;
+  error?: string;
+  tabIndex?: number;
+  data?: { value: string, title: string }[];
+} & Omit<AutocompleteProps, "onSelect">;
+
+export const FormAutoComplete: React.FunctionComponent<FormAutoCompleteAliasProps> = (props) => {
+  const {value, setValue, error, data = [], tabIndex, style, ...restProps} = props;
+  const selectRef = useRef<any>();
+  return (
+    <View style={style}>
+      <Autocomplete
+        ref={ref => {
+          withAttrs({tabindex: tabIndex || null}, "[data-focusable=true]")(ref as any);
+          selectRef.current = ref;
+        }}
+
+        onFocus={() => {
+          console.log(selectRef.current, !selectRef.current);
+          if (selectRef.current && !selectRef.current.state.optionsVisible) {
+            selectRef.current.setState({ optionsVisible: true })
+          }
+        }}
+        onBlur={() => {
+          if (selectRef.current && selectRef.current.state.optionsVisible) {
+            selectRef.current.setState({ optionsVisible: false })
+          }
+        }}
+        label={""}
+        placeholder={""}
+        size={"large"}
+        data={data}
+        value={value}
+        onSelect={setValue ? (v => setValue((v as any).value)) : undefined}
+        onChangeText={setValue ? (v => setValue(v)) : undefined}
+
+        // custom
+        {...restProps}
+
+        // override
+        caption={error || restProps.caption}
+        status={error ? "danger" : (restProps.status || "basic")}
+      />
+    </View>
+  );
 };

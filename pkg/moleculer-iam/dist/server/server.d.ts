@@ -5,7 +5,7 @@ import * as https from "https";
 import Koa from "koa";
 import { IHelmetConfiguration } from "helmet";
 import compose from "koa-compose";
-import { Logger } from "../logger";
+import { Logger } from "../helper/logger";
 import { OIDCProvider, ParsedLocale } from "../op";
 import { LoggingOptions } from "./logging";
 export declare type IAMServerProps = {

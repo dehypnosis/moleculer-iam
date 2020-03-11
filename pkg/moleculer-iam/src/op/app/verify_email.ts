@@ -46,9 +46,9 @@ export function buildVerifyEmailRoutes(builder: ProviderConfigBuilder, opts: App
       // assert user with the email
       const user = await ctx.idp.find({ claims: { email: claims.email || "" } });
       if (registered && !user) {
-        throw new IAMErrors.IdentityNotExistsError();
+        throw new IAMErrors.IdentityNotExists();
       } else if (!registered && user) {
-        throw new IAMErrors.IdentityAlreadyExistsError();
+        throw new IAMErrors.IdentityAlreadyExists();
       }
 
       // update session

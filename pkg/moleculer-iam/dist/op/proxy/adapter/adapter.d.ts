@@ -1,5 +1,5 @@
 import { AdapterConstructor } from "oidc-provider";
-import { Logger } from "../../../logger";
+import { Logger } from "../../../helper/logger";
 import { OIDCModelProxy, OIDCModelProxyProps, OIDCModelName } from "./model";
 export declare type OIDCAdapterProxyProps = {
     logger: Logger;

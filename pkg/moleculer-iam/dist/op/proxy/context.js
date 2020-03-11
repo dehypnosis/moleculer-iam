@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
+const error_1 = require("./error");
 // need to hack oidc-provider private methods
 // ref: https://github.com/panva/node-oidc-provider/blob/9306f66bdbcdff01400773f26539cf35951b9ce8/lib/models/client.js#L385
 // @ts-ignore
@@ -76,8 +77,8 @@ class OIDCProviderContextProxy {
     async redirectWithUpdate(promptUpdate, allowedPromptNames) {
         await this.ensureSessionSaved();
         // finish interaction prompt
-        const { ctx, interaction, provider } = this;
-        ctx.assert(interaction && (!allowedPromptNames || allowedPromptNames.includes(interaction.prompt.name)));
+        const { ctx, provider } = this;
+        this.assertPrompt();
         const mergedResult = { ...this.interaction.result, ...promptUpdate };
         const redirectURL = await provider.interactionResult(ctx.req, ctx.res, mergedResult, { mergeWithLastSubmission: true });
         // overwrite session account if need and re-parse interaction state
@@ -137,9 +138,11 @@ class OIDCProviderContextProxy {
     get isXHR() {
         return this.ctx.accepts(JSON, HTML) === JSON;
     }
-    assertPrompt(allowedPromptNames, message) {
-        const { ctx, interaction } = this;
-        ctx.assert(interaction && (!allowedPromptNames || allowedPromptNames.includes(interaction.prompt.name)), 400, message);
+    assertPrompt(allowedPromptNames) {
+        const { interaction } = this;
+        if (!(interaction && (!allowedPromptNames || allowedPromptNames.includes(interaction.prompt.name)))) {
+            throw new error_1.OIDCProviderProxyErrors.InvalidPromptSession();
+        }
     }
     async getPublicClientProps(client) {
         if (!client)

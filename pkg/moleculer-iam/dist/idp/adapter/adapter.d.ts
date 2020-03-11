@@ -1,5 +1,5 @@
 import * as _ from "lodash";
-import { Logger } from "../../logger";
+import { Logger } from "../../helper/logger";
 import { FindOptions, WhereAttributeHash } from "../../helper/rdbms";
 import { OIDCAccountClaims, OIDCAccountCredentials } from "../../op";
 import { IdentityMetadata } from "../metadata";
@@ -84,7 +84,7 @@ export declare abstract class IDPAdapter {
     }, transaction?: Transaction): Promise<void>;
     abstract getMetadata(id: string): Promise<IdentityMetadata | void>;
     abstract createOrUpdateMetadata(id: string, metadata: Partial<IdentityMetadata>, transaction?: Transaction): Promise<void>;
-    abstract assertCredentials(id: string, credentials: Partial<OIDCAccountCredentials>): Promise<boolean>;
+    abstract assertCredentials(id: string, credentials: Partial<OIDCAccountCredentials>): Promise<boolean | null>;
     protected abstract createOrUpdateCredentials(id: string, credentials: Partial<OIDCAccountCredentials>, transaction?: Transaction): Promise<boolean>;
     private readonly testCredentials;
     createOrUpdateCredentialsWithValidation(id: string, credentials: Partial<OIDCAccountCredentials>, transaction?: Transaction): Promise<boolean>;

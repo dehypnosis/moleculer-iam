@@ -15,28 +15,20 @@ declare class IdentityNotExistsError extends IdentityProviderError {
 declare class InvalidCredentialsError extends IdentityProviderError {
     constructor();
 }
+declare class UnsupportedCredentialsError extends IdentityProviderError {
+    constructor();
+}
 declare class ValidationError extends IdentityProviderError {
     readonly data: ValidationErrorEntry[];
     readonly debug?: object | undefined;
     constructor(data: ValidationErrorEntry[], debug?: object | undefined);
 }
-declare class MigrationError extends IdentityProviderError {
-    constructor(desc: string);
-}
-declare class UnexpectedError extends IdentityProviderError {
-    constructor(message?: string, status?: number);
-}
-declare class BadRequestError extends IdentityProviderError {
-    constructor(message?: string, status?: number);
-}
-export declare const Errors: {
+export declare const IAMErrors: {
     IdentityProviderError: typeof IdentityProviderError;
     IdentityAlreadyExistsError: typeof IdentityAlreadyExistsError;
     IdentityNotExistsError: typeof IdentityNotExistsError;
     InvalidCredentialsError: typeof InvalidCredentialsError;
+    UnsupportedCredentialsError: typeof UnsupportedCredentialsError;
     ValidationError: typeof ValidationError;
-    MigrationError: typeof MigrationError;
-    UnexpectedError: typeof UnexpectedError;
-    BadRequestError: typeof BadRequestError;
 };
 export {};

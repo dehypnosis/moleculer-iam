@@ -12,62 +12,41 @@ class IdentityProviderError implements OIDCError {
   }
 }
 
-class IdentityAlreadyExistsError extends IdentityProviderError {
+class IdentityAlreadyExists extends IdentityProviderError {
   constructor() {
     super(400, "IdentityAlreadyExists", "The account already exists.");
   }
 }
 
-class IdentityNotExistsError extends IdentityProviderError {
+class IdentityNotExists extends IdentityProviderError {
   constructor() {
     super(400, "IdentityNotExists", "The account does not exists.");
   }
 }
 
-class InvalidCredentialsError extends IdentityProviderError {
+class InvalidCredentials extends IdentityProviderError {
   constructor() {
     super(400, "InvalidCredentials", "Invalid credentials.");
   }
 }
 
-class UnsupportedCredentialsError extends IdentityProviderError {
+class UnsupportedCredentials extends IdentityProviderError {
   constructor() {
     super(400, "UnsupportedCredentials", "Cannot use the given type of credentials.");
   }
 }
 
-class ValidationError extends IdentityProviderError {
+class ValidationFailed extends IdentityProviderError {
   constructor(public readonly data: ValidationErrorEntry[], public readonly debug?: object) {
-    super(422, "ValidationFailed", "Validation failed.");
-  }
-}
-
-class MigrationError extends IdentityProviderError {
-  constructor(desc: string) {
-    super(500, "MigrationError", desc);
-  }
-}
-
-class UnexpectedError extends IdentityProviderError {
-  constructor(message: string = "Unexpected Error.", status: number = 500) {
-    super(status, "UnexpectedError", message);
-  }
-}
-
-class BadRequestError extends IdentityProviderError {
-  constructor(message: string = "Bad Request", status: number = 400) {
-    super(status, "BadRequest", message);
+    super(422, "ValidationFailed", "Failed to validate given payload.");
   }
 }
 
 export const IAMErrors = {
   IdentityProviderError,
-  IdentityAlreadyExistsError,
-  IdentityNotExistsError,
-  InvalidCredentialsError,
-  UnsupportedCredentialsError,
-  ValidationError,
-  MigrationError,
-  UnexpectedError,
-  BadRequestError,
+  IdentityAlreadyExists,
+  IdentityNotExists,
+  InvalidCredentials,
+  UnsupportedCredentials,
+  ValidationFailed,
 };

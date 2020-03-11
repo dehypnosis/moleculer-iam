@@ -48,7 +48,7 @@ export class Identity implements OIDCAccount {
     const scopes = (typeof scope === "string" ? scope.split(" ").filter(s => !!s) : scope);
     const mandatoryScopes = this.props.provider.claims.mandatoryScopes;
     if (scopes.some(s => mandatoryScopes.includes(s))) {
-      throw new IAMErrors.BadRequestError(`cannot delete mandatory scopes: ${mandatoryScopes}`);
+      throw new Error(`cannot delete mandatory scopes: ${mandatoryScopes}`);
     }
 
     await this.adapter.deleteClaims(this.id, scopes, transaction);
@@ -57,7 +57,7 @@ export class Identity implements OIDCAccount {
   /* identity metadata (federation information, etc. not-versioned) */
   public async metadata(): Promise<IdentityMetadata> {
     const metadata = await this.adapter.getMetadata(this.id);
-    if (!metadata) throw new IAMErrors.UnexpectedError(`empty metadata: ${this.id}`);
+    if (!metadata) throw new Error(`empty metadata: ${this.id}`);
     return metadata;
   }
 

@@ -1,5 +1,5 @@
 import { IdentityProvider } from "../idp";
-import { Logger } from "../logger";
+import { Logger } from "../helper/logger";
 import { OIDCProviderProxy, OIDCProviderProxyOptions } from "./proxy";
 export declare type OIDCProviderProps = {
     logger: Logger;

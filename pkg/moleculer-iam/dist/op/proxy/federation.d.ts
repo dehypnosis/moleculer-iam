@@ -1,7 +1,7 @@
 import { Strategy } from "passport";
 import { ProviderConfigBuilder } from "./config";
 import { ApplicationRequestContext } from "./app.types";
-import { Logger } from "../../logger";
+import { Logger } from "../../helper/logger";
 import { Identity, IdentityProvider } from "../../idp";
 export interface IdentityFederationProviderConfigurationMap {
     [provider: string]: IdentityFederationProviderConfiguration<any, any>;
@@ -38,12 +38,13 @@ export declare class IdentityFederationBuilder {
     private config;
     constructor(builder: ProviderConfigBuilder);
     private _prefix;
-    get prefix(): string;
+    readonly prefix: string;
     setCallbackPrefix(prefix: string): this;
     readonly getCallbackURL: (providerName: string) => string;
-    get providerNames(): string[];
+    readonly providerNames: string[];
     setProviderConfigurationMap(configMap: IdentityFederationProviderConfigurationMap): this;
     _dangerouslyBuild(): void;
+    private assertProvider;
     handleRequest(ctx: ApplicationRequestContext, next: () => Promise<void>, provider: string): Promise<void>;
     handleCallback(ctx: ApplicationRequestContext, next: () => Promise<void>, provider: string): Promise<Identity>;
 }

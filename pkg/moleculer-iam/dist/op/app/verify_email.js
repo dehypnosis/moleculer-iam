@@ -3,12 +3,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
 const _ = tslib_1.__importStar(require("lodash"));
 const moment_1 = tslib_1.__importDefault(require("moment"));
+const idp_1 = require("../../idp");
+const error_1 = require("./error");
 async function defaultSend({ logger, ...args }) {
     logger.warn("should implement op.app.verifyEmail.send option to send email verification mail", args);
 }
 function buildVerifyEmailRoutes(builder, opts) {
     const options = _.defaultsDeep(opts || {}, {
-        timeoutSeconds: 300,
+        timeoutSeconds: 180,
         send: defaultSend,
     });
     builder.app.router
@@ -25,10 +27,10 @@ function buildVerifyEmailRoutes(builder, opts) {
         // assert user with the email
         const user = await ctx.idp.find({ claims: { email: claims.email || "" } });
         if (registered && !user) {
-            ctx.throw(400, "Not a registered email address.");
+            throw new idp_1.IAMErrors.IdentityNotExistsError();
         }
         else if (!registered && user) {
-            ctx.throw(400, "Already registered email address.");
+            throw new idp_1.IAMErrors.IdentityAlreadyExistsError();
         }
         // update session
         if (!ctx.op.sessionPublicState.verifyEmail
@@ -58,7 +60,7 @@ function buildVerifyEmailRoutes(builder, opts) {
         if (publicState && publicState.verifyEmail) {
             const verifyState = publicState.verifyEmail;
             if (verifyState.email === claims.email && verifyState.expiresAt && moment_1.default().isBefore(verifyState.expiresAt)) {
-                ctx.throw(400, "Cannot resend an email verification code until previous one expires.");
+                throw new error_1.ApplicationErrors.TooMuchVerificationCodeRequest();
             }
         }
         // create and send code
@@ -107,7 +109,7 @@ function buildVerifyEmailRoutes(builder, opts) {
         const publicState = ctx.op.sessionPublicState.verifyEmail || {};
         const secretState = ctx.op.sessionSecretState.verifyEmail || {};
         if (publicState.email !== claims.email || moment_1.default().isAfter(publicState.expiresAt) || secretState.secret !== secret) {
-            ctx.throw("400", "Verification code has expired or incorrect.");
+            throw new error_1.ApplicationErrors.InvalidVerificationCode();
         }
         ctx.op.setSessionPublicState(prevState => ({
             ...prevState,
