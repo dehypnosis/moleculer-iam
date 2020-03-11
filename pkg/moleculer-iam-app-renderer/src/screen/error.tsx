@@ -1,8 +1,9 @@
 import React from "react";
-import { ScreenLayout } from "./component/layout";
-import { useAppState, useClose } from "../hook";
+import { ScreenLayout } from "./component";
+import { useAppState, useClose, useI18N } from "../hook";
 
 export const ErrorScreen: React.FunctionComponent = () => {
+  const { formatMessage: f } = useI18N();
   const [state] = useAppState();
   const error = state.error!;
   const {closed, close} = useClose();
@@ -10,15 +11,16 @@ export const ErrorScreen: React.FunctionComponent = () => {
     <ScreenLayout
       title={error.error}
       subtitle={error.error_description}
-      error={closed ? "Please close the window manually." : undefined}
+      error={closed ? f({id: "error.cannotClose"}) : undefined}
       loading={closed}
       buttons={[
         {
-          children: "Close",
+          children: f({id: "button.close"}),
           tabIndex: 1,
           onPress: close,
         },
       ]}
+      reloadOnLocaleChange
     />
   );
 };

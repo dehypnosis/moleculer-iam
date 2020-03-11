@@ -40,9 +40,21 @@ export class AppOptionsProvider extends React.Component<{}, AppOptions> {
     },
   } as ApplicationOptions);
 
+  componentWillMount() {
+    // apply new theme from query string
+    const theme = (window.location.search.substr(1).split("&").find(x => x.startsWith("theme=")) || "").split("=")[1] // query first
+      || (document.cookie.split("; ").find(s => s.trim().startsWith("theme=")) || "").split("=")[1]  // cookie second
+    if (theme && theme !== this.state.theme && Object.keys(this.state.palette).includes(theme)) {
+      console.debug("app theme options from querystring/cookie:", theme);
+      document.cookie = `theme=${theme}; path=/; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
+      this.setState({ theme });
+    }
+  }
+
   render() {
     console.debug("app options update:", this.state);
-    // set locale cookie
+    // store locale, theme in the cookie
+    // locale cookie is supported by moleculer-iam server itself
     const locale = `${this.state.locale.language || "ko"}-${this.state.locale.country || "KR"}`;
     document.cookie = `locale=${locale}; path=/; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
 

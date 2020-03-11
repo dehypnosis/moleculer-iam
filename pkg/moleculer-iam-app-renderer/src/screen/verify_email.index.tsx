@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { useAppState, useNavigation, useWithLoading } from "../hook";
+import { useAppState, useI18N, useNavigation, useWithLoading } from "../hook";
 import { ScreenLayout, FormInput, Text } from "./component";
 
 export const VerifyEmailIndexScreen: React.FunctionComponent = () => {
   // states
+  const {formatMessage: f} = useI18N();
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [state, dispatch] = useAppState();
   const [email, setEmail] = useState("");
@@ -16,7 +17,7 @@ export const VerifyEmailIndexScreen: React.FunctionComponent = () => {
       email,
       registered: true,
     }, {
-      email: "이메일",
+      email: f({id: "payload.email"}),
     })
       .then(() => {
         setErrors({});
@@ -41,13 +42,13 @@ export const VerifyEmailIndexScreen: React.FunctionComponent = () => {
   // render
   return (
     <ScreenLayout
-      title={`Verify your email`}
+      title={f({id: "verifyEmail.verifyEmail"})}
       loading={loading}
       error={errors.global}
       buttons={[
         {
           status: "primary",
-          children: "Continue",
+          children: f({id: "button.continue"}),
           onPress: handleCheckEmail,
           loading: handleCheckEmailLoading,
           tabIndex: 32,
@@ -60,9 +61,9 @@ export const VerifyEmailIndexScreen: React.FunctionComponent = () => {
       <FormInput
         autoFocus
         tabIndex={31}
-        label={`Email`}
+        label={ f({id: "payload.email"})}
         keyboardType={"email-address"}
-        placeholder="Enter your email address"
+        placeholder={ f({id: "placeholder.email"})}
         autoCompleteType={"username"}
         blurOnSubmit={false}
         value={email}

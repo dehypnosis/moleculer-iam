@@ -16,7 +16,7 @@ const customMapping: SchemaType = {
   version: 1,
 };
 
-export const ApplicationThemeProvider: React.FunctionComponent = ({ children }) => {
+export const AppThemeProvider: React.FunctionComponent = ({ children }) => {
   const [appOptions] = useAppOptions();
   const { theme, palette } = appOptions;
   const currentTheme: ApplicationThemePalette = (palette && theme && palette[theme]) || light || dark;

@@ -1,9 +1,10 @@
 import React from "react";
-import { useWithLoading, useNavigation, useAppState, useClose } from "../hook";
+import { useWithLoading, useNavigation, useAppState, useClose, useI18N } from "../hook";
 import { ScreenLayout, Text } from "./component";
 
 export const ResetPasswordEndScreen: React.FunctionComponent = () => {
   // states
+  const { formatMessage: f } = useI18N();
   const [state] = useAppState();
   const email = state.session.resetPassword.user.email;
 
@@ -24,15 +25,15 @@ export const ResetPasswordEndScreen: React.FunctionComponent = () => {
   // render
   return (
     <ScreenLayout
-      title={`Password reset`}
+      title={f({id: "resetPassword.passwordUpdated"})}
       subtitle={email}
       loading={loading || closed}
-      error={closed ? "Please close the window manually." : undefined}
+      error={closed ? f({id: "error.cannotClose"}) : undefined}
       buttons={[
         {
           hidden: !state.routes.login,
           status: "primary",
-          children: "Sign in",
+          children: f({id: "button.signIn"}),
           tabIndex: 210,
           onPress: handleLogin,
           loading: handleLoginLoading,
@@ -40,14 +41,14 @@ export const ResetPasswordEndScreen: React.FunctionComponent = () => {
         {
           hidden: !!state.routes.login,
           tabIndex: 211,
-          children: "Close",
+          children: f({id: "button.close"}),
           onPress: close,
           loading: closed,
         },
       ]}
     >
       <Text>
-        The account credential has been updated successfully.
+        {f({id: "resetPassword.passwordUpdatedSuccessfully"})}
       </Text>
     </ScreenLayout>
   );

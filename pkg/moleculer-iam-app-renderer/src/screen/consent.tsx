@@ -1,5 +1,5 @@
 import React from "react";
-import { useAppState, useWithLoading, useNavigation } from "../hook";
+import { useAppState, useWithLoading, useNavigation, useI18N } from "../hook";
 import { Text, Persona, ScreenLayout } from "./component";
 
 export const ConsentScreen: React.FunctionComponent = () => {
@@ -7,6 +7,7 @@ export const ConsentScreen: React.FunctionComponent = () => {
   const { loading, withLoading, errors, setErrors } = useWithLoading();
   const { nav } = useNavigation();
   const [state, dispatch] = useAppState();
+  const { formatMessage: f } = useI18N();
 
   // handlers
   const [handleAccept, handleAcceptLoading] = withLoading(() => {
@@ -38,13 +39,13 @@ export const ConsentScreen: React.FunctionComponent = () => {
   return (
     <ScreenLayout
       title={client.client_name}
-      subtitle={"Authorization consent required"}
+      subtitle={f({id: "consent.consentRequired"})}
       loading={loading}
       error={errors.global}
       buttons={[
         {
           status: "primary",
-          children: "Continue",
+          children: f({id: "button.continue"}),
           onPress: handleAccept,
           loading: handleAcceptLoading,
           tabIndex: 1,
@@ -59,13 +60,13 @@ export const ConsentScreen: React.FunctionComponent = () => {
           size: "medium",
           group: [
             {
-              children: "Privacy policy",
+              children: f({id: "consent.privacyPolicy"}),
               onPress: () => window.open(client.policy_uri, "_blank"),
               disabled: !client.policy_uri,
               tabIndex: 4,
             },
             {
-              children: "Terms of service",
+              children: f({id: "consent.termsOfService"}),
               onPress: () => window.open(client.tos_uri, "_blank"),
               disabled: !client.tos_uri,
               tabIndex: 5,
@@ -73,12 +74,12 @@ export const ConsentScreen: React.FunctionComponent = () => {
           ],
         },
         {
-          separator: "OR",
+          separator: f({id: "separator.or"}),
         },
         {
           appearance: "ghost",
           size: "small",
-          children: "Continue with other account",
+          children: f({id: "consent.changeAccount"}),
           onPress: handleChangeAccount,
           loading: handleChangeAccountLoading,
           tabIndex: 3,
@@ -87,7 +88,7 @@ export const ConsentScreen: React.FunctionComponent = () => {
           {
             appearance: "ghost",
             size: "small",
-            children: "Visit service homepage",
+            children: f({id: "consent.visitClientHomepage"}),
             onPress: () => window.open(client.client_uri, "_blank"),
             disabled: !client.client_uri,
             tabIndex: 6,
@@ -95,10 +96,9 @@ export const ConsentScreen: React.FunctionComponent = () => {
         ] : []),
       ]}
     >
-
       <Persona {...user} style={{marginBottom: 30}}/>
       <Text>
-        {scopes.new.concat(scopes.accepted).join(", ")} permissions are required.
+        {f({id: "consent.givenScopesRequired"}, { scopes: scopes.new.concat(scopes.accepted).join(", ")})}
       </Text>
     </ScreenLayout>
   );

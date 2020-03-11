@@ -32,6 +32,8 @@ export type IAMServerOptions = {
     maxAge?: number;
   }[];
 
+  persistentQueryParamsKeys?: string[];
+
   // server configuration
   http?: {
     hostname: string,
@@ -86,6 +88,13 @@ export class IAMServer {
 
     // set locale into context
     useLocale(app, "locale");
+
+    // prepare to persist some query strings on redirection
+    const { persistentQueryParamsKeys = [] } = this.options;
+    if (!persistentQueryParamsKeys.includes("locale")) {
+      persistentQueryParamsKeys.push("locale");
+    }
+
     app.use((ctx, next) => {
       // parsed by precedence of ?locale=ko-KR, Cookie: locale=ko-KR, Accept-Language: ko-KR
       // ref: https://github.com/koa-modules/locale
@@ -93,14 +102,19 @@ export class IAMServer {
       const locale = op.parseLocale(ctx.getLocaleFromQuery() || ctx.getLocaleFromCookie() || ctx.getLocaleFromHeader());
       ctx.locale = locale;
 
+      // persist some query strings on redirection
       return next()
         .then(() => {
-          // reassign locale query for redirection response
-          if (!ctx.headerSent && ctx.query.locale) {
+          // reassign locale/theme query for redirection response
+          if (!ctx.headerSent) {
             const redirect = ctx.response.get("Location");
             if (redirect.startsWith("/") || redirect.startsWith(op.issuer)) {
               const { protocol, auth, slashes, host, hash, query, pathname } = url.parse(redirect, true);
-              query.locale = ctx.query.locale;
+              for (const key of persistentQueryParamsKeys) {
+                if (ctx.query[key]) {
+                  query[key] = ctx.query[key];
+                }
+              }
               ctx.response.set("Location", url.format({ protocol, auth, slashes, host, hash, query, pathname }));
             }
           }

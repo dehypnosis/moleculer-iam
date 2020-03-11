@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import { useAppState, useNavigation, useWithLoading } from "../hook";
+import { useAppState, useI18N, useNavigation, useWithLoading } from "../hook";
 import { ScreenLayout, Text, Form, FormInput } from "./component";
 
 export const ResetPasswordSetScreen: React.FunctionComponent = () => {
   // states
+  const {formatMessage: f} = useI18N();
   const [state, dispatch] = useAppState();
   const email = state.session.resetPassword.user.email;
   const [payload, setPayload] = useState({
@@ -11,18 +12,20 @@ export const ResetPasswordSetScreen: React.FunctionComponent = () => {
     password_confirmation: "",
   });
 
+  const payloadLabels = {
+    email: f({id: "payload.email"}),
+    password: f({id: "payload.newPassword"}),
+    password_confirmation: f({id: "payload.newPasswordConfirmation"}),
+  };
+
   // handlers
-  const { nav } = useNavigation();
+  const {nav} = useNavigation();
   const {loading, errors, setErrors, withLoading} = useWithLoading();
   const [handleResetPassword, handleResetPasswordLoading] = withLoading(() => {
     return dispatch("reset_password.set", {
       email,
       ...payload,
-    }, {
-      email: "이메일",
-      password: "패스워드",
-      password_confirmation: "패스워드 확인",
-    })
+    }, payloadLabels)
       .then(() => {
         setErrors({});
         nav.navigate("reset_password.stack", {
@@ -46,20 +49,20 @@ export const ResetPasswordSetScreen: React.FunctionComponent = () => {
   // render
   return (
     <ScreenLayout
-      title={`Reset password`}
+      title={f({id: "resetPassword.resetPassword"})}
       subtitle={email}
       error={errors.global}
       loading={loading}
       buttons={[
         {
           status: "primary",
-          children: "Continue",
+          children: f({id: "button.continue"}),
           onPress: handleResetPassword,
           loading: handleResetPasswordLoading,
           tabIndex: 43,
         },
         {
-          children: "Cancel",
+          children: f({id: "button.cancel"}),
           onPress: handleCancel,
           loading: handleCancelLoading,
           tabIndex: 44,
@@ -68,7 +71,7 @@ export const ResetPasswordSetScreen: React.FunctionComponent = () => {
       ]}
     >
       <Text style={{marginBottom: 30}}>
-        Set a new password for your account.
+        {f({id: "resetPassword.setNewPassword"})}
       </Text>
       <Form onSubmit={handleResetPassword}>
         {/* to fill password hint by browser */}
@@ -78,26 +81,26 @@ export const ResetPasswordSetScreen: React.FunctionComponent = () => {
           style={{display: "none"}}
         />
         <FormInput
-          label="Password"
+          label={payloadLabels.password}
           tabIndex={41}
           autoFocus
           secureTextEntry
           autoCompleteType={"password"}
-          placeholder="Enter new password"
+          placeholder={f({id: "placeholder.newPassword"})}
           value={payload.password}
-          setValue={v => setPayload(p => ({...p, password: v }))}
+          setValue={v => setPayload(p => ({...p, password: v}))}
           error={errors.password}
           onEnter={handleResetPassword}
           style={{marginBottom: 15}}
         />
         <FormInput
-          label="Confirm"
+          label={payloadLabels.password_confirmation}
           tabIndex={42}
           secureTextEntry
           autoCompleteType={"password"}
-          placeholder="Confirm new password"
+          placeholder={f({id: "placeholder.newPasswordConfirmation"})}
           value={payload.password_confirmation}
-          setValue={v => setPayload(p => ({...p, password_confirmation: v }))}
+          setValue={v => setPayload(p => ({...p, password_confirmation: v}))}
           error={errors.password_confirmation}
           onEnter={handleResetPassword}
         />

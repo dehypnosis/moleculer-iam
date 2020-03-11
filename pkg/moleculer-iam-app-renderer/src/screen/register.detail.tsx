@@ -1,13 +1,14 @@
 import moment from "moment";
 import React, { useState } from "react";
 import { ScreenLayout, Text, Form, FormInput, FormAutoComplete, Icon, FormSelect } from "./component";
-import { useNavigation, useAppState, useWithLoading, useAppOptions } from "../hook";
+import { useNavigation, useAppState, useWithLoading, useAppOptions, useI18N } from "../hook";
 
 const months = new Array(12).fill(null).map((_, i) => ({ value: (i+1).toString(), title: (i+1).toString() }));
 const days = new Array(31).fill(null).map((_, i) => ({ value: (i+1).toString(), title: (i+1).toString() }));
 
 export const RegisterDetailScreen: React.FunctionComponent = () => {
   // state
+  const { formatMessage: f } = useI18N();
   const [state, dispatch] = useAppState();
   const [options] = useAppOptions();
   const tmpState = state.session.register || {};
@@ -23,6 +24,25 @@ export const RegisterDetailScreen: React.FunctionComponent = () => {
     },
     gender: tmpClaims.gender || "",
   });
+
+  const genderData = [{
+    value: "male",
+    text: f({id: "payload.gender.male"}),
+  }, {
+    value: "female",
+    text: f({id: "payload.gender.female"}),
+  }, {
+    value: "other",
+    text: f({id: "payload.gender.other"}),
+  }];
+
+  const payloadLabels = {
+    phone_number: f({id: "payload.phoneNumber"}),
+    birthdate: f({id: "payload.birthdate"}),
+    gender: f({id: "payload.gender"}),
+    "gender.expected": genderData.map(d => d.text).join(", "),
+  };
+
   const phoneNumberVerified = state.session.verifyPhone && state.session.verifyPhone.phoneNumber === payload.phone_number && state.session.verifyPhone.verified;
   const phoneNumberRequired = state.metadata.mandatoryScopes.includes("phone");
 
@@ -44,15 +64,13 @@ export const RegisterDetailScreen: React.FunctionComponent = () => {
       credentials: tmpCreds,
       scope: ["email", "profile", "birthdate", "gender"].concat((phoneNumberRequired || phone_number) ? "phone" : []),
     };
+    console.log(payload, data);
 
-    return dispatch("register.submit", data, {
-      phone_number: "핸드폰 번호",
-      birthdate: "생년월일",
-      gender: "성별",
-      "gender.expected": "남성, 여성, 기타",
-    })
-      .then(() => {
+    return dispatch("register.submit", data, payloadLabels)
+      .then((s) => {
         setErrors({});
+        // set normalized phone number
+        setPayload(p => ({ ...p, phone_number: s.session.register.claims.phone_number || "" }));
 
         // verify email
         if (data.claims.phone_number && !options.register.skipPhoneVerification && !phoneNumberVerified) {
@@ -60,7 +78,7 @@ export const RegisterDetailScreen: React.FunctionComponent = () => {
             phone_number: data.claims.phone_number,
             registered: false,
           }, {
-            phone_number: "핸드폰 번호",
+            phone_number: payloadLabels.phone_number,
           })
             .then(() => {
               nav.navigate("verify_phone.stack", {
@@ -76,12 +94,7 @@ export const RegisterDetailScreen: React.FunctionComponent = () => {
           return dispatch("register.submit", {
             ...data,
             register: true,
-          }, {
-            phone_number: "핸드폰 번호",
-            birthdate: "생년월일",
-            gender: "성별",
-            "gender.expected": "남성, 여성, 기타",
-          })
+          }, payloadLabels)
             .then(() => {
               nav.navigate("register.stack", {
                 screen: "register.end",
@@ -104,20 +117,20 @@ export const RegisterDetailScreen: React.FunctionComponent = () => {
   // render
   return (
     <ScreenLayout
-      title={"Sign up"}
+      title={f({id: "register.signUp"})}
       subtitle={tmpClaims.email}
       loading={loading}
       error={errors.global}
       buttons={[
         {
           status: "primary",
-          children: "Continue",
+          children: f({id: "button.continue"}),
           onPress: handlePayloadSubmit,
           loading: handlePayloadSubmitLoading,
           tabIndex: 68,
         },
         {
-          children: "Cancel",
+          children: f({id: "button.cancel"}),
           onPress: handleCancel,
           loading: handleCancelLoading,
           tabIndex: 69,
@@ -125,15 +138,15 @@ export const RegisterDetailScreen: React.FunctionComponent = () => {
       ]}
     >
       <Text style={{marginBottom: 30}}>
-        Please enter the phone number to find the your account for the case of lost.
+        {f({id: "register.pleaseEnterPhoneNumber"})}
       </Text>
 
       <Form onSubmit={handlePayloadSubmit}>
         <FormInput
           autoFocus={!payload.phone_number}
           tabIndex={61}
-          label={`Phone number${phoneNumberRequired ? "" : " (optional)"}`}
-          placeholder={`Enter your mobile phone number (${options.locale.country})`}
+          label={`${payloadLabels.phone_number}${phoneNumberRequired ? "" : ` (${f({id: "payload.optional"})})`}`}
+          placeholder={f({id: "placeholder.phoneNumber"}, { country: options.locale.country })}
           blurOnSubmit={false}
           keyboardType={"phone-pad"}
           autoCompleteType={"tel"}
@@ -157,9 +170,9 @@ export const RegisterDetailScreen: React.FunctionComponent = () => {
 
         <FormInput
           tabIndex={62}
-          label={"Birthdate"}
+          label={payloadLabels.birthdate}
           keyboardType={"numeric"}
-          placeholder={`Enter your birth year (YYYY)`}
+          placeholder={f({id: "placeholder.birthYear"})}
           value={payload.birthdate.year}
           setValue={v => setPayload(p => ({...p, birthdate: {...p.birthdate, year: v}}))}
           status={errors.birthdate ? "danger" : "basic"}
@@ -168,7 +181,7 @@ export const RegisterDetailScreen: React.FunctionComponent = () => {
         <FormAutoComplete
           tabIndex={63}
           keyboardType={"numeric"}
-          placeholder={`Enter your birth month`}
+          placeholder={f({id: "placeholder.birthMonth"})}
           value={payload.birthdate.month}
           data={months}
           setValue={v => setPayload(p => ({...p, birthdate: {...p.birthdate, month: v}}))}
@@ -178,7 +191,7 @@ export const RegisterDetailScreen: React.FunctionComponent = () => {
         <FormAutoComplete
           tabIndex={64}
           keyboardType={"numeric"}
-          placeholder={"Enter your birth day"}
+          placeholder={f({id: "placeholder.birthDay"})}
           value={payload.birthdate.day}
           data={days}
           setValue={v => setPayload(p => ({...p, birthdate: {...p.birthdate, day: v}}))}
@@ -188,9 +201,9 @@ export const RegisterDetailScreen: React.FunctionComponent = () => {
 
         <FormSelect
           tabIndex={65}
-          label={"Gender"}
-          placeholder={"Select your gender"}
-          data={[{value: "male", text: "Male"}, {value: "female", text: "Female"}, {value: "other", text:"Other"}]}
+          label={payloadLabels.gender}
+          placeholder={f({id: "placeholder.gender"})}
+          data={genderData}
           value={payload.gender}
           setValue={v => setPayload(p => ({...p, gender: v}))}
           error={errors.gender}

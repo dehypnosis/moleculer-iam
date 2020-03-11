@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { ScreenLayout, Text, Form, FormInput, Icon } from "./component";
-import { useNavigation, useAppState, useWithLoading, useAppOptions } from "../hook";
+import { useNavigation, useAppState, useWithLoading, useAppOptions, useI18N } from "../hook";
 
 export const RegisterIndexScreen: React.FunctionComponent = () => {
   // state
+  const { formatMessage: f } = useI18N();
   const [state, dispatch] = useAppState();
   const [options] = useAppOptions();
   const tmpState = state.session.register || {};
@@ -15,6 +16,14 @@ export const RegisterIndexScreen: React.FunctionComponent = () => {
     password: tmpCreds.password || "",
     password_confirmation: tmpCreds.password_confirmation || "",
   });
+
+  const payloadLabels = {
+    name: f({id: "payload.name"}),
+    email: f({id: "payload.email"}),
+    password: f({id: "payload.password"}),
+    password_confirmation: f({id: "payload.passwordConfirmation"}),
+  };
+
   const emailVerified = state.session.verifyEmail && state.session.verifyEmail.email === payload.email && state.session.verifyEmail.verified;
 
   // handlers
@@ -35,14 +44,11 @@ export const RegisterIndexScreen: React.FunctionComponent = () => {
       scope: ["email", "profile"],
     };
 
-    return dispatch("register.submit", data, {
-      name: "이름",
-      email: "이메일",
-      password: "패스워드",
-      password_confirmation: "패스워드 확인",
-    })
-      .then(() => {
+    return dispatch("register.submit", data, payloadLabels)
+      .then((s) => {
         setErrors({});
+        // set normalized email
+        setPayload(p => ({ ...p, email: s.session.register.claims.email || "" }));
 
         // verify email
         if (!options.register.skipEmailVerification && !emailVerified) {
@@ -95,14 +101,14 @@ export const RegisterIndexScreen: React.FunctionComponent = () => {
   const discovery = state.metadata.discovery;
   return (
     <ScreenLayout
-      title={"Sign up"}
-      subtitle={"Create an account"}
+      title={f({id: "register.signUp"})}
+      subtitle={f({id: "register.createAccount"})}
       loading={loading}
       error={errors.global}
       buttons={[
         {
           status: "primary",
-          children: "Continue",
+          children: f({id: "button.continue"}),
           onPress: handlePayloadSubmit,
           loading: handlePayloadSubmitLoading,
           tabIndex: 55,
@@ -111,13 +117,13 @@ export const RegisterIndexScreen: React.FunctionComponent = () => {
           size: "medium",
           group: [
             {
-              children: "Privacy policy",
+              children: f({id: "register.privacyPolicy"}),
               onPress: () => window.open(discovery.op_policy_uri!, "_blank"),
               disabled: !discovery.op_policy_uri,
               tabIndex: 4,
             },
             {
-              children: "Terms of service",
+              children: f({id: "register.termsOfService"}),
               onPress: () => window.open(discovery.op_tos_uri!, "_blank"),
               disabled: !discovery.op_tos_uri,
               tabIndex: 5,
@@ -126,7 +132,7 @@ export const RegisterIndexScreen: React.FunctionComponent = () => {
         },
         {
           size: "medium",
-          children: "Cancel",
+          children: f({id: "button.cancel"}),
           onPress: handleCancel,
           loading: handleCancelLoading,
           hidden: !state.routes.login,
@@ -136,10 +142,10 @@ export const RegisterIndexScreen: React.FunctionComponent = () => {
     >
       <Form onSubmit={handlePayloadSubmit}>
         <FormInput
-          label={"Name"}
+          label={payloadLabels.name}
           tabIndex={51}
           keyboardType={"default"}
-          placeholder="Enter your name"
+          placeholder={f({id: "placeholder.name"})}
           autoCompleteType={"name"}
           autoFocus={!payload.name}
           value={payload.name}
@@ -149,10 +155,10 @@ export const RegisterIndexScreen: React.FunctionComponent = () => {
           style={{marginBottom: 15}}
         />
         <FormInput
-          label={"Email"}
+          label={payloadLabels.email}
           tabIndex={52}
           keyboardType={"email-address"}
-          placeholder="Enter your email address"
+          placeholder={f({id: "placeholder.email"})}
           autoCompleteType={"username"}
           value={payload.email}
           setValue={v => setPayload(p => ({...p, email: v}))}
@@ -162,11 +168,11 @@ export const RegisterIndexScreen: React.FunctionComponent = () => {
           style={{marginBottom: 15}}
         />
         <FormInput
-          label="Password"
+          label={payloadLabels.password}
           tabIndex={53}
           secureTextEntry
           autoCompleteType={"password"}
-          placeholder="Enter password"
+          placeholder={f({id: "placeholder.password"})}
           value={payload.password}
           setValue={v => setPayload(p => ({...p, password: v }))}
           error={errors.password}
@@ -174,18 +180,20 @@ export const RegisterIndexScreen: React.FunctionComponent = () => {
           style={{marginBottom: 15}}
         />
         <FormInput
-          label="Confirm"
+          label={payloadLabels.password_confirmation}
           tabIndex={54}
           secureTextEntry
           autoCompleteType={"password"}
-          placeholder="Confirm password"
+          placeholder={f({id: "placeholder.passwordConfirmation"})}
           value={payload.password_confirmation}
           setValue={v => setPayload(p => ({...p, password_confirmation: v }))}
           error={errors.password_confirmation}
           onEnter={handlePayloadSubmit}
         />
       </Form>
-      <Text style={{marginTop: 30}}>By continuing, you are agreeing to the terms of service and the privacy policy.</Text>
+      <Text style={{marginTop: 30}}>
+        {f({id: "register.continueThenAgreed"})}
+      </Text>
     </ScreenLayout>
   );
 };

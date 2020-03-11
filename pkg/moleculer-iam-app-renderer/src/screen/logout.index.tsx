@@ -1,10 +1,11 @@
 import React from "react";
-import { useAppState, useWithLoading } from "../hook";
+import { useAppState, useI18N, useWithLoading } from "../hook";
 import { ScreenLayout } from "./component";
 import { ActiveSessionList } from "./logout.end";
 
 export const LogoutIndexScreen: React.FunctionComponent = () => {
   // states
+  const { formatMessage: f } = useI18N();
   const { loading, withLoading, errors, setErrors } = useWithLoading();
   const [state, dispatch] = useAppState();
 
@@ -28,13 +29,13 @@ export const LogoutIndexScreen: React.FunctionComponent = () => {
       buttons={[
         {
           status: "primary",
-          children: "Done",
+          children: f({id: "button.done"}),
           onPress: handleRedirect,
           loading: handleRedirectLoading,
           tabIndex: 1,
         },
         {
-          children: "Sign out from all",
+          children: f({id: "logout.signOutAllSessions"}),
           onPress: handleSignOutAll,
           loading: handleSignOutAllLoading,
           tabIndex: 2,

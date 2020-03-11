@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import { useAppState, useNavigation, useWithLoading } from "../hook";
+import { useAppState, useI18N, useNavigation, useWithLoading } from "../hook";
 import { Form, FormInput, ScreenLayout } from "./component";
 
 export const LoginCheckPasswordScreen: React.FunctionComponent = () => {
   // state
+  const { formatMessage: f } = useI18N();
   const [password, setPassword] = useState("");
   const [state, dispatch] = useAppState();
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -15,8 +16,8 @@ export const LoginCheckPasswordScreen: React.FunctionComponent = () => {
 
   const [handleCheckLoginPassword, handleCheckLoginPasswordLoading] = withLoading(async () => {
     return dispatch("login.check_password", { email, password }, {
-      email: "이메일",
-      password: "패스워드",
+      email: f({id: "payload.email"}),
+      password: f({id: "payload.password"}),
     })
       .catch((err: any) => setErrors(err));
   }, [password]);
@@ -52,29 +53,29 @@ export const LoginCheckPasswordScreen: React.FunctionComponent = () => {
   // render
   return (
     <ScreenLayout
-      title={`Hi, ${name}`}
+      title={f({id: "login.hiName"}, { name })}
       subtitle={email}
       loading={loading}
       error={errors.global}
       buttons={[
         {
           status: "primary",
-          children: "Sign in",
+          children: f({id: "button.signIn"}),
           onPress: handleCheckLoginPassword,
           loading: handleCheckLoginPasswordLoading,
           tabIndex: 22,
         },
         {
-          children: "Cancel",
+          children: f({id: "button.cancel"}),
           onPress: handleCancel,
           loading: handleCancelLoading,
           tabIndex: 23,
         },
         {
-          separator: "OR",
+          separator: f({id: "separator.or"}),
         },
         {
-          children: "Forgot password?",
+          children: f({id: "login.resetPassword"}),
           tabIndex: 24,
           onPress: handleResetPassword,
           loading: handleResetPasswordLoading,
@@ -91,12 +92,12 @@ export const LoginCheckPasswordScreen: React.FunctionComponent = () => {
           style={{display: "none"}}
         />
         <FormInput
-          label="Password"
+          label={f({id: "payload.password"})}
           tabIndex={21}
           autoFocus
           secureTextEntry
           autoCompleteType={"password"}
-          placeholder="Enter your password"
+          placeholder={f({id: "placeholder.password"})}
           value={password}
           setValue={setPassword}
           error={errors.password}

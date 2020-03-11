@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { useWithLoading, useNavigation, useAppState } from "../hook";
+import { useWithLoading, useNavigation, useAppState, useI18N } from "../hook";
 import { Text, ScreenLayout, FormInput } from "./component";
 
 export const ResetPasswordIndexScreen: React.FunctionComponent = () => {
   // states
+  const { formatMessage: f } = useI18N();
   const [state, dispatch] = useAppState();
   const [email, setEmail] = useState((state.user && state.user.email) || "");
   const { nav, route } = useNavigation();
@@ -15,7 +16,7 @@ export const ResetPasswordIndexScreen: React.FunctionComponent = () => {
       email,
       registered: true,
     }, {
-      email: "이메일",
+      email: f({id: "payload.email"}),
     })
       .then(() => {
         setErrors({});
@@ -52,20 +53,20 @@ export const ResetPasswordIndexScreen: React.FunctionComponent = () => {
   // render
   return (
     <ScreenLayout
-      title={`Reset password`}
-      subtitle={`with email verification`}
+      title={f({id: "resetPassword.resetPassword"})}
+      subtitle={f({id: "resetPassword.byEmail"})}
       loading={loading}
       error={errors.global}
       buttons={[
         {
           status: "primary",
-          children: "Continue",
+          children: f({id: "button.continue"}),
           onPress: handleCheckEmail,
           loading: handleCheckEmailLoading,
           tabIndex: 22,
         },
         {
-          children: "Cancel",
+          children: f({id: "button.cancel"}),
           onPress: handleCancel,
           loading: handleCancelLoading,
           tabIndex: 23,
@@ -74,14 +75,14 @@ export const ResetPasswordIndexScreen: React.FunctionComponent = () => {
       ]}
     >
       <Text style={{marginBottom: 30}}>
-        Verify your registered email address.
+        {f({id: "resetPassword.verifyEmail"})}
       </Text>
       <FormInput
         autoFocus
         tabIndex={21}
-        label={`Email`}
+        label={f({id: "payload.email"})}
         keyboardType={"email-address"}
-        placeholder="Enter your email address"
+        placeholder={f({id: "placeholder.email"})}
         autoCompleteType={"username"}
         blurOnSubmit={false}
         value={email}

@@ -1,10 +1,11 @@
 import React from "react";
-import { useNavigation, useAppState, useWithLoading, useClose } from "../hook";
+import { useNavigation, useAppState, useWithLoading, useClose, useI18N } from "../hook";
 import { ScreenLayout, Text, Persona } from "./component";
 
 export const FindEmailEndScreen: React.FunctionComponent = () => {
   // states
   const [state] = useAppState();
+  const { formatMessage: f } = useI18N();
 
   // handlers
   const { nav } = useNavigation();
@@ -23,15 +24,15 @@ export const FindEmailEndScreen: React.FunctionComponent = () => {
   // render
   return (
     <ScreenLayout
-      title={`Find your account`}
-      subtitle={`With mobile phone`}
+      title={f({id: "findEmail.findYourAccount"})}
+      subtitle={f({id: "findEmail.byPhone"})}
       loading={loading || closed}
-      error={closed ? "Please close the window manually." : undefined}
+      error={closed ? f({id: "error.cannotClose"}) : undefined}
       buttons={[
         {
           hidden: !state.routes.login,
           status: "primary",
-          children: "Sign in",
+          children: f({id: "button.signIn"}),
           tabIndex: 210,
           onPress: handleLogin,
           loading: handleLoginLoading,
@@ -39,7 +40,7 @@ export const FindEmailEndScreen: React.FunctionComponent = () => {
         {
           hidden: !!state.routes.login,
           tabIndex: 211,
-          children: "Close",
+          children: f({id: "button.close"}),
           onPress: close,
           loading: closed,
         },
@@ -47,7 +48,7 @@ export const FindEmailEndScreen: React.FunctionComponent = () => {
     >
       <Persona {...state.session.findEmail.user}/>
       <Text style={{marginTop: 30}}>
-        Found your account.
+        {f({id: "findEmail.foundYourAccount"})}
       </Text>
     </ScreenLayout>
   );

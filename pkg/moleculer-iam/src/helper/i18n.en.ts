@@ -39,7 +39,7 @@ const en = {
 
     // OIDCProviderProxyErrors
     InvalidPromptSession: {
-      name: "Internal Error",
+      name: "Session Error",
       description: "The login session has expired or invalid.",
     },
     InvalidFederationProvider: {
@@ -121,13 +121,13 @@ const en = {
         arrayMax: "The [field] field must contain less than or equal to [expected] items.",
         arrayLength: "The [field] field must contain [expected] items.",
         arrayContains: "The [field] field must contain the [expected] item.",
-        arrayUnique: "The [actual] value in [field] field does not unique the [expected] values.",
-        arrayEnum: "The [actual] value in [field] field does not match any of the [expected] values.",
+        arrayUnique: "The [actual] value in [field] field does not unique the [expected].",
+        arrayEnum: "The [actual] value in [field] field does not match any of [expected].",
         boolean: "The [field] field must be a boolean.",
         date: "The [field] field must be a Date.",
         dateMin: "The [field] field must be greater than or equal to [expected].",
         dateMax: "The [field] field must be less than or equal to [expected].",
-        enumValue: "The [field] field value [expected] does not match any of the allowed values.",
+        enumValue: "The [field] field value does not match any of [expected].",
         equalValue: "The [field] field value must be equal to [expected].",
         equalField: "The [field] field value must be equal to [expected] field value.",
         forbidden: "The [field] field is forbidden.",

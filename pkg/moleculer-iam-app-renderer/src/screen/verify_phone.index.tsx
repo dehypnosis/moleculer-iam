@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { useNavigation, useAppState, useWithLoading, useAppOptions } from "../hook";
+import { useNavigation, useAppState, useWithLoading, useAppOptions, useI18N } from "../hook";
 import { Text, ScreenLayout, FormInput } from "./component";
 
 export const VerifyPhoneIndexScreen: React.FunctionComponent = () => {
   // states
+  const {formatMessage: f} = useI18N();
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [state, dispatch] = useAppState();
   const [options] = useAppOptions();
@@ -17,10 +18,11 @@ export const VerifyPhoneIndexScreen: React.FunctionComponent = () => {
       phone_number: `${options.locale.country}|${phoneNumber}`,
       registered: true,
     }, {
-      phone_number: "핸드폰 번호",
+      phone_number: f({id: "payload.phoneNumber"}),
     })
-      .then(() => {
+      .then((s) => {
         setErrors({});
+        setPhoneNumber(s.session.verifyPhone.phoneNumber);
         nav.navigate("verify_phone.stack", {
           screen: "verify_phone.verify",
           params: {},
@@ -41,13 +43,13 @@ export const VerifyPhoneIndexScreen: React.FunctionComponent = () => {
   // render
   return (
     <ScreenLayout
-      title={`Verify your phone`}
+      title={f({id: "verifyPhone.verifyPhone"})}
       loading={loading}
       error={errors.global}
       buttons={[
         {
           status: "primary",
-          children: "Continue",
+          children: f({id: "button.continue"}),
           onPress: handleCheckPhoneNumber,
           loading: handleCheckPhoneNumberLoading,
           tabIndex: 22,
@@ -55,13 +57,13 @@ export const VerifyPhoneIndexScreen: React.FunctionComponent = () => {
       ]}
     >
       <Text style={{marginBottom: 30}}>
-        Verify your registered phone number.
+        {f({id: "verifyPhone.verifyRegisteredPhone"})}
       </Text>
       <FormInput
         autoFocus
         tabIndex={21}
-        label={`Phone number`}
-        placeholder={`Enter your mobile phone number (${options.locale.country})`}
+        label={f({id: "payload.phoneNumber"})}
+        placeholder={f({id: "placeholder.phoneNumber"}, { country: options.locale.country})}
         blurOnSubmit={false}
         keyboardType={"phone-pad"}
         autoCompleteType={"tel"}

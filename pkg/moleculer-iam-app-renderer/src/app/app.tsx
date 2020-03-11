@@ -7,7 +7,8 @@ import { routeConfig } from "./routes";
 import { AppOptionsProvider } from "./options";
 import { AppStateProvider } from "./state";
 import { AppNavigationProvider } from "./navigation";
-import { ApplicationThemeProvider } from "./theme";
+import { AppThemeProvider } from "./theme";
+import { AppI18NProvider } from "./i18n";
 
 import { FindEmailIndexScreen } from "../screen/find_email.index";
 import { FindEmailEndScreen } from "../screen/find_email.end";
@@ -32,13 +33,15 @@ import { VerifyPhoneVerifyScreen } from "../screen/verify_phone.verify";
 export const App: React.FunctionComponent = () => {
   return (
     <AppOptionsProvider>
-      <ApplicationThemeProvider>
+      <AppThemeProvider>
         <AppStateProvider>
           <AppNavigationProvider routeConfig={routeConfig}>
-            <AppTabs />
+            <AppI18NProvider>
+              <AppStacks />
+            </AppI18NProvider>
           </AppNavigationProvider>
         </AppStateProvider>
-      </ApplicationThemeProvider>
+      </AppThemeProvider>
     </AppOptionsProvider>
   )
 };
@@ -49,7 +52,7 @@ const useNavOptions = () => useContext(NavOptionsProvider);
 
 const RootStack = createStackNavigator();
 
-const AppTabs = () => {
+const AppStacks = () => {
   const backgroundColor = useThemePalette()["background-basic-color-1"];
   const navOptions: StackNavigationOptions = {
     headerShown: false,

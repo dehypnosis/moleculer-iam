@@ -1,12 +1,13 @@
 import moment from "moment";
 import React, { useCallback, useEffect, useState } from "react";
 import { Image } from "react-native";
-import { useAppState, useNavigation, useWithLoading } from "../hook";
+import { useAppState, useI18N, useNavigation, useWithLoading } from "../hook";
 import { ScreenLayout, FormInput, Text } from "./component";
 import svg from "../assets/screen_sent.svg";
 
 export const VerifyEmailVerifyScreen: React.FunctionComponent = () => {
   // states
+  const {formatMessage: f} = useI18N();
   const [state, dispatch] = useAppState();
   const email = state.session.verifyEmail.email;
   const expiresAt = state.session.verifyEmail.expiresAt;
@@ -37,7 +38,7 @@ export const VerifyEmailVerifyScreen: React.FunctionComponent = () => {
     return dispatch("verify_email.send", {
       email,
     }, {
-      email: "이메일",
+      email: f({id: "payload.email"}),
     })
       .then((s) => {
         setErrors({});
@@ -89,6 +90,9 @@ export const VerifyEmailVerifyScreen: React.FunctionComponent = () => {
       email,
       secret,
       callback,
+    }, {
+      email: f({id: "payload.email"}),
+      secret: f({id: "payload.verificationCode"}),
     })
       .then(() => {
         setErrors({});
@@ -118,25 +122,25 @@ export const VerifyEmailVerifyScreen: React.FunctionComponent = () => {
   // render
   return (
     <ScreenLayout
-      title={`Verify email address`}
+      title={f({id: "verifyEmail.verifyEmail"})}
       subtitle={email}
       buttons={[
         ...(expiresAt ? [{
           status: "primary",
-          children: "Verify",
+          children: f({id: "button.verify"}),
           onPress: handleVerify,
           loading: handleVerifyLoading,
           tabIndex: 111,
         }] : []),
         {
           status: expiresAt? "basic" : "primary",
-          children: expiresAt ? "Resend" : "Send",
+          children: f({id: expiresAt ? "button.resend" : "button.send"}),
           onPress: handleSend,
           loading: handleSendLoading,
           tabIndex: 112,
         },
         {
-          children: "Cancel",
+          children: f({id: "button.cancel"}),
           onPress: handleCancel,
           loading: handleCancelLoading,
           tabIndex: 113,
@@ -148,12 +152,12 @@ export const VerifyEmailVerifyScreen: React.FunctionComponent = () => {
       {expiresAt ? (
         <>
           <Text style={{marginBottom: 30}}>
-            Enter the received 6-digit verification code.
+            {f({id: "verifyEmail.enterTheCode"})}
           </Text>
           <FormInput
-            label="Verification code"
+            label={f({id: "payload.verificationCode"})}
             keyboardType="number-pad"
-            placeholder="Enter the verification code"
+            placeholder={f({id: "placeholder.verificationCode"})}
             autoFocus
             tabIndex={110}
             blurOnSubmit={false}
@@ -167,7 +171,7 @@ export const VerifyEmailVerifyScreen: React.FunctionComponent = () => {
       ): (
         <>
           <Text style={{marginBottom: 30}}>
-            An email with a verification code will be sent to verify the email address.
+            {f({id: "verifyEmail.codeGonnaBeSent"})}
           </Text>
           <Image
             source={{uri: svg}}

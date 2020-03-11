@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { ViewStyle, TextStyle } from "react-native";
-import { useNavigation, useAppState, useWithLoading, useAppOptions } from "../hook";
+import { useNavigation, useAppState, useWithLoading, useAppOptions, useI18N } from "../hook";
 import { Form, FormInput, ScreenLayout } from "./component";
 
 
 export const LoginIndexScreen: React.FunctionComponent = () => {
   // state
+  const { formatMessage: f } = useI18N();
   const { nav, route } = useNavigation();
   const [email, setEmail] = useState("");
   const [state, dispatch] = useAppState();
@@ -23,7 +24,7 @@ export const LoginIndexScreen: React.FunctionComponent = () => {
 
   const [handleCheckLoginEmail, handleCheckLoginEmailLoading] = withLoading(() => {
     return dispatch("login.check_email", { email }, {
-      email: "이메일",
+      email: f({id: "payload.email"}),
     })
       .then(() => {
         setErrors({});
@@ -84,26 +85,26 @@ export const LoginIndexScreen: React.FunctionComponent = () => {
       buttons={[
         {
           status: "primary",
-          children: "Continue",
+          children: f({id: "button.continue"}),
           onPress: handleCheckLoginEmail,
           loading: handleCheckLoginEmailLoading,
           tabIndex: 12,
         },
         {
-          children: "Sign up",
+          children: f({id: "button.signUp"}),
           onPress: handleSignUp,
           loading: handleSignUpLoading,
           tabIndex: 13,
         },
         ...(
           federationProviders.length > 0 ? [
-            { separator: "OR" },
+            { separator: f({id: "separator.or"}), },
             ...federationOptionsVisible ? federationProviders.map((provider, i) => {
               const { style, textStyle } = getFederationStyle(provider);
               return {
                 onPress: () => { handleFederation(provider) },
                 loading: handleFederationLoading,
-                children: getFederationText(provider),
+                children: f({id: `login.federate.${provider.toLowerCase()}`, defaultMessage: f({id: `login.federate.default`}, { provider: provider.toUpperCase() })}, { provider: provider.toUpperCase() }),
                 tabIndex: 14 + i,
                 style,
                 textStyle,
@@ -112,7 +113,7 @@ export const LoginIndexScreen: React.FunctionComponent = () => {
             }) : [
               {
                 onPress: () => setFederationOptionsVisible(true),
-                children: "Find more login options?",
+                children: f({id: "login.showMoreLoginOptions"}),
                 tabIndex: 14,
                 appearance: "ghost",
                 size: "small",
@@ -123,7 +124,7 @@ export const LoginIndexScreen: React.FunctionComponent = () => {
         {
           onPress: handleFindEmail,
           loading: handleFindEmailLoading,
-          children: "Forgot your email address?",
+          children: f({id: "login.findEmail"}),
           appearance: "ghost",
           size: "small",
         },
@@ -131,9 +132,9 @@ export const LoginIndexScreen: React.FunctionComponent = () => {
     >
       <Form onSubmit={handleCheckLoginEmail}>
         <FormInput
-          label={"Email"}
+          label={f({id: "payload.email"})}
           keyboardType={"email-address"}
-          placeholder="Enter your email address"
+          placeholder={f({id: "placeholder.email"})}
           autoCompleteType={"username"}
           autoFocus
           value={email}
@@ -144,14 +145,6 @@ export const LoginIndexScreen: React.FunctionComponent = () => {
       </Form>
     </ScreenLayout>
   );
-};
-
-
-const federationText: {[provider: string]: string} = {
-  google: "Login with Google",
-  facebook: "Login with Facebook",
-  kakao: "Login with Kakaotalk",
-  default: "Login with {provider}",
 };
 
 const federationStyle: {[provider: string]: {style?: ViewStyle, textStyle?: TextStyle}} = {
@@ -192,10 +185,6 @@ const federationStyle: {[provider: string]: {style?: ViewStyle, textStyle?: Text
     },
   },
 };
-
-function getFederationText(provider: string) {
-  return federationText[provider] || federationText.default.replace("{provider}", provider.toLocaleUpperCase());
-}
 
 function getFederationStyle(provider: string) {
   return federationStyle[provider] || federationStyle.default;

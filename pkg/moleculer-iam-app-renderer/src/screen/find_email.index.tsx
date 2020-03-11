@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useAppState, useWithLoading, useNavigation, useAppOptions } from "../hook";
+import { useAppState, useWithLoading, useNavigation, useAppOptions, useI18N } from "../hook";
 import { ScreenLayout, Text, FormInput } from "./component";
 
 export const FindEmailIndexScreen: React.FunctionComponent = () => {
@@ -7,6 +7,7 @@ export const FindEmailIndexScreen: React.FunctionComponent = () => {
   const [state, dispatch] = useAppState();
   const [options] = useAppOptions();
   const [phoneNumber, setPhoneNumber] = useState("");
+  const { formatMessage: f } = useI18N();
 
   // handlers
   const { loading, errors, setErrors, withLoading } = useWithLoading();
@@ -15,10 +16,11 @@ export const FindEmailIndexScreen: React.FunctionComponent = () => {
       phone_number: `${options.locale.country}|${phoneNumber}`,
       registered: true,
     }, {
-      phone_number: "핸드폰 번호",
+      phone_number: f({id: "payload.phoneNumber"}),
     })
-      .then(() => {
+      .then((s) => {
         setErrors({});
+        setPhoneNumber(s.session.verifyPhone.phoneNumber);
         nav.navigate("verify_phone.stack", {
           screen: "verify_phone.verify",
           params: {
@@ -40,19 +42,19 @@ export const FindEmailIndexScreen: React.FunctionComponent = () => {
   // render
   return (
     <ScreenLayout
-      title={`Find your account`}
-      subtitle={`With phone verification`}
+      title={f({id: "findEmail.findYourAccount"})}
+      subtitle={f({id: "findEmail.byPhone"})}
       loading={loading}
       buttons={[
         {
           status: "primary",
-          children: "Continue",
+          children: f({id: "button.continue"}),
           onPress: handleCheckPhoneNumber,
           loading: handleCheckPhoneNumberLoading,
           tabIndex: 22,
         },
         {
-          children: "Cancel",
+          children: f({id: "button.cancel"}),
           onPress: handleCancel,
           loading: handleCancelLoading,
           tabIndex: 23,
@@ -62,13 +64,13 @@ export const FindEmailIndexScreen: React.FunctionComponent = () => {
       error={errors.global}
     >
       <Text style={{marginBottom: 30}}>
-        Have you registered a phone number?
+        {f({id: "findEmail.haveRegisteredPhoneNumber"})}
       </Text>
       <FormInput
         autoFocus
         tabIndex={21}
-        label={`Phone number`}
-        placeholder={`Enter your mobile phone number (${options.locale.country})`}
+        label={f({id: "payload.phoneNumber"})}
+        placeholder={f({ id: "placeholder.phoneNumber" }, { country: options.locale.country })}
         blurOnSubmit={false}
         keyboardType={"phone-pad"}
         autoCompleteType={"tel"}

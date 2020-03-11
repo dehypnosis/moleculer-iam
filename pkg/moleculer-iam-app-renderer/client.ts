@@ -19,7 +19,8 @@ export function getInitialAppState(): ApplicationState {
       language: "ko",
       country: "KR",
     },
-  }) as ApplicationState;
+    metadata: {},
+  });
 }
 
 export function getAppPrefix() {

@@ -1,9 +1,10 @@
 import React from "react";
-import { useWithLoading, useAppState, useClose } from "../hook";
+import { useWithLoading, useAppState, useClose, useI18N } from "../hook";
 import { ScreenLayout, Persona, Text } from "./component";
 
 export const RegisterEndScreen: React.FunctionComponent = () => {
   // states
+  const { formatMessage: f } = useI18N();
   const [state, dispatch] = useAppState();
   const user = state.session.registered || {};
 
@@ -18,20 +19,20 @@ export const RegisterEndScreen: React.FunctionComponent = () => {
   // render
   return (
     <ScreenLayout
-      title={"Signed up"}
+      title={f({id: "register.signedUp"})}
       loading={loading || closed}
-      error={errors.global || (closed ? "Please close the window manually." : undefined)}
+      error={errors.global || (closed ? f({id: "error.cannotClose"}) : undefined)}
       buttons={[
         {
           status: "primary",
-          children: "Sign in",
+          children: f({id: "button.signIn"}),
           onPress: handleSignIn,
           loading: handleSignInLoading,
           tabIndex: 91,
           hidden: !state.routes.login,
         },
         {
-          children: "Close",
+          children: f({id: "button.close"}),
           onPress: close,
           loading: closed,
           tabIndex: 92,
@@ -39,7 +40,9 @@ export const RegisterEndScreen: React.FunctionComponent = () => {
       ]}
     >
       <Persona {...user} />
-      <Text style={{marginTop: 30}}>Congratulations! The account has been registered successfully.</Text>
+      <Text style={{marginTop: 30}}>
+        {f({id: "register.congrats"})}
+      </Text>
     </ScreenLayout>
   );
 };

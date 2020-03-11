@@ -2,11 +2,12 @@ import moment from "moment";
 import React, { useCallback, useEffect, useState } from "react";
 import { Image } from "react-native";
 import { ScreenLayout, Text, FormInput } from "./component";
-import { useAppState, useNavigation, useWithLoading } from "../hook";
+import { useAppState, useI18N, useNavigation, useWithLoading } from "../hook";
 import svg from "../assets/screen_verify.svg";
 
 export const VerifyPhoneVerifyScreen: React.FunctionComponent = () => {
   // states
+  const {formatMessage: f} = useI18N();
   const [state, dispatch] = useAppState();
   const expiresAt = state.session.verifyPhone.expiresAt;
   const [secret, setSecret] = useState((state.session.dev && state.session.dev.verifyPhoneSecret) || "");
@@ -36,7 +37,7 @@ export const VerifyPhoneVerifyScreen: React.FunctionComponent = () => {
     return dispatch("verify_phone.send", {
       phone_number: state.session.verifyPhone.phoneNumber,
     }, {
-      phone_number: "핸드폰 번호",
+      phone_number: f({id: "payload.phoneNumber"}),
     })
       .then((s) => {
         setErrors({});
@@ -82,8 +83,8 @@ export const VerifyPhoneVerifyScreen: React.FunctionComponent = () => {
       secret,
       callback,
     }, {
-      phone_number: "핸드폰 번호",
-      secret: "인증 코드",
+      phone_number: f({id: "payload.phoneNumber"}),
+      secret: f({id: "payload.verificationCode"}),
     })
       .then(() => {
         setErrors({});
@@ -113,25 +114,25 @@ export const VerifyPhoneVerifyScreen: React.FunctionComponent = () => {
   // render
   return (
     <ScreenLayout
-      title={`Verify phone number`}
+      title={f({id: "verifyPhone.verifyPhone"})}
       subtitle={state.session.verifyPhone.phoneNumber}
       buttons={[
         ...(expiresAt ? [{
           status: "primary",
-          children: "Verify",
+          children: f({id: "button.verify"}),
           onPress: handleVerify,
           loading: handleVerifyLoading,
           tabIndex: 111,
         }] : []),
         {
           status: expiresAt? "basic" : "primary",
-          children: expiresAt ? "Resend" : "Send",
+          children: f({id: expiresAt ? "button.resend" : "button.send"}),
           onPress: handleSend,
           loading: handleSendLoading,
           tabIndex: 112,
         },
         {
-          children: "Cancel",
+          children: f({id: "button.cancel"}),
           onPress: handleCancel,
           loading: handleCancelLoading,
           tabIndex: 113,
@@ -143,12 +144,12 @@ export const VerifyPhoneVerifyScreen: React.FunctionComponent = () => {
       {expiresAt ? (
         <>
           <Text style={{marginBottom: 30}}>
-            Enter the received 6-digit verification code.
+            {f({id: "verifyPhone.enterTheCode"})}
           </Text>
           <FormInput
-            label="Verification code"
+            label={f({id: "payload.verificationCode"})}
             keyboardType="number-pad"
-            placeholder="Enter the verification code"
+            placeholder={f({id: "placeholder.verificationCode"})}
             autoFocus
             tabIndex={110}
             blurOnSubmit={false}
@@ -162,7 +163,7 @@ export const VerifyPhoneVerifyScreen: React.FunctionComponent = () => {
       ): (
         <>
           <Text style={{marginBottom: 30}}>
-            A text message with a verification code will be sent to verify the phone number.
+            {f({id: "verifyPhone.codeGonnaBeSent"})}
           </Text>
           <Image
             source={{uri: svg}}

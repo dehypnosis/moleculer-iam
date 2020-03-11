@@ -1,10 +1,11 @@
 import { ApplicationState } from "moleculer-iam";
 import React from "react";
-import { useClose, useAppState } from "../hook";
+import { useClose, useAppState, useI18N } from "../hook";
 import { ScreenLayout, Text, List, ListItem, Icon, useThemePalette } from "./component";
 
 export const LogoutEndScreen: React.FunctionComponent = () => {
   // states
+  const { formatMessage: f } = useI18N();
   const { closed, close } = useClose(false);
   const [state] = useAppState();
   const user = state.user;
@@ -13,34 +14,35 @@ export const LogoutEndScreen: React.FunctionComponent = () => {
   // render
   return (
     <ScreenLayout
-      title={`Sign out`}
-      subtitle={user ? user.email : "Signed out"}
+      title={f({ id: "logout.signOut"})}
+      subtitle={user ? user.email : f({ id: "logout.signedOut"})}
       buttons={[
         {
-          children: "Close",
+          children: f({ id: "button.close"}),
           onPress: close,
           tabIndex: 21,
         },
       ]}
       loading={closed}
-      error={closed ? "Please close the window manually." : undefined}
+      error={closed ? f({ id: "error.cannotClose"}) : undefined}
     >
       {user ? (
         <ActiveSessionList authorizedClients={authorizedClients} />
       ) : (
-        <Text>Account session not exists.</Text>
+        <Text>{f({ id: "logout.sessionNotExists"})}</Text>
       )}
     </ScreenLayout>
   );
 };
 
 export const ActiveSessionList: React.FunctionComponent<{ authorizedClients: ApplicationState["authorizedClients"]}> = ({ authorizedClients }) => {
+  const { formatMessage: f } = useI18N();
   const palette = useThemePalette();
   return (
     <>
       {authorizedClients ? (
         <>
-          <Text>Below sessions are active.</Text>
+          <Text>{f({ id: "logout.belowSessionsAreActive"})}</Text>
           <List
             style={{marginTop: 15, borderColor: palette["border-basic-color-3"], borderWidth: 1}}
             data={authorizedClients}
@@ -61,7 +63,7 @@ export const ActiveSessionList: React.FunctionComponent<{ authorizedClients: App
           />
         </>
       ) : (
-        <Text>There are no active sessions.</Text>
+        <Text>{f({ id: "logout.noActiveSessions"})}</Text>
       )}
     </>
   );
