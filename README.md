@@ -81,17 +81,6 @@ yarn add moleculer-iam
 - [x] 0.1.x Pre-alpha
     - [x] OAuth 2.0 and OpenID Connect Core 1.0 Provider
         - [x] hack `oidc-provider` module to be programmable
-    - [x] Renderer app (React.js)
-        - [x] token management
-            - [x] login
-            - [x] logout / change account
-            - [x] consent
-        - [x] account management
-            - [x] find email
-            - [x] reset password
-            - [x] phone verification
-            - [x] email verification
-            - [x] registration
 - [x] 0.2.x Alpha
     - [x] Identity Provider
         - [x] Storage
@@ -108,11 +97,22 @@ yarn add moleculer-iam
                 - gender
                 - birthdate
         - [x] Dynamic scope grant without definition (eg. repo:read, calendar:create, whatever:dynamic:permissions)
-        - [x] Federation
-            - [x] OAuth
-                - [x] Google (OIDC)
-                - [x] Facebook
-                - [x] KakaoTalk
+    - [x] Federation
+        - [x] OAuth
+            - [x] Google (OIDC)
+            - [x] Facebook
+            - [x] KakaoTalk
+    - [x] Application Renderer (React.js)
+        - [x] token management
+            - [x] login
+            - [x] logout / change account
+            - [x] consent
+        - [x] account management
+            - [x] find email
+            - [x] reset password
+            - [x] phone verification
+            - [x] email verification
+            - [x] registration
 - [] 0.3.x Beta
     - [] OAuth 2.0 and OpenID Connect Core 1.0 Provider
         - [x] Refactor `panva/oidc-provider` related codes
