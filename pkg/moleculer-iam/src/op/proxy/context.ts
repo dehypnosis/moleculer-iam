@@ -245,11 +245,14 @@ export class OIDCProviderContextProxy {
     }
 
     // @ts-ignore ensure session
-    await sessionMiddleware(this.ctx, () => {
+    const originalSessionState = ctx.oidc.session && ctx.oidc.session.state || {};
+    // @ts-ignore ensure session
+    await sessionMiddleware(ctx, () => {
       // @ts-ignore to set Set-Cookie response header
-      this.ctx.oidc.session.touched = true;
+      ctx.oidc.session.touched = true;
       // @ts-ignore
       this.session = this.ctx.oidc.session;
+      this.session.state = {...this.session.state, ...originalSessionState};
     });
 
     // create metadata

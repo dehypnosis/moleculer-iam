@@ -146,7 +146,6 @@ export class ProviderApplicationBuilder {
       }
       for (const entry of error.data) {
         const { actual, expected, type, field } = entry;
-        console.log(`$${expected}`);
         entry.message = I18N.translate(`${errorType}.data.${type}`, entry.message, {
           ...opts,
           // @ts-ignore
@@ -230,6 +229,7 @@ export class ProviderApplicationBuilder {
 
   // ref: https://github.com/panva/node-oidc-provider/blob/e5ecd85c346761f1ac7a89b8bf174b873be09239/lib/actions/end_session.js#L89
   private readonly logoutSourceProxy: NonNullable<DynamicConfiguration["logoutSource"]> = (ctx) => {
+    // @ts-ignore
     return this.wrapContext(ctx as any, () => {
       const op: ApplicationRequestContext["op"] = ctx.op as any;
       ctx.assert(op.user);

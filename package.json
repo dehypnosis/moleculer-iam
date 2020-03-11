@@ -8,7 +8,7 @@
     ]
   },
   "scripts": {
-    "build-all": "yarn workspace moleculer-iam build && yarn workspace moleculer-iam-app-renderer build-server && yarn workspace moleculer-iam-app-renderer build",
+    "build-all": "yarn workspace moleculer-iam build && yarn workspace moleculer-iam-app-renderer build",
     "publish-all": "yarn workspace moleculer-iam publish && yarn workspace moleculer-iam-app-renderer publish",
     "test": "yarn workspace moleculer-iam test",
     "coverall": "yarn workspace moleculer-iam coverall"

@@ -11,7 +11,8 @@ services:
 before_install:
   - mysql -e 'CREATE DATABASE IF NOT EXISTS iam;'
 install:
-  - yarn --ignore-engines
+  - NODE_ENV=development yarn --ignore-engines
+  - yarn build-all
 env:
   - TEST_RDBMS_DIALECT=mysql TEST_RDBMS_HOST=127.0.0.1 TEST_RDBMS_DATABASE=iam TEST_RDBMS_USERNAME=travis TEST_RDBMS_PASSWORD= TEST_RDBMS_LOG_LEVEL=none
 after_success:

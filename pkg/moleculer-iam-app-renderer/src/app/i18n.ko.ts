@@ -49,7 +49,7 @@ export const ko: I18NResource = {
   "logout.signOut": "로그아웃",
   "logout.signedOut": "로그아웃 완료",
   "logout.sessionNotExists": "계정 세션이 존재하지 않습니다.",
-  "logout.belowSessionsAreActive": "이하 세션이 활성화되어 있습니다.",
+  "logout.belowSessionsAreActive": "이하의 세션이 활성화되어 있습니다.",
   "logout.noActiveSessions": "활성화된 세션이 없습니다.",
 
   // LogoutIndexScreen
