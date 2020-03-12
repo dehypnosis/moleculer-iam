@@ -14,7 +14,6 @@ Also including default interaction React.js application for login/logout/registr
 
 ![Project Architecture Diagram](./docs/diagram.svg)
 
-
 # Features
 - Identity Provider
     - based on RDBMS
@@ -33,7 +32,7 @@ Also including default interaction React.js application for login/logout/registr
     - support i18n; for now ko-KR, en-US
 - Moleculer integrated actions and events
     - manage IDP claims schema and identity
-    - manage OP client and other models 
+    - manage OP client and other models
 - React App for OP interaction rendering
     - based on `react-native-ui-kitten` and `react-navigation`
     - session based
@@ -41,6 +40,45 @@ Also including default interaction React.js application for login/logout/registr
     - support login/logout/register/findEmail/resetPassword/verifyEmail/verifyPhone/consent
     - support theming and various customization option without rebuild from server configuration
     - this whole app can be replaced to custom one from server configuration
+
+# Demo
+
+## OpenID Connect Provider and React web application
+![app1](./docs/app1.gif)
+![app2](./docs/app2.gif)
+
+## Dynamically define claims schema
+![mol1](./docs/mol1.gif)
+
+## Internal moleculer service actions
+```
+════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+╟ action                     │Params
+╟────────────────────────────┼──────────────────────────────────────────────────────────────────────────────────────
+║ iam.client.count           │ where                                                                       
+║ iam.client.create          │ client_id, client_name, client_secret, client_uri, logo_uri, policy_uri, ...
+║ iam.client.delete          │ id                                                                          
+║ iam.client.find             │ id                                                                          
+║ iam.client.get             │ where, offset, limit                                                        
+║ iam.client.update          │ client_id, client_name, reset_client_secret, client_secret, client_uri, logo
+║ iam.id.count               │ where                                                                       
+║ iam.id.create              │ scope, metadata, claims, credentials                                        
+║ iam.id.delete              │ id, permanently                                                             
+║ iam.id.find                 │ id, email, phone_number, where, scope                                       
+║ iam.id.get                 │ where, offset, limit, scope
+║ iam.id.refresh             │ id, where                                                                   
+║ iam.id.restore             │ id                                                                          
+║ iam.id.update              │ id, scope, claims, metadata, credentials                                    
+║ iam.id.validate            │ id, scope, claims, credenti                                              
+║ iam.id.validateCredentials │ password                                                                    
+║ iam.model.count            │ kind, where                                                                 
+║ iam.model.delete           │ kind, where, offset, limit                                                  
+║ iam.model.get              │ kind, where, offset, limit                                                  
+║ iam.schema.define           │ scope, key, description, unique, immutable, validation, migration, parentVersion, ...
+║ iam.schema.find             │ key, version, active                                                         
+║ iam.schema.get             │ scope, key, version, active                                                  
+╚════════════════════════════╧═══════════════════════════════════════════════════════════════════════════════════════
+```
 
 # Usage
 ## 1. Documents
