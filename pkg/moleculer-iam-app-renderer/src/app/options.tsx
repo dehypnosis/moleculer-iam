@@ -1,9 +1,8 @@
 import * as _ from "lodash";
 import { ParsedLocale } from "moleculer-iam";
 import React, { createContext, useContext } from "react";
-import { getAppDev, getAppOptions, getInitialAppState } from "../../client";
-import { ApplicationOptions } from "../../common";
 import { darkTheme, lightTheme } from "./theme.palette";
+import { ApplicationOptions } from "../../common";
 
 type AppOptions = ApplicationOptions & { dev: boolean, locale: ParsedLocale };
 
@@ -13,12 +12,8 @@ export function useAppOptions() {
   return useContext(AppOptionsContext);
 }
 
-export class AppOptionsProvider extends React.Component<{}, AppOptions> {
-  state = _.defaultsDeep({
-    ...getAppOptions(),
-    dev: getAppDev(),
-    locale: getInitialAppState().locale,
-  }, {
+export class AppOptionsProvider extends React.Component<{initialOptions: Partial<AppOptions>}, AppOptions> {
+  public static defaultOptions: AppOptions = {
     logo: {
       uri: null,
       align: "flex-start",
@@ -38,16 +33,25 @@ export class AppOptionsProvider extends React.Component<{}, AppOptions> {
       light: lightTheme,
       dark: darkTheme,
     },
-  } as ApplicationOptions);
+    dev: false,
+    locale: {
+      language: "en",
+      country: "KR",
+    },
+  };
 
-  componentWillMount() {
+  state = _.defaultsDeep(this.props.initialOptions || {}, AppOptionsProvider.defaultOptions);
+
+  constructor(props: any) {
+    super(props);
+
     // apply new theme from query string
     const theme = (window.location.search.substr(1).split("&").find(x => x.startsWith("theme=")) || "").split("=")[1] // query first
       || (document.cookie.split("; ").find(s => s.trim().startsWith("theme=")) || "").split("=")[1]  // cookie second
     if (theme && theme !== this.state.theme && Object.keys(this.state.palette).includes(theme)) {
       console.debug("app theme options from querystring/cookie:", theme);
       document.cookie = `theme=${theme}; path=/`; // as session cookie
-      this.setState({ theme });
+      this.state.theme = theme;
     }
   }
 

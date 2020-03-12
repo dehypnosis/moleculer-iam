@@ -1,7 +1,6 @@
 import { ApplicationResponse, ApplicationState } from "moleculer-iam";
 import React, { createContext, useContext } from "react";
 import { ClientErrorScreen } from "../screen/error";
-import { getInitialAppState } from "../../client";
 import { AppOptionsContext } from "./options";
 
 // read server state and create endpoint request helper
@@ -11,12 +10,12 @@ export function useAppState() {
   return useContext(AppStateContext);
 }
 
-export class AppStateProvider extends React.Component<{}> {
+export class AppStateProvider extends React.Component<{initialState: ApplicationState}> {
   static contextType = AppOptionsContext;
 
   state = {
     error: null as any,
-    appState: getInitialAppState(),
+    appState: this.props.initialState,
   };
 
   render() {

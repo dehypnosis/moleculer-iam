@@ -24,7 +24,6 @@ const fixTouchable = (Touchable: any) => (props: any) => {
   return (<Touchable {...restProps} onPress={onPressAlternative} onClick={onClick} />);
 };
 
-
 // @ts-ignore
 export * from "react-native-web";
 export const TouchableOpacity = fixTouchable(ReactNativeWeb.TouchableOpacity);

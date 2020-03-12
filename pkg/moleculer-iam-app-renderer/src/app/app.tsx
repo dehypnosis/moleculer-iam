@@ -1,15 +1,17 @@
+import { ApplicationState } from "moleculer-iam";
 import React from "react";
-import { createStackNavigator, StackNavigationOptions } from "@react-navigation/stack";
+import { ApplicationOptions } from "../../common";
 import { useThemePalette } from "../screen/component";
 import { ConsentScreen } from "../screen/consent";
 import { ErrorScreen } from "../screen/error";
-import { routeConfig } from "./routes";
 import { AppOptionsProvider } from "./options";
 import { AppStateProvider } from "./state";
 import { AppNavigationProvider } from "./navigation";
 import { AppThemeProvider } from "./theme";
 import { AppI18NProvider } from "./i18n";
 
+import { LinkingOptions } from "@react-navigation/native/lib/typescript/src/types";
+import { createStackNavigator, StackNavigationOptions } from "@react-navigation/stack";
 import { FindEmailIndexScreen } from "../screen/find_email.index";
 import { FindEmailEndScreen } from "../screen/find_email.end";
 import { LoginCheckPasswordScreen } from "../screen/login.check_password";
@@ -29,12 +31,56 @@ import { VerifyPhoneEndScreen } from "../screen/verify_phone.end";
 import { VerifyPhoneIndexScreen } from "../screen/verify_phone.index";
 import { VerifyPhoneVerifyScreen } from "../screen/verify_phone.verify";
 
-export const App: React.FunctionComponent = () => {
+
+// create app container
+export const App: React.FunctionComponent<{
+  state: ApplicationState;
+  options?: Partial<ApplicationOptions>;
+  prefix?: "string";
+  dev?: boolean;
+}> = (props) => {
+  const { prefix = "/op", dev = false, state, options = {} } = props;
+
+  // define routes
+  const p = prefix.startsWith("/") ? prefix.substr(1) : prefix;
+  const routeConfig: NonNullable<LinkingOptions["config"]> = {
+    "login.check_password": `${p}/login/check_password`,
+    "login.index": `${p}/login`,
+    "consent.index": `${p}/consent`,
+    "logout.end": `${p}/session/end/success`,
+    "logout.index": `${p}/session/end`,
+    "find_email.end": `${p}/find_email/end`,
+    "find_email.index": `${p}/find_email`,
+    "reset_password.end": `${p}/reset_password/end`,
+    "reset_password.set": `${p}/reset_password/set`,
+    "reset_password.index": `${p}/reset_password`,
+    "register.end": `${p}/register/end`,
+    "register.detail": `${p}/register/detail`,
+    "register.index": `${p}/register`,
+    "verify_phone.end": `${p}/verify_phone/end`,
+    "verify_phone.verify": `${p}/verify_phone/verify`,
+    "verify_phone.index": `${p}/verify_phone`,
+    "verify_email.end": `${p}/verify_email/end`,
+    "verify_email.verify": `${p}/verify_email/verify`,
+    "verify_email.index": `${p}/verify_email`,
+    "error.index": "",
+  };
+
   return (
-    <AppOptionsProvider>
+    <AppOptionsProvider
+      initialOptions={{
+        ...options,
+        dev,
+        locale: state && state.locale,
+      }}
+    >
       <AppThemeProvider>
-        <AppStateProvider>
-          <AppNavigationProvider routeConfig={routeConfig}>
+        <AppStateProvider
+          initialState={state}
+        >
+          <AppNavigationProvider
+            routeConfig={routeConfig}
+          >
             <AppI18NProvider>
               <AppStack/>
             </AppI18NProvider>

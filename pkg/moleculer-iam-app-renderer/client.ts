@@ -7,7 +7,7 @@ export function getAppOptions(): Partial<ApplicationOptions> {
 }
 
 // parse initial app state from html document
-export function getInitialAppState(): ApplicationState {
+export function getAppState(): ApplicationState {
   return ((window as any).__APP_STATE__ || {
     name: "error",
     error: {

@@ -29,6 +29,30 @@ Object.entries({
 // ref: https://github.com/arackaf/customize-cra
 // ref: https://github.com/timarney/react-app-rewired
 module.exports = {
+  // testing configuration
+  jest: () => {
+    return {
+      preset: "react-native-web",
+      transformIgnorePatterns: [],
+      // force universal modules to prefer *.web.[ext] to *.native.[ext]
+      haste: {
+        defaultPlatform: 'web',
+        platforms: ['web'],
+      },
+      moduleNameMapper: {
+        // mocking non-universal modules
+        "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/__mocks__/file.js",
+        "\\.(css|less)$": "<rootDir>/__mocks__/css.js",
+        "^react-native-svg$": "react-native-svg-mock",
+        "^react-native-gesture-handler$":  "<rootDir>/__mocks__/react-native-gesture-handler.js",
+
+        // use shimmed react-native-web
+        "^react-native$": "<rootDir>/client.rnw.tsx",
+      },
+    };
+  },
+
+  // webpack configuration
   webpack: override(
     // remove module scope to include inject.ts
     removeModuleScopePlugin(),
@@ -54,7 +78,7 @@ module.exports = {
       path.resolve("./client.rnw.tsx"),
       require.resolve("@react-navigation/stack"),
       require.resolve("react-native-screens/src/screens.web.js"),
-      path.join(require.resolve("react-native-reanimated"), ".."),
+      // path.join(require.resolve("react-native-reanimated"), ".."),
       path.join(require.resolve("react-native-gesture-handler"), ".."),
       path.join(require.resolve("react-native-eva-icons"), ".."),
     ]),
