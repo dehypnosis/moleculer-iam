@@ -12,11 +12,8 @@ export const ResetPasswordEndScreen: React.FunctionComponent = () => {
   const { nav } = useNavigation();
   const { loading, withLoading } = useWithLoading();
   const [handleLogin, handleLoginLoading] = withLoading(() => {
-    nav.navigate("login.stack", {
-      screen: "login.index",
-      params: {
-        email,
-      },
+    nav.navigate("login.index", {
+      email,
     });
   }, [state]);
 

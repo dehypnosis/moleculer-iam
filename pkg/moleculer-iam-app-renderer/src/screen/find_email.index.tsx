@@ -21,21 +21,15 @@ export const FindEmailIndexScreen: React.FunctionComponent = () => {
       .then((s) => {
         setErrors({});
         setPhoneNumber(s.session.verifyPhone.phoneNumber);
-        nav.navigate("verify_phone.stack", {
-          screen: "verify_phone.verify",
-          params: {
-            callback: "find_email",
-          },
+        nav.navigate("verify_phone.verify", {
+          callback: "find_email",
         });
       })
       .catch(errs => setErrors(errs))
   }, [phoneNumber, options]);
 
   const [handleCancel, handleCancelLoading] = withLoading(() => {
-    nav.navigate("login.stack", {
-      screen: "login.index",
-      params: {},
-    });
+    nav.navigate("login.index");
     setErrors({});
   });
 

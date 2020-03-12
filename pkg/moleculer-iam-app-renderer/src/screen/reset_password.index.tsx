@@ -20,22 +20,16 @@ export const ResetPasswordIndexScreen: React.FunctionComponent = () => {
     })
       .then(() => {
         setErrors({});
-        nav.navigate("verify_email.stack", {
-          screen: "verify_email.verify",
-          params: {
-            callback: "reset_password",
-          },
+        nav.navigate("verify_email.verify", {
+          callback: "reset_password",
         });
       })
       .catch(errs => setErrors(errs))
   }, [email]);
 
   const [handleCancel, handleCancelLoading] = withLoading(() => {
-    nav.navigate("login.stack", {
-      screen: "login.check_password",
-      params: {
-        email,
-      },
+    nav.navigate("login.check_password", {
+      email,
     });
     setErrors({});
   }, [email]);

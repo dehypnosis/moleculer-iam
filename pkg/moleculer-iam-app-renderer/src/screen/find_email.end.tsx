@@ -11,11 +11,8 @@ export const FindEmailEndScreen: React.FunctionComponent = () => {
   const { nav } = useNavigation();
   const { loading, withLoading } = useWithLoading();
   const [handleLogin, handleLoginLoading] = withLoading(() => {
-    nav.navigate("login.stack", {
-      screen: "login.index",
-      params: {
-        email: state.session.findEmail.user.email,
-      },
+    nav.navigate("login.index", {
+      email: state.session.findEmail.user.email,
     });
   }, [state]);
 

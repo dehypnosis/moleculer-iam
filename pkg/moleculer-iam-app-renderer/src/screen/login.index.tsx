@@ -28,26 +28,19 @@ export const LoginIndexScreen: React.FunctionComponent = () => {
     })
       .then(() => {
         setErrors({});
-        nav.navigate("login.stack", {
-          screen: "login.check_password",
-          params: {
-            email,
-          },
+        nav.navigate("login.check_password", {
+          email,
         });
       })
       .catch((err: any) => setErrors(err));
   }, [email]);
 
   const [handleFindEmail, handleFindEmailLoading] = withLoading(() =>
-    nav.navigate("find_email.stack", {
-      screen: "find_email.index",
-    })
+    nav.navigate("find_email.index")
   );
 
   const [handleSignUp, handleSignUpLoading] = withLoading(() =>
-    nav.navigate("register.stack", {
-      screen: "register.index",
-    })
+    nav.navigate("register.index")
   );
 
   const [handleFederation, handleFederationLoading] = withLoading((provider: string) => {

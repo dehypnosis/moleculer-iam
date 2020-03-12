@@ -23,7 +23,7 @@ export const LogoutIndexScreen: React.FunctionComponent = () => {
   // render
   return (
     <ScreenLayout
-      title={`Sign out`}
+      title={f({ id: "logout.signOut"})}
       subtitle={state.user!.email}
       loading={loading}
       buttons={[

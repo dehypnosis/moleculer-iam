@@ -23,10 +23,7 @@ export const VerifyPhoneIndexScreen: React.FunctionComponent = () => {
       .then((s) => {
         setErrors({});
         setPhoneNumber(s.session.verifyPhone.phoneNumber);
-        nav.navigate("verify_phone.stack", {
-          screen: "verify_phone.verify",
-          params: {},
-        });
+        nav.navigate("verify_phone.verify");
       })
       .catch((err: any) => setErrors(err))
   }, [phoneNumber, options]);

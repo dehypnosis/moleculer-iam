@@ -81,11 +81,8 @@ export const RegisterDetailScreen: React.FunctionComponent = () => {
             phone_number: payloadLabels.phone_number,
           })
             .then(() => {
-              nav.navigate("verify_phone.stack", {
-                screen: "verify_phone.verify",
-                params: {
-                  callback: "register",
-                },
+              nav.navigate("verify_phone.verify", {
+                callback: "register",
               });
             });
 
@@ -96,10 +93,7 @@ export const RegisterDetailScreen: React.FunctionComponent = () => {
             register: true,
           }, payloadLabels)
             .then(() => {
-              nav.navigate("register.stack", {
-                screen: "register.end",
-                params: {},
-              });
+              nav.navigate("register.end");
             });
         }
       })
@@ -107,10 +101,7 @@ export const RegisterDetailScreen: React.FunctionComponent = () => {
   }, [payload, options]);
 
   const [handleCancel, handleCancelLoading] = withLoading(() => {
-    nav.navigate("register.stack", {
-      screen: "register.index",
-      params: {},
-    });
+    nav.navigate("register.index");
     setErrors({});
   }, []);
 

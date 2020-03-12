@@ -29,14 +29,12 @@ export function useWithLoading() {
           console.error("global error from withLoading callback", error);
           setErrors({global: error.message || error.toString()});
         } finally {
-          setTimeout(() => {
-            if (!unmounted.current) {
-              setLoading(false);
-              setCallbackLoading(false);
-            }
-          }, 100);
+          if (!unmounted.current) {
+            setLoading(false);
+            setCallbackLoading(false);
+          }
         }
-      }, 100);
+      }, 50);
     },
       // eslint-disable-next-line react-hooks/exhaustive-deps
       [callback, ...deps]);

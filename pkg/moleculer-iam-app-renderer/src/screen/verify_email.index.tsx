@@ -21,10 +21,7 @@ export const VerifyEmailIndexScreen: React.FunctionComponent = () => {
     })
       .then(() => {
         setErrors({});
-        nav.navigate("verify_email.stack", {
-          screen: "verify_email.verify",
-          params: {},
-        });
+        nav.navigate("verify_email.verify");
       })
       .catch((err: any) => setErrors(err))
   }, [email]);
@@ -56,7 +53,7 @@ export const VerifyEmailIndexScreen: React.FunctionComponent = () => {
       ]}
     >
       <Text style={{marginBottom: 30}}>
-        Verify your registered email address.
+        {f({id: "resetPassword.verifyRegisteredEmail"})}
       </Text>
       <FormInput
         autoFocus

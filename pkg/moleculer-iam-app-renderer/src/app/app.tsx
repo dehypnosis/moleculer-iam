@@ -1,4 +1,4 @@
-import React, { createContext, useContext } from "react";
+import React from "react";
 import { createStackNavigator, StackNavigationOptions } from "@react-navigation/stack";
 import { useThemePalette } from "../screen/component";
 import { ConsentScreen } from "../screen/consent";
@@ -29,7 +29,6 @@ import { VerifyPhoneEndScreen } from "../screen/verify_phone.end";
 import { VerifyPhoneIndexScreen } from "../screen/verify_phone.index";
 import { VerifyPhoneVerifyScreen } from "../screen/verify_phone.verify";
 
-
 export const App: React.FunctionComponent = () => {
   return (
     <AppOptionsProvider>
@@ -37,22 +36,17 @@ export const App: React.FunctionComponent = () => {
         <AppStateProvider>
           <AppNavigationProvider routeConfig={routeConfig}>
             <AppI18NProvider>
-              <AppStacks />
+              <AppStack/>
             </AppI18NProvider>
           </AppNavigationProvider>
         </AppStateProvider>
       </AppThemeProvider>
     </AppOptionsProvider>
-  )
+  );
 };
 
-
-const NavOptionsProvider = createContext<StackNavigationOptions>(undefined as any);
-const useNavOptions = () => useContext(NavOptionsProvider);
-
 const RootStack = createStackNavigator();
-
-const AppStacks = () => {
+const AppStack = () => {
   const backgroundColor = useThemePalette()["background-basic-color-1"];
   const navOptions: StackNavigationOptions = {
     headerShown: false,
@@ -68,199 +62,97 @@ const AppStacks = () => {
   };
 
   return (
-    <NavOptionsProvider.Provider value={navOptions}>
-      <RootStack.Navigator
-        screenOptions={navOptions}
-      >
-        <RootStack.Screen
-          name={"error.stack"}
-          component={ErrorStackScreen}
-        />
-        <RootStack.Screen
-          name={"consent.stack"}
-          component={ConsentStackScreen}
-        />
-        <RootStack.Screen
-          name={"login.stack"}
-          component={LoginStackScreen}
-        />
-        <RootStack.Screen
-          name={"find_email.stack"}
-          component={FindEmailStackScreen}
-        />
-        <RootStack.Screen
-          name={"reset_password.stack"}
-          component={ResetPasswordStackScreen}
-        />
-        <RootStack.Screen
-          name={"register.stack"}
-          component={RegisterStackScreen}
-        />
-        <RootStack.Screen
-          name={"logout.stack"}
-          component={LogoutStackScreen}
-        />
-        <RootStack.Screen
-          name={"verify_phone.stack"}
-          component={VerifyPhoneStackScreen}
-        />
-        <RootStack.Screen
-          name={"verify_email.stack"}
-          component={VerifyEmailStackScreen}
-        />
-      </RootStack.Navigator>
-    </NavOptionsProvider.Provider>
-  )
+    <RootStack.Navigator
+      screenOptions={navOptions}
+    >
+      <RootStack.Screen
+        name={"error.index"}
+        component={ErrorScreen}
+      />
+
+      <RootStack.Screen
+        name={"consent.index"}
+        component={ConsentScreen}
+      />
+
+      <RootStack.Screen
+        name={"login.index"}
+        component={LoginIndexScreen}
+      />
+      <RootStack.Screen
+        name={"login.check_password"}
+        component={LoginCheckPasswordScreen}
+      />
+
+      <RootStack.Screen
+        name={"logout.index"}
+        component={LogoutIndexScreen}
+      />
+      <RootStack.Screen
+        name={"logout.end"}
+        component={LogoutEndScreen}
+      />
+
+      <RootStack.Screen
+        name={"find_email.index"}
+        component={FindEmailIndexScreen}
+      />
+      <RootStack.Screen
+        name={"find_email.end"}
+        component={FindEmailEndScreen}
+      />
+
+      <RootStack.Screen
+        name={"reset_password.index"}
+        component={ResetPasswordIndexScreen}
+      />
+      <RootStack.Screen
+        name={"reset_password.set"}
+        component={ResetPasswordSetScreen}
+      />
+      <RootStack.Screen
+        name={"reset_password.end"}
+        component={ResetPasswordEndScreen}
+      />
+
+      <RootStack.Screen
+        name={"register.index"}
+        component={RegisterIndexScreen}
+      />
+      <RootStack.Screen
+        name={"register.detail"}
+        component={RegisterDetailScreen}
+      />
+      <RootStack.Screen
+        name={"register.end"}
+        component={RegisterEndScreen}
+      />
+
+      <RootStack.Screen
+        name={"verify_phone.index"}
+        component={VerifyPhoneIndexScreen}
+      />
+      <RootStack.Screen
+        name={"verify_phone.verify"}
+        component={VerifyPhoneVerifyScreen}
+      />
+      <RootStack.Screen
+        name={"verify_phone.end"}
+        component={VerifyPhoneEndScreen}
+      />
+
+      <RootStack.Screen
+        name={"verify_email.index"}
+        component={VerifyEmailIndexScreen}
+      />
+      <RootStack.Screen
+        name={"verify_email.verify"}
+        component={VerifyEmailVerifyScreen}
+      />
+      <RootStack.Screen
+        name={"verify_email.end"}
+        component={VerifyEmailEndScreen}
+      />
+    </RootStack.Navigator>
+  );
 };
-
-const ErrorStack = createStackNavigator();
-const ErrorStackScreen: React.FunctionComponent = () => (
-  <ErrorStack.Navigator
-    screenOptions={useNavOptions()}
-  >
-    <ErrorStack.Screen
-      name={"error.index"}
-      component={ErrorScreen}
-    />
-  </ErrorStack.Navigator>
-);
-
-const ConsentStack = createStackNavigator();
-const ConsentStackScreen: React.FunctionComponent = () => (
-  <ConsentStack.Navigator
-    screenOptions={useNavOptions()}
-  >
-    <ConsentStack.Screen
-      name={"consent.index"}
-      component={ConsentScreen}
-    />
-  </ConsentStack.Navigator>
-);
-
-const LoginStack = createStackNavigator();
-const LoginStackScreen: React.FunctionComponent = () => (
-  <LoginStack.Navigator
-    screenOptions={useNavOptions()}
-  >
-    <LoginStack.Screen
-      name={"login.check_password"}
-      component={LoginCheckPasswordScreen}
-    />
-    <LoginStack.Screen
-      name={"login.index"}
-      component={LoginIndexScreen}
-    />
-  </LoginStack.Navigator>
-);
-
-const LogoutStack = createStackNavigator();
-const LogoutStackScreen = () => (
-  <LogoutStack.Navigator
-    screenOptions={useNavOptions()}
-  >
-    <LogoutStack.Screen
-      name={"logout.end"}
-      component={LogoutEndScreen}
-    />
-    <LogoutStack.Screen
-      name={"logout.index"}
-      component={LogoutIndexScreen}
-    />
-  </LogoutStack.Navigator>
-);
-
-const FindEmailStack = createStackNavigator();
-const FindEmailStackScreen = () => (
-  <FindEmailStack.Navigator
-    screenOptions={useNavOptions()}
-  >
-    <FindEmailStack.Screen
-      name={"find_email.index"}
-      component={FindEmailIndexScreen}
-    />
-    <FindEmailStack.Screen
-      name={"find_email.end"}
-      component={FindEmailEndScreen}
-    />
-  </FindEmailStack.Navigator>
-);
-
-const ResetPasswordStack = createStackNavigator();
-const ResetPasswordStackScreen = () => (
-  <ResetPasswordStack.Navigator
-    screenOptions={useNavOptions()}
-  >
-    <ResetPasswordStack.Screen
-      name={"reset_password.set"}
-      component={ResetPasswordSetScreen}
-    />
-    <ResetPasswordStack.Screen
-      name={"reset_password.end"}
-      component={ResetPasswordEndScreen}
-    />
-    <ResetPasswordStack.Screen
-      name={"reset_password.index"}
-      component={ResetPasswordIndexScreen}
-    />
-  </ResetPasswordStack.Navigator>
-);
-
-const RegisterStack = createStackNavigator();
-const RegisterStackScreen = () => (
-  <RegisterStack.Navigator
-    screenOptions={useNavOptions()}
-  >
-    <RegisterStack.Screen
-      name={"register.detail"}
-      component={RegisterDetailScreen}
-    />
-    <RegisterStack.Screen
-      name={"register.end"}
-      component={RegisterEndScreen}
-    />
-    <RegisterStack.Screen
-      name={"register.index"}
-      component={RegisterIndexScreen}
-    />
-  </RegisterStack.Navigator>
-);
-
-const VerifyPhoneStack = createStackNavigator();
-const VerifyPhoneStackScreen = () => (
-  <VerifyPhoneStack.Navigator
-    screenOptions={useNavOptions()}
-  >
-    <VerifyPhoneStack.Screen
-      name={"verify_phone.verify"}
-      component={VerifyPhoneVerifyScreen}
-    />
-    <VerifyPhoneStack.Screen
-      name={"verify_phone.end"}
-      component={VerifyPhoneEndScreen}
-    />
-    <VerifyPhoneStack.Screen
-      name={"verify_phone.index"}
-      component={VerifyPhoneIndexScreen}
-    />
-  </VerifyPhoneStack.Navigator>
-);
-
-const VerifyEmailStack = createStackNavigator();
-const VerifyEmailStackScreen = () => (
-  <VerifyEmailStack.Navigator
-    screenOptions={useNavOptions()}
-  >
-    <VerifyEmailStack.Screen
-      name={"verify_email.verify"}
-      component={VerifyEmailVerifyScreen}
-    />
-    <VerifyEmailStack.Screen
-      name={"verify_email.end"}
-      component={VerifyEmailEndScreen}
-    />
-    <VerifyEmailStack.Screen
-      name={"verify_email.index"}
-      component={VerifyEmailIndexScreen}
-    />
-  </VerifyEmailStack.Navigator>
-);

@@ -58,28 +58,16 @@ export const VerifyEmailVerifyScreen: React.FunctionComponent = () => {
     switch (callback) {
       case "reset_password":
         if (state.routes.login) {
-          nav.navigate("login.stack", {
-            screen: "login.check_password",
-            params: {},
-          });
+          nav.navigate("login.check_password");
         } else {
-          nav.navigate("reset_password.stack", {
-            screen: "reset_password.index",
-            params: {},
-          });
+          nav.navigate("reset_password.index");
         }
         break;
       case "register":
-        nav.navigate("register.stack", {
-          screen: "register.index",
-          params: {},
-        });
+        nav.navigate("register.index");
         break;
       default:
-        nav.navigate("verify_email.stack", {
-          screen: "verify_email.index",
-          params: {},
-        });
+        nav.navigate("verify_email.index");
         break;
     }
     setErrors({});
@@ -98,22 +86,13 @@ export const VerifyEmailVerifyScreen: React.FunctionComponent = () => {
         setErrors({});
         switch (callback) {
           case "reset_password":
-            nav.navigate("reset_password.stack", {
-              screen: "reset_password.set",
-              params: {},
-            });
+            nav.navigate("reset_password.set");
             break;
           case "register":
-            nav.navigate("register.stack", {
-              screen: "register.index",
-              params: {},
-            });
+            nav.navigate("register.index");
             break;
           default:
-            nav.navigate("verify_email.stack", {
-              screen: "verify_email.end",
-              params: {},
-            });
+            nav.navigate("verify_email.end");
         }
       })
       .catch(errs => setErrors(errs));

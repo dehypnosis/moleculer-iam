@@ -56,22 +56,13 @@ export const VerifyPhoneVerifyScreen: React.FunctionComponent = () => {
   const [handleCancel, handleCancelLoading] = withLoading(() => {
     switch (callback) {
       case "find_email":
-        nav.navigate("find_email.stack", {
-          screen: "find_email.index",
-          params: {},
-        });
+        nav.navigate("find_email.index");
         break;
       case "register":
-        nav.navigate("register.stack", {
-          screen: "register.detail",
-          params: {},
-        });
+        nav.navigate("register.detail");
         break;
       default:
-        nav.navigate("verify_phone.stack", {
-          screen: "verify_phone.index",
-          params: {},
-        });
+        nav.navigate("verify_phone.index");
         break;
     }
     setErrors({});
@@ -90,22 +81,13 @@ export const VerifyPhoneVerifyScreen: React.FunctionComponent = () => {
         setErrors({});
         switch (callback) {
           case "find_email":
-            nav.navigate("find_email.stack", {
-              screen: "find_email.end",
-              params: {},
-            });
+            nav.navigate("find_email.end");
             break;
           case "register":
-            nav.navigate("register.stack", {
-              screen: "register.detail",
-              params: {},
-            });
+            nav.navigate("register.detail");
             break;
           default:
-            nav.navigate("verify_phone.stack", {
-              screen: "verify_phone.end",
-              params: {},
-            });
+            nav.navigate("verify_phone.end");
         }
       })
       .catch(errs => setErrors(errs));

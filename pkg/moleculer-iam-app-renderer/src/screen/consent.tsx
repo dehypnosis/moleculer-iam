@@ -25,9 +25,7 @@ export const ConsentScreen: React.FunctionComponent = () => {
   const [handleChangeAccount, handleChangeAccountLoading] = withLoading(() => {
     // return request("consent.change_account")
     //   .catch((err: any) => setErrors(err));
-    nav.navigate("login.stack", {
-      screen: "login.index",
-    });
+    nav.navigate("login.index");
     setErrors({});
   });
 

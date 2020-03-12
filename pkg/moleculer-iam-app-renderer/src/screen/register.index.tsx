@@ -57,20 +57,14 @@ export const RegisterIndexScreen: React.FunctionComponent = () => {
             registered: false,
           })
             .then(() => {
-              nav.navigate("verify_email.stack", {
-                screen: "verify_email.verify",
-                params: {
-                  callback: "register",
-                },
+              nav.navigate("verify_email.verify", {
+                callback: "register",
               });
             });
 
         // enter detail claims
         } else if (!options.register.skipDetailClaims) {
-          nav.navigate("register.stack", {
-            screen: "register.detail",
-            params: {},
-          });
+          nav.navigate("register.detail");
 
         // register user
         } else {
@@ -79,10 +73,7 @@ export const RegisterIndexScreen: React.FunctionComponent = () => {
             register: true,
           })
             .then(() => {
-              nav.navigate("register.stack", {
-                screen: "register.end",
-                params: {},
-              });
+              nav.navigate("register.end");
             });
         }
       })
@@ -90,10 +81,7 @@ export const RegisterIndexScreen: React.FunctionComponent = () => {
   }, [payload]);
 
   const [handleCancel, handleCancelLoading] = withLoading(() => {
-    nav.navigate("login.stack", {
-      screen: "login.index",
-      params: {},
-    });
+    nav.navigate("login.index");
     setErrors({});
   }, []);
 

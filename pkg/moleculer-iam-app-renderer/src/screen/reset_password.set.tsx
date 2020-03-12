@@ -28,20 +28,14 @@ export const ResetPasswordSetScreen: React.FunctionComponent = () => {
     }, payloadLabels)
       .then(() => {
         setErrors({});
-        nav.navigate("reset_password.stack", {
-          screen: "reset_password.end",
-          params: {},
-        });
+        nav.navigate("reset_password.end");
       })
       .catch(errs => setErrors(errs));
   }, [payload]);
 
   const [handleCancel, handleCancelLoading] = withLoading(() => {
-    nav.navigate("login.stack", {
-      screen: "login.check_password",
-      params: {
-        email,
-      },
+    nav.navigate("login.check_password", {
+      email,
     });
     setErrors({});
   }, []);

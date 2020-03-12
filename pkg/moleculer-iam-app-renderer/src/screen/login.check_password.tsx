@@ -8,7 +8,7 @@ export const LoginCheckPasswordScreen: React.FunctionComponent = () => {
   const [password, setPassword] = useState("");
   const [state, dispatch] = useAppState();
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { email, name, picture } = state.session.login.user;
+  const { email, name, picture } = (state.session.login && state.session.login.user) || {};
 
   // handlers
   const { nav } = useNavigation();
@@ -29,23 +29,17 @@ export const LoginCheckPasswordScreen: React.FunctionComponent = () => {
     })
       .then(() => {
         setErrors({});
-        nav.navigate("verify_email.stack", {
-          screen: "verify_email.verify",
-          params: {
-            callback: "reset_password",
-          },
+        nav.navigate("verify_email.verify", {
+          callback: "reset_password",
         });
       })
       .catch((err: any) => setErrors(err));
   }, []);
 
   const [handleCancel, handleCancelLoading] = withLoading(() => {
-    nav.navigate("login.stack", {
-      screen: "login.index",
-      params: {
-        email,
-        change_account: "true",
-      },
+    nav.navigate("login.index", {
+      email,
+      change_account: "true",
     });
     setErrors({});
   }, [email]);
