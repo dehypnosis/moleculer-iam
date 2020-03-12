@@ -5,6 +5,7 @@
 # Manual trigger example:
 #   gcloud builds submit . --substitutions="BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD),SHORT_SHA=$(git rev-parse --short HEAD)"
 #
+timeout: '20m'
 
 substitutions:
   # Docker image to build
@@ -51,8 +52,8 @@ steps:
           --labels=test=true \
           --generator=run-pod/v1 \
           --image ${_IMAGE}:ci-${SHORT_SHA} \
-          --rm -i --restart=Never --attach --pod-running-timeout=5m \
-          -- yarn test
+          --rm -i --restart=Never --attach --pod-running-timeout=10m \
+          -- yarn test-with-examples
 
   - id: '[develop] push the temporary image with :latest tag'
     name: 'gcr.io/cloud-builders/docker'
