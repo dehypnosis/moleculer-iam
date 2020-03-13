@@ -91,9 +91,7 @@ export class IAMServer {
 
     // prepare to persist some query strings on redirection
     const { persistentQueryParamsKeys = [] } = this.options;
-    if (!persistentQueryParamsKeys.includes("locale")) {
-      persistentQueryParamsKeys.push("locale");
-    }
+    const persistentQueryParamsKeysWithDefaults = [...new Set(persistentQueryParamsKeys.concat(["locale", "theme"]))]
 
     app.use((ctx, next) => {
       // parsed by precedence of ?locale=ko-KR, Cookie: locale=ko-KR, Accept-Language: ko-KR
@@ -110,8 +108,8 @@ export class IAMServer {
             const redirect = ctx.response.get("Location");
             if (redirect.startsWith("/") || redirect.startsWith(op.issuer)) {
               const { protocol, auth, slashes, host, hash, query, pathname } = url.parse(redirect, true);
-              for (const key of persistentQueryParamsKeys) {
-                if (ctx.query[key]) {
+              for (const key of persistentQueryParamsKeysWithDefaults) {
+                if (typeof ctx.query[key] !== "undefined") {
                   query[key] = ctx.query[key];
                 }
               }

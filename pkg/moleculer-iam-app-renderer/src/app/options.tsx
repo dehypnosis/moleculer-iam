@@ -52,7 +52,7 @@ export class AppOptionsProvider extends React.Component<{initialOptions: Partial
       console.debug("app theme options from querystring/cookie:", theme);
       this.state.theme = theme;
     }
-    document.cookie = `theme=${theme}; path=/`; // store as session cookie
+    document.cookie = `theme=${this.state.theme}; path=/`; // store as session cookie
   }
 
   render() {

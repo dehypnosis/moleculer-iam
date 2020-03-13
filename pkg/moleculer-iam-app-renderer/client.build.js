@@ -73,7 +73,7 @@ module.exports = {
 
     // include untranspiled modules
     babelInclude([
-      path.resolve("src"),
+      path.resolve("./src"),
       path.resolve("./client.ts"),
       path.resolve("./client.rnw.tsx"),
       require.resolve("@react-navigation/stack"),
