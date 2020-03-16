@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { getStateFromPath as getNavStateFromPath, NavigationContainerRef, useNavigation as useOriginalNavigation } from "@react-navigation/core";
 import { NavigationContainer, useLinking, useRoute } from "@react-navigation/native";
 import { View } from "react-native";
-import { useAppOptions } from "../hook";
+import { useAppOptions } from "./options";
 import { useAppState } from "./state";
 
 export const AppNavigationProvider: React.FunctionComponent<{

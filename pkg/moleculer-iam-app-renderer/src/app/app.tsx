@@ -1,17 +1,17 @@
 import { ApplicationState } from "moleculer-iam";
 import React from "react";
 import { ApplicationOptions } from "../../common";
-import { useThemePalette } from "../screen/component";
-import { ConsentScreen } from "../screen/consent";
-import { ErrorScreen } from "../screen/error";
 import { AppOptionsProvider } from "./options";
 import { AppStateProvider } from "./state";
 import { AppNavigationProvider } from "./navigation";
 import { AppThemeProvider } from "./theme";
 import { AppI18NProvider } from "./i18n";
 
+import { useThemePalette } from "../screen/component";
 import { LinkingOptions } from "@react-navigation/native/lib/typescript/src/types";
 import { createStackNavigator, StackNavigationOptions } from "@react-navigation/stack";
+import { ConsentScreen } from "../screen/consent";
+import { ErrorScreen } from "../screen/error";
 import { FindEmailIndexScreen } from "../screen/find_email.index";
 import { FindEmailEndScreen } from "../screen/find_email.end";
 import { LoginCheckPasswordScreen } from "../screen/login.check_password";
