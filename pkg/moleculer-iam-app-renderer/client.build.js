@@ -42,7 +42,7 @@ module.exports = {
       moduleNameMapper: {
         // mocking non-universal modules
         "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/__mocks__/file.js",
-        "\\.(css|less)$": "<rootDir>/__mocks__/css.js",
+        "\\.(css|less)$": "<rootDir>/__mocks__/empty.js",
         "^react-native-svg$": "react-native-svg-mock",
         "^react-native-gesture-handler$":  "<rootDir>/__mocks__/react-native-gesture-handler.js",
 

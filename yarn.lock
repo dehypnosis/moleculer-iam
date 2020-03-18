@@ -10488,11 +10488,6 @@ mkdirp@0.5.1, mkdirp@0.x, mkdirp@^0.5.0, mkdirp@^0.5.1, mkdirp@~0.5.1:
   dependencies:
     minimist "0.0.8"
 
-moleculer-iam-app-renderer@*:
-  version "0.2.6"
-  resolved "https://registry.yarnpkg.com/moleculer-iam-app-renderer/-/moleculer-iam-app-renderer-0.2.6.tgz#eb75e1f48dcdc9e3e507ff2dfc6fbec63e289ebf"
-  integrity sha512-IIPUNldFpdVFPSyX8jwxxAC1Z6OpuETh8YhkLTx+khPb6NQK4jGLwMqL9sBw5BbnEZ0cR+E6R7eK2z+gTL47KQ==
-
 moleculer-qmit@^1.0.12:
   version "1.0.12"
   resolved "https://registry.yarnpkg.com/moleculer-qmit/-/moleculer-qmit-1.0.12.tgz#e36fe7a4af5cb35fa733a12d828979da1bff53d8"

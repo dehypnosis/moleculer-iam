@@ -13,13 +13,10 @@ body {
   min-width: 320px;
 }
 
-#theme-container {
-  height: 100vh;
-}
-
 #nav-container {
   height: 100vh;
   width: 100%;
+  margin: 0 auto;
 }
 
 @media (min-width: 640px) {

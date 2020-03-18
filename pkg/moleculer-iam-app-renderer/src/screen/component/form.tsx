@@ -37,7 +37,12 @@ export const FormInput: React.FunctionComponent<FormInputAliasProps> = (props) =
 
   return (
     <Input
-      ref={withAttrs({tabindex: tabIndex || null, autofocus: autoFocus ? "autofocus" : null}, "input")}
+      ref={ref => {
+        withAttrs({tabindex: tabIndex || null, autofocus: autoFocus ? "autofocus" : null}, "input")(ref as any);
+        if (ref && (ref as any).textInputRef.current) {
+          (ref as any).textInputRef.current._node.style.width = "99%"; // fix icon marginalized bug
+        }
+      }}
 
       // default
       size={"large"}

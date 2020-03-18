@@ -1,6 +1,6 @@
 // import * as _ from "lodash";
 import { LinkingOptions } from "@react-navigation/native/lib/typescript/src/types";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useLayoutEffect, useRef, useState } from "react";
 import { getStateFromPath as getNavStateFromPath, NavigationContainerRef, useNavigation as useOriginalNavigation } from "@react-navigation/core";
 import { NavigationContainer, useLinking, useRoute } from "@react-navigation/native";
 import { View } from "react-native";
@@ -34,7 +34,7 @@ export const AppNavigationProvider: React.FunctionComponent<{
   // load initial nav state
   const [initialState, setInitialState] = useState(null as any);
   const [loading, setLoading] = useState(true);
-  useEffect(() => {
+  useLayoutEffect(() => {
       deepLinking
         .getInitialState()
         .then(nav => setInitialState(nav), err => console.error(err))

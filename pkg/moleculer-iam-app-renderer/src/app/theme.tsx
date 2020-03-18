@@ -29,7 +29,7 @@ export const AppThemeProvider: React.FunctionComponent = ({ children }) => {
         customMapping={customMapping}
         theme={currentTheme}
       >
-        <Layout nativeID={"theme-container"}>
+        <Layout style={{height: "100%"}}>
           {children}
         </Layout>
       </EvaThemeProvider>

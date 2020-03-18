@@ -5,7 +5,7 @@
 # Manual trigger example:
 #   gcloud builds submit . --substitutions="BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD),SHORT_SHA=$(git rev-parse --short HEAD)"
 #
-timeout: '20m'
+timeout: '1200s'
 
 substitutions:
   # Docker image to build
