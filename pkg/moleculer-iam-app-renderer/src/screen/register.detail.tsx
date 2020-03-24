@@ -56,10 +56,10 @@ export const RegisterDetailScreen: React.FunctionComponent = () => {
     const data = {
       submit: false,
       claims: {
+        ...tmpClaims,
         phone_number: phone_number ? `${options.locale.country}|${phone_number}` : undefined,
         birthdate: brithdateIns.isValid() ? brithdateIns.format("YYYY-MM-DD") : birthdateStr,
         gender,
-        ...tmpClaims,
       },
       credentials: tmpCreds,
       scope: ["email", "profile", "birthdate", "gender"].concat((phoneNumberRequired || phone_number) ? "phone" : []),
