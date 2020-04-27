@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useAppState, useWithLoading, useNavigation, useAppOptions, useI18N } from "../hook";
-import { ScreenLayout, Text, FormInput } from "./component";
+import { ScreenLayout, Text, FormInput } from "../component";
 
 export const FindEmailIndexScreen: React.FunctionComponent = () => {
   const { nav } = useNavigation();

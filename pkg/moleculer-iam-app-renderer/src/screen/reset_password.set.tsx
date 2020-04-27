@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useAppState, useI18N, useNavigation, useWithLoading } from "../hook";
-import { ScreenLayout, Text, Form, FormInput } from "./component";
+import { ScreenLayout, Text, Form, FormInput } from "../component";
 
 export const ResetPasswordSetScreen: React.FunctionComponent = () => {
   // states

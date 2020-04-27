@@ -1,6 +1,6 @@
 import React from "react";
 import { useAppState, useWithLoading, useNavigation, useI18N } from "../hook";
-import { Text, Persona, ScreenLayout } from "./component";
+import { Text, Persona, ScreenLayout } from "../component";
 
 export const ConsentScreen: React.FunctionComponent = () => {
   // states

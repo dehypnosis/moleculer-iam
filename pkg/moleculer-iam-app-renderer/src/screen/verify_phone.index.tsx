@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigation, useAppState, useWithLoading, useAppOptions, useI18N } from "../hook";
-import { Text, ScreenLayout, FormInput } from "./component";
+import { Text, ScreenLayout, FormInput } from "../component";
 
 export const VerifyPhoneIndexScreen: React.FunctionComponent = () => {
   // states

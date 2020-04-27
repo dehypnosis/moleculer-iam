@@ -1,6 +1,6 @@
-export type I18NResource = typeof en;
+export type I18NResource = typeof message;
 
-export const en = {
+const message = {
   // ConsentScreen
   "consent.consentRequired": "Authorization consent required",
   "button.continue": "Continue",
@@ -124,3 +124,5 @@ export const en = {
   "verifyPhone.enterTheCode": "Enter the received 6-digit verification code.",
   "verifyPhone.codeGonnaBeSent": "A text message with a verification code will be sent to verify the phone number.",
 };
+
+export default message;

@@ -19,7 +19,7 @@ const customMapping: SchemaType = {
 export const AppThemeProvider: React.FunctionComponent = ({ children }) => {
   const [appOptions] = useAppOptions();
   const { theme, palette } = appOptions;
-  const currentTheme: ApplicationThemePalette = (palette && theme && palette[theme]) || light || dark;
+  const themePalette: ApplicationThemePalette = (palette && theme && palette[theme]) || light || dark;
 
   return (
     <>
@@ -27,7 +27,7 @@ export const AppThemeProvider: React.FunctionComponent = ({ children }) => {
       <EvaThemeProvider
         mapping={mapping}
         customMapping={customMapping}
-        theme={currentTheme}
+        theme={themePalette}
       >
         <Layout style={{height: "100%"}}>
           {children}

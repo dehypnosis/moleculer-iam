@@ -1,7 +1,7 @@
 import moment from "moment";
 import React, { useCallback, useEffect, useState } from "react";
 import { Image } from "react-native";
-import { ScreenLayout, Text, FormInput } from "./component";
+import { ScreenLayout, Text, FormInput } from "../component";
 import { useAppState, useI18N, useNavigation, useWithLoading } from "../hook";
 import svg from "../assets/screen_verify.svg";
 

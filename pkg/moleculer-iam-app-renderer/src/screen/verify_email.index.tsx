@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useAppState, useI18N, useNavigation, useWithLoading } from "../hook";
-import { ScreenLayout, FormInput, Text } from "./component";
+import { ScreenLayout, FormInput, Text } from "../component";
 
 export const VerifyEmailIndexScreen: React.FunctionComponent = () => {
   // states

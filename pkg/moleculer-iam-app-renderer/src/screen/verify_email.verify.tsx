@@ -2,7 +2,7 @@ import moment from "moment";
 import React, { useCallback, useEffect, useState } from "react";
 import { Image } from "react-native";
 import { useAppState, useI18N, useNavigation, useWithLoading } from "../hook";
-import { ScreenLayout, FormInput, Text } from "./component";
+import { ScreenLayout, FormInput, Text } from "../component";
 import svg from "../assets/screen_sent.svg";
 
 export const VerifyEmailVerifyScreen: React.FunctionComponent = () => {

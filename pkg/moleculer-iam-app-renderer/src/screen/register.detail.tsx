@@ -1,6 +1,6 @@
 import moment from "moment";
 import React, { useState } from "react";
-import { ScreenLayout, Text, Form, FormInput, FormAutoComplete, Icon, FormSelect } from "./component";
+import { ScreenLayout, Text, Form, FormInput, FormAutoComplete, Icon, FormSelect } from "../component";
 import { useNavigation, useAppState, useWithLoading, useAppOptions, useI18N } from "../hook";
 
 const months = new Array(12).fill(null).map((_, i) => ({ value: (i+1).toString(), title: (i+1).toString() }));

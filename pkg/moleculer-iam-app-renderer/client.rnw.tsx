@@ -4,6 +4,7 @@
 import React, { useRef } from "react";
 // @ts-ignore
 import * as ReactNativeWeb from "react-native-web";
+import PropTypes from "prop-types";
 
 const fixTouchable = (Touchable: any) => (props: any) => {
   const { onPress, ...restProps } = props;
@@ -30,3 +31,13 @@ export const TouchableOpacity = fixTouchable(ReactNativeWeb.TouchableOpacity);
 export const TouchableWithoutFeedback = fixTouchable(ReactNativeWeb.TouchableWithoutFeedback);
 export const TouchableNativeFeedback = fixTouchable(ReactNativeWeb.TouchableNativeFeedback);
 export const TouchableHighlight = fixTouchable(ReactNativeWeb.TouchableHighlight);
+
+// shim view
+export const ViewPropTypes = { style: PropTypes.any };
+// export const ViewPropTypes = require("../../node_modules/react-native/Libraries/Components/View/ViewPropTypes");
+export const ViewStyle = {};
+
+// shim image
+ReactNativeWeb.Image.resolveAssetSource = (uri: string) => ({ uri });
+
+console.debug("shim: react-native -> react-native-web -> pkg/web/client.rnw.tsx");

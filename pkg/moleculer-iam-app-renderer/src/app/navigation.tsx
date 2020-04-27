@@ -1,11 +1,13 @@
 // import * as _ from "lodash";
 import { LinkingOptions } from "@react-navigation/native/lib/typescript/src/types";
-import React, { useCallback, useLayoutEffect, useRef, useState } from "react";
+import React, { useCallback, useLayoutEffect, useState } from "react";
 import { getStateFromPath as getNavStateFromPath, NavigationContainerRef, useNavigation as useOriginalNavigation } from "@react-navigation/core";
 import { NavigationContainer, useLinking, useRoute } from "@react-navigation/native";
 import { View } from "react-native";
 import { useAppOptions } from "./options";
 import { useAppState } from "./state";
+
+const navigationContainerRef = React.createRef<NavigationContainerRef>();
 
 export const AppNavigationProvider: React.FunctionComponent<{
   routeConfig: NonNullable<LinkingOptions["config"]>;
@@ -13,8 +15,7 @@ export const AppNavigationProvider: React.FunctionComponent<{
   const [appState] = useAppState();
 
   // link nav state with URL
-  const ref = useRef<NavigationContainerRef>();
-  const deepLinking = useLinking(ref, {
+  const deepLinking = useLinking(navigationContainerRef, {
     prefixes: [window.location.origin],
     config: routeConfig,
     getStateFromPath: useCallback((path, options) => {
@@ -50,7 +51,7 @@ export const AppNavigationProvider: React.FunctionComponent<{
   return (
     <NavigationContainer
       initialState={initialState}
-      ref={ref}
+      ref={navigationContainerRef}
     >
       <View nativeID={"nav-container"} style={{alignSelf: "center"}}>{children}</View>
     </NavigationContainer>

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useWithLoading, useNavigation, useAppState, useI18N } from "../hook";
-import { Text, ScreenLayout, FormInput } from "./component";
+import { Text, ScreenLayout, FormInput } from "../component";
 
 export const ResetPasswordIndexScreen: React.FunctionComponent = () => {
   // states
@@ -69,7 +69,7 @@ export const ResetPasswordIndexScreen: React.FunctionComponent = () => {
       ]}
     >
       <Text style={{marginBottom: 30}}>
-        {f({id: "resetPassword.verifyEmail"})}
+        {f({id: "resetPassword.verifyRegisteredEmail"})}
       </Text>
       <FormInput
         autoFocus

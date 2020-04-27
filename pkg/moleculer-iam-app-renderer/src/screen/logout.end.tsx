@@ -1,7 +1,7 @@
 import { ApplicationState } from "moleculer-iam";
 import React from "react";
 import { useClose, useAppState, useI18N } from "../hook";
-import { ScreenLayout, Text, List, ListItem, Icon, useThemePalette } from "./component";
+import { ScreenLayout, Text, List, ListItem, Icon, useThemePalette } from "../component";
 
 export const LogoutEndScreen: React.FunctionComponent = () => {
   // states

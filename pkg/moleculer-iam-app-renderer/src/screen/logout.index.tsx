@@ -1,6 +1,6 @@
 import React from "react";
 import { useAppState, useI18N, useWithLoading } from "../hook";
-import { ScreenLayout } from "./component";
+import { ScreenLayout } from "../component";
 import { ActiveSessionList } from "./logout.end";
 
 export const LogoutIndexScreen: React.FunctionComponent = () => {

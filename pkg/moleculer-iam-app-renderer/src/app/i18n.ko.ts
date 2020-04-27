@@ -1,6 +1,6 @@
 import { I18NResource } from "./i18n.en";
 
-export const ko: I18NResource = {
+export const message: I18NResource = {
   // ConsentScreen
   "consent.consentRequired": "권한 허가 요청",
   "button.continue": "계속",
@@ -124,3 +124,5 @@ export const ko: I18NResource = {
   "verifyPhone.enterTheCode": "인증코드 6자리 숫자를 입력하세요.",
   "verifyPhone.codeGonnaBeSent": "핸드폰 번호로 인증 코드가 포함된 문자 메세지을 보냅니다.",
 };
+
+export default message;

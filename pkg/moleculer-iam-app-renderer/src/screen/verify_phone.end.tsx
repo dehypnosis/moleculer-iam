@@ -1,6 +1,6 @@
 import React from "react";
 import { useAppState, useClose, useI18N } from "../hook";
-import { ScreenLayout, Text } from "./component";
+import { ScreenLayout, Text } from "../component";
 
 export const VerifyPhoneEndScreen: React.FunctionComponent = () => {
   // states

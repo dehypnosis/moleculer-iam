@@ -1,6 +1,6 @@
 import ReactDOM from "react-dom";
 import { useTheme } from "@ui-kitten/components";
-import { ApplicationThemePalette } from "../../../common";
+import { ApplicationThemePalette } from "../../common";
 
 /* for DOM manipulation */
 export function withElements(callback: (elems: Element[]) => void, selector: string) {
@@ -16,7 +16,8 @@ export function withElements(callback: (elems: Element[]) => void, selector: str
 }
 
 export function withElement(callback: (elem: Element) => void, selector?: string, ignoreNotFound = false) {
-  return (ref: React.Component) => {
+  return (ref: React.Component | null) => {
+    if (!ref) return;
     const node = ReactDOM.findDOMNode(ref);
     if (!node) return;
 

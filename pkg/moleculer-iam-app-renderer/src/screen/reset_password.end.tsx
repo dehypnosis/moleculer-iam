@@ -1,6 +1,6 @@
 import React from "react";
 import { useWithLoading, useNavigation, useAppState, useClose, useI18N } from "../hook";
-import { ScreenLayout, Text } from "./component";
+import { ScreenLayout, Text } from "../component";
 
 export const ResetPasswordEndScreen: React.FunctionComponent = () => {
   // states

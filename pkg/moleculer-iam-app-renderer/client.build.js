@@ -6,6 +6,7 @@ const {
   override,
   overrideDevServer,
   addWebpackPlugin,
+  addWebpackAlias,
 } = require("customize-cra");
 const path = require("path");
 const fs = require("fs");
@@ -67,8 +68,11 @@ module.exports = {
     // alias react-native to shimmed react-native-web module
     fixBabelImports("module-resolver", {
       alias: {
-        "^react-native$": "./client.rnw.tsx",
+        "react-native": path.resolve("./client.rnw.tsx"),
       },
+    }),
+    addWebpackAlias({
+      "react-native": path.resolve("./client.rnw.tsx"),
     }),
 
     // include untranspiled modules

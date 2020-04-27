@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigation, useAppState, useWithLoading, useClose, useI18N } from "../hook";
-import { ScreenLayout, Text, Persona } from "./component";
+import { ScreenLayout, Text, Persona } from "../component";
 
 export const FindEmailEndScreen: React.FunctionComponent = () => {
   // states

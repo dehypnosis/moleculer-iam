@@ -7,7 +7,7 @@ import { AppNavigationProvider } from "./navigation";
 import { AppThemeProvider } from "./theme";
 import { AppI18NProvider } from "./i18n";
 
-import { useThemePalette } from "../screen/component";
+import { useThemePalette } from "../component";
 import { LinkingOptions } from "@react-navigation/native/lib/typescript/src/types";
 import { createStackNavigator, StackNavigationOptions } from "@react-navigation/stack";
 import { ConsentScreen } from "../screen/consent";

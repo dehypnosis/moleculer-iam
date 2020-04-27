@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { ViewStyle, TextStyle } from "react-native";
 import { useNavigation, useAppState, useWithLoading, useAppOptions, useI18N } from "../hook";
-import { Form, FormInput, ScreenLayout } from "./component";
+import { Form, FormInput, ScreenLayout } from "../component";
 
 
 export const LoginIndexScreen: React.FunctionComponent = () => {

@@ -1,8 +1,8 @@
 import { ButtonGroupProps } from "@ui-kitten/components";
 import React, { ReactElement, useEffect, useRef, useState } from "react";
 import { ScrollView, Image, View, ViewProps } from "react-native";
-import { useAppOptions, useAppLanguages, useNavigation } from "../../hook";
-import logo from "../../assets/logo.svg";
+import { useAppOptions, languages, useNavigation } from "../hook";
+import logo from "../assets/logo.svg";
 import { Text, Button, ButtonGroup, ButtonProps, withAttrs, Separator, activateAutoFocus, isTouchDevice, OverflowMenu, Icon } from "./index";
 
 type LayoutFooterButtonGroupProps = {
@@ -196,11 +196,10 @@ export const ScreenLayout: React.FunctionComponent<{
 const LanguageSelector: React.FunctionComponent<ViewProps & { reloadOnLocaleChange?: boolean }> = ({ style, reloadOnLocaleChange }) => {
   const [visible, setVisible] = useState(false);
   const [options, setOptions] = useAppOptions();
-  const appLanguages = useAppLanguages();
-  const languageSelectorData = Object.keys(appLanguages).map(language => {
+  const languageSelectorData = Object.keys(languages).map(code => {
     return {
-      title: appLanguages[language].of(language),
-      value: language,
+      title: languages[code],
+      value: code,
     };
   });
   const selectedItem = languageSelectorData.find(d => d.value === options.locale.language);

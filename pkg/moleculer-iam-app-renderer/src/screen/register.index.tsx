@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ScreenLayout, Text, Form, FormInput, Icon } from "./component";
+import { ScreenLayout, Text, Form, FormInput, Icon } from "../component";
 import { useNavigation, useAppState, useWithLoading, useAppOptions, useI18N } from "../hook";
 
 export const RegisterIndexScreen: React.FunctionComponent = () => {

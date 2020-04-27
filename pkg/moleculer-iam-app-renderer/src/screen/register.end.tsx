@@ -1,6 +1,6 @@
 import React from "react";
 import { useWithLoading, useAppState, useClose, useI18N } from "../hook";
-import { ScreenLayout, Persona, Text } from "./component";
+import { ScreenLayout, Persona, Text } from "../component";
 
 export const RegisterEndScreen: React.FunctionComponent = () => {
   // states

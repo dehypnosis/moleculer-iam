@@ -1,5 +1,5 @@
 import React from "react";
-import { ScreenLayout } from "./component";
+import { ScreenLayout } from "../component";
 import { useAppState, useClose, useI18N } from "../hook";
 
 export const ErrorScreen: React.FunctionComponent = () => {
