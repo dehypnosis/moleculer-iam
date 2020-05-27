@@ -7,7 +7,7 @@ import { defaultIdentityMetadata, IdentityMetadata } from "../metadata";
 import { IdentityClaimsSchema } from "../claims";
 import { ValidationSchema, ValidationError, validator, createValidationError } from "../../helper/validator";
 import { IAMErrors } from "../error";
-import uuid from "uuid";
+import { v4 as uuid } from "uuid";
 
 export type IDPAdapterProps = {
   logger?: Logger,
@@ -88,7 +88,7 @@ export abstract class IDPAdapter {
     const {metadata = {}, claims = {} as OIDCAccountClaims, credentials = {}, scope = []} = args || {};
 
     if (claims && !claims.sub) {
-      claims.sub = uuid.v4();
+      claims.sub = uuid();
     }
 
     if (scope && scope.length !== 0 && !scope.includes("openid")) {

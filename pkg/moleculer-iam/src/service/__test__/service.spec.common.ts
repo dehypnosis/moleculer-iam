@@ -1,6 +1,6 @@
 "use strict";
 
-import * as uuid from "uuid";
+import { v4 as uuid } from "uuid";
 import { ServiceBroker, Service } from "moleculer";
 import { IdentityProvider } from "../../idp";
 import { OIDCProvider } from "../../op";
@@ -190,7 +190,7 @@ export function doCommonServiceTest(broker: ServiceBroker, service: Service) {
       );
 
       // valid payload
-      const email = `${uuid.v4().substr(0, 16)}@test-iam-service.com`;
+      const email = `${uuid().substr(0, 16)}@test-iam-service.com`;
       let identity: any;
       await expect(
         broker.call("iam.id.create", {
@@ -342,7 +342,7 @@ export function doCommonServiceTest(broker: ServiceBroker, service: Service) {
       const mockedRefresher = jest.fn();
       idp.adapter.onClaimsUpdated = mockedRefresher as any;
 
-      const email = `${uuid.v4().substr(0, 16)}@test-iam-service.com`;
+      const email = `${uuid().substr(0, 16)}@test-iam-service.com`;
       let identity: any;
       await expect(
         idp.create({

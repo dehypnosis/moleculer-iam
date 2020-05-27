@@ -10,7 +10,7 @@ import { OIDCProviderContextProxy } from "./context";
 import { OIDCError } from "./error.types";
 import { IdentityFederationBuilder } from "./federation";
 import { ApplicationRoutes, ApplicationRoutesFactory, ApplicationRequestContext } from "./app.types";
-import { DeviceInfo } from "./proxy.types";
+import { Client, DeviceInfo } from "./proxy.types";
 import { Logger } from "../../helper/logger";
 import { I18N } from "../../helper/i18n";
 import { dummyAppStateRendererFactory, ApplicationRenderer, ApplicationRendererFactory } from "./renderer";
@@ -247,7 +247,7 @@ export class ProviderApplicationBuilder {
   private readonly postLogoutSuccessSourceProxy: NonNullable<DynamicConfiguration["postLogoutSuccessSource"]> = async (ctx) => {
     return this.wrapContext(ctx as any, async () => {
       const op: ApplicationRequestContext["op"] = ctx.op as any;
-      op.clientMetadata = await op.getPublicClientProps(ctx.oidc.client);
+      op.clientMetadata = await op.getPublicClientProps(ctx.oidc.client as Client);
       return this.renderLogoutEnd(ctx as any);
     });
   };

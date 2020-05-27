@@ -123,7 +123,7 @@ export class ProviderConfigBuilder {
       findAccount: (ctx, id, token) => {
         return idp.findOrFail({id})
           .catch(async err => {
-            await ctx.oidc.session.destroy();
+            await ctx.oidc.session!.destroy();
             throw err;
           });
       },

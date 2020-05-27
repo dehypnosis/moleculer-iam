@@ -63,8 +63,8 @@ export function buildApplication(builder: ProviderConfigBuilder, opts: Applicati
 
     // set supported prompts (), custom policies like: MFA, captcha, rate limit can be added
     .setPrompts([
-      interactionPolicy.base().get("login"),
-      interactionPolicy.base().get("consent"),
+      interactionPolicy.base().get("login")!,
+      interactionPolicy.base().get("consent")!,
     ])
 
     .setRoutesFactory(createApplicationRoutesFactory(builder, opts))

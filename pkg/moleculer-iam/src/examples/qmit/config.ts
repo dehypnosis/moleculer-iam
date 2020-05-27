@@ -1,19 +1,14 @@
-import vault from "vault-sync";
+import { vault } from "qmit-sdk";
 
 // create global configuration
 // can fetch vault secrets in local/kubernetes environment
+
 /* istanbul ignore next */
-export const config = vault(async (get, list) => {
-  const env = process.env.APP_ENV || "dev";
-  const isDev = env === "dev";
+export const config = vault.fetch(async (get, list, { appEnv }) => {
   return {
-    env,
-    isDev,
+    env: appEnv,
+    isDev: appEnv === "dev",
     isDebug: !!process.env.APP_DEBUG,
-    iam: (await get(`${isDev ? "dev" : "prod"}/data/iam`)).data,
+    iam: (await get(`${appEnv}/data/iam`)).data,
   };
-}, {
-  uri: "https://vault.internal.qmit.pro",
-  method: `k8s/${process.env.APP_K8S_CLUSTER || "dev"}`,
-  role: "default",
 });

@@ -1,5 +1,5 @@
 import * as kleur from "kleur";
-import uuid from "uuid";
+import { v4 as uuid } from "uuid";
 import { pick as pickLanguage } from "accept-language-parser";
 import { Configuration, Provider } from "oidc-provider";
 import { I18N } from "../../helper/i18n";
@@ -15,6 +15,7 @@ import { DiscoveryMetadata, Client, ClientMetadata } from "./proxy.types";
 // ref: https://github.com/panva/node-oidc-provider/blob/9306f66bdbcdff01400773f26539cf35951b9ce8/lib/models/client.js#L385
 // @ts-ignore : need to hack oidc-provider private methods
 import getProviderHiddenProps from "oidc-provider/lib/helpers/weak_cache";
+
 
 export type OIDCProviderProxyProps = {
   logger: Logger;

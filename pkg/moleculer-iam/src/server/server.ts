@@ -4,7 +4,7 @@ import * as https from "https";
 import * as kleur from "kleur";
 import * as url from "url";
 import Koa from "koa";
-import helmet from "koa-helmet";
+import helmet  from "koa-helmet";
 import { IHelmetConfiguration } from "helmet";
 import prettyJSON from "koa-json";
 import mount from "koa-mount";

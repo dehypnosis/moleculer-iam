@@ -4,10 +4,10 @@ import { IdentityProvider } from "../idp";
 import { Identity } from "../identity";
 import { OIDCAccountClaims } from "../../op";
 import { IdentityClaimsSchema } from "../claims";
-import uuid from "uuid";
+import { v4 as uuid  } from "uuid";
 
 export function doCommonAdapterTest(idp: IdentityProvider) {
-  const testEmail = `${uuid.v4()}@tEsT.com`;
+  const testEmail = `${uuid()}@tEsT.com`;
   const testSchemaKeys = ["testnote", "testcomplex", "testscore"];
 
   let identity: Identity;
