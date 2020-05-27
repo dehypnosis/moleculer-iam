@@ -1,6 +1,6 @@
 import * as _ from "lodash";
 import { ServiceBroker } from "moleculer";
-import { createBrokerOptions } from "moleculer-qmit";
+import { moleculer } from "qmit-sdk";
 import { IAMServiceSchema, IAMServiceSchemaOptions } from "../../";
 import { config } from "./config";
 import { app } from "./app";
@@ -8,7 +8,7 @@ import { app } from "./app";
 export const {isDebug, isDev} = config;
 
 // create service broker
-export const broker = new ServiceBroker(createBrokerOptions({
+export const broker = new ServiceBroker(moleculer.createServiceBrokerOptions({
   logLevel: isDebug ? "debug" : "info",
 }));
 
