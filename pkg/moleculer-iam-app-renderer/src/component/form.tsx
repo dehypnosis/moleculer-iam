@@ -1,7 +1,7 @@
 import moment from "moment";
 import React, { useRef, useState } from "react";
-import { View } from "react-native";
-import { Input, InputProps, Icon, Datepicker, DatepickerProps, Select, SelectProps, Text, Autocomplete, AutocompleteProps } from "./index";
+import { View, TouchableWithoutFeedback } from "react-native";
+import { Input, InputProps, Icon, Datepicker, DatepickerProps, Select, SelectItem, IndexPath, SelectProps, Text, Autocomplete, AutocompleteProps } from "./index";
 import { withAttrs } from "./util";
 
 type FormInputAliasProps = {
@@ -60,8 +60,15 @@ export const FormInput: React.FunctionComponent<FormInputAliasProps> = (props) =
       value={value}
       onChangeText={setValue ? v => setValue(v || "") : undefined}
       onKeyPress={typeof onEnter === "function" ? e => e.nativeEvent.key === "Enter" && onEnter() : restProps.onKeyPress}
-      icon={secureTextEntry ? (style => (<Icon style={{...style, ...({cursor: "pointer"} as any)}} name={passwordVisible ? 'eye' : 'eye-off'}/>)) : undefined}
-      onIconPress={secureTextEntry ? (() => setPasswordVisible(!passwordVisible)) : undefined}
+      accessoryRight={secureTextEntry ? (evaProps => (
+        <TouchableWithoutFeedback onPress={() => setPasswordVisible(!passwordVisible)}>
+          <Icon
+            {...evaProps}
+            style={[evaProps?.style, {cursor: "pointer"} as any]}
+            name={passwordVisible ? 'eye' : 'eye-off'}
+          />
+        </TouchableWithoutFeedback>
+      )) : undefined}
 
       // custom
       {...restProps}
@@ -114,7 +121,7 @@ export const FormDatePicker: React.FunctionComponent<FormDatePickerAliasProps> =
           pickerRef.current.setPickerInvisible();
         }
       }}
-      icon={s => <Icon style={s} name="calendar"/>}
+      accessoryRight={evaProps => <Icon {...evaProps} name="calendar"/>}
 
       // custom
       {...restProps}
@@ -138,6 +145,9 @@ type FormSelectAliasProps = {
 
 export const FormSelect: React.FunctionComponent<FormSelectAliasProps> = (props) => {
   const {value, setValue, error, data = [], tabIndex, caption, ...restProps} = props;
+  const indexRow = data.findIndex(i => i.value === value);
+  const index = indexRow > -1 ? new IndexPath(indexRow) : undefined;
+  const item = indexRow > -1 ? data[indexRow] : undefined;
   const selectRef = useRef<any>();
   return (
     <>
@@ -148,7 +158,7 @@ export const FormSelect: React.FunctionComponent<FormSelectAliasProps> = (props)
         }}
 
         onFocus={() => {
-          console.log(selectRef.current, !selectRef.current.state.optionsVisible);
+          // console.log(selectRef.current, !selectRef.current.state.optionsVisible);
           if (selectRef.current && !selectRef.current.state.optionsVisible) {
             selectRef.current.setOptionsListVisible();
           }
@@ -161,16 +171,25 @@ export const FormSelect: React.FunctionComponent<FormSelectAliasProps> = (props)
         label={""}
         placeholder={""}
         size={"large"}
-        data={data}
-        selectedOption={data.find(d => d.value === value)}
-        onSelect={v => setValue ? setValue!((v as any).value) : undefined}
+        onSelect={idx => {
+          if (setValue) {
+            const idxRow = (idx as IndexPath).row;
+            setValue(data[idxRow].value);
+          }
+        }}
+        value={item ? item.text : undefined}
+        selectedIndex={index}
 
         // custom
         {...restProps}
 
         // override
         status={error ? "danger" : (restProps.status || "basic")}
-      />
+      >
+        {data.map((entry, key) => (
+          <SelectItem key={key} title={entry.text} selected={entry.value === value} />
+        ))}
+      </Select>
       {(error || caption) ? (
         <Text category={"c1"} status={error ? "danger" : (restProps.status || "basic")}>{error || caption}</Text>
       ) : null}
@@ -211,9 +230,12 @@ export const FormAutoComplete: React.FunctionComponent<FormAutoCompleteAliasProp
         label={""}
         placeholder={""}
         size={"large"}
-        data={data}
         value={value}
-        onSelect={setValue ? (v => setValue((v as any).value)) : undefined}
+        onSelect={row => {
+          if (setValue) {
+            setValue(data[row].value);
+          }
+        }}
         onChangeText={setValue ? (v => setValue(v)) : undefined}
 
         // custom
@@ -222,7 +244,11 @@ export const FormAutoComplete: React.FunctionComponent<FormAutoCompleteAliasProp
         // override
         caption={error || restProps.caption}
         status={error ? "danger" : (restProps.status || "basic")}
-      />
+      >
+        {data.map((entry, key) => (
+          <SelectItem key={key} title={entry.title} selected={entry.value === value} />
+        ))}
+      </Autocomplete>
     </View>
   );
 };

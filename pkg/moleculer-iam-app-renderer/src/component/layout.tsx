@@ -1,9 +1,8 @@
-import { ButtonGroupProps } from "@ui-kitten/components";
 import React, { ReactElement, useEffect, useRef, useState } from "react";
 import { ScrollView, Image, View, ViewProps } from "react-native";
 import { useAppOptions, languages, useNavigation } from "../hook";
 import logo from "../assets/logo.svg";
-import { Text, Button, ButtonGroup, ButtonProps, withAttrs, Separator, activateAutoFocus, isTouchDevice, OverflowMenu, Icon } from "./index";
+import { Text, Button, ButtonGroup, ButtonProps, ButtonGroupProps, withAttrs, Separator, activateAutoFocus, isTouchDevice, MenuItem, OverflowMenu, Icon } from "./index";
 
 type LayoutFooterButtonGroupProps = {
   hidden?: boolean;
@@ -137,12 +136,12 @@ export const ScreenLayout: React.FunctionComponent<{
                         status={"basic"}
                         size={"large"}
                         style={{flexGrow: 1, flexShrink: 1, flexBasis: `${Math.ceil(100/g.group.length)}%`}}
-                        textStyle={{textAlign: "center"}}
 
                         // custom
                         {...props}
 
                         // override
+                        children={evaProps => <Text {...evaProps} style={[evaProps?.style, {textAlign: "center"}]} children={props.children as any}/>}
                         appearance={(g.loading || btn.loading) ? "outline" : (props.appearance || "filled")}
                         onPress={loading ? undefined : props.onPress}
                         onPressOut={loading ? undefined : props.onPressOut}
@@ -209,11 +208,21 @@ const LanguageSelector: React.FunctionComponent<ViewProps & { reloadOnLocaleChan
       <View style={{flexDirection: "row"}}>
         <View style={{flexGrow: 1}}/>
         <OverflowMenu
-          data={languageSelectorData}
+          anchor={evaProps => (
+            <Button
+              {...evaProps}
+              appearance={"ghost"}
+              status={"basic"}
+              size={"tiny"}
+              onPress={() => setVisible(!visible)}
+              accessoryRight={evaProps2 => <Icon {...evaProps2} style={[evaProps2?.style, { flexDirection: "row-reverse" }]} name={visible ? "chevron-up-outline" : "chevron-down-outline"} />}
+              children={/*{language ? language.title : options.locale.language}*/options.locale.language}
+            />
+          )}
           visible={visible}
-          selectedIndex={selectedItem ? languageSelectorData.indexOf(selectedItem) : undefined}
+          selectedIndex={selectedItem ? { row: languageSelectorData.indexOf(selectedItem) } as any : undefined}
           onSelect={index => {
-            setOptions(o => ({...o, locale: { ...o.locale, language: languageSelectorData[index].value}}));
+            setOptions(o => ({...o, locale: { ...o.locale, language: languageSelectorData[index.row].value}}));
             setVisible(false);
             if (reloadOnLocaleChange) {
               setTimeout(() => window.location.reload(), 100);
@@ -222,15 +231,9 @@ const LanguageSelector: React.FunctionComponent<ViewProps & { reloadOnLocaleChan
           onBackdropPress={() => setVisible(false)}
           placement={"top end"}
         >
-          <Button
-            appearance={"ghost"}
-            status={"basic"}
-            size={"tiny"}
-            onPress={() => setVisible(!visible)}
-            icon={s => <Icon style={s} name={visible ? "chevron-up-outline" : "chevron-down-outline"} />}
-            style={{ flexDirection: "row-reverse" }}
-            children={/*{language ? language.title : options.locale.language}*/options.locale.language}
-          />
+          {languageSelectorData.map((item, key) => (
+            <MenuItem key={key} {...item} />
+          ))}
         </OverflowMenu>
       </View>
     </View>

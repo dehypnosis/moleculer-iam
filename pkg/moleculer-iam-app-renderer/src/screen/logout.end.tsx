@@ -56,7 +56,7 @@ export const ActiveSessionList: React.FunctionComponent<{ authorizedClients: App
                   description={uri || item.client_id!}
                   disabled={!uri}
                   onPress={uri ? (() => window.open(uri)) : undefined}
-                  accessory={uri ? (style => <Icon style={{...style, width: 20}} fill={palette["text-hint-color"]} name={"external-link-outline"}/>) : undefined}
+                  accessoryRight={uri ? (evaProps => <Icon {...evaProps} style={[evaProps?.style, { width: 20}]} fill={palette["text-hint-color"]} name={"external-link-outline"}/>) : undefined}
                 />
               );
             }}

@@ -65,9 +65,9 @@ const message = {
   "register.signUp": "Sign up",
   "register.pleaseEnterPhoneNumber": "Please enter the phone number to find the your account for the case of lost.",
   "payload.optional": "optional",
-  "placeholder.birthYear": `Enter your birth year (YYYY)`,
-  "placeholder.birthMonth": `Enter your birth month`,
-  "placeholder.birthDay": `Enter your birth day`,
+  "placeholder.birthYear": `Enter your birth year (1991)`,
+  "placeholder.birthMonth": `Enter your birth month (01)`,
+  "placeholder.birthDay": `Enter your birth day (03)`,
   "placeholder.gender": "Enter your gender",
 
   // RegisterEndScreen

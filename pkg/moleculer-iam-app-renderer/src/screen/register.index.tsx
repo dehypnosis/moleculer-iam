@@ -150,7 +150,7 @@ export const RegisterIndexScreen: React.FunctionComponent = () => {
           autoCompleteType={"username"}
           value={payload.email}
           setValue={v => setPayload(p => ({...p, email: v}))}
-          icon={emailVerified ? (s) => <Icon name={"checkmark-circle-2-outline"} style={s}/> : undefined}
+          accessoryRight={emailVerified ? (evaProps) => <Icon {...evaProps} name={"checkmark-circle-2-outline"} /> : undefined}
           error={errors.email}
           onEnter={handlePayloadSubmit}
           style={{marginBottom: 15}}

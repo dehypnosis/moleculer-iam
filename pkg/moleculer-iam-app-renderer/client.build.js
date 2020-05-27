@@ -85,13 +85,16 @@ module.exports = {
       // path.join(require.resolve("react-native-reanimated"), ".."),
       path.join(require.resolve("react-native-gesture-handler"), ".."),
       path.join(require.resolve("react-native-eva-icons"), ".."),
+      path.join(require.resolve("@ui-kitten/components"), "../ui"),
     ]),
 
     // copy public assets to output path
     addWebpackPlugin(
-      new (require("copy-webpack-plugin"))([
-        { from: path.resolve(__dirname, "./public"), to: serverConfig.webpack.output.path },
-      ]),
+      new (require("copy-webpack-plugin"))({
+        patterns: [
+          { from: path.resolve(__dirname, "./public"), to: serverConfig.webpack.output.path },
+        ],
+      }),
     ),
 
     // set output path from common config

@@ -1,10 +1,7 @@
 import moment from "moment";
 import React, { useState } from "react";
-import { ScreenLayout, Text, Form, FormInput, FormAutoComplete, Icon, FormSelect } from "../component";
+import { ScreenLayout, Text, Form, FormInput, Icon, FormSelect } from "../component";
 import { useNavigation, useAppState, useWithLoading, useAppOptions, useI18N } from "../hook";
-
-const months = new Array(12).fill(null).map((_, i) => ({ value: (i+1).toString(), title: (i+1).toString() }));
-const days = new Array(31).fill(null).map((_, i) => ({ value: (i+1).toString(), title: (i+1).toString() }));
 
 export const RegisterDetailScreen: React.FunctionComponent = () => {
   // state
@@ -145,7 +142,7 @@ export const RegisterDetailScreen: React.FunctionComponent = () => {
           setValue={v => setPayload(p => ({...p, phone_number: v}))}
           error={errors.phone_number}
           onEnter={handlePayloadSubmit}
-          icon={phoneNumberVerified ? (s) => <Icon name={"checkmark-circle-2-outline"} style={s}/> : undefined}
+          accessoryRight={phoneNumberVerified ? (evaProps) => <Icon {...evaProps} name={"checkmark-circle-2-outline"}/> : undefined}
           style={{marginBottom: 15}}
         />
 
@@ -169,22 +166,20 @@ export const RegisterDetailScreen: React.FunctionComponent = () => {
           status={errors.birthdate ? "danger" : "basic"}
           style={{marginBottom: 5}}
         />
-        <FormAutoComplete
+        <FormInput
           tabIndex={63}
           keyboardType={"numeric"}
           placeholder={f({id: "placeholder.birthMonth"})}
           value={payload.birthdate.month}
-          data={months}
           setValue={v => setPayload(p => ({...p, birthdate: {...p.birthdate, month: v}}))}
           status={errors.birthdate ? "danger" : "basic"}
           style={{marginBottom: 5}}
         />
-        <FormAutoComplete
+        <FormInput
           tabIndex={64}
           keyboardType={"numeric"}
           placeholder={f({id: "placeholder.birthDay"})}
           value={payload.birthdate.day}
-          data={days}
           setValue={v => setPayload(p => ({...p, birthdate: {...p.birthdate, day: v}}))}
           error={errors.birthdate}
           style={{marginBottom: 15}}

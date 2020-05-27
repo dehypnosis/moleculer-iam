@@ -105,7 +105,7 @@ export class AppStateProvider extends React.Component<{initialState: Application
             if (data.error) { // got error response
               if (res.status === 422 && data.error.data) { // got validation error
                 const fields = data.error.data.reduce((obj, entry) => {
-                  obj[entry.field] = obj[entry.field] || entry.message;
+                  obj[entry.field] = obj[entry.field] || entry.message!;
                   return obj;
                 }, {} as {[field: string]: string});
                 console.error("validation error", data.error, fields);

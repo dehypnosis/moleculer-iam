@@ -65,9 +65,9 @@ export const message: I18NResource = {
   "register.signUp": "가입하기",
   "register.pleaseEnterPhoneNumber": "계정 분실시 복구하려면 핸드폰 번호가 필요합니다.",
   "payload.optional": "선택",
-  "placeholder.birthYear": `태어난 연도을 입력하세요. (YYYY)`,
-  "placeholder.birthMonth": `태어난 월을 입력하세요.`,
-  "placeholder.birthDay": `태어난 일자을 입력하세요.`,
+  "placeholder.birthYear": `태어난 연도을 입력하세요. (1991)`,
+  "placeholder.birthMonth": `태어난 월을 입력하세요. (01)`,
+  "placeholder.birthDay": `태어난 일자을 입력하세요. (03)`,
   "placeholder.gender": "성별을 입력하세요.",
 
   // RegisterEndScreen

@@ -39,7 +39,7 @@ export const AppNavigationProvider: React.FunctionComponent<{
       deepLinking
         .getInitialState()
         .then(nav => setInitialState(nav), err => console.error(err))
-        .finally(() => setLoading(false));
+        .then(() => setLoading(false));
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     []);
