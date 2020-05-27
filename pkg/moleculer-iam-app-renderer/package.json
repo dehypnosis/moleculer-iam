@@ -29,7 +29,6 @@
     "extends": "react-app"
   },
   "devDependencies": {
-    "@babel/plugin-proposal-optional-chaining": "^7.10.0",
     "@eva-design/eva": "^2.0.0",
     "@react-navigation/native": "^5.4.3",
     "@react-navigation/stack": "^5.4.0",

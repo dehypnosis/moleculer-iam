@@ -7,6 +7,7 @@ const {
   overrideDevServer,
   addWebpackPlugin,
   addWebpackAlias,
+  addWebpackModuleRule,
 } = require("customize-cra");
 const path = require("path");
 const fs = require("fs");
@@ -85,7 +86,10 @@ module.exports = {
       // path.join(require.resolve("react-native-reanimated"), ".."),
       path.join(require.resolve("react-native-gesture-handler"), ".."),
       path.join(require.resolve("react-native-eva-icons"), ".."),
-      path.join(require.resolve("@ui-kitten/components"), "../ui"),
+
+      ...(process.env.NODE_ENV !== "production" ? [
+        path.join(require.resolve("@ui-kitten/components"), "../ui"),
+      ] : []),
     ]),
 
     // copy public assets to output path
@@ -110,16 +114,18 @@ module.exports = {
   ),
 
   // set dev server path
-  devServer: overrideDevServer((config) => {
-    return {
-      ...config,
-      open: false, // why it doesn"t work...?
-      logLevel: "debug",
-      writeToDisk: true,
-      contentBase: serverConfig.webpack.output.path,
-      contentBasePublicPath: serverConfig.webpack.output.publicPath,
-    };
-  }),
+  devServer: overrideDevServer(
+    (config) => {
+      return {
+        ...config,
+        open: false, // why it doesn"t work...?
+        logLevel: "debug",
+        writeToDisk: true,
+        contentBase: serverConfig.webpack.output.path,
+        contentBasePublicPath: serverConfig.webpack.output.publicPath,
+      };
+    },
+  ),
   paths(paths) {
     return {
       ...paths,
