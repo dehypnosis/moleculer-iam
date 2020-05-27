@@ -1,6 +1,6 @@
 {
   "name": "moleculer-iam",
-  "version": "0.2.10",
+  "version": "0.2.11",
   "description": "Centralized IAM module for moleculer.\nIncluding a certified OIDC provider and an Identity provider for user profile, credentials, and custom claims management.\nCustom claims could be defined/updated by declarative schema which contains claims validation and migration strategy.",
   "author": "QMIT Inc.",
   "repository": {
@@ -65,7 +65,7 @@
     "lodash": "^4.17.15",
     "lru-cache": "^5.1.1",
     "moleculer": "^0.14.7",
-    "moleculer-iam-app-renderer": "*",
+    "moleculer-iam-app-renderer": "link:../common",
     "moment": "^2.26.0",
     "mysql2": "^2.1.0",
     "object-hash": "^2.0.3",
