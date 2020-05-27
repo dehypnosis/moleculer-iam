@@ -65,10 +65,12 @@ export const defaultStaticConfig: StaticConfiguration = {
       .digest("hex");
   },
 
-  pkceMethods: [
-    "S256",
-    "plain",
-  ],
+  pkce: {
+    methods: [
+      "S256",
+      "plain",
+    ],
+  },
 
   clientDefaults: {
     grant_types: ["implicit", "authorization_code", "refresh_token"],

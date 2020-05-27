@@ -1,6 +1,6 @@
 {
   "name": "moleculer-iam",
-  "version": "0.2.9",
+  "version": "0.2.10",
   "description": "Centralized IAM module for moleculer.\nIncluding a certified OIDC provider and an Identity provider for user profile, credentials, and custom claims management.\nCustom claims could be defined/updated by declarative schema which contains claims validation and migration strategy.",
   "author": "QMIT Inc.",
   "repository": {
@@ -16,7 +16,7 @@
   ],
   "scripts": {
     "dev": "nodemon",
-    "build": "rm -rf dist && tsc",
+    "build": "rm -rf dist && tsc -p tsconfig.json",
     "lint": "tslint -p tsconfig.json",
     "deps": "yarn-check -u",
     "coverall": "cat ./coverage/lcov.info | ./node_modules/.bin/coveralls",
@@ -115,7 +115,7 @@
     "moleculer-qmit": "^1.0.12",
     "moleculer-repl": "^0.6.4",
     "nodemon": "^2.0.4",
-    "qmit-sdk": "^1.0.16",
+    "qmit-sdk": "^1.0.17",
     "sequelize-cli": "^5.5.1",
     "ts-jest": "^26.0.0",
     "ts-node": "^8.10.1",
