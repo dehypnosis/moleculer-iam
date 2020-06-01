@@ -1,11 +1,12 @@
 import * as _ from "lodash";
-import { ServiceBroker } from "moleculer";
+import { ServiceBroker, ServiceSchema } from "moleculer";
+import { ServiceAPISchema } from "moleculer-api";
 import { moleculer } from "qmit-sdk";
 import { IAMServiceSchema, IAMServiceSchemaOptions } from "../../";
 import { config } from "./config";
 import { app } from "./app";
 
-export const {isDebug, isDev} = config;
+export const {isDebug, isDev, issuer, apiGatewayEndpoint} = config;
 
 // create service broker
 export const broker = new ServiceBroker(moleculer.createServiceBrokerOptions({
@@ -28,11 +29,11 @@ broker.createService(
     },
     op: {
       dev: isDev,
-      issuer: isDev ? "https://account.dev.qmit.pro" : "https://account.qmit.pro",
+      issuer,
       discovery: {
-        op_policy_uri: isDev ? "https://account.dev.qmit.pro/help/policy" : "https://account.qmit.pro/help/policy",
-        op_tos_uri: isDev ? "https://account.dev.qmit.pro/help/tos" : "https://account.qmit.pro/help/tos",
-        service_documentation: isDev ? "https://account.dev.qmit.pro/help" : "https://account.qmit.pro/help",
+        op_policy_uri: `${issuer}/help/policy`,
+        op_tos_uri: `${issuer}/help/tos`,
+        service_documentation: `${issuer}/help`,
       },
       app: {
         renderer: {
@@ -62,5 +63,6 @@ broker.createService(
         port: 9090,
       },
     },
+    apiGatewayEndpoint,
   } as IAMServiceSchemaOptions, config.iam)),
 );

@@ -163,7 +163,7 @@ yarn add moleculer-iam
     - [] Rate limiter
     - [] IP filter
     - [] Documentation
-    - [] `moleculer-api` integration example
+    - [x] `moleculer-api` integration example
 
 
 # Contribution

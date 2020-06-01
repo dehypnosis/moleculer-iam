@@ -5,10 +5,13 @@ import { vault } from "qmit-sdk";
 
 /* istanbul ignore next */
 export const config = vault.fetch(async (get, list, { appEnv }) => {
+  const isDev = appEnv === "dev";
   return {
     env: appEnv,
-    isDev: appEnv === "dev",
+    isDev,
     isDebug: !!process.env.APP_DEBUG,
     iam: (await get(`${appEnv}/data/iam`)).data,
+    issuer: `https://account${isDev ? ".dev" : ""}.qmit.pro`,
+    apiGatewayEndpoint: `https://api${isDev ? ".dev" : ""}.qmit.pro`,
   };
 });

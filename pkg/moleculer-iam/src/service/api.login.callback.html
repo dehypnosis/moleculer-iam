@@ -1,0 +1,21 @@
+<html>
+<body>
+<script>
+const result = location.hash.substr(1).split("&").map(param => param.split("=")).reduce((obj, [k, v]) => ({...obj, [k]: v}), {});
+if (!result || result.error) {
+  const error = result && result.error || "Unexpected Error";
+  document.write(`<h5>${error}</h5>`);
+} else {
+  const callbackURI = decodeURIComponent(`${result.state}${result.state.endsWith("?") ? "&" : "?"}auth=${encodeURIComponent(`${result.token_type} ${result.access_token}`)}`);
+  document.write(`<h5>Redirect to ${callbackURI} in 5s.</h5><pre>${JSON.stringify(result, null, 2)}</pre>`);
+  const callback = () => window.location.assign(callbackURI);
+  setTimeout(callback, 5000);
+  const btn = document.createElement("BUTTON");
+  btn.innerText = "Redirect Now";
+  btn.addEventListener("click", callback);
+  document.body.appendChild(btn);
+}
+</script>
+<noscript>JavaScript is required</noscript>
+</body>
+</html>

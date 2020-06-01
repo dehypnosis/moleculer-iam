@@ -9,12 +9,14 @@ import { I18N } from "../helper/i18n";
 import { IdentityProvider, IdentityProviderOptions, IdentityClaimsSchemaPayload } from "../idp";
 import { OIDCError, OIDCProvider, OIDCProviderOptions } from "../op";
 import { IAMServer, IAMServerOptions } from "../server";
+import { createAPIGatewayMixin } from "./api";
 import { IAMServiceActionParams } from "./params";
 
 export type IAMServiceSchemaOptions = {
   idp: IdentityProviderOptions,
   op: OIDCProviderOptions,
   server: IAMServerOptions,
+  apiGatewayEndpoint?: string,
 };
 
 export function IAMServiceSchema(opts: IAMServiceSchemaOptions): ServiceSchema {
@@ -53,6 +55,7 @@ export function IAMServiceSchema(opts: IAMServiceSchemaOptions): ServiceSchema {
 
     name: "iam",
     settings: {},
+    mixins: opts.apiGatewayEndpoint ? [createAPIGatewayMixin(opts.apiGatewayEndpoint)] : [],
 
     hooks: {
       // transform OIDC provider error
