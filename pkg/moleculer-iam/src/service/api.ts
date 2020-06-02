@@ -54,23 +54,24 @@ export function createAPIGatewayMixin(gatewayURI: string) {
     skip_consent: true,
   };
 
-  let loginCallbackHTML: string;
-  const mxin: Partial<ServiceSchema> = {
+  const loginCallbackHTML = fs.readFileSync(path.join(__dirname, "./api.login.callback.html")).toString("utf-8");
+  const mixin: Partial<ServiceSchema> = {
     metadata: {
       api,
     },
-    async started() {
-      // load callback response html
-      loginCallbackHTML = fs.readFileSync(path.join(__dirname, "./api.login.callback.html")).toString("utf-8");
-
-      // create/update API gateway client
-      try {
-        await this.broker.call("iam.client.create", clientParams);
-      } catch (err) {
-        this.broker.logger.debug(err);
-        await this.broker.call("iam.client.update", clientParams);
-      }
-      this.broker.logger.info(`API Gateway login endpoint for debugging purpose: ${loginURIs.join(", ")}`);
+    events: {
+      "$broker.started": {
+        async handler() {
+          // create/update API gateway client
+          const client = await this.broker.call("iam.client.find", { id: clientParams.client_id }, { nodeID: this.broker.nodeID });
+          if (!client) {
+            await this.broker.call("iam.client.create", clientParams, { nodeID: this.broker.nodeID });
+          } else {
+            await this.broker.call("iam.client.update", clientParams, { nodeID: this.broker.nodeID });
+          }
+          this.broker.logger.info(`API Gateway client initialized for debugging purpose: ${loginURIs.join(", ")}`);
+        },
+      },
     },
     actions: {
       $report: {
@@ -116,5 +117,5 @@ export function createAPIGatewayMixin(gatewayURI: string) {
       },
     },
   };
-  return mxin;
+  return mixin;
 }
