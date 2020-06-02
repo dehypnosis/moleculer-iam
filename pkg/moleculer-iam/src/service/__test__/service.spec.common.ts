@@ -144,10 +144,10 @@ export function doCommonServiceTest(broker: ServiceBroker, service: Service) {
     });
   });
 
-  describe("iam.id.*", () => {
-    it("iam.id.validate/validateCredentials", async () => {
+  describe("iam.identity.*", () => {
+    it("iam.identity.validate/validateCredentials", async () => {
       // validate payload in pre-flight
-      await expect(broker.call("iam.id.validate", {scope: "email"})).rejects.toThrow(
+      await expect(broker.call("iam.identity.validate", {scope: "email"})).rejects.toThrow(
         expect.objectContaining({
           code: 422,
           data: expect.arrayContaining([
@@ -157,7 +157,7 @@ export function doCommonServiceTest(broker: ServiceBroker, service: Service) {
       );
 
       // can validate credentials together
-      await expect(broker.call("iam.id.validate", {scope: "email", credentials: {password: "123"}})).rejects.toThrow(
+      await expect(broker.call("iam.identity.validate", {scope: "email", credentials: {password: "123"}})).rejects.toThrow(
         expect.objectContaining({
           code: 422,
           data: expect.arrayContaining([
@@ -167,7 +167,7 @@ export function doCommonServiceTest(broker: ServiceBroker, service: Service) {
       );
 
       // can just validate credentials
-      await expect(broker.call("iam.id.validateCredentials", {password: "123"})).rejects.toThrow(
+      await expect(broker.call("iam.identity.validateCredentials", {password: "123"})).rejects.toThrow(
         expect.objectContaining({
           code: 422,
           data: expect.arrayContaining([
@@ -177,9 +177,9 @@ export function doCommonServiceTest(broker: ServiceBroker, service: Service) {
       );
     });
 
-    it("iam.id.create/update/delete/restore and find", async () => {
+    it("iam.identity.create/update/delete/restore and find", async () => {
       // invalid payload
-      await expect(broker.call("iam.id.create", {})).rejects.toThrow(
+      await expect(broker.call("iam.identity.create", {})).rejects.toThrow(
         expect.objectContaining({
           code: 422,
           data: expect.arrayContaining([
@@ -193,7 +193,7 @@ export function doCommonServiceTest(broker: ServiceBroker, service: Service) {
       const email = `${uuid().substr(0, 16)}@test-iam-service.com`;
       let identity: any;
       await expect(
-        broker.call("iam.id.create", {
+        broker.call("iam.identity.create", {
           scope: "email openid profile",
           claims: {
             email,
@@ -212,7 +212,7 @@ export function doCommonServiceTest(broker: ServiceBroker, service: Service) {
 
       // update
       await expect(
-        broker.call("iam.id.update", {
+        broker.call("iam.identity.update", {
           id: identity.id,
           scope: "profile",
           claims: {name: "updated"},
@@ -228,7 +228,7 @@ export function doCommonServiceTest(broker: ServiceBroker, service: Service) {
 
       // delete (soft)
       await expect(
-        broker.call("iam.id.delete", {
+        broker.call("iam.identity.delete", {
           id: identity.id,
           permanently: false,
         }),
@@ -236,7 +236,7 @@ export function doCommonServiceTest(broker: ServiceBroker, service: Service) {
 
       // check soft delete
       await expect(
-        broker.call("iam.id.find", {
+        broker.call("iam.identity.find", {
           id: identity.id,
           metadata: {
             softDeleted: false,
@@ -245,7 +245,7 @@ export function doCommonServiceTest(broker: ServiceBroker, service: Service) {
       ).resolves.toBeFalsy();
 
       await expect(
-        broker.call("iam.id.find", {
+        broker.call("iam.identity.find", {
           where: {
             id: identity.id,
             metadata: {
@@ -257,35 +257,35 @@ export function doCommonServiceTest(broker: ServiceBroker, service: Service) {
 
       // restore
       await expect(
-        broker.call("iam.id.restore", {
+        broker.call("iam.identity.restore", {
           id: identity.id,
         }),
       ).resolves.toEqual(identity.id);
 
       // check restored
       await expect(
-        broker.call("iam.id.find", {
+        broker.call("iam.identity.find", {
           id: identity.id,
         }),
       ).resolves.toBeTruthy();
 
       // delete (hard)
       await expect(
-        broker.call("iam.id.delete", {
+        broker.call("iam.identity.delete", {
           id: identity.id,
           permanently: true,
         }),
       ).rejects.toThrow(); // requires soft delete first
 
       await expect(
-        broker.call("iam.id.delete", {
+        broker.call("iam.identity.delete", {
           id: identity.id,
           permanently: false,
         }),
       ).resolves.toEqual(identity.id);
 
       await expect(
-        broker.call("iam.id.delete", {
+        broker.call("iam.identity.delete", {
           id: identity.id,
           permanently: true,
         }),
@@ -293,7 +293,7 @@ export function doCommonServiceTest(broker: ServiceBroker, service: Service) {
 
       // check hard deleted
       await expect(
-        broker.call("iam.id.find", {
+        broker.call("iam.identity.find", {
           where: {
             id: identity.id,
             metadata: {
@@ -304,7 +304,7 @@ export function doCommonServiceTest(broker: ServiceBroker, service: Service) {
       ).resolves.toBeFalsy();
     });
 
-    it("iam.id.get/count", async () => {
+    it("iam.identity.get/count", async () => {
       const where: any = {
         claims: {
           email: {$like: "%@%"},
@@ -312,7 +312,7 @@ export function doCommonServiceTest(broker: ServiceBroker, service: Service) {
       };
       let result: any;
       await expect(
-        broker.call("iam.id.get", {
+        broker.call("iam.identity.get", {
           where,
           limit: 5,
         })
@@ -332,11 +332,11 @@ export function doCommonServiceTest(broker: ServiceBroker, service: Service) {
         }),
       );
 
-      await expect(broker.call("iam.id.count", {where})).resolves.toBe(result.total);
+      await expect(broker.call("iam.identity.count", {where})).resolves.toBe(result.total);
     });
 
     // used to force refresh identity cache from external changes
-    it("iam.id.refresh", async () => {
+    it("iam.identity.refresh", async () => {
       const idp = service.idp as IdentityProvider;
       const originalRefresher = idp.adapter.onClaimsUpdated;
       const mockedRefresher = jest.fn();
@@ -360,14 +360,14 @@ export function doCommonServiceTest(broker: ServiceBroker, service: Service) {
       expect(mockedRefresher).toHaveBeenCalledWith(identity.id, expect.anything(), expect.anything());
 
       // not all adapter requires/implements refreshing and cache mechanism
-      // await expect(broker.call("iam.id.find", {email})).resolves.toBeFalsy();
+      // await expect(broker.call("iam.identity.find", {email})).resolves.toBeFalsy();
 
       idp.adapter.onClaimsUpdated = originalRefresher;
       mockedRefresher.mockClear();
-      await expect(broker.call("iam.id.refresh", {id: identity.id})).resolves.not.toThrow();
+      await expect(broker.call("iam.identity.refresh", {id: identity.id})).resolves.not.toThrow();
       expect(mockedRefresher).not.toBeCalled();
 
-      await expect(broker.call("iam.id.find", {email})).resolves.toBeTruthy();
+      await expect(broker.call("iam.identity.find", {email})).resolves.toBeTruthy();
     });
   });
 }

@@ -320,7 +320,7 @@ export function IAMServiceSchema(opts: IAMServiceSchemaOptions): ServiceSchema {
       },
 
       /* Identity Management */
-      "id.validate": {
+      "identity.validate": {
         params: {
           id: {
             type: "string",
@@ -357,7 +357,7 @@ export function IAMServiceSchema(opts: IAMServiceSchemaOptions): ServiceSchema {
           return ctx.params;
         },
       },
-      "id.validateCredentials": {
+      "identity.validateCredentials": {
         params: {
           password: {
             type: "string",
@@ -369,7 +369,7 @@ export function IAMServiceSchema(opts: IAMServiceSchemaOptions): ServiceSchema {
           return ctx.params;
         },
       },
-      "id.create": {
+      "identity.create": {
         params: {
           scope: [
             {
@@ -404,11 +404,11 @@ export function IAMServiceSchema(opts: IAMServiceSchemaOptions): ServiceSchema {
         async handler(ctx) {
           const id = await idp.create(ctx.params as any)
             .then(i => i.json());
-          await this.broker.broadcast("iam.id.updated");
+          await this.broker.broadcast("iam.identity.updated");
           return id;
         },
       },
-      "id.update": {
+      "identity.update": {
         params: {
           id: [
             // support batching
@@ -477,11 +477,11 @@ export function IAMServiceSchema(opts: IAMServiceSchemaOptions): ServiceSchema {
               .then(i => i.update(scope, claims, metadata, credentials).then(() => i.json(scope)));
           }
 
-          await this.broker.broadcast("iam.id.updated");
+          await this.broker.broadcast("iam.identity.updated");
           return result;
         },
       },
-      "id.delete": {
+      "identity.delete": {
         params: {
           id: [
             // support batching
@@ -522,7 +522,7 @@ export function IAMServiceSchema(opts: IAMServiceSchemaOptions): ServiceSchema {
           return idp.findOrFail(where).then(i => i.delete(permanently)).then(() => id);
         },
       },
-      "id.restore": {
+      "identity.restore": {
         params: {
           id: [
             // support batching
@@ -559,7 +559,7 @@ export function IAMServiceSchema(opts: IAMServiceSchemaOptions): ServiceSchema {
           return idp.findOrFail(where).then(i => i.restoreSoftDeleted()).then(() => id);
         },
       },
-      "id.find": {
+      "identity.find": {
         cache: {
           ttl: 3600,
         },
@@ -640,7 +640,7 @@ export function IAMServiceSchema(opts: IAMServiceSchemaOptions): ServiceSchema {
           return idp.find(where).then(async i => i ? await i.json(scope) : null);
         },
       },
-      "id.get": {
+      "identity.get": {
         cache: {
           ttl: 3600,
         },
@@ -686,7 +686,7 @@ export function IAMServiceSchema(opts: IAMServiceSchemaOptions): ServiceSchema {
           return {offset, limit, total, entries};
         },
       },
-      "id.count": {
+      "identity.count": {
         cache: {
           ttl: 3600,
         },
@@ -700,7 +700,7 @@ export function IAMServiceSchema(opts: IAMServiceSchemaOptions): ServiceSchema {
           return idp.count(ctx.params && (ctx.params as any).where);
         },
       },
-      "id.refresh": {
+      "identity.refresh": {
         cache: {
           ttl: 5, // to give a delay
         },
@@ -728,7 +728,7 @@ export function IAMServiceSchema(opts: IAMServiceSchemaOptions): ServiceSchema {
           else if (Array.isArray(id)) ids = id;
 
           await idp.claims.forceReloadClaims({where, ids});
-          await this.broker.broadcast("iam.id.updated");
+          await this.broker.broadcast("iam.identity.updated");
         },
       },
     },
@@ -755,9 +755,9 @@ export function IAMServiceSchema(opts: IAMServiceSchemaOptions): ServiceSchema {
           await this.clearCache("client.**");
         },
       },
-      "iam.id.updated": {
+      "iam.identity.updated": {
         async handler(ctx: any) {
-          await this.clearCache("id.*");
+          await this.clearCache("identity.*");
         },
       },
       "iam.schema.updated": {
@@ -765,7 +765,7 @@ export function IAMServiceSchema(opts: IAMServiceSchemaOptions): ServiceSchema {
           await idp.claims.onClaimsSchemaUpdated();
           await op.syncSupportedClaimsAndScopes();
           await this.clearCache("schema.*");
-          await this.clearCache("id.*");
+          await this.clearCache("identity.*");
         },
       },
     },
