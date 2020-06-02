@@ -21,6 +21,7 @@ const api: ServiceAPISchema = {
             params: {
               request: "@context.request",
               callback: "@query.callback",
+              scope: "@query.scope",
             },
           },
         },
@@ -85,10 +86,15 @@ export function createAPIGatewayMixin(gatewayURI: string) {
             type: "string",
             optional: true,
           },
+          scope: {
+            type: "string",
+            optional: true,
+          },
         },
-        async handler({ params: { request, callback }}) {
+        async handler({ params: { request, callback, scope = "" }}) {
           // gather all scopes except offline access scope
-          const scopesSet = new Set<string>(await (this.idp as IdentityProvider).claims.getActiveClaimsSchemata().then(schemata => schemata.map(s => s.scope)));
+          const givenScopes = (scope as string).split(" ").filter(s => !!s);
+          const scopesSet = new Set<string>(givenScopes.length > 0 ? givenScopes : await (this.idp as IdentityProvider).claims.getActiveClaimsSchemata().then(schemata => schemata.map(s => s.scope)));
           scopesSet.delete("offline_access");
           const scopes = [...scopesSet];
 
