@@ -340,7 +340,13 @@ export class IDP_RDBMS_Adapter extends IDPAdapter {
       await new Promise(resolve => setTimeout(resolve, 5 * 1000));
       return this.acquireMigrationLock(key);
     }
-    await this.IdentityClaimsMigrationLock.create({key});
+    try {
+      await this.IdentityClaimsMigrationLock.create({key});
+    } catch (error) {
+      this.logger.warn(`failed to create migration lock, retry after 3s: ${key}`);
+      await new Promise(resolve => setTimeout(resolve, 3 * 1000));
+      return this.acquireMigrationLock(key);
+    }
   }
 
   public async touchMigrationLock(key: string, migratedIdentitiesNumber: number): Promise<void> {

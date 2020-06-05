@@ -71,6 +71,7 @@ export function IAMServiceSchema(opts: IAMServiceSchemaOptions): ServiceSchema {
               throw new Errors.MoleculerServerError(e.error_description!, e.status, e.error);
             }
           }
+          (this.broker as any).logger.error(err);
           throw err;
         },
       },
