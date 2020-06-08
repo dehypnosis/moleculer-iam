@@ -117,7 +117,7 @@ export function IAMServiceSchema(opts: IAMServiceSchemaOptions): ServiceSchema {
           id: "string",
         },
         async handler(ctx) {
-          return op.findClient((ctx.params as any).id);
+          return (await op.findClient((ctx.params as any).id)) || null;
         },
       },
       "client.get": {
@@ -304,7 +304,7 @@ export function IAMServiceSchema(opts: IAMServiceSchemaOptions): ServiceSchema {
           },
         },
         async handler(ctx) {
-          return idp.claims.getClaimsSchema(ctx.params as any);
+          return (await idp.claims.getClaimsSchema(ctx.params as any)) || null;
         },
       },
       "schema.define": {
