@@ -291,7 +291,7 @@ export class IDP_RDBMS_Adapter extends IDPAdapter {
     const {scope, key, version, active} = args;
     const where: WhereAttributeHash = {};
 
-    if (scope.length !== 0) {
+    if (scope && scope.length !== 0) {
       where.scope = scope;
     }
     if (typeof key !== "undefined") {

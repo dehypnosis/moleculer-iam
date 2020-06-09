@@ -79,7 +79,7 @@ export class Identity implements OIDCAccount {
     // validate claims and credentials
     if (typeof scope === "string") {
       scope = scope.split(" ").filter(s => !!s);
-    } else {
+    } else if (!scope) {
       scope = [];
     }
 

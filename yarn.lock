@@ -14250,10 +14250,10 @@ q@^1.1.2:
   resolved "https://registry.yarnpkg.com/q/-/q-1.5.1.tgz#7e32f75b41381291d04611f1bf14109ac00651d7"
   integrity sha1-fjL3W0E4EpHQRhHxvxQQmsAGUdc=
 
-qmit-sdk@^1.0.17:
-  version "1.0.17"
-  resolved "https://registry.yarnpkg.com/qmit-sdk/-/qmit-sdk-1.0.17.tgz#71bab015c55a75a9e591e5ce94b74772067ee467"
-  integrity sha512-rnE75v+UbevOsBaPZLDCTeac7gCI6ubNDWuL0+1lGSXl3fsdvP4a8EeC0y42mC5fJhYOluR/duZ5hyu14zhcAw==
+qmit-sdk@^1.0.23:
+  version "1.0.23"
+  resolved "https://registry.yarnpkg.com/qmit-sdk/-/qmit-sdk-1.0.23.tgz#4c5ac96c7e45dc18e32a8b3de8daeeacff46bfec"
+  integrity sha512-XsV0/qL99pdo1cC0w2qwmPVMT4sv8MgdHza4bbT5Bl7NLh6tPEJjdazJlFZfsTQrgQEcHHNS2B8w6o6sk7279A==
   dependencies:
     "@types/child-process-promise" "^2.2.1"
     child-process-promise "^2.2.1"
