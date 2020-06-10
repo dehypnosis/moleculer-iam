@@ -147,27 +147,28 @@ export function doCommonServiceTest(broker: ServiceBroker, service: Service) {
   describe("iam.identity.*", () => {
     it("iam.identity.validate/validateCredentials", async () => {
       // validate payload in pre-flight
-      await expect(broker.call("iam.identity.validate", {scope: "email"})).rejects.toThrow(
+      await expect(broker.call("iam.identity.validate", {scope: "email"})).rejects.toEqual(
         expect.objectContaining({
           code: 422,
           data: expect.arrayContaining([
-            expect.objectContaining({field: "email"}),
+            expect.objectContaining({field: "claims.email"}),
           ]),
         }),
       );
 
       // can validate credentials together
-      await expect(broker.call("iam.identity.validate", {scope: "email", credentials: {password: "123"}})).rejects.toThrow(
+      await expect(broker.call("iam.identity.validate", {scope: "email", credentials: {password: "123"}})).rejects.toEqual(
         expect.objectContaining({
           code: 422,
           data: expect.arrayContaining([
-            expect.objectContaining({field: "email"}),
+            expect.objectContaining({field: "claims.email"}),
+            expect.objectContaining({field: "credentials.password"}),
           ]),
         }),
       );
 
       // can just validate credentials
-      await expect(broker.call("iam.identity.validateCredentials", {password: "123"})).rejects.toThrow(
+      await expect(broker.call("iam.identity.validateCredentials", {password: "123"})).rejects.toEqual(
         expect.objectContaining({
           code: 422,
           data: expect.arrayContaining([
@@ -179,12 +180,12 @@ export function doCommonServiceTest(broker: ServiceBroker, service: Service) {
 
     it("iam.identity.create/update/delete/restore and find", async () => {
       // invalid payload
-      await expect(broker.call("iam.identity.create", {})).rejects.toThrow(
+      await expect(broker.call("iam.identity.create", {})).rejects.toEqual(
         expect.objectContaining({
           code: 422,
           data: expect.arrayContaining([
-            expect.objectContaining({field: "email"}),
-            expect.objectContaining({field: "name"}),
+            expect.objectContaining({field: "claims.email"}),
+            expect.objectContaining({field: "claims.name"}),
           ]),
         }),
       );

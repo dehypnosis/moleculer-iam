@@ -38,9 +38,9 @@ export function doCommonAdapterTest(idp: IdentityProvider) {
         expect.objectContaining({
           status: 422,
           data: expect.arrayContaining([
-            expect.objectContaining({field: "sub", type: "duplicate"}),
-            expect.objectContaining({field: "email", type: "duplicate"}),
-            expect.objectContaining({field: "phone_number", type: "duplicate"}),
+            expect.objectContaining({field: "claims.sub", type: "duplicate"}),
+            expect.objectContaining({field: "claims.email", type: "duplicate"}),
+            expect.objectContaining({field: "claims.phone_number", type: "duplicate"}),
           ]),
         }),
       );
