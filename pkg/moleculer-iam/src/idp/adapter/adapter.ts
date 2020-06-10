@@ -5,7 +5,7 @@ import { FindOptions, WhereAttributeHash } from "../../lib/rdbms";
 import { OIDCAccountClaims, OIDCAccountCredentials } from "../../op";
 import { defaultIdentityMetadata, IdentityMetadata } from "../metadata";
 import { IdentityClaimsSchema } from "../claims";
-import { ValidationSchema, ValidationError, validator, createValidationError } from "../../lib/validator";
+import { ValidationSchema, ValidationError, validator } from "../../lib/validator";
 import { IAMErrors } from "../error";
 import { v4 as uuid } from "uuid";
 
@@ -183,11 +183,12 @@ export abstract class IDPAdapter {
           const value = object[key];
           const holderId = await this.find({claims: {[key]: value}});
           if (holderId && id !== holderId) {
-            errors.push(createValidationError({
+            errors.push({
               type: "duplicate",
               field: key,
               actual: value,
-            }));
+              message: `The '${key}' value is already used by other account.`,
+            });
           }
         }
         return errors.length > 0 ? errors : true;

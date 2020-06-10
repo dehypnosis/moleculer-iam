@@ -4,7 +4,6 @@ import bcrypt from "bcrypt";
 import DataLoader from "dataloader";
 import moment from "moment";
 import { FindOptions, Sequelize, Op, WhereAttributeHash, RDBMSManager, RDBMSManagerOptions, Transaction } from "../../../lib/rdbms";
-import { createValidationError } from "../../../lib/validator";
 import { IDPAdapter, IDPAdapterProps } from "../adapter";
 import { IdentityMetadata } from "../../metadata";
 import { IdentityClaimsSchema } from "../../claims";

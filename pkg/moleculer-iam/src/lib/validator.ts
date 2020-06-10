@@ -5,17 +5,6 @@ export { Validator, ValidationSchema, ValidationError, ValidationRule, RuleObjec
 
 export const validator = new Validator();
 
-export function createValidationError(args: { type: string, field: string, expected?: any, actual?: any  }): ValidationError {
-  const { type, field, expected, actual } = args;
-  return {
-    type,
-    field,
-    expected,
-    actual,
-    message: validator.messages[type],
-  }
-}
-
 /*
 phoneNumber: {
   type: "phone",
@@ -23,6 +12,7 @@ phoneNumber: {
   format: "international", // default
 }
 */
+validator.messages.phone = `The {field} field must be a valid phone number format.`;
 validator.add("phone", ({ schema, messages }: any, field: any, context: any) => {
   context.PhoneNumber = PhoneNumber; // PhoneNumber is 3rd party library
   context.types = schema.types || ["mobile", "fixed-line-or-mobile"];
