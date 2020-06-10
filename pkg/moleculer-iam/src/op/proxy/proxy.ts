@@ -2,9 +2,8 @@ import * as kleur from "kleur";
 import { v4 as uuid } from "uuid";
 import { pick as pickLanguage } from "accept-language-parser";
 import { Configuration, Provider } from "oidc-provider";
-import { I18N } from "../../helper/i18n";
-import { FindOptions, WhereAttributeHash } from "../../helper/rdbms";
-import { Logger } from "../../helper/logger";
+import { FindOptions, WhereAttributeHash } from "../../lib/rdbms";
+import { Logger } from "../../lib/logger";
 import { IdentityProvider } from "../../idp";
 import { buildApplication, ApplicationBuildOptions } from "../app";
 import { OIDCAdapterProxy, OIDCModelName } from "./adapter";
@@ -28,7 +27,7 @@ export type OIDCProviderProxyOptions = StaticConfiguration & {
 
 export type ParsedLocale  = {
   language: string;
-  country: string;
+  region: string;
 }
 
 export class OIDCProviderProxy {
@@ -71,7 +70,7 @@ export class OIDCProviderProxy {
   private _supportedLocales?: string[];
   public get supportedLocales(): string[] {
     if (!this._supportedLocales) {
-      this._supportedLocales = [...new Set([...(this.configuration.discovery as DiscoveryMetadata).ui_locales_supported || [], ...I18N.supportedLanguages])];
+      this._supportedLocales = [...new Set([...(this.configuration.discovery as DiscoveryMetadata).ui_locales_supported || []])];
     }
     return this._supportedLocales;
   }
@@ -79,9 +78,9 @@ export class OIDCProviderProxy {
   public parseLocale(locale?: string): ParsedLocale {
     const locales = this.supportedLocales;
     const raw = pickLanguage(locales, locale || "", { loose: true }) || locales[0] || "ko-KR";
-    const [language, country] = raw.split("-");
-    const [_, requestCountry] = (locale || "").split("-"); // request locale country will take precedence over matched one
-    return { language, country: requestCountry || country || "KR" };
+    const [language, region] = raw.split("-");
+    const [_, requestedRegion] = (locale || "").split("-"); // request locale region will take precedence over matched one
+    return { language, region: requestedRegion || region || "KR" };
   }
 
   public get issuer() {

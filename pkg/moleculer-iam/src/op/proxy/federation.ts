@@ -2,7 +2,7 @@ import { Authenticator, Strategy } from "passport";
 import { KoaPassport } from "koa-passport";
 import { ProviderConfigBuilder } from "./config";
 import { ApplicationRequestContext } from "./app.types";
-import { Logger } from "../../helper/logger";
+import { Logger } from "../../lib/logger";
 import { Identity, IAMErrors, IdentityProvider } from "../../idp";
 import { OIDCProviderProxyErrors } from "./error";
 

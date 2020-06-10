@@ -1,13 +1,13 @@
 import * as _ from "lodash";
-import { FindOptions, WhereAttributeHash } from "../helper/rdbms";
-import { Logger } from "../helper/logger";
+import { FindOptions, WhereAttributeHash } from "../lib/rdbms";
+import { Logger } from "../lib/logger";
 import { Identity } from "./identity";
 import { IAMErrors } from "./error";
 import { IDPAdapter, IDPAdapterConstructors, IDPAdapterConstructorOptions, Transaction } from "./adapter";
 import { OIDCAccountClaims, OIDCAccountCredentials } from "../op";
 import { IdentityClaimsManager, IdentityClaimsManagerOptions } from "./claims";
 import { IdentityMetadata } from "./metadata";
-import { validator, ValidationError } from "../helper/validator";
+import { validator, ValidationError } from "../lib/validator";
 
 export type IdentityProviderProps = {
   logger?: Logger,

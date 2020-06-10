@@ -5,7 +5,6 @@
  */
 
 import { Errors, ServiceSchema } from "moleculer";
-import { I18N } from "../helper/i18n";
 import { IdentityProvider, IdentityProviderOptions, IdentityClaimsSchemaPayload } from "../idp";
 import { OIDCError, OIDCProvider, OIDCProviderOptions } from "../op";
 import { IAMServer, IAMServerOptions } from "../server";
@@ -42,9 +41,6 @@ export function IAMServiceSchema(opts: IAMServiceSchemaOptions): ServiceSchema {
         op,
         logger: this.broker.getLogger("server"),
       }, opts.server);
-
-      // set logger for i18n singleton
-      I18N.setLogger(this.broker.getLogger("i18n"));
     },
     async started() {
       await server.start();

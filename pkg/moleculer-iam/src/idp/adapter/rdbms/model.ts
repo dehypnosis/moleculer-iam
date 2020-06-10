@@ -1,4 +1,4 @@
-import { DataTypes, RDBMSManager } from "../../../helper/rdbms";
+import { DataTypes, RDBMSManager } from "../../../lib/rdbms";
 
 const {STRING, JSON, DATE, BOOLEAN, TEXT, INTEGER} = DataTypes;
 

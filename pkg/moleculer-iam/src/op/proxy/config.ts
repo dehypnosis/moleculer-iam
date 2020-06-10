@@ -2,7 +2,7 @@ import * as kleur from "kleur";
 import * as _ from "lodash";
 import { Provider, Configuration } from "oidc-provider";
 import { IdentityProvider } from "../../idp";
-import { Logger } from "../../helper/logger";
+import { Logger } from "../../lib/logger";
 import { OIDCAdapterProxy, OIDCAdapterProxyConstructorOptions, OIDCAdapterProxyConstructors } from "./adapter";
 import { defaultStaticConfig } from "./config.default";
 import { ProviderApplicationBuilder } from "./app";

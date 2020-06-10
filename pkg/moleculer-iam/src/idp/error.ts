@@ -1,7 +1,7 @@
 // tslint:disable:max-classes-per-file
 // tslint:disable:variable-name
 import { OIDCError } from "../op";
-import { ValidationError as ValidationErrorEntry } from "../helper/validator";
+import { ValidationError as ValidationErrorEntry } from "../lib/validator";
 
 class IdentityProviderError implements OIDCError {
   constructor(

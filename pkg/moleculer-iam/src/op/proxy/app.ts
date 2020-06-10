@@ -11,8 +11,7 @@ import { OIDCError } from "./error.types";
 import { IdentityFederationBuilder } from "./federation";
 import { ApplicationRoutes, ApplicationRoutesFactory, ApplicationRequestContext } from "./app.types";
 import { Client, DeviceInfo } from "./proxy.types";
-import { Logger } from "../../helper/logger";
-import { I18N } from "../../helper/i18n";
+import { Logger } from "../../lib/logger";
 import { dummyAppStateRendererFactory, ApplicationRenderer, ApplicationRendererFactory } from "./renderer";
 import { DeviceFlowConfiguration, DynamicConfiguration, ProviderConfigBuilder } from "./config";
 
@@ -83,7 +82,7 @@ export class ProviderApplicationBuilder {
     } catch (err) {
       this.logger.error("app error", err);
 
-      // normalize and translate error
+      // normalize and
       const { error, name, message, status, statusCode, code, status_code, error_description, expose, ...otherProps } = err;
 
       // set status
@@ -91,11 +90,11 @@ export class ProviderApplicationBuilder {
       if (isNaN(normalizedStatus)) normalizedStatus = 500;
       ctx.status = normalizedStatus;
 
-      const normalizedError = this.translateError(ctx, {
+      const normalizedError = {
         error: pascalCase(error || name || "UnexpectedError"),
         error_description: error_description || message || "Unexpected error.",
         ...((expose || this.builder.dev) ? otherProps : {}),
-      });
+      };
 
       return ctx.op.render("error", normalizedError);
     }
@@ -107,57 +106,6 @@ export class ProviderApplicationBuilder {
     this.wrapContext,
     this.errorHandler,
   ]);
-
-  private translateError(ctx: IAMServerRequestContext, error: OIDCError): OIDCError {
-    const opts = {
-      ns: "error",
-      lng: ctx.locale.language,
-    };
-
-    const errorType = error.error;
-    error.error = I18N.translate(`${errorType}.name`, errorType, opts);
-    if (error.error !== errorType) {
-      error._error = errorType;
-    }
-    error.error_description = I18N.translate(`${errorType}.description`, error.error_description, opts);
-
-    // translate validation error data
-    if (errorType === IAMErrors.ValidationFailed.name && error.data) {
-      /* to translate validation error field labels, send request like..
-      headers: {
-        "Accept": "application/json",
-        "Content-Type": "application/json;charset=UTF-8",
-        "Payload-Labels": Buffer.from(JSON.stringify({
-          "email": "이메일",
-          "password": "패스워드",
-          "nested.field": "...",
-          "some_field.expected": "남성", // override expected value of any field
-        }), "utf8").toString("base64"),
-      },
-      */
-      let labels: any;
-      try {
-        const encodedLabels = ctx.request.get("Payload-Labels");
-        if (encodedLabels) {
-          labels = JSON.parse(Buffer.from(encodedLabels, "base64").toString("utf8"));
-        }
-      } catch (err) {
-        this.logger.error(err);
-      }
-      for (const entry of error.data) {
-        const { actual, expected, type, field } = entry;
-        entry.message = I18N.translate(`${errorType}.data.${type}`, entry.message, {
-          ...opts,
-          // @ts-ignore
-          actual,
-          expected: (expected && labels && (labels[`${field}.expected`] || type === "equalField" && labels[expected])) || expected,
-          field: (field && labels && labels[field]) || field,
-        });
-      }
-    }
-
-    return error;
-  }
 
   // default render function
   public setRendererFactory<F extends ApplicationRendererFactory>(factory: F, options?: F extends ApplicationRendererFactory<infer O> ? O : never) {
@@ -370,8 +318,7 @@ export class ProviderApplicationBuilder {
     this.op.app.middleware.unshift(async (ctx, next) => {
       await next();
       if (ctx.body && typeof ctx.body.error === "string") {
-        ctx.body.error = pascalCase(ctx.body.error);
-        ctx.body = { error: this.translateError(ctx as any, ctx.body as OIDCError) };
+        ctx.body = { error: pascalCase(ctx.body.error) };
       }
     });
 

@@ -1,11 +1,11 @@
 import * as _ from "lodash";
 import kleur from "kleur";
-import { Logger } from "../../helper/logger";
-import { FindOptions, WhereAttributeHash } from "../../helper/rdbms";
+import { Logger } from "../../lib/logger";
+import { FindOptions, WhereAttributeHash } from "../../lib/rdbms";
 import { OIDCAccountClaims, OIDCAccountCredentials } from "../../op";
 import { defaultIdentityMetadata, IdentityMetadata } from "../metadata";
 import { IdentityClaimsSchema } from "../claims";
-import { ValidationSchema, ValidationError, validator, createValidationError } from "../../helper/validator";
+import { ValidationSchema, ValidationError, validator, createValidationError } from "../../lib/validator";
 import { IAMErrors } from "../error";
 import { v4 as uuid } from "uuid";
 
@@ -54,28 +54,48 @@ export abstract class IDPAdapter {
     // validate claims
     let result = validateClaims(args.claims);
     if (result !== true) {
-      mergedResult.push(...result);
+      mergedResult.push(
+        ...result.map(e => {
+          e.field = `claims.${e.field}`;
+          return e;
+        }),
+      );
     }
 
     // validate immutable
     if (args.id) {
       result = await validateClaimsImmutability(args.id, args.claims);
       if (result !== true) {
-        mergedResult.push(...result);
+        mergedResult.push(
+          ...result.map(e => {
+            e.field = `claims.${e.field}`;
+            return e;
+          }),
+        );
       }
     }
 
     // validate uniqueness
     result = await validateClaimsUniqueness(args.id, args.claims);
     if (result !== true) {
-      mergedResult.push(...result);
+      mergedResult.push(
+        ...result.map(e => {
+          e.field = `claims.${e.field}`;
+          return e;
+        }),
+      );
     }
 
     // validate credentials
     if (args.credentials && Object.keys(args.credentials).length > 0) {
       result = this.testCredentials(args.credentials);
       if (result !== true) {
-        mergedResult.push(...result);
+        mergedResult.push(
+          ...result.map(e => {
+            e.field = `credentials.${e.field}`;
+            return e;
+          }),
+        );
       }
     }
 

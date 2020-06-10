@@ -2,15 +2,15 @@ import * as _ from "lodash";
 import * as vm from "vm";
 import Terser from "terser";
 import hashObject from "object-hash";
-import { validator, ValidationError } from "../../helper/validator";
-import { Logger } from "../../helper/logger";
+import { validator, ValidationError } from "../../lib/validator";
+import { Logger } from "../../lib/logger";
 import { IAMErrors } from "../error";
 import { IDPAdapter } from "../adapter";
 import { IdentityClaimsSchema, IdentityClaimsSchemaPayload, IdentityClaimsSchemaPayloadValidationSchema } from "./types";
 import { OIDCAccountClaims } from "../../op";
 import { defaultIdentityClaimsManagerOptions } from "./options";
 import { Transaction } from "../adapter";
-import { WhereAttributeHash } from "../../helper/rdbms";
+import { WhereAttributeHash } from "../../lib/rdbms";
 
 export type IdentityClaimsManagerProps = {
   adapter: IDPAdapter;

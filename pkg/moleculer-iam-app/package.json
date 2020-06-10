@@ -1,0 +1,77 @@
+{
+  "name": "moleculer-iam-app",
+  "version": "0.2.12",
+  "author": "QMIT Inc.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/qmit-pro/moleculer-iam.git"
+  },
+  "license": "MIT",
+  "main": "server.js",
+  "type": "server.d.ts",
+  "files": [
+    "dist",
+    "server.d.ts",
+    "server.js",
+    "server.config.js",
+    "common.d.ts"
+  ],
+  "scripts": {
+    "dev": "yarn build-server && rm -rf ./dist && SKIP_PREFLIGHT_CHECK=true react-app-rewired start",
+    "build": "yarn build-server && rm -rf ./dist && SKIP_PREFLIGHT_CHECK=true react-app-rewired build",
+    "build-server": "tsc -p server.tsconfig.json",
+    "test": "CI=true SKIP_PREFLIGHT_CHECK=true react-app-rewired test",
+    "eject": "react-scripts eject"
+  },
+  "config-overrides-path": "client.build.js",
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "devDependencies": {
+    "@eva-design/eva": "^2.0.0",
+    "@react-navigation/native": "^5.4.3",
+    "@react-navigation/stack": "^5.4.0",
+    "@types/flat": "^5.0.1",
+    "@types/jest": "^25.2.3",
+    "@types/node": "^14.0.5",
+    "@types/react": "^16.9.35",
+    "@types/react-dom": "^16.9.8",
+    "@types/react-native": "^0.62.11",
+    "@ui-kitten/components": "^5.0.0",
+    "@ui-kitten/eva-icons": "^5.0.0",
+    "babel-plugin-import": "^1.13.0",
+    "customize-cra": "^0.9.1",
+    "flat": "^5.0.0",
+    "jest-expo": "^37.0.0",
+    "koa-static-cache": "^5.1.3",
+    "lodash": "^4.17.15",
+    "metro-react-native-babel-preset": "^0.59.0",
+    "moleculer-iam": "link:../moleculer-iam",
+    "moment": "^2.26.0",
+    "react": "^16.13.1",
+    "react-app-rewired": "^2.1.6",
+    "react-dom": "^16.13.1",
+    "react-intl": "^4.6.9",
+    "react-native": "^0.62.2",
+    "react-native-gesture-handler": "^1.6.1",
+    "react-native-safe-area-context": "^2.0.3",
+    "react-native-screens": "^2.8.0",
+    "react-native-svg": "^12.1.0",
+    "react-native-svg-mock": "^2.0.0",
+    "react-native-web": "^0.12.2",
+    "react-scripts": "^3.4.1",
+    "typescript": "^3.9.3"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}

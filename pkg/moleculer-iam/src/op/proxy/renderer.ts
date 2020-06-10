@@ -1,5 +1,5 @@
 import Koa from "koa";
-import { Logger } from "../../helper/logger";
+import { Logger } from "../../lib/logger";
 import { ApplicationState } from "./index";
 
 export type ApplicationRendererProps = {

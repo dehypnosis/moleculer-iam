@@ -70,7 +70,7 @@ export function buildApplication(builder: ProviderConfigBuilder, opts: Applicati
     .setRoutesFactory(createApplicationRoutesFactory(builder, opts))
 
     // set app renderer
-    .setRendererFactory(renderer.factory || require("moleculer-iam-app-renderer"), renderer.options)
+    .setRendererFactory(renderer.factory || require("moleculer-iam-app"), renderer.options)
 
     // configure federation
     .federation

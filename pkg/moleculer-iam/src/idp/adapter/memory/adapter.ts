@@ -3,7 +3,7 @@ import { IDPAdapter, IDPAdapterProps, Transaction } from "../adapter";
 import { OIDCAccountClaims, OIDCAccountCredentials } from "../../../op";
 import { IdentityMetadata } from "../../metadata";
 import { IdentityClaimsSchema } from "../../claims";
-import { FindOptions, WhereAttributeHash } from "../../../helper/rdbms";
+import { FindOptions, WhereAttributeHash } from "../../../lib/rdbms";
 
 export type IDP_MemoryAdapterOptions = {};
 

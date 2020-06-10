@@ -60,7 +60,7 @@ const serviceSchema = IAMServiceSchema({
         // },
       },
       renderer: {
-        // factory: require("moleculer-iam-app-renderer"), // this is default behavior
+        // factory: require("moleculer-iam-app"), // this is default behavior
         options: {
           logo: {
             uri: "https://upload.wikimedia.org/wikipedia/commons/a/a2/OpenID_logo_2.svg",

@@ -1,7 +1,7 @@
 import * as _ from "lodash";
 import moment from "moment";
 import { IAMErrors, Identity } from "../../idp";
-import { Logger } from "../../helper/logger";
+import { Logger } from "../../lib/logger";
 import { ProviderConfigBuilder } from "../proxy";
 import { ApplicationErrors } from "./error";
 import { ApplicationBuildOptions } from "./index";
@@ -10,6 +10,7 @@ export type IdentityPhoneVerificationArgs = {
   phoneNumber: string;
   secret: string;
   language: string;
+  region: string;
   logger: Logger;
 }
 
@@ -96,7 +97,7 @@ export function buildVerifyPhoneRoutes(builder: ProviderConfigBuilder, opts: App
       for(let i=0; i<6; i++) secret += Math.floor((Math.random()*10)%10).toString();
 
       // send sms via adapter props
-      await options.send!({ logger: builder.logger, language: ctx.locale.language, phoneNumber: claims.phone_number, secret });
+      await options.send!({ logger: builder.logger, language: ctx.locale.language, region: ctx.locale.region, phoneNumber: claims.phone_number, secret });
 
       // store the secret
       ctx.op.setSessionSecretState(prev => ({

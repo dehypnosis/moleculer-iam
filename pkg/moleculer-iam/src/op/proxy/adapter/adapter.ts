@@ -1,6 +1,6 @@
 import * as kleur from "kleur";
 import { AdapterConstructor  } from "oidc-provider";
-import { Logger } from "../../../helper/logger";
+import { Logger } from "../../../lib/logger";
 import { OIDCModelProxy, OIDCModelProxyProps, OIDCModelName, OIDCModelNames } from "./model";
 
 export type OIDCAdapterProxyProps = {

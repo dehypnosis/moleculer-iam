@@ -1,6 +1,5 @@
 import * as _ from "lodash";
-import { ServiceBroker, ServiceSchema } from "moleculer";
-import { ServiceAPISchema } from "moleculer-api";
+import { ServiceBroker } from "moleculer";
 import { moleculer } from "qmit-sdk";
 import { IAMServiceSchema, IAMServiceSchemaOptions } from "../../";
 import { config } from "./config";

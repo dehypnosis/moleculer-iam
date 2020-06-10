@@ -1,5 +1,5 @@
 import { AdapterPayload } from "oidc-provider";
-import { ModelClass, FindOptions, WhereAttributeHash } from "../../../../helper/rdbms";
+import { ModelClass, FindOptions, WhereAttributeHash } from "../../../../lib/rdbms";
 import { OIDCModelProxyProps, OIDCModelProxy } from "../model";
 
 // tslint:disable-next-line:class-name

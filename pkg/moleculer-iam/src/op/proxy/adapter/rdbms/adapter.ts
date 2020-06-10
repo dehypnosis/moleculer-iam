@@ -1,5 +1,5 @@
 import path from "path";
-import { DataTypes, RDBMSManager, RDBMSManagerOptions } from "../../../../helper/rdbms";
+import { DataTypes, RDBMSManager, RDBMSManagerOptions } from "../../../../lib/rdbms";
 import { OIDCAdapterProxy, OIDCAdapterProxyProps } from "../adapter";
 import { OIDCGrantModelNames, OIDCModelProxyProps } from "../model";
 import { OIDCRDBMSModelProxy } from "./model";

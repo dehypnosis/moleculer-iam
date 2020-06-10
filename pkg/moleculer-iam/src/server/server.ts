@@ -13,7 +13,7 @@ import compose from "koa-compose";
 import redirectTrailingSlash from "koa-no-trailing-slash";
 // @ts-ignore
 import useLocale from "koa-locale";
-import { Logger } from "../helper/logger";
+import { Logger } from "../lib/logger";
 import { OIDCProvider, ParsedLocale } from "../op";
 import { logging, LoggingOptions } from "./logging";
 
