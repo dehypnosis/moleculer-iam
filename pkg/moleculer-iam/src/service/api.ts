@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import { ServiceBroker, ServiceSchema } from "moleculer";
+import { ServiceSchema } from "moleculer";
 import { ServiceAPISchema } from "moleculer-api";
 import { IdentityProvider } from "../idp";
 import { OIDCProvider } from "../op";
