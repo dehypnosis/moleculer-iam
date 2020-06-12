@@ -74,6 +74,13 @@ export function IAMServiceSchema(opts: IAMServiceSchemaOptions): ServiceSchema {
     },
 
     actions: {
+      // receive report from API Gateway and print on console
+      $report: {
+        handler({ params: { table, messages }}) {
+          this.logger.info(table);
+        },
+      },
+
       /* Client Management */
       "client.create": {
         description: `
