@@ -112,7 +112,8 @@ export function createAPIGatewayMixin(gatewayURI: string) {
         },
       },
       $loginCallback: {
-        params: {},
+        params: {
+        },
         handler() {
           // handle token and redirection in client-side (#id_token=xxx&acess_token=xxx&state=xxx...)
           return {

@@ -11380,7 +11380,7 @@ moleculer-api@^0.2.20:
   version "0.3.1"
 
 "moleculer-iam@link:pkg/moleculer-iam":
-  version "0.3.1"
+  version "0.3.2"
   dependencies:
     accept-language-parser "^1.5.0"
     awesome-phonenumber "^2.33.0"
