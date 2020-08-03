@@ -24,8 +24,7 @@ async function defaultSend({ logger, ...args }: IdentityPhoneVerificationArgs) {
 }
 
 export function buildVerifyPhoneRoutes(builder: ProviderConfigBuilder, opts: ApplicationBuildOptions): void {
-
-  const options = _.defaultsDeep(opts || {}, {
+  const options = _.defaultsDeep(opts.verifyPhone || {}, {
     timeoutSeconds: 180,
     send: defaultSend,
   }) as IdentityPhoneVerificationOptions;

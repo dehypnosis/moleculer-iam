@@ -24,8 +24,7 @@ async function defaultSend({ logger, ...args }: IdentityEmailVerificationArgs) {
 }
 
 export function buildVerifyEmailRoutes(builder: ProviderConfigBuilder, opts: ApplicationBuildOptions): void {
-
-  const options = _.defaultsDeep(opts || {}, {
+  const options = _.defaultsDeep(opts.verifyEmail || {}, {
     timeoutSeconds: 180,
     send: defaultSend,
   }) as IdentityEmailVerificationOptions;

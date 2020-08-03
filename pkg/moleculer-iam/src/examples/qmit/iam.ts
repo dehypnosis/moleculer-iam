@@ -46,11 +46,23 @@ broker.createService(
         verifyEmail: {
           async send({logger, ...args}) {
             logger.info(args);
+
+            try {
+              await broker.call("sports.notification.sendVerificationEmail", args);
+            } catch (err) {
+              logger.error(err);
+            }
           },
         },
         verifyPhone: {
           async send({logger, ...args}) {
             logger.info(args);
+
+            try {
+              await broker.call("sports.notification.sendVerificationSms", args);
+            } catch (err) {
+              logger.error(err);
+            }
           },
         },
       },
