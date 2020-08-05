@@ -59,7 +59,7 @@ broker.createService(
             logger.info(args);
 
             try {
-              await broker.call("sports.notification.sendVerificationSms", args);
+              await broker.call("sports.notification.sendVerificationSMS", args);
             } catch (err) {
               logger.error(err);
             }
