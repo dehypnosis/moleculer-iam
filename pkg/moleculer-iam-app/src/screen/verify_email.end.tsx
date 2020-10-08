@@ -25,7 +25,6 @@ export const VerifyEmailEndScreen: React.FunctionComponent = () => {
     >
       <Text>
         {f({id: "verifyEmail.emailVerifiedSuccessfully"})}
-        The account email address has been verified successfully.
       </Text>
     </ScreenLayout>
   );
