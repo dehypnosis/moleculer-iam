@@ -50,7 +50,6 @@ export abstract class IDPAdapter {
   public async validate(args: { id?: string, scope: string[], claims: Partial<OIDCAccountClaims>, credentials?: Partial<OIDCAccountCredentials> }): Promise<void> {
     const {validateClaims, validateClaimsImmutability, validateClaimsUniqueness} = await this.getCachedActiveClaimsSchemata(args.scope);
     const mergedResult: ValidationError[] = [];
-
     // validate claims
     let result = validateClaims(args.claims);
     if (result !== true) {
@@ -74,7 +73,6 @@ export abstract class IDPAdapter {
         );
       }
     }
-
     // validate uniqueness
     result = await validateClaimsUniqueness(args.id, args.claims);
     if (result !== true) {
@@ -181,6 +179,16 @@ export abstract class IDPAdapter {
         const errors: ValidationError[] = [];
         for (const key of uniqueClaimsSchemataKeys) {
           const value = object[key];
+          if (typeof value === "object" && value !== null) {
+            errors.push({
+              type: "duplicate",
+              field: key,
+              actual: value,
+              message: `The '${key}' value cannot have uniqueness trait.`,
+            });
+            continue;
+          }
+
           const holderId = await this.find({claims: {[key]: value}});
           if (holderId && id !== holderId) {
             errors.push({
