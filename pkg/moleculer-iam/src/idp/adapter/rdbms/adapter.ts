@@ -149,9 +149,12 @@ export class IDP_RDBMS_Adapter extends IDPAdapter {
         const entryIndex = entries.findIndex(e => e.id === claim.id);
         const entry = entries[entryIndex];
         const foundClaims = foundClaimsList[entryIndex];
-        const specificVersion = entry.claims.find(c => c.key === claim.key)!.schemaVersion;
-        if (typeof specificVersion === "undefined" || specificVersion === claim.schemaVersion) {
-          foundClaims[claim.key] = claim.value;
+        const foundClaim = entry.claims.find(c => c.key === claim.key);
+        if (foundClaim) {
+          const specificVersion = foundClaim.schemaVersion;
+          if (typeof specificVersion === "undefined" || specificVersion === claim.schemaVersion) {
+            foundClaims[claim.key] = claim.value;
+          }
         }
       }
       return foundClaimsList;
