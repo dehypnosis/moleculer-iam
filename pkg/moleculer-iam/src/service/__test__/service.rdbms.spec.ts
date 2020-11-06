@@ -14,9 +14,9 @@ const adapter = {
   options: {
     dialect: env("TEST_RDBMS_DIALECT", "mysql"),
     host: env("TEST_RDBMS_HOST", "mysql-dev.internal.qmit.pro"),
-    database: env("TEST_RDBMS_DATABASE", "iam"),
-    username: env("TEST_RDBMS_USERNAME", "iam"),
-    password: env("TEST_RDBMS_PASSWORD", "iam"),
+    database: env("TEST_RDBMS_DATABASE", "iam_test"),
+    username: env("TEST_RDBMS_USERNAME", "iam_test"),
+    password: env("TEST_RDBMS_PASSWORD", "iam_test"),
     sqlLogLevel: env("TEST_RDBMS_LOG_LEVEL", "none"),
   },
 };

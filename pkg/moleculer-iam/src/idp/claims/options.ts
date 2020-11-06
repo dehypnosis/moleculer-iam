@@ -68,7 +68,8 @@ export const defaultIdentityClaimsManagerOptions: IdentityClaimsManagerOptions =
       description: "YYYY-MM-DD",
       validation: {
         type: "string",
-        pattern: /^\d{4}\-(0?[1-9]|1[012])\-(0?[1-9]|[12][0-9]|3[01])$/, // yyyy-mm-dd
+        // need to serialize regexps like this
+        pattern: /^\d{4}\-(0?[1-9]|1[012])\-(0?[1-9]|[12][0-9]|3[01])$/.source.toString(), // yyyy-mm-dd
       },
     },
     {
@@ -89,3 +90,4 @@ export const defaultIdentityClaimsManagerOptions: IdentityClaimsManagerOptions =
     // "phone",
   ],
 };
+

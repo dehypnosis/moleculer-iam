@@ -7019,6 +7019,11 @@ fastest-validator@^1.4.1:
   resolved "https://registry.yarnpkg.com/fastest-validator/-/fastest-validator-1.4.1.tgz#a49bb73bbb1cac3e94f890fb91f2f264a0957413"
   integrity sha512-KOs52Z8HjcTPXzgxy9O0drpeuYq0epry/sZMIBwNOYB9bUyRgeGeyqbEsfX7HvIsBT8Yfb7LwgenaQ2obHF40Q==
 
+fastest-validator@^1.8.0:
+  version "1.8.0"
+  resolved "https://registry.yarnpkg.com/fastest-validator/-/fastest-validator-1.8.0.tgz#e2f15c87d88fae67f51a4b078eccb3aaae218ea5"
+  integrity sha512-/5p7l7jmKtYhDhoxoineR7xW+BcZ5gZ4wTkp5lEyI7ESsqt6j5QJazxPmFNUl+hKOsATvw8+5yx0yt+V9MJR6w==
+
 fastq@^1.6.0:
   version "1.8.0"
   resolved "https://registry.yarnpkg.com/fastq/-/fastq-1.8.0.tgz#550e1f9f59bbc65fe185cb6a9b4d95357107f481"
@@ -11334,10 +11339,10 @@ mkdirp@^0.5.0, mkdirp@^0.5.1, mkdirp@^0.5.3, mkdirp@~0.5.1:
   dependencies:
     minimist "^1.2.5"
 
-moleculer-api@^0.2.20:
-  version "0.2.20"
-  resolved "https://registry.yarnpkg.com/moleculer-api/-/moleculer-api-0.2.20.tgz#1e99d3ce73b4de02b32c9c9d07f328ec77f26fdf"
-  integrity sha512-e5znb9Fd1UQkdJb/wMOB9M0lUCdXAK9JX7NyjMxe5xXOl4kVFJVtSndKcxoLgRi4UJCYsH0SE27rNZVA6LX/oQ==
+moleculer-api@^0.3.2:
+  version "0.3.2"
+  resolved "https://registry.yarnpkg.com/moleculer-api/-/moleculer-api-0.3.2.tgz#2a71297ca330a6a4f31e264bc614e3d8d1330d67"
+  integrity sha512-ky0mz5fmIRKzjoMNw3AfuMhEy7hSGhIjDzxaUHnHL9aIytKig6EzzyfiJoLemvxElMTJSJu/byNPaiGD8u2UFw==
   dependencies:
     accept-language-parser "^1.5.0"
     apollo-server "^2.14.1"
@@ -11377,17 +11382,17 @@ moleculer-api@^0.2.20:
     ws "^7.3.0"
 
 "moleculer-iam-app@link:pkg/moleculer-iam-app":
-  version "0.3.1"
+  version "0.3.5"
 
 "moleculer-iam@link:pkg/moleculer-iam":
-  version "0.3.4"
+  version "0.3.8"
   dependencies:
     accept-language-parser "^1.5.0"
     awesome-phonenumber "^2.33.0"
     bcrypt "^4.0.1"
     change-case "^4.1.1"
     dataloader "^2.0.0"
-    fastest-validator "^1.4.1"
+    fastest-validator "^1.8.0"
     i18next "^19.4.5"
     jose "^1.27.0"
     kleur "^3.0.3"

@@ -234,7 +234,7 @@ export abstract class IDPAdapter {
       }, {
         $$strict: true,
       } as ValidationSchema);
-      const validateClaims = validator.compile(claimsValidationSchema);
+      const validateClaims = validator.compile(claimsValidationSchema)
 
       return {
         activeClaimsVersions,

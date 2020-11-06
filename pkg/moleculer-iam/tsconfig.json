@@ -4,6 +4,7 @@
     "importHelpers": true,
     "esModuleInterop": true,
     "noImplicitAny": true,
+    "skipLibCheck": true,
     "module": "commonjs",
     "moduleResolution": "node",
     "pretty": true,
