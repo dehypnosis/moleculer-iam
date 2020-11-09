@@ -12,6 +12,8 @@ export const broker = new ServiceBroker(moleculer.createServiceBrokerOptions({
   logLevel: isDebug ? "debug" : "info",
 }));
 
+// * dev endpoint for login: http://localhost:9090/op/auth?prompt=login&response_type=code&client_id=api-gateway&redirect_uri=https://api.dev.qmit.pro/iam/login/callback&scope=openid
+
 // create IAM service
 broker.createService(
   IAMServiceSchema(_.defaultsDeep({
@@ -40,6 +42,9 @@ broker.createService(
             register: {
               skipEmailVerification: true,
               skipPhoneVerification: false,
+            },
+            login: {
+              federationOptionsVisible: true,
             },
           },
         },
