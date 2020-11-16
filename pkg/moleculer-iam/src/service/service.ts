@@ -134,12 +134,14 @@ export function IAMServiceSchema(opts: IAMServiceSchemaOptions): ServiceSchema {
           },
           offset: {
             type: "number",
-            positive: true,
+            integer: true,
+            min: 0,
             default: 0,
           },
           limit: {
             type: "number",
-            positive: true,
+            integer: true,
+            min: 0,
             default: 10,
           },
         },
@@ -183,12 +185,14 @@ export function IAMServiceSchema(opts: IAMServiceSchemaOptions): ServiceSchema {
           },
           offset: {
             type: "number",
-            positive: true,
+            integer: true,
+            min: 0,
             default: 0,
           },
           limit: {
             type: "number",
-            positive: true,
+            integer: true,
+            min: 0,
             default: 10,
           },
         },
@@ -232,12 +236,14 @@ export function IAMServiceSchema(opts: IAMServiceSchemaOptions): ServiceSchema {
           },
           offset: {
             type: "number",
-            positive: true,
+            integer: true,
+            min: 0,
             default: 0,
           },
           limit: {
             type: "number",
-            positive: true,
+            integer: true,
+            min: 0,
             default: 10,
           },
         },
@@ -510,7 +516,7 @@ export function IAMServiceSchema(opts: IAMServiceSchemaOptions): ServiceSchema {
 
           // batching support
           if (Array.isArray(id)) {
-            return idp.get({where, limit: id.length})
+            const result = await idp.get({where, limit: id.length})
               .then(ids =>
                 Promise.all(
                   ids.map(i => i.delete(permanently)
@@ -521,9 +527,13 @@ export function IAMServiceSchema(opts: IAMServiceSchemaOptions): ServiceSchema {
                   ),
                 ),
               );
+            await this.broker.broadcast("iam.identity.updated");
+            return result;
           }
 
-          return idp.findOrFail(where).then(i => i.delete(permanently)).then(() => id);
+          const result = idp.findOrFail(where).then(i => i.delete(permanently)).then(() => id);
+          await this.broker.broadcast("iam.identity.updated");
+          return result;
         },
       },
       "identity.restore": {
@@ -655,12 +665,14 @@ export function IAMServiceSchema(opts: IAMServiceSchemaOptions): ServiceSchema {
           },
           offset: {
             type: "number",
-            positive: true,
+            integer: true,
+            min: 0,
             default: 0,
           },
           limit: {
             type: "number",
-            positive: true,
+            integer: true,
+            min: 0,
             default: 10,
           },
           scope: [
