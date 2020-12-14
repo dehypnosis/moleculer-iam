@@ -43,6 +43,7 @@ const message = {
   "login.federate.google": "Login with Google",
   "login.federate.facebook": "Login with Facebook",
   "login.federate.kakao": "Login with Kakaotalk",
+  "login.federate.apple": "Login with Apple",
   "placeholder.email": "Enter your email address",
 
   // LogoutEndScreen
