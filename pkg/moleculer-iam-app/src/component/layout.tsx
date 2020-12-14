@@ -156,7 +156,7 @@ export const ScreenLayout: React.FunctionComponent<{
 
           // render button
           // tslint:disable-next-line:no-shadowed-variable
-          const {hidden, tabIndex, loading, ...props} = args as LayoutFooterButtonProps;
+          const {hidden, tabIndex, loading, children, ...props} = args as LayoutFooterButtonProps;
           return (
             <View
               key={index}
@@ -178,7 +178,9 @@ export const ScreenLayout: React.FunctionComponent<{
                 onPressOut={loading ? undefined : props.onPressOut}
                 onPressIn={loading ? undefined : props.onPressIn}
                 onLongPress={loading ? undefined : props.onLongPress}
-              />
+              >
+                {(evaProps = {}) => <Text {...evaProps} style={[evaProps.style, (props as any).textStyle]}>{ children as any }</Text>}
+              </Button>
             </View>
           );
         })
