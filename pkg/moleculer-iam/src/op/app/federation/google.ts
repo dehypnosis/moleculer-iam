@@ -14,7 +14,7 @@ export const googleProviderConfiguration: GoogleProviderConfiguration = {
   prompt: "select_account",
   scope: "openid profile email",
   strategy: (options, verify) => {
-    return new Strategy(options, verify);
+    return new Strategy(options as any, verify as any);
   },
   callback: async (props) => {
     const {accessToken, refreshToken, scope, logger, idp, profile} = props;

@@ -43,6 +43,7 @@ export const message: I18NResource = {
   "login.federate.google": "구글 계정으로 로그인",
   "login.federate.facebook": "페이스북 계정으로 로그인",
   "login.federate.kakao": "카카오톡 계정으로 로그인",
+  "login.federate.apple": "애플 계정으로 로그인",
   "placeholder.email": "이메일 주소를 입력하세요.",
 
   // LogoutEndScreen

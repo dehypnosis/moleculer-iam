@@ -22,6 +22,31 @@ spec:
               value: prod
             - name: QMIT_CLUSTER_NAME
               value: prod
+            - name: CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: iam-secrets
+                  key: CLIENT_ID
+            - name: TEAM_ID
+              valueFrom:
+                secretKeyRef:
+                  name: iam-secrets
+                  key: TEAM_ID
+            - name: KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: iam-secrets
+                  key: KEY_ID
+            - name: CALLBACK_URL
+              valueFrom:
+                secretKeyRef:
+                  name: iam-secrets
+                  key: CALLBACK_URL
+            - name: PRIVATE_KEY_STRING
+              valueFrom:
+                secretKeyRef:
+                  name: iam-secrets
+                  key: PRIVATE_KEY_STRING
   selector:
     matchLabels:
       app: iam

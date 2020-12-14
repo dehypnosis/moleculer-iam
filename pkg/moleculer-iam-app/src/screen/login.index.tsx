@@ -92,7 +92,7 @@ export const LoginIndexScreen: React.FunctionComponent = () => {
         ...(
           federationProviders.length > 0 ? [
             { separator: f({id: "separator.or"}), },
-            ...federationOptionsVisible ? federationProviders.map((provider, i) => {
+            ...federationOptionsVisible ? federationProviders.map((provider: string, i: number) => {
               const { style, textStyle } = getFederationStyle(provider);
               return {
                 onPress: () => { handleFederation(provider) },
@@ -166,6 +166,15 @@ const federationStyle: {[provider: string]: {style?: ViewStyle, textStyle?: Text
     },
     textStyle: {
       color: "#222b45",
+    },
+  },
+  apple: {
+    style: {
+      backgroundColor: "#000",
+      borderWidth: 0,
+    },
+    textStyle: {
+      color: "#ffffff",
     },
   },
   default: {
