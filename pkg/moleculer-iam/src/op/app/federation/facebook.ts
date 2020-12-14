@@ -14,7 +14,7 @@ export const facebookProviderConfiguration: FacebookProviderConfiguration = {
   profileFields: ["id", "name", "displayName", "photos", "email"],
   enableProof: true,
   strategy: (options, verify) => {
-    return new Strategy(options, verify);
+    return new Strategy(options as any, verify as any);
   },
   callback: async (args) => {
     const {accessToken, refreshToken, profile, scope, idp, logger} = args;
