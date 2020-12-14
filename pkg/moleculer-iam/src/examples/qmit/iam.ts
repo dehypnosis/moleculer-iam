@@ -3,10 +3,11 @@ import { ServiceBroker } from "moleculer";
 import { moleculer } from "qmit-sdk";
 import { IAMServiceSchema, IAMServiceSchemaOptions } from "../../";
 import { config } from "./config";
+import env from "./env";
 import { app } from "./app";
 
 export const {isDebug, isDev, issuer, apiGatewayEndpoint} = config;
-
+const { APPLE_AUTH_ENV} = env;
 // create service broker
 export const broker = new ServiceBroker(moleculer.createServiceBrokerOptions({
   logLevel: isDebug ? "debug" : "info",
@@ -47,6 +48,15 @@ broker.createService(
               federationOptionsVisible: true,
             },
           },
+        },
+        federation: {
+          apple:  {
+            clientID: APPLE_AUTH_ENV.CLIENT_ID!,
+            teamID: APPLE_AUTH_ENV.TEAM_ID,
+            keyID: APPLE_AUTH_ENV.KEY_ID,
+            callbackURL: APPLE_AUTH_ENV.CALLBACK_URL,
+            privateKeyString: APPLE_AUTH_ENV.PRIVATE_KEY_STRING,
+          }
         },
         verifyEmail: {
           async send({logger, ...args}) {
