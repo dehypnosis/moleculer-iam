@@ -3,6 +3,7 @@
 import { ServiceBroker } from "moleculer";
 import { IAMServiceSchema } from "../../"; // "moleculer-iam";
 
+// * dev endpoint for login: http://localhost:9090/op/auth?prompt=login&response_type=code&client_id=api-gateway&redirect_uri=https://api.dev.test.com/iam/login/callback&scope=openid
 // create moleculer service (optional)
 const broker = new ServiceBroker({
   transporter: {
@@ -82,6 +83,7 @@ const serviceSchema = IAMServiceSchema({
       port: 9090,
     },
   },
+  apiGatewayEndpoint: "https://api.dev.test.com",
 });
 
 broker.createService(serviceSchema);
