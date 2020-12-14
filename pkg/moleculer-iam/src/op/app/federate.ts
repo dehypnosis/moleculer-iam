@@ -27,5 +27,10 @@ export function buildFederateRoutes(builder: ProviderConfigBuilder, opts: Applic
           remember: true,
         },
       });
+    })
+    .post("/federate/:provider", async (ctx, next) => {
+      const {state, code} = ctx.request.body;
+      ctx.redirect(`/op/federate/apple?code=${code}&state=${state}`);
+      return;
     });
 }
