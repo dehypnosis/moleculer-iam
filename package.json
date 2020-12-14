@@ -9,6 +9,7 @@
   },
   "scripts": {
     "build-all": "yarn workspace moleculer-iam build && yarn workspace moleculer-iam-app build",
+    "genereate-env": "printenv > .env",
     "publish-all": "yarn workspace moleculer-iam publish && yarn workspace moleculer-iam-app publish",
     "test": "yarn workspace moleculer-iam test && yarn workspace moleculer-iam-app test",
     "test-with-examples": "yarn workspace moleculer-iam test-with-examples && yarn workspace moleculer-iam-app test",
