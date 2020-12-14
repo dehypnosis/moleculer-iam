@@ -48,6 +48,10 @@ const serviceSchema = IAMServiceSchema({
           clientID: "XXX",
           clientSecret: "YYY",
         },
+        apple: {
+          clientID: "XXX",
+          clientSecret: "YYY",
+        },
         // custom: {
         //   clientID: "XXX",
         //   clientSecret: "YYY",
