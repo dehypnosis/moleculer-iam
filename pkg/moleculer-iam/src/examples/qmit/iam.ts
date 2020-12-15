@@ -51,7 +51,7 @@ broker.createService(
         },
         federation: {
           apple:  {
-            clientID: APPLE_AUTH_ENV.CLIENT_ID!,
+            clientID: APPLE_AUTH_ENV.CLIENT_ID,
             teamID: APPLE_AUTH_ENV.TEAM_ID,
             keyID: APPLE_AUTH_ENV.KEY_ID,
             callbackURL: APPLE_AUTH_ENV.CALLBACK_URL,

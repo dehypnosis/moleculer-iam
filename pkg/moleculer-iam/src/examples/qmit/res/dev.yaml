@@ -15,7 +15,7 @@ spec:
       containers:
         - image: gcr.io/qmit-pro/iam:latest
           imagePullPolicy: Always
-          name: server 
+          name: server
           resources: {}
           env:
             - name: QMIT_APP_ENV

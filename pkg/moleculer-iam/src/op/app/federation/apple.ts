@@ -13,7 +13,6 @@ export const appleProviderConfiguration: Omit<AppleProviderConfiguration, 'clien
   scope: "openid name email profile impersonation",
   strategy: (options, verify) => {
     console.log('options:', options);
-    console.log('verify:', verify);
     return new AppleStrategy(options, verify as any);
   },
   callback: async (args) => {
