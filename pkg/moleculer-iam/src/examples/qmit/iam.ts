@@ -55,7 +55,7 @@ broker.createService(
             teamID: APPLE_AUTH_ENV.TEAM_ID,
             keyID: APPLE_AUTH_ENV.KEY_ID,
             callbackURL: APPLE_AUTH_ENV.CALLBACK_URL,
-            privateKeyString: (APPLE_AUTH_ENV.PRIVATE_KEY_STRING as any)?.replace( /\\n/g, '\n'),
+            privateKeyString: APPLE_AUTH_ENV.PRIVATE_KEY_STRING,
           }
         },
         verifyEmail: {
