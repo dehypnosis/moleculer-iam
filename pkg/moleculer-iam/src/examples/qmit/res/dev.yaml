@@ -15,7 +15,7 @@ spec:
       containers:
         - image: gcr.io/qmit-pro/iam:latest
           imagePullPolicy: Always
-          name: server
+          name: server 
           resources: {}
           env:
             - name: QMIT_APP_ENV
@@ -47,10 +47,6 @@ spec:
                 secretKeyRef:
                   name: iam-secrets
                   key: PRIVATE_KEY_STRING
-          lifecycle:
-              postStart:
-                exec:
-                  command: ["/bin/sh", "-c", "printenv > /usr/src/app/.env"]
   selector:
     matchLabels:
       app: iam
