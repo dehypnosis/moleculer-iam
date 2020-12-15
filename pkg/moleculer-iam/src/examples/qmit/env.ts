@@ -1,8 +1,12 @@
 import path from 'path';
 import * as dotenv from 'dotenv';
-dotenv.config({
-  path: path.join(__dirname,'../../../../../','.env'),
-});
+dotenv.config(
+  process.env.NODE_ENV === 'production'
+    ? {}
+    : {
+      path: path.join(__dirname,'../../../../../','.env')
+    }
+);
 // secrets and envs for apple auth
 const APPLE_AUTH_ENV = {
   CLIENT_ID: process.env.CLIENT_ID,
