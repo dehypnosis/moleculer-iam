@@ -10,4 +10,6 @@ RUN NODE_ENV=development yarn
 RUN printenv > .env
 RUN yarn build-all
 
-CMD [ "node", "-r", "pkg/moleculer-iam/dist/examples/qmit/", "dotenv_config_path=./env"]
+# CMD [ "yan", "-r", "pkg/moleculer-iam/dist/examples/qmit/", "dotenv_config_path=./env"]
+CMD [ "yarn", "workspace", "moleculer-iam", "dev", "qmit"]
+
