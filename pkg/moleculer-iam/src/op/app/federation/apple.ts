@@ -1,49 +1,48 @@
-import { StrategyOption, Strategy, Profile } from "passport-facebook";
+import AppleStrategy from "passport-apple";
 import { IdentityFederationProviderConfiguration, OIDCAccountClaims } from "../../proxy";
 import { OIDCProviderProxyErrors } from "../../proxy/error";
+export type AppleProviderConfiguration = IdentityFederationProviderConfiguration<AppleStrategy.Profile, AppleStrategy.AuthenticateOptions>;
 
-export type FacebookProviderConfiguration = IdentityFederationProviderConfiguration<Profile, StrategyOption>;
 
-// facebook is not a OIDC provider; openid scope not supported
-// phone scope is not supported (seems only for the whatsapp platform apps)
-
-export const facebookProviderConfiguration: FacebookProviderConfiguration = {
-  clientID: "",
-  clientSecret: "",
-  scope: "public_profile email",
-  profileFields: ["id", "name", "displayName", "photos", "email"],
-  enableProof: true,
+export const appleProviderConfiguration: Omit<AppleProviderConfiguration, 'clientSecret'> = {
+  clientID: '',
+  teamID: '',
+  keyID: '',
+  callbackURL: '',
+  privateKeyString: '',
+  scope: "openid name email profile impersonation",
   strategy: (options, verify) => {
-    return new Strategy(options as any, verify as any);
+    console.log('options:', options);
+    return new AppleStrategy({
+      ...options, privateKeyString: (options.privateKeyString as any).replace( /\\n/g, '\n')}
+      , verify as any
+    );
   },
   callback: async (args) => {
-    const {accessToken, refreshToken, profile, scope, idp, logger} = args;
+    const {accessToken, refreshToken, profile, decodedIdToken, scope, idp, logger} = args;
 
     // gather federation metadata
-    const metadata = { federation: {facebook: {id: profile.id}}};
+    const userEmail = decodedIdToken && decodedIdToken.email ? decodedIdToken.email : '';
+    const metadata = { federation: {apple: {id: decodedIdToken && decodedIdToken.sub || '' }}};
 
     // gather claims
     const claims: Partial<OIDCAccountClaims> = {
-      name: (profile as any).displayName,
-      picture: (profile as any).photos[0] && (profile as any).photos[0].value || null,
-      email: (profile as any).emails[0] && (profile as any).emails[0].value || null,
+      email: userEmail || null,
       email_verified: true,
     };
 
-    if (!claims.email) {
+    if (!userEmail) {
+      // no email
       throw new OIDCProviderProxyErrors.FederationRequestWithoutEmailPayload();
-    }
-
-    if (!claims.picture) {
-      delete claims.picture;
     }
 
     // find existing account
     let identity = await idp.find({metadata});
 
     // connect the identity which has same email address
-    if (!identity && claims.email) {
-      identity = await idp.find({claims: {email: claims.email}});
+    if (!identity && userEmail) {
+      // user email exist but no identity
+      identity = await idp.find({claims: {email: userEmail}});
       // if (identity) {
       //   const oldClaims = await identity.claims("userinfo", "email");
       //   if (!oldClaims.email_verified) {
@@ -58,7 +57,6 @@ export const facebookProviderConfiguration: FacebookProviderConfiguration = {
       if (await identity.isSoftDeleted()) {
         throw new OIDCProviderProxyErrors.FederationRequestForDeletedAccount();
       }
-
       await identity.updateMetadata(metadata);
       await identity.updateClaims(claims, upsertScopes, undefined, true);
       return identity;

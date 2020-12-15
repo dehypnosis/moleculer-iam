@@ -1,4 +1,5 @@
 import { Authenticator, Strategy } from "passport";
+import AppleStrategy from "passport-apple";
 import { KoaPassport } from "koa-passport";
 import { ProviderConfigBuilder } from "./config";
 import { ApplicationRequestContext } from "./app.types";
@@ -14,19 +15,24 @@ type ForbiddenCustomOptions = "clientID"|"clientSecret"|"secret"|"scope"|"callba
 
 export type IdentityFederationProviderConfiguration<CustomProfile extends {}, CustomOptions extends {}> = {
   clientID: string;
+  // teamID? :string;
   clientSecret: string;
+  callbackURL?: string;
+  passReqToCallback?: boolean;
   scope: string;
   callback: IdentityFederationCallbackHandler<CustomProfile>;
   strategy: IdentityFederationStrategyFactory<CustomProfile, CustomOptions>;
 } & Partial<Omit<CustomOptions, ForbiddenCustomOptions>>;
 
 export type IdentityFederationStrategyFactory<CustomProfile extends {}, CustomOptions extends {}> = (
-  options: Omit<CustomOptions, ForbiddenCustomOptions> & { clientID: string, clientSecret: string, scope: string, callbackURL: string },
-  verify: IdentityFederationCallbackVerifyFunction<CustomProfile>,
+  options: Omit<CustomOptions, ForbiddenCustomOptions> & { clientID: string, clientSecret?: string, scope: string, callbackURL: string },
+  verify: IdentityFederationCallbackVerifyFunction<CustomProfile> | AppleStrategy.VerifyFunction,
 ) => Strategy;
 
 export interface IdentityFederationCallbackArgs<CustomProfile extends {}> {
   accessToken: string;
+  decodedIdToken?: AppleStrategy.DecodedIdToken;
+  user?: any;
   refreshToken?: string;
   profile: CustomProfile;
   scope: string[];
@@ -97,15 +103,41 @@ export class IdentityFederationBuilder {
         logger: this.builder.logger,
       };
       const callbackURL = this.getCallbackURL(provider);
-
       this.passport.use(
+        provider === 'apple' ?
+        strategy(
+          {
+            ...restOptions,
+            scope,
+            callbackURL,
+            passReqToCallback: false
+          },
+          async (
+            accessToken,
+            refreshToken,
+            decodedIdToken,
+            profile,
+            verified
+            ) => {
+            this.builder.logger.info(`try identity federation from ${provider} with ${this.scopes[provider].join(", ")} scopes:`, profile);
+            try {
+              verified(null, {
+                accessToken,
+                decodedIdToken,
+                ...commonCallbackArgs,
+              });
+            } catch (error) {
+              verified(error);
+            }
+          },
+        ) :
         strategy(
           {
             ...restOptions,
             scope,
             callbackURL,
           },
-          async (accessToken, refreshToken, profile, next) => {
+          async (accessToken: string, refreshToken: string, profile: any, next: any) => {
             this.builder.logger.info(`try identity federation from ${provider} with ${this.scopes[provider].join(", ")} scopes:`, profile);
             try {
               next(null, {
@@ -117,7 +149,7 @@ export class IdentityFederationBuilder {
               next(error);
             }
           },
-        ),
+        )
       );
 
       // remember scopes and callback handlers

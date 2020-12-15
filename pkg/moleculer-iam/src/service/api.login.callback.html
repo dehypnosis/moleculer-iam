@@ -1,4 +1,11 @@
 <html>
+  <head>
+    <meta name="appleid-signin-client-id" content="com.qmit.service.dev">
+    <meta name="appleid-signin-scope" content="name email">
+    <meta name="appleid-signin-nonce" content="nonce-8eg2lxaxwf">
+    <meta name="appleid-response-mode" content="formpost">
+    <meta name="appleid-signin-use-popup" content="true">
+  </head>
 <body>
 <script>
 const result = location.hash.substr(1).split("&").map(param => param.split("=")).reduce((obj, [k, v]) => ({...obj, [k]: decodeURIComponent(v)}), {});

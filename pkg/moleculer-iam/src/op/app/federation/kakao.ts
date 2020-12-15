@@ -11,7 +11,7 @@ export const kakaoProviderConfiguration: KakaoProviderConfiguration = {
   clientSecret: "",
   scope: "profile account_email",
   strategy: (options, verify) => {
-    return new Strategy(options, verify);
+    return new Strategy(options as any, verify as any);
   },
   callback: async (args) => {
     const {accessToken, refreshToken, idp, profile, logger, scope} = args;

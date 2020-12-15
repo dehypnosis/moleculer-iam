@@ -39,10 +39,11 @@ const message = {
   "button.signUp": "Sign up",
   "login.showMoreLoginOptions": "Find more login options?",
   "login.findEmail": "Forgot your email address?",
-  "login.federate.default": "Login with {provider}",
-  "login.federate.google": "Login with Google",
-  "login.federate.facebook": "Login with Facebook",
-  "login.federate.kakao": "Login with Kakaotalk",
+  "login.federate.default": "Sign in with {provider}",
+  "login.federate.google": "Sign in with Google",
+  "login.federate.facebook": "Sign in with Facebook",
+  "login.federate.kakao": "Sign in with Kakaotalk",
+  "login.federate.apple": "Sign in with Apple",
   "placeholder.email": "Enter your email address",
 
   // LogoutEndScreen
