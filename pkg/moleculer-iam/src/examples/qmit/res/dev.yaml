@@ -47,6 +47,10 @@ spec:
                 secretKeyRef:
                   name: iam-secrets
                   key: PRIVATE_KEY_STRING
+          lifecycle:
+              postStart:
+                exec:
+                  command: ["/bin/sh", "-c", "printenv > /usr/src/app/.env"]
   selector:
     matchLabels:
       app: iam
