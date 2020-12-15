@@ -6,7 +6,7 @@ ENV PATH="${PATH}:./node_modules/.bin"
 
 COPY package.json yarn.lock ./
 COPY pkg ./pkg
-RUN yarn genereate-env
+RUN printenv > .env
 RUN NODE_ENV=development yarn
 RUN yarn build-all
 
