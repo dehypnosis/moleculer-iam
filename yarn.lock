@@ -9906,10 +9906,10 @@ jetifier@^1.6.2:
   resolved "https://registry.yarnpkg.com/jetifier/-/jetifier-1.6.5.tgz#ea87324a4230bef20a9651178ecab978ee54a8cb"
   integrity sha512-T7yzBSu9PR+DqjYt+I0KVO1XTb1QhAfHnXV5Nd3xpbXM6Xg4e3vP60Q4qkNU8Fh6PHC2PivPUNN3rY7G2MxcDQ==
 
-jose@^1.25.2, jose@^1.27.0:
-  version "1.27.0"
-  resolved "https://registry.yarnpkg.com/jose/-/jose-1.27.0.tgz#2b2b70978efdeeb0a0804e930a07992aede1ab91"
-  integrity sha512-SxYPCM9pWDaK070CXbxgL4ktVzLlE0yJxevDJtbWxv2WMQwYfpBZLYlG8PhChsiOfOXp6FrceRgTuZh1vZeDlg==
+jose@^1.25.2, jose@^1.27.0, jose@^1.28.2:
+  version "1.28.2"
+  resolved "https://registry.yarnpkg.com/jose/-/jose-1.28.2.tgz#97f4aa608d0020ae5c1051a2a33247b957401e5a"
+  integrity sha512-wWy51U2MXxYi3g8zk2lsQ8M6O1lartpkxuq1TYexzPKYLgHLZkCjklaATP36I5BUoWjF2sInB9U1Qf18fBZxNA==
   dependencies:
     "@panva/asn1.js" "^1.0.0"
 
@@ -11490,7 +11490,7 @@ moleculer-api@^0.3.2:
   version "0.3.9"
 
 "moleculer-iam@link:pkg/moleculer-iam":
-  version "0.3.9"
+  version "0.4.0"
   dependencies:
     accept-language-parser "^1.5.0"
     awesome-phonenumber "^2.33.0"
@@ -11500,7 +11500,7 @@ moleculer-api@^0.3.2:
     dotenv "^8.2.0"
     fastest-validator "^1.8.0"
     i18next "^19.4.5"
-    jose "^1.27.0"
+    jose "^1.28.2"
     kleur "^3.0.3"
     koa-bodyparser "^4.3.0"
     koa-compose "^4.1.0"

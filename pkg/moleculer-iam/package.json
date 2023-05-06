@@ -48,7 +48,7 @@
     "dotenv": "^8.2.0",
     "fastest-validator": "^1.8.0",
     "i18next": "^19.4.5",
-    "jose": "^1.27.0",
+    "jose": "^1.28.2",
     "kleur": "^3.0.3",
     "koa-bodyparser": "^4.3.0",
     "koa-compose": "^4.1.0",
